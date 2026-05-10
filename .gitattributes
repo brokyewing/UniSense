@@ -1,0 +1,2 @@
+backend/data/raw/yokatlas/*.json filter=lfs diff=lfs merge=lfs -text
+backend/data/processed/departments.json filter=lfs diff=lfs merge=lfs -text
