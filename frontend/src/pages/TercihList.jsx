@@ -1,0 +1,682 @@
+import { useEffect, useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
+import {
+  ListChecks, Trash2, GripVertical, Building2, MapPin,
+  FileDown, Compass, ChevronUp, ChevronDown, Loader2,
+  TrendingUp, Hash, ArrowDownUp, ShieldCheck, Target, Mountain,
+  Copy, Check as CheckIcon, Plus, X as XIcon, Search as SearchIcon,
+} from 'lucide-react'
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { useAuth } from '../contexts/AuthContext'
+import {
+  watchTercihList, removeFromTercih, reorderTercihList, backfillTercihList,
+  addToTercih,
+} from '../firebase'
+import BackgroundScene from '../components/three/BackgroundScene'
+
+const API_BASE = import.meta.env.VITE_API_URL || ''
+
+/** ÖSYM kodu rozeti — tıklayınca kopyalar */
+function CodeChip({ code }) {
+  const [copied, setCopied] = useState(false)
+  if (!code) return null
+  async function copy(e) {
+    e.stopPropagation()
+    try {
+      await navigator.clipboard.writeText(String(code))
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    } catch {
+      /* noop */
+    }
+  }
+  return (
+    <button
+      onClick={copy}
+      title="ÖSYM tercih kodu — tıkla, panoya kopyala"
+      className={`text-[10px] px-2 py-0.5 rounded font-mono inline-flex items-center gap-1 transition border ${
+        copied
+          ? 'bg-emerald-500/25 text-emerald-200 border-emerald-500/40'
+          : 'bg-white/5 hover:bg-accent-500/20 text-slate-300 hover:text-accent-200 border-white/10'
+      }`}
+    >
+      {copied ? <CheckIcon size={10} /> : <Copy size={10} className="opacity-60" />}
+      {copied ? 'kopyalandı' : code}
+    </button>
+  )
+}
+
+// === Kod ile Ekleme widget'ı ===
+function CodeAdder({ onSubmit, disabled }) {
+  const [open, setOpen] = useState(false)
+  const [text, setText] = useState('')
+  const [working, setWorking] = useState(false)
+  const [result, setResult] = useState(null)
+
+  async function handle() {
+    if (!text.trim() || working) return
+    setWorking(true)
+    const res = await onSubmit(text)
+    setResult(res)
+    setText('')
+    setWorking(false)
+    setTimeout(() => setResult(null), 3500)
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        disabled={disabled}
+        className="btn-ghost inline-flex items-center gap-2 text-sm disabled:opacity-40"
+        title="9 haneli ÖSYM kodu yapıştırarak ekle"
+      >
+        <Plus size={14} /> Kod ile Ekle
+      </button>
+    )
+  }
+
+  return (
+    <div className="card !p-3 border-accent-500/30 bg-accent-500/5 w-full md:w-[420px]">
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-xs font-semibold text-accent-200 flex items-center gap-1">
+          <Plus size={12} /> ÖSYM Kodu / Kodları Yapıştır
+        </div>
+        <button
+          onClick={() => { setOpen(false); setText(''); setResult(null) }}
+          className="text-slate-500 hover:text-white"
+        >
+          <XIcon size={14} />
+        </button>
+      </div>
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="örn:&#10;101410163&#10;203910363, 105610081&#10;veya tek tek..."
+        rows={3}
+        className="input-glass w-full resize-none text-sm font-mono"
+        disabled={working}
+      />
+      <div className="flex items-center justify-between mt-2 gap-2">
+        <div className="text-[10px] text-slate-500">
+          Birden fazla kod (virgül/boşluk/satır ayırıcı)
+        </div>
+        <button
+          onClick={handle}
+          disabled={!text.trim() || working}
+          className="btn-primary px-3 py-1.5 text-xs inline-flex items-center gap-1 disabled:opacity-40"
+        >
+          {working ? (
+            <><Loader2 size={11} className="animate-spin" /> Ekleniyor…</>
+          ) : (
+            <><SearchIcon size={11} /> Bul ve Ekle</>
+          )}
+        </button>
+      </div>
+      {result && (
+        <div className={`mt-2 text-xs px-2 py-1.5 rounded ${
+          result.ok > 0
+            ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
+            : 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
+        }`}>
+          {result.ok > 0 && <>✓ {result.ok} program eklendi </>}
+          {result.fail > 0 && <span className="text-rose-300">· {result.fail} eklenemedi (mevcut/geçersiz)</span>}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function SafetyBadge({ level }) {
+  const map = {
+    safe:   { Icon: ShieldCheck, label: 'Güvenli', cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' },
+    target: { Icon: Target,      label: 'Hedef',   cls: 'bg-amber-500/20 text-amber-200 border-amber-500/30' },
+    reach:  { Icon: Mountain,    label: 'Risk',    cls: 'bg-rose-500/20 text-rose-200 border-rose-500/30' },
+  }
+  const m = map[level]
+  if (!m) return null
+  return (
+    <span className={`text-[9px] px-1.5 py-0.5 rounded-full border inline-flex items-center gap-0.5 ${m.cls}`}>
+      <m.Icon size={9} />{m.label}
+    </span>
+  )
+}
+
+// === Sürüklenebilir tek satır ===
+function SortableRow({ item, idx, total, onRemove, onMove, isLast }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : 'auto',
+    opacity: isDragging ? 0.85 : 1,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-3 px-3 py-3 rounded-xl transition group ${
+        isDragging
+          ? 'bg-accent-500/15 ring-2 ring-accent-500/50 shadow-2xl shadow-accent-500/30'
+          : 'hover:bg-white/[0.03]'
+      }`}
+    >
+      {/* Drag tutamacı */}
+      <button
+        {...attributes}
+        {...listeners}
+        className="touch-none p-1 -ml-1 text-slate-600 hover:text-accent-300 cursor-grab active:cursor-grabbing transition shrink-0"
+        title="Sürükle (veya ↑↓ butonlarını kullan)"
+        aria-label="Sürükle"
+      >
+        <GripVertical size={18} />
+      </button>
+
+      {/* Sıra rozeti */}
+      <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-600 to-accent-600 flex items-center justify-center font-display font-bold text-white text-sm shrink-0">
+        {idx + 1}
+      </div>
+
+      {/* İçerik */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="font-medium text-white truncate">{item.department_name}</div>
+          {item.safety_level && <SafetyBadge level={item.safety_level} />}
+          <CodeChip code={item.department_code || item.id} />
+        </div>
+        <div className="flex items-center gap-3 mt-0.5 text-xs text-slate-400 flex-wrap">
+          <span className="flex items-center gap-1">
+            <Building2 size={10} /> {item.university_name}
+          </span>
+          {item.city && (
+            <span className="flex items-center gap-1">
+              <MapPin size={10} /> {item.city}
+            </span>
+          )}
+          {item.score_type && (
+            <span className="px-1.5 py-0.5 rounded bg-white/5 text-[10px] font-mono">
+              {item.score_type}
+            </span>
+          )}
+        </div>
+        {/* Taban + Sıra (varsa) */}
+        {(item.last_year_base_rank != null || item.last_year_base_score != null || item.quota != null) && (
+          <div className="flex items-center gap-3 mt-1 text-[11px] flex-wrap">
+            {item.last_year_base_rank != null && (
+              <span className="flex items-center gap-1 text-cyber-cyan font-mono" title="Geçen yıl en düşük başarı sırası">
+                <Hash size={10} className="opacity-60" />
+                {Number(item.last_year_base_rank).toLocaleString('tr')}
+                <span className="text-slate-500 font-sans text-[10px]">sıra</span>
+              </span>
+            )}
+            {item.last_year_base_score != null && (
+              <span className="flex items-center gap-1 text-accent-300 font-mono" title="Geçen yıl taban puan">
+                <TrendingUp size={10} className="opacity-60" />
+                {Number(item.last_year_base_score).toFixed(2)}
+                <span className="text-slate-500 font-sans text-[10px]">taban</span>
+              </span>
+            )}
+            {item.quota != null && (
+              <span className="flex items-center gap-1 text-slate-400 font-mono" title="Kontenjan">
+                {Number(item.quota).toLocaleString('tr')}
+                <span className="text-slate-500 font-sans text-[10px]">kontenjan</span>
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ↑↓ yedek butonlar (touch + accessibility) */}
+      <div className="flex items-center gap-0.5 shrink-0">
+        <button
+          onClick={() => onMove(idx, idx - 1)}
+          disabled={idx === 0}
+          title="Yukarı taşı"
+          className="w-7 h-7 rounded-md text-slate-500 hover:bg-white/10 hover:text-accent-300 disabled:opacity-20 disabled:cursor-not-allowed transition flex items-center justify-center"
+        >
+          <ChevronUp size={14} />
+        </button>
+        <button
+          onClick={() => onMove(idx, idx + 1)}
+          disabled={isLast}
+          title="Aşağı taşı"
+          className="w-7 h-7 rounded-md text-slate-500 hover:bg-white/10 hover:text-accent-300 disabled:opacity-20 disabled:cursor-not-allowed transition flex items-center justify-center"
+        >
+          <ChevronDown size={14} />
+        </button>
+      </div>
+
+      {/* Sil */}
+      <button
+        onClick={() => onRemove(item.id)}
+        title="Listeden çıkar"
+        className="text-slate-500 hover:text-rose-400 transition opacity-0 group-hover:opacity-100 ml-1"
+      >
+        <Trash2 size={14} />
+      </button>
+    </div>
+  )
+}
+
+export default function TercihList() {
+  const nav = useNavigate()
+  const { user, isAuthed, loading } = useAuth()
+  const [items, setItems] = useState([])
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const [copiedAll, setCopiedAll] = useState(false)
+
+  // dnd-kit sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      // Küçük dokunmaları yutma — 5px sonra drag başlasın
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
+
+  useEffect(() => {
+    if (!loading && !isAuthed) nav('/login')
+  }, [loading, isAuthed, nav])
+
+  useEffect(() => {
+    if (!user) return
+    const unsub = watchTercihList(user.uid, setItems)
+    return unsub
+  }, [user])
+
+  // Eksik bilgileri (rank/score/quota) backend'den çek + Firestore'a backfill et
+  useEffect(() => {
+    if (!user || items.length === 0) return
+    const missing = items.filter(
+      (it) => it.last_year_base_rank == null || it.last_year_base_score == null
+    )
+    if (missing.length === 0) return
+
+    const codes = missing.map((it) => String(it.department_code || it.id))
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/programs/lookup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ codes }),
+        })
+        if (!res.ok) throw new Error(`API ${res.status}`)
+        const data = await res.json()
+        if (cancelled) return
+
+        // codeToData map
+        const codeToData = {}
+        for (const p of data.programs || []) {
+          if (p.found) codeToData[p.department_code] = p
+        }
+        if (Object.keys(codeToData).length === 0) return
+
+        // Firestore backfill (sessizce)
+        try {
+          await backfillTercihList(user.uid, codeToData)
+        } catch (e) {
+          console.warn('Backfill yazılamadı:', e)
+        }
+
+        // Optimistic local merge — onSnapshot zaten zamanla yenileyecek ama hız için
+        if (!cancelled) {
+          setItems((prev) =>
+            prev.map((it) => {
+              const code = String(it.department_code || it.id)
+              const fresh = codeToData[code]
+              if (!fresh) return it
+              return {
+                ...it,
+                last_year_base_rank: fresh.last_year_base_rank ?? it.last_year_base_rank,
+                last_year_base_score: fresh.last_year_base_score ?? it.last_year_base_score,
+                quota: fresh.quota ?? it.quota,
+                score_type: it.score_type || fresh.score_type,
+                city: it.city || fresh.city,
+                university_name: it.university_name || fresh.university_name,
+                department_name: it.department_name || fresh.department_name,
+              }
+            })
+          )
+        }
+      } catch (e) {
+        console.warn('Lookup başarısız:', e)
+      }
+    })()
+    return () => { cancelled = true }
+    // items.length değişince yeniden tetikle (yeni item eklenirse)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, items.length])
+
+  async function handleRemove(code) {
+    if (!user) return
+    try {
+      await removeFromTercih(user.uid, code)
+    } catch (e) {
+      setError(e.message)
+    }
+  }
+
+  async function persistOrder(newItems) {
+    if (!user) return
+    setSaving(true)
+    setError('')
+    try {
+      await reorderTercihList(user.uid, newItems)
+    } catch (e) {
+      setError('Sıralama kaydedilemedi: ' + (e.message || e))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  function handleDragEnd(event) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIdx = items.findIndex((i) => i.id === active.id)
+    const newIdx = items.findIndex((i) => i.id === over.id)
+    if (oldIdx < 0 || newIdx < 0) return
+    const next = arrayMove(items, oldIdx, newIdx)
+    setItems(next) // optimistic
+    persistOrder(next)
+  }
+
+  function handleMove(fromIdx, toIdx) {
+    if (toIdx < 0 || toIdx >= items.length) return
+    const next = arrayMove(items, fromIdx, toIdx)
+    setItems(next)
+    persistOrder(next)
+  }
+
+  /** Taban sırasına göre küçükten büyüğe (en iyiden başla) */
+  function sortByRank() {
+    const next = [...items].sort((a, b) => {
+      const ra = a.last_year_base_rank ?? Number.MAX_SAFE_INTEGER
+      const rb = b.last_year_base_rank ?? Number.MAX_SAFE_INTEGER
+      return ra - rb
+    })
+    setItems(next)
+    persistOrder(next)
+  }
+
+  function exportText() {
+    const lines = items.map((i, idx) => {
+      const code = i.department_code || i.id
+      const head = `${(idx + 1).toString().padStart(2, '0')}. [${code}] ${i.department_name}`
+      const sub = `      ${i.university_name}${i.city ? ' — ' + i.city : ''}`
+      const meta = []
+      if (i.score_type) meta.push(i.score_type)
+      if (i.last_year_base_rank != null) meta.push(`sıra ${Number(i.last_year_base_rank).toLocaleString('tr')}`)
+      if (i.last_year_base_score != null) meta.push(`taban ${Number(i.last_year_base_score).toFixed(2)}`)
+      if (i.quota != null) meta.push(`kontenjan ${i.quota}`)
+      const metaLine = meta.length > 0 ? `\n      ${meta.join(' · ')}` : ''
+      return `${head}\n${sub}${metaLine}`
+    })
+    const codes = items
+      .map((i, idx) => `${(idx + 1).toString().padStart(2, '0')}: ${i.department_code || i.id}`)
+      .join('\n')
+    const text =
+      `UniSense Tercih Listesi\n${'='.repeat(50)}\n\n` +
+      `${lines.join('\n\n')}\n\n` +
+      `${'-'.repeat(50)}\n` +
+      `ÖSYM TERCİH KODLARI (sırasıyla):\n${codes}\n\n` +
+      `${new Date().toLocaleDateString('tr-TR')}\n`
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `unisense-tercih-${new Date().toISOString().split('T')[0]}.txt`
+    a.click()
+  }
+
+  // === Kod ile Ekleme ===
+  // input: tek kod ya da virgüllü/satırlı çoklu kod kabul eder
+  async function addByCodes(rawInput) {
+    if (!user) {
+      setError('Giriş yapman gerek')
+      return { ok: 0, fail: 0 }
+    }
+    const codes = rawInput
+      .split(/[\s,;\n]+/)
+      .map((c) => c.trim().replace(/[^0-9]/g, ''))
+      .filter((c) => c.length >= 6 && c.length <= 12)
+    if (codes.length === 0) {
+      setError('Geçerli kod yazılmadı (9 haneli kod bekleniyor)')
+      return { ok: 0, fail: 0 }
+    }
+    if (items.length + codes.length > 24) {
+      setError(`Tercih listesi 24 sınırını aşacak (${items.length}+${codes.length}). Önce yer aç.`)
+      return { ok: 0, fail: 0 }
+    }
+    setSaving(true)
+    setError('')
+    let ok = 0, fail = 0
+    try {
+      // Batch lookup ile programları çek
+      const res = await fetch(`${API_BASE}/api/v1/programs/lookup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codes }),
+      })
+      if (!res.ok) throw new Error(`API ${res.status}`)
+      const data = await res.json()
+      const found = (data.programs || []).filter((p) => p.found)
+      const existing = new Set(items.map((i) => String(i.department_code || i.id)))
+      let nextOrder = items.length + 1
+      for (const p of found) {
+        if (existing.has(String(p.department_code))) {
+          fail++
+          continue
+        }
+        try {
+          await addToTercih(user.uid, {
+            department_code: p.department_code,
+            department_name: p.department_name,
+            university_code: p.university_code,
+            university_name: p.university_name,
+            city: p.city,
+            score_type: p.score_type || null,
+            last_year_base_rank: p.last_year_base_rank ?? null,
+            last_year_base_score: p.last_year_base_score ?? null,
+            quota: p.quota ?? null,
+          }, nextOrder++)
+          ok++
+        } catch (e) {
+          fail++
+        }
+      }
+      const notFound = codes.length - found.length
+      if (notFound > 0) {
+        setError(`${notFound} kod bulunamadı (geçerli ÖSYM kodu olduğunu kontrol et)`)
+      }
+    } catch (e) {
+      setError(e.message)
+      fail = codes.length
+    } finally {
+      setSaving(false)
+    }
+    return { ok, fail }
+  }
+
+  async function copyAllCodes() {
+    const text = items
+      .map((i, idx) => `${(idx + 1).toString().padStart(2, '0')}\t${i.department_code || i.id}`)
+      .join('\n')
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopiedAll(true)
+      setTimeout(() => setCopiedAll(false), 2000)
+    } catch {
+      setError('Panoya kopyalanamadı (tarayıcı izni?)')
+    }
+  }
+
+  if (!isAuthed) return null
+
+  const remaining = 24 - items.length
+
+  return (
+    <>
+      <BackgroundScene />
+
+      <div className="space-y-5 max-w-5xl mx-auto">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <h1 className="text-3xl font-display font-bold text-white flex items-center gap-2">
+              <ListChecks className="text-accent-400" size={26} />
+              Tercih Listen
+            </h1>
+            <p className="text-sm text-slate-400 mt-1 flex items-center gap-2">
+              <span>{items.length} / 24 tercih • {remaining > 0 ? `${remaining} ekleyebilirsin` : 'Liste dolu'}</span>
+              {saving && (
+                <span className="text-accent-400 flex items-center gap-1">
+                  <Loader2 size={11} className="animate-spin" /> kaydediliyor
+                </span>
+              )}
+            </p>
+          </div>
+          <div className="flex gap-2 flex-wrap items-start">
+            <CodeAdder
+              onSubmit={addByCodes}
+              disabled={items.length >= 24}
+            />
+            {items.length > 0 && (
+              <button
+                onClick={copyAllCodes}
+                title="Tüm tercih kodlarını sırayla panoya kopyala"
+                className={`btn-ghost inline-flex items-center gap-2 text-sm ${
+                  copiedAll ? '!text-emerald-300' : ''
+                }`}
+              >
+                {copiedAll ? <CheckIcon size={14} /> : <Copy size={14} />}
+                {copiedAll ? 'Kopyalandı' : 'Kodları Kopyala'}
+              </button>
+            )}
+            {items.length > 1 && (
+              <button
+                onClick={sortByRank}
+                title="Taban sırasına göre yeniden sırala (en iyiden başla)"
+                className="btn-ghost inline-flex items-center gap-2 text-sm"
+              >
+                <ArrowDownUp size={14} /> Sıraya Göre Diz
+              </button>
+            )}
+            <Link to="/pusula" className="btn-ghost inline-flex items-center gap-2 text-sm">
+              <Compass size={14} /> Pusula
+            </Link>
+            {items.length > 0 && (
+              <button
+                onClick={exportText}
+                className="btn-primary inline-flex items-center gap-2 text-sm"
+              >
+                <FileDown size={14} /> Listeyi İndir
+              </button>
+            )}
+          </div>
+        </div>
+
+        {error && (
+          <div className="text-sm text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-3">
+            ⚠️ {error}
+          </div>
+        )}
+
+        {items.length === 0 ? (
+          <div className="card text-center py-12">
+            <ListChecks size={40} className="mx-auto text-slate-600 mb-3" />
+            <h3 className="font-semibold text-white mb-1">Tercih listen boş</h3>
+            <p className="text-sm text-slate-400 mb-4">
+              Önce ilgilerini Pusula'da seç, sonra Tercih sayfasından önerilen programları buraya ekle.
+            </p>
+            <div className="flex gap-2 justify-center flex-wrap">
+              <Link to="/pusula" className="btn-primary inline-flex items-center gap-2">
+                <Compass size={16} /> Pusulaya Git
+              </Link>
+              <Link to="/recommend" className="btn-ghost inline-flex items-center gap-2">
+                <ListChecks size={16} /> Tercih Sayfası
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="text-xs text-slate-500 px-1 flex items-center gap-2">
+              💡 <strong className="text-slate-400">Sürükle</strong> ya da{' '}
+              <ChevronUp size={11} className="inline" /><ChevronDown size={11} className="inline" />{' '}
+              butonlarıyla sıralamayı değiştir. Otomatik kaydedilir.
+            </div>
+
+            <div className="card p-2">
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={items.map((i) => i.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <AnimatePresence>
+                    {items.map((it, idx) => (
+                      <motion.div
+                        key={it.id}
+                        layout
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                      >
+                        <SortableRow
+                          item={it}
+                          idx={idx}
+                          total={items.length}
+                          isLast={idx === items.length - 1}
+                          onRemove={handleRemove}
+                          onMove={handleMove}
+                        />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </SortableContext>
+              </DndContext>
+            </div>
+          </>
+        )}
+
+        {items.length > 0 && (
+          <div className="text-center text-xs text-slate-500">
+            ⓘ Bu liste cihazına indirilir, ÖSYM'ye otomatik gönderilmez.<br />
+            Kesin tercih için: <a href="https://aday.osym.gov.tr/" target="_blank" rel="noreferrer" className="text-accent-400 hover:underline">ÖSYM ödeme sistemi</a>
+          </div>
+        )}
+      </div>
+    </>
+  )
+}

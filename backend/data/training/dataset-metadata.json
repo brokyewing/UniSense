@@ -1,0 +1,8 @@
+{
+  "title": "unisense-dataset",
+  "id": "ibrahimaskeroglu/unisense-dataset",
+  "licenses": [{"name": "CC0-1.0"}],
+  "subtitle": "UniSense YKS Tercih Asistanı - 58k Türkçe Q/A (Qwen fine-tuning için)",
+  "description": "227 üniversite + 21.602 program (lisans + önlisans) için Q/A çiftleri. Üniversite detayı, taban puan/sıralama, akademik kadro, akreditasyon, burs, eğitim dili, coğrafi konum, son 3 yıl trend, ilgi-bölüm eşleştirmesi, hesap mantığı. Alpaca format (instruction/output).",
+  "keywords": ["nlp", "education", "turkish", "yks", "fine-tuning", "qwen"]
+}

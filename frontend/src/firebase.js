@@ -1,0 +1,423 @@
+/**
+ * Firebase config + auth + firestore.
+ * .env.local içindeki VITE_FIREBASE_* değişkenleri ile init.
+ *
+ * Firestore koleksiyonları:
+ *   users/{uid}                  — kullanıcı profili (puan, sıralama, hedefler)
+ *   users/{uid}/tercih/{order}   — tercih listesi (24 sıra max)
+ *   users/{uid}/queries/{qid}    — sorgu geçmişi
+ *   users/{uid}/sessions/{sid}   — sohbet oturumları (max 5)
+ */
+import { initializeApp } from 'firebase/app'
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  updateProfile,
+  updatePassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+} from 'firebase/auth'
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+} from 'firebase/storage'
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  updateDoc,
+  collection,
+  addDoc,
+  query,
+  where,
+  orderBy,
+  limit,
+  onSnapshot,
+  deleteDoc,
+  serverTimestamp,
+  writeBatch,
+} from 'firebase/firestore'
+
+// Sabitler
+export const MAX_SESSIONS_PER_USER = 5
+
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+}
+
+// Firebase init — .env.local yoksa hata verme, sadece warning
+let app = null
+let auth = null
+let db = null
+let storage = null
+let googleProvider = null
+
+if (firebaseConfig.apiKey) {
+  app = initializeApp(firebaseConfig)
+  auth = getAuth(app)
+  db = getFirestore(app)
+  storage = getStorage(app)
+  googleProvider = new GoogleAuthProvider()
+  googleProvider.setCustomParameters({ prompt: 'select_account' })
+} else {
+  console.warn('🔥 Firebase config bulunamadı (.env.local). Auth özellikleri devre dışı.')
+}
+
+export { app, auth, db, storage, googleProvider }
+
+// === HAZIR AVATAR'LAR (DiceBear API, ücretsiz) ===
+// Internet erişimi olmasa bile çalışır (URL string)
+export const PRESET_AVATARS = [
+  { id: 'av1',  url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=UniSense01&backgroundColor=b6e3f4' },
+  { id: 'av2',  url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=UniSense02&backgroundColor=ffd5dc' },
+  { id: 'av3',  url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=UniSense03&backgroundColor=c0aede' },
+  { id: 'av4',  url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=UniSense04&backgroundColor=d1d4f9' },
+  { id: 'av5',  url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=UniSense05&backgroundColor=b6e3f4' },
+  { id: 'av6',  url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=UniSense06&backgroundColor=ffdfbf' },
+  { id: 'av7',  url: 'https://api.dicebear.com/7.x/lorelei/svg?seed=UniSense07&backgroundColor=ffd5dc' },
+  { id: 'av8',  url: 'https://api.dicebear.com/7.x/lorelei/svg?seed=UniSense08&backgroundColor=b6e3f4' },
+  { id: 'av9',  url: 'https://api.dicebear.com/7.x/notionists/svg?seed=UniSense09&backgroundColor=c0aede' },
+  { id: 'av10', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=UniSense10&backgroundColor=d1d4f9' },
+  { id: 'av11', url: 'https://api.dicebear.com/7.x/bottts/svg?seed=UniSense11&backgroundColor=b6e3f4' },
+  { id: 'av12', url: 'https://api.dicebear.com/7.x/bottts/svg?seed=UniSense12&backgroundColor=ffd5dc' },
+]
+
+// === AUTH HELPERS ===
+
+export async function loginWithGoogle() {
+  if (!auth || !googleProvider) throw new Error('Firebase yok')
+  const result = await signInWithPopup(auth, googleProvider)
+  await ensureUserDoc(result.user)
+  return result.user
+}
+
+export async function loginWithEmail(email, password) {
+  if (!auth) throw new Error('Firebase yok')
+  const result = await signInWithEmailAndPassword(auth, email, password)
+  await ensureUserDoc(result.user)
+  return result.user
+}
+
+export async function registerWithEmail(email, password, displayName) {
+  if (!auth) throw new Error('Firebase yok')
+  const result = await createUserWithEmailAndPassword(auth, email, password)
+  if (displayName) {
+    await updateProfile(result.user, { displayName })
+  }
+  await ensureUserDoc(result.user)
+  return result.user
+}
+
+export async function logout() {
+  if (!auth) return
+  await signOut(auth)
+}
+
+export function watchAuth(callback) {
+  if (!auth) return () => {}
+  return onAuthStateChanged(auth, callback)
+}
+
+async function ensureUserDoc(user) {
+  if (!db) return
+  const ref = doc(db, 'users', user.uid)
+  const snap = await getDoc(ref)
+  if (!snap.exists()) {
+    await setDoc(ref, {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName || '',
+      photoURL: user.photoURL || '',
+      createdAt: serverTimestamp(),
+      profile: {
+        scoreType: null,
+        score: null,
+        rank: null,
+        preferredCities: [],
+      },
+    })
+  }
+}
+
+// === USER PROFILE ===
+
+export async function getUserProfile(uid) {
+  if (!db) return null
+  const snap = await getDoc(doc(db, 'users', uid))
+  return snap.exists() ? snap.data() : null
+}
+
+export async function updateUserProfile(uid, profile) {
+  if (!db) throw new Error('Firebase yok')
+  await setDoc(doc(db, 'users', uid), { profile, updatedAt: serverTimestamp() }, { merge: true })
+}
+
+/** Kullanıcının displayName/photoURL'ünü Auth + Firestore'da güncelle. */
+export async function updateUserBasicInfo(user, { displayName, photoURL }) {
+  if (!auth || !db) throw new Error('Firebase yok')
+  const updates = {}
+  if (displayName !== undefined) updates.displayName = displayName
+  if (photoURL !== undefined) updates.photoURL = photoURL
+  if (Object.keys(updates).length > 0) {
+    await updateProfile(user, updates)
+  }
+  await setDoc(
+    doc(db, 'users', user.uid),
+    { ...updates, updatedAt: serverTimestamp() },
+    { merge: true }
+  )
+}
+
+/** Avatar dosyasını Storage'a yükle ve URL döndür. */
+export async function uploadAvatar(uid, file) {
+  if (!storage) throw new Error('Firebase Storage yok')
+  // Dosya boyutu / format kontrolü
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error('Dosya çok büyük (max 5 MB)')
+  }
+  if (!file.type.startsWith('image/')) {
+    throw new Error('Sadece resim dosyası kabul edilir')
+  }
+  const ext = (file.name.split('.').pop() || 'png').toLowerCase()
+  const ref = storageRef(storage, `avatars/${uid}/avatar-${Date.now()}.${ext}`)
+  await uploadBytes(ref, file, { contentType: file.type })
+  return await getDownloadURL(ref)
+}
+
+/** Şifreyi değiştir (mevcut şifre ile reauthenticate edilir). */
+export async function changePassword(currentPassword, newPassword) {
+  if (!auth || !auth.currentUser) throw new Error('Giriş yapmamışsın')
+  const user = auth.currentUser
+  if (!user.email) {
+    throw new Error('Şifre değiştirme sadece e-posta hesapları için (Google/diğer için sağlayıcı sayfasından)')
+  }
+  // Reauthenticate
+  const cred = EmailAuthProvider.credential(user.email, currentPassword)
+  await reauthenticateWithCredential(user, cred)
+  // Şifreyi güncelle
+  await updatePassword(user, newPassword)
+}
+
+/** Auth provider'ı (Google/Email) tespit et. */
+export function getAuthProvider(user) {
+  if (!user) return null
+  const providers = user.providerData?.map((p) => p.providerId) || []
+  if (providers.includes('google.com')) return 'google'
+  if (providers.includes('password')) return 'email'
+  return providers[0] || 'unknown'
+}
+
+// === TERCIH LISTESI ===
+
+export function watchTercihList(uid, callback) {
+  if (!db) return () => {}
+  const q = query(
+    collection(db, 'users', uid, 'tercih'),
+    orderBy('order', 'asc'),
+    limit(24)
+  )
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+  })
+}
+
+export async function addToTercih(uid, dept, order) {
+  if (!db) throw new Error('Firebase yok')
+  const code = String(dept.department_code || dept.code)
+  await setDoc(doc(db, 'users', uid, 'tercih', code), {
+    department_code: code,
+    department_name: dept.department_name || dept.name,
+    university_code: dept.university_code,
+    university_name: dept.university_name || dept.universityName,
+    city: dept.city || '',
+    score_type: dept.score_type || dept.scoreType || null,
+    last_year_base_rank: dept.last_year_base_rank ?? null,
+    last_year_base_score: dept.last_year_base_score ?? null,
+    quota: dept.quota ?? null,
+    fit_score: dept.fit_score ?? null,
+    safety_level: dept.safety_level || null,
+    order,
+    addedAt: serverTimestamp(),
+  })
+}
+
+export async function removeFromTercih(uid, code) {
+  if (!db) throw new Error('Firebase yok')
+  await deleteDoc(doc(db, 'users', uid, 'tercih', String(code)))
+}
+
+/**
+ * Tercih listesinin order alanlarını batch olarak yeniden yaz.
+ * @param {string} uid
+ * @param {Array<{id: string}>} orderedItems - yeni sıraya göre item array'i
+ */
+export async function reorderTercihList(uid, orderedItems) {
+  if (!db) throw new Error('Firebase yok')
+  if (!Array.isArray(orderedItems) || orderedItems.length === 0) return
+  const batch = writeBatch(db)
+  orderedItems.forEach((item, idx) => {
+    const ref = doc(db, 'users', uid, 'tercih', String(item.id))
+    batch.update(ref, { order: idx + 1 })
+  })
+  await batch.commit()
+}
+
+/**
+ * Birden fazla tercih item'ının eksik alanlarını (rank, score, quota, vs)
+ * tek seferde Firestore'da güncelle. Backend lookup'ından gelen veri ile.
+ */
+export async function backfillTercihList(uid, codeToData) {
+  if (!db) throw new Error('Firebase yok')
+  if (!codeToData || Object.keys(codeToData).length === 0) return
+  const batch = writeBatch(db)
+  for (const [code, data] of Object.entries(codeToData)) {
+    const ref = doc(db, 'users', uid, 'tercih', String(code))
+    // sadece null/eksik olabilecek alanları yazıyoruz
+    const patch = {}
+    if (data.last_year_base_rank != null) patch.last_year_base_rank = data.last_year_base_rank
+    if (data.last_year_base_score != null) patch.last_year_base_score = data.last_year_base_score
+    if (data.quota != null) patch.quota = data.quota
+    if (data.score_type) patch.score_type = data.score_type
+    if (data.city) patch.city = data.city
+    if (data.university_name) patch.university_name = data.university_name
+    if (data.department_name) patch.department_name = data.department_name
+    if (Object.keys(patch).length > 0) {
+      batch.update(ref, patch)
+    }
+  }
+  await batch.commit()
+}
+
+// === QUERY HISTORY (basit log) ===
+
+export async function logQuery(uid, queryText, response) {
+  if (!db) return
+  try {
+    await addDoc(collection(db, 'users', uid, 'queries'), {
+      query: queryText,
+      response_preview: (response?.text || '').slice(0, 500),
+      doc_count: response?.docs?.length || 0,
+      latency_ms: response?.total_latency_ms || null,
+      ts: serverTimestamp(),
+    })
+  } catch (e) {
+    console.warn('Query log fail', e)
+  }
+}
+
+// === SOHBET SESSIONS (max 5/kişi) ===
+
+/** Tüm session'ları (en yeni → en eski) gerçek zamanlı izle. */
+export function watchSessions(uid, callback) {
+  if (!db) return () => {}
+  const q = query(
+    collection(db, 'users', uid, 'sessions'),
+    orderBy('updatedAt', 'desc')
+  )
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+  })
+}
+
+/** Tek bir session'ın mesajlarını gerçek zamanlı izle (kronolojik sıra). */
+export function watchSessionMessages(uid, sessionId, callback) {
+  if (!db || !sessionId) return () => {}
+  const q = query(
+    collection(db, 'users', uid, 'sessions', sessionId, 'messages'),
+    orderBy('createdAt', 'asc')
+  )
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+  })
+}
+
+/** Yeni session oluştur. 5'ten fazlaysa en eskiyi sil (FIFO). */
+export async function createSession(uid, firstQuery = '') {
+  if (!db) throw new Error('Firebase yok')
+
+  // Mevcut session sayısını kontrol et
+  const sessionsRef = collection(db, 'users', uid, 'sessions')
+  const allSnap = await getDocs(query(sessionsRef, orderBy('updatedAt', 'desc')))
+
+  // Limit aşılırsa en eskiyi sil
+  if (allSnap.size >= MAX_SESSIONS_PER_USER) {
+    const oldestDocs = allSnap.docs.slice(MAX_SESSIONS_PER_USER - 1)
+    for (const d of oldestDocs) {
+      await deleteSession(uid, d.id)
+    }
+  }
+
+  // Yeni session
+  const ref = doc(sessionsRef)
+  const title = firstQuery.slice(0, 60).trim() || 'Yeni Sohbet'
+  await setDoc(ref, {
+    title,
+    messageCount: 0,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  })
+  return ref.id
+}
+
+/** Mevcut session'ın başlığını güncelle (ilk mesajdan sonra). */
+export async function updateSessionTitle(uid, sessionId, title) {
+  if (!db) return
+  await updateDoc(doc(db, 'users', uid, 'sessions', sessionId), {
+    title: title.slice(0, 60),
+    updatedAt: serverTimestamp(),
+  })
+}
+
+/** Session'a mesaj ekle. */
+export async function addSessionMessage(uid, sessionId, message) {
+  if (!db || !sessionId) return null
+  const messagesRef = collection(db, 'users', uid, 'sessions', sessionId, 'messages')
+  const docRef = await addDoc(messagesRef, {
+    ...message,
+    createdAt: serverTimestamp(),
+  })
+  // Session'ın updatedAt + messageCount güncelle
+  const sessionRef = doc(db, 'users', uid, 'sessions', sessionId)
+  const sessionSnap = await getDoc(sessionRef)
+  const currentCount = sessionSnap.exists() ? (sessionSnap.data().messageCount || 0) : 0
+  await updateDoc(sessionRef, {
+    messageCount: currentCount + 1,
+    updatedAt: serverTimestamp(),
+  })
+  return docRef.id
+}
+
+/** Session ve içindeki tüm mesajları sil. */
+export async function deleteSession(uid, sessionId) {
+  if (!db || !sessionId) return
+  // Önce mesajları sil (batched)
+  const messagesRef = collection(db, 'users', uid, 'sessions', sessionId, 'messages')
+  const messagesSnap = await getDocs(messagesRef)
+
+  const batch = writeBatch(db)
+  messagesSnap.docs.forEach((m) => batch.delete(m.ref))
+  batch.delete(doc(db, 'users', uid, 'sessions', sessionId))
+  await batch.commit()
+}
+
+/** Mevcut session sayısını al. */
+export async function getSessionCount(uid) {
+  if (!db) return 0
+  const snap = await getDocs(collection(db, 'users', uid, 'sessions'))
+  return snap.size
+}

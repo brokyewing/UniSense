@@ -1,0 +1,261 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================
+   TEMA SİSTEMİ — CSS Custom Properties
+   - dark-theme  : koyu cyber (default)
+   - light-theme : koyu 3D arka plan + AYDIN UI elementleri
+   ========================================================= */
+
+:root {
+  /* Yardımcı dönüşüm değişkenleri */
+  --transition-theme: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* === DARK THEME (default) === */
+.dark-theme {
+  /* Yüzeyler */
+  --surface-glass: rgba(255, 255, 255, 0.04);
+  --surface-glass-hover: rgba(255, 255, 255, 0.07);
+  --surface-card: rgba(255, 255, 255, 0.04);
+  --surface-input: rgba(255, 255, 255, 0.05);
+  --surface-button-ghost: rgba(255, 255, 255, 0.04);
+
+  /* Border'lar */
+  --border-subtle: rgba(255, 255, 255, 0.10);
+  --border-medium: rgba(255, 255, 255, 0.20);
+  --border-input: rgba(255, 255, 255, 0.10);
+
+  /* Metin */
+  --text-primary: #f1f5f9;     /* slate-100 */
+  --text-secondary: #cbd5e1;   /* slate-300 */
+  --text-muted: #64748b;       /* slate-500 */
+  --text-placeholder: #94a3b8; /* slate-400 */
+
+  /* Background (3D arkaplan üzerine) */
+  --bg-base: #060818;
+}
+
+/* === LIGHT THEME (3D arkaplan koyu kalır, UI aydınlık) === */
+.light-theme {
+  /* Yüzeyler — AÇIK */
+  --surface-glass: rgba(255, 255, 255, 0.92);
+  --surface-glass-hover: rgba(255, 255, 255, 1);
+  --surface-card: rgba(255, 255, 255, 0.95);
+  --surface-input: rgba(255, 255, 255, 0.96);
+  --surface-button-ghost: rgba(255, 255, 255, 0.85);
+
+  /* Border'lar — AÇIK */
+  --border-subtle: rgba(15, 23, 42, 0.08);
+  --border-medium: rgba(15, 23, 42, 0.18);
+  --border-input: rgba(15, 23, 42, 0.12);
+
+  /* Metin — KOYU */
+  --text-primary: #0f172a;     /* slate-900 */
+  --text-secondary: #334155;   /* slate-700 */
+  --text-muted: #64748b;       /* slate-500 */
+  --text-placeholder: #94a3b8; /* slate-400 */
+
+  /* 3D background — Light tema için yumuşak mavi */
+  --bg-base: #eff6ff;
+}
+
+.light-theme body {
+  background: var(--bg-base);
+  background-image:
+    radial-gradient(ellipse at top left, rgba(59, 130, 246, 0.18), transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.14), transparent 50%),
+    radial-gradient(ellipse at center, rgba(99, 102, 241, 0.10), transparent 70%);
+}
+
+/* =========================================================
+   BASE
+   ========================================================= */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-sans;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    background-image:
+      radial-gradient(ellipse at top left, rgba(56, 189, 248, 0.1), transparent 50%),
+      radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.1), transparent 50%),
+      radial-gradient(ellipse at center, rgba(99, 102, 241, 0.08), transparent 70%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+    transition: var(--transition-theme);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  .dark-theme ::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.4);
+  }
+  .light-theme ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.3);
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.5);
+    background-clip: padding-box;
+  }
+
+  /* Otomatik metin rengi */
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+  }
+  p, span, div, label {
+    color: inherit;
+  }
+}
+
+/* =========================================================
+   COMPONENTS — Tema değişkeniyle yenilendi
+   ========================================================= */
+
+@layer components {
+  .glass {
+    backdrop-filter: blur(20px);
+    background: var(--surface-glass);
+    border: 1px solid var(--border-subtle);
+    @apply shadow-2xl;
+    transition: var(--transition-theme);
+  }
+  .glass-hover {
+    transition: all 0.3s ease;
+  }
+  .glass-hover:hover {
+    background: var(--surface-glass-hover);
+    border-color: var(--border-medium);
+  }
+
+  .btn-primary {
+    @apply relative px-5 py-2.5 rounded-xl font-medium overflow-hidden
+           bg-gradient-to-r from-brand-600 via-accent-600 to-brand-600 bg-[length:200%_100%]
+           shadow-lg shadow-brand-500/20 hover:shadow-accent-500/40
+           transition-all duration-500 hover:bg-[position:100%_50%] active:scale-95;
+    color: white;  /* gradient üzerinde her zaman beyaz */
+  }
+
+  .btn-ghost {
+    @apply px-4 py-2 rounded-xl font-medium glass glass-hover;
+    color: var(--text-primary);
+  }
+
+  .input-glass {
+    @apply w-full px-5 py-3 rounded-2xl
+           focus:outline-none focus:ring-2 focus:ring-accent-500/50 focus:border-accent-500/40
+           transition-all duration-300;
+    background: var(--surface-input);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-input);
+    color: var(--text-primary);
+  }
+  .input-glass::placeholder {
+    color: var(--text-placeholder);
+  }
+
+  .card {
+    @apply rounded-2xl p-5 shadow-2xl;
+    background: var(--surface-card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-subtle);
+    transition: var(--transition-theme);
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full
+           text-[10px] font-bold uppercase tracking-wider;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-brand-400 via-accent-400 to-cyber-pink
+           bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient;
+  }
+
+  .shimmer {
+    @apply relative overflow-hidden;
+  }
+  .shimmer::after {
+    content: '';
+    @apply absolute inset-0 bg-shimmer-gradient bg-[length:200%_100%] animate-shimmer;
+  }
+
+  .glow-blue {
+    box-shadow: 0 0 30px rgba(56, 189, 248, 0.4), 0 0 60px rgba(56, 189, 248, 0.2);
+  }
+  .glow-purple {
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.4), 0 0 60px rgba(168, 85, 247, 0.2);
+  }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(99, 102, 241, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99, 102, 241, 0.07) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Light mode'da text yardımcıları için override */
+  .light-theme .text-slate-100,
+  .light-theme .text-slate-200,
+  .light-theme .text-white {
+    color: var(--text-primary) !important;
+  }
+  .light-theme .text-slate-300 {
+    color: var(--text-secondary) !important;
+  }
+  .light-theme .text-slate-400,
+  .light-theme .text-slate-500 {
+    color: var(--text-muted) !important;
+  }
+
+  /* Light mode header — koyu yarı saydam yerine açık */
+  .light-theme header.sticky {
+    background: rgba(255, 255, 255, 0.85) !important;
+    border-bottom-color: rgba(15, 23, 42, 0.08) !important;
+  }
+
+  /* Light mode footer */
+  .light-theme footer {
+    border-top-color: rgba(15, 23, 42, 0.08) !important;
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  /* Light mode input/select borderları */
+  .light-theme input[type=number],
+  .light-theme input[type=email],
+  .light-theme input[type=password],
+  .light-theme input[type=text] {
+    color: var(--text-primary);
+  }
+
+  /* Light mode butonlar — fav/heart vs */
+  .light-theme button.bg-white\/\[0\.02\],
+  .light-theme button.hover\:bg-white\/\[0\.06\]:hover,
+  .light-theme div.bg-white\/\[0\.02\],
+  .light-theme div.hover\:bg-white\/\[0\.06\]:hover {
+    background: rgba(15, 23, 42, 0.04) !important;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .pretty {
+    text-wrap: pretty;
+  }
+}

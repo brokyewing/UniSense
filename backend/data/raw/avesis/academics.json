@@ -1,0 +1,226 @@
+[
+  {
+    "university_code": "122571",
+    "university_name": "Orta Doğu Teknik Üniversitesi (ODTÜ)",
+    "avesis_url": "https://avesis.metu.edu.tr",
+    "alive": true,
+    "researcher_count": 0,
+    "researchers": []
+  },
+  {
+    "university_code": "115069",
+    "university_name": "İstanbul Teknik Üniversitesi (İTÜ)",
+    "avesis_url": "https://avesis.itu.edu.tr",
+    "alive": false,
+    "researchers": []
+  },
+  {
+    "university_code": "106933",
+    "university_name": "Hacettepe Üniversitesi",
+    "avesis_url": "https://avesis.hacettepe.edu.tr",
+    "alive": true,
+    "researcher_count": 0,
+    "researchers": []
+  },
+  {
+    "university_code": "101023",
+    "university_name": "Ankara Üniversitesi",
+    "avesis_url": "https://avesis.ankara.edu.tr",
+    "alive": true,
+    "researcher_count": 0,
+    "researchers": []
+  },
+  {
+    "university_code": "103998",
+    "university_name": "Boğaziçi Üniversitesi",
+    "avesis_url": "https://avesis.boun.edu.tr",
+    "alive": false,
+    "researchers": []
+  },
+  {
+    "university_code": "116147",
+    "university_name": "İzmir Ekonomi Üniversitesi",
+    "avesis_url": "https://avesis.ieu.edu.tr",
+    "alive": false,
+    "researchers": []
+  },
+  {
+    "university_code": "105118",
+    "university_name": "Bahçeşehir Üniversitesi",
+    "avesis_url": "https://avesis.bahcesehir.edu.tr",
+    "alive": false,
+    "researchers": []
+  },
+  {
+    "university_code": "106110",
+    "university_name": "Galatasaray Üniversitesi",
+    "avesis_url": "https://avesis.gsu.edu.tr",
+    "alive": true,
+    "researcher_count": 0,
+    "researchers": []
+  },
+  {
+    "university_code": "105528",
+    "university_name": "Bilkent Üniversitesi",
+    "avesis_url": "https://avesis.bilkent.edu.tr",
+    "alive": false,
+    "researchers": []
+  },
+  {
+    "university_code": "117200",
+    "university_name": "Marmara Üniversitesi",
+    "avesis_url": "https://avesis.marmara.edu.tr",
+    "alive": true,
+    "researcher_count": 0,
+    "researchers": []
+  },
+  {
+    "university_code": "118122",
+    "university_name": "Kırklareli Üniversitesi",
+    "avesis_url": "https://avesis.klu.edu.tr",
+    "alive": false,
+    "researchers": []
+  },
+  {
+    "university_code": "260621",
+    "university_name": "Gebze Teknik Üniversitesi",
+    "avesis_url": "https://avesis.gtu.edu.tr",
+    "alive": false,
+    "researchers": []
+  },
+  {
+    "university_code": "117218",
+    "university_name": "Yıldız Teknik Üniversitesi",
+    "avesis_url": "https://avesis.yildiz.edu.tr",
+    "alive": true,
+    "researcher_count": 0,
+    "researchers": []
+  },
+  {
+    "university_code": "173496",
+    "university_name": "İstanbul Medeniyet Üniversitesi",
+    "avesis_url": "https://avesis.medeniyet.edu.tr",
+    "alive": false,
+    "researchers": []
+  },
+  {
+    "university_code": "339997",
+    "university_name": "Eskişehir Teknik Üniversitesi",
+    "avesis_url": "https://avesis.eskisehir.edu.tr",
+    "alive": false,
+    "researchers": []
+  },
+  {
+    "university_code": "339979",
+    "university_name": "Konya Teknik Üniversitesi",
+    "avesis_url": "https://avesis.ktun.edu.tr",
+    "alive": false,
+    "researchers": []
+  },
+  {
+    "university_code": "105024",
+    "university_name": "Bilecik Şeyh Edebali Üniversitesi",
+    "avesis_url": "https://avesis.bilecik.edu.tr",
+    "alive": true,
+    "researcher_count": 0,
+    "researchers": []
+  },
+  {
+    "university_code": "109040",
+    "university_name": "Çukurova Üniversitesi",
+    "avesis_url": "https://avesis.cu.edu.tr",
+    "alive": true,
+    "researcher_count": 0,
+    "researchers": []
+  },
+  {
+    "university_code": "116950",
+    "university_name": "Karabük Üniversitesi",
+    "avesis_url": "https://avesis.karabuk.edu.tr",
+    "alive": false,
+    "researchers": []
+  },
+  {
+    "university_code": "123456",
+    "university_name": "Selçuk Üniversitesi",
+    "avesis_url": "https://avesis.selcuk.edu.tr",
+    "alive": false,
+    "researchers": []
+  },
+  {
+    "university_code": "114218",
+    "university_name": "Hitit Üniversitesi",
+    "avesis_url": "https://avesis.hitit.edu.tr",
+    "alive": false,
+    "researchers": []
+  },
+  {
+    "university_code": "122395",
+    "university_name": "Ordu Üniversitesi",
+    "avesis_url": "https://avesis.odu.edu.tr",
+    "alive": false,
+    "researchers": []
+  },
+  {
+    "university_code": "117200",
+    "university_name": "Erciyes Üniversitesi",
+    "avesis_url": "https://avesis.erciyes.edu.tr",
+    "alive": true,
+    "researcher_count": 0,
+    "researchers": []
+  },
+  {
+    "university_code": "106545",
+    "university_name": "Çanakkale Onsekiz Mart Üniversitesi",
+    "avesis_url": "https://avesis.comu.edu.tr",
+    "alive": true,
+    "researcher_count": 0,
+    "researchers": []
+  },
+  {
+    "university_code": "258560",
+    "university_name": "Akdeniz Üniversitesi",
+    "avesis_url": "https://avesis.akdeniz.edu.tr",
+    "alive": true,
+    "researcher_count": 0,
+    "researchers": []
+  },
+  {
+    "university_code": "101458",
+    "university_name": "Süleyman Demirel Üniversitesi",
+    "avesis_url": "https://avesis.sdu.edu.tr",
+    "alive": true,
+    "researcher_count": 0,
+    "researchers": []
+  },
+  {
+    "university_code": "116950",
+    "university_name": "Atatürk Üniversitesi",
+    "avesis_url": "https://avesis.atauni.edu.tr",
+    "alive": true,
+    "researcher_count": 0,
+    "researchers": []
+  },
+  {
+    "university_code": "116950",
+    "university_name": "Dokuz Eylül Üniversitesi",
+    "avesis_url": "https://avesis.deu.edu.tr",
+    "alive": true,
+    "researcher_count": 0,
+    "researchers": []
+  },
+  {
+    "university_code": "123412",
+    "university_name": "Ege Üniversitesi",
+    "avesis_url": "https://avesis.ege.edu.tr",
+    "alive": false,
+    "researchers": []
+  },
+  {
+    "university_code": "116950",
+    "university_name": "Sakarya Üniversitesi",
+    "avesis_url": "https://avesis.sakarya.edu.tr",
+    "alive": false,
+    "researchers": []
+  }
+]

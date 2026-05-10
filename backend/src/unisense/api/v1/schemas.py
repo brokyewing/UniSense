@@ -1,0 +1,223 @@
+"""API v1 — request/response DTOs."""
+from __future__ import annotations
+
+from typing import Any
+from pydantic import BaseModel, Field
+
+from unisense.domain.enums import ScoreType
+
+
+class ChatTurn(BaseModel):
+    role: str = Field(..., pattern="^(user|bot|assistant)$")
+    text: str = Field(..., max_length=4000)
+
+
+class AskRequest(BaseModel):
+    query: str = Field(..., min_length=1, max_length=500)
+    top_k: int = Field(default=12, ge=1, le=30)
+    # Son N tur (user+bot) — multi-turn chat için. Boş ise tek-tur sorgu.
+    history: list[ChatTurn] = Field(default_factory=list, max_length=10)
+    # LLM seçimi: "gemini" (default) | "unisense-local"
+    model_preference: str = Field(default="gemini", pattern="^(gemini|unisense-local)$")
+
+
+class ModelInfo(BaseModel):
+    id: str
+    name: str
+    available: bool
+    description: str
+
+
+class ModelsResponse(BaseModel):
+    models: list[ModelInfo]
+
+
+class DocResponse(BaseModel):
+    content: str
+    source: str
+    source_url: str = ""
+    university_code: str = ""
+    department_code: str = ""
+    year: int | None = None
+    score_type: str = ""
+    distance: float | None = None
+    # Frontend'in "Pusulaya Ekle" / "Tercihe Ekle" butonları için ek alanlar
+    department_name: str = ""
+    department_group_name: str = ""
+    university_name: str = ""
+    city: str = ""
+    last_year_base_rank: int | None = None
+    last_year_base_score: float | None = None
+    quota: int | None = None
+
+
+class AskResponse(BaseModel):
+    query: str
+    text: str
+    docs: list[DocResponse]
+    total_latency_ms: int | None = None
+
+
+class HealthResponse(BaseModel):
+    status: str
+    version: str
+    chunks_count: int | None = None
+
+
+class StudentProfileRequest(BaseModel):
+    score_type: ScoreType
+    score: float | None = Field(None, ge=0, le=600)
+    rank: int | None = Field(None, ge=1)
+    preferred_cities: list[str] = Field(default_factory=list)
+    preferred_uni_types: list[str] = Field(default_factory=list)
+    preferred_languages: list[str] = Field(default_factory=list)
+    preferred_departments: list[str] = Field(default_factory=list)
+
+
+class RecommendationItem(BaseModel):
+    department_code: str
+    university_code: str
+    department_name: str
+    university_name: str
+    city: str
+    fit_score: float
+    safety_level: str
+    reason: str = ""
+    last_year_base_rank: int | None = None
+    last_year_base_score: float | None = None
+
+
+class RecommendResponse(BaseModel):
+    safe: list[RecommendationItem]
+    target: list[RecommendationItem]
+    reach: list[RecommendationItem]
+    notes: str = ""
+
+
+class UniversityResponse(BaseModel):
+    code: str
+    name: str
+    short_name: str = ""
+    type: str
+    city: str
+    description: str = ""
+    urap_rank_tr: int | None = None
+    qs_rank_world: int | None = None
+
+
+class DepartmentResponse(BaseModel):
+    code: str
+    name: str
+    university_code: str
+    score_type: str
+    education_level: str
+    education_language: str
+    duration_years: int = 4
+    quota: int | None = None
+    description: str = ""
+
+
+# === Compass (İlgi Pusulası) ===
+
+class CompassDepartmentItem(BaseModel):
+    name: str
+    tags: list[str]
+    program_count: int
+    axis_summary: str = ""
+
+
+class CompassCategoryItem(BaseModel):
+    id: str
+    label: str
+    emoji: str
+    departments: list[CompassDepartmentItem]
+
+
+class CompassTaxonomyResponse(BaseModel):
+    categories: list[CompassCategoryItem]
+
+
+class CompassMatchItem(BaseModel):
+    name: str
+    category: str
+    category_label: str
+    category_emoji: str
+    tags: list[str]
+    axis_summary: str
+    program_count: int
+    match_score: float
+    matched_interests: list[str] = Field(default_factory=list)
+    matched_count: int = 0
+
+
+class CompassInterestPill(BaseModel):
+    id: str
+    department_count: int
+
+
+class CompassInterestCategory(BaseModel):
+    id: str
+    label: str
+    emoji: str
+    interests: list[CompassInterestPill]
+
+
+class CompassInterestsTaxonomyResponse(BaseModel):
+    categories: list[CompassInterestCategory]
+
+
+class CompassInterestsRequest(BaseModel):
+    interests: list[str] = Field(..., min_length=1, max_length=30)
+    top_k: int = Field(default=15, ge=3, le=30)
+
+
+# === Program Lookup (Tercih listesi için sıra/taban/kontenjan eksiğini doldur) ===
+
+class ProgramLookupRequest(BaseModel):
+    codes: list[str] = Field(..., min_length=1, max_length=24)
+
+
+class ProgramLookupItem(BaseModel):
+    department_code: str
+    found: bool
+    department_name: str = ""
+    department_group_name: str = ""
+    university_code: str = ""
+    university_name: str = ""
+    city: str = ""
+    score_type: str = ""
+    education_language: str = ""
+    scholarship: str = ""
+    last_year_base_rank: int | None = None
+    last_year_base_score: float | None = None
+    quota: int | None = None
+
+
+class ProgramLookupResponse(BaseModel):
+    programs: list[ProgramLookupItem]
+
+
+class CompassResponse(BaseModel):
+    matches: list[CompassMatchItem]
+    mode: str
+    notes: str = ""
+
+
+class CompassSelectionRequest(BaseModel):
+    selected: list[str] = Field(..., min_length=1, max_length=40)
+    top_k: int = Field(default=15, ge=3, le=30)
+
+
+class CompassTextRequest(BaseModel):
+    text: str = Field(..., min_length=3, max_length=500)
+    top_k: int = Field(default=15, ge=3, le=30)
+
+
+class CompassAxesRequest(BaseModel):
+    """5-boyutlu kişilik vektörü, her boyut 1-5."""
+    math: float = Field(..., ge=1, le=5)
+    human: float = Field(..., ge=1, le=5)
+    creative: float = Field(..., ge=1, le=5)
+    research: float = Field(..., ge=1, le=5)
+    field: float = Field(..., ge=1, le=5)
+    top_k: int = Field(default=15, ge=3, le=30)

@@ -1,0 +1,132 @@
+{
+  "categories": [
+    {
+      "id": "siralama_intent",
+      "label": "Sıralama Intent (Recommend hybrid)",
+      "queries": [
+        "300.000 sırayla devlet üniversiteleri",
+        "50.000 sıra ile bilgisayar mühendisliği",
+        "100 bin sıra tıp",
+        "250.000 sırayla bilgisayar mühendisliği devlet üniversiteleri",
+        "25k sıra ile yazılım mühendisliği",
+        "rank 80000 mühendislik",
+        "EA puanı 350 ile vakıf üniversiteleri",
+        "sözel 80000 sıra hukuk",
+        "TYT 200000 sıra önlisans"
+      ]
+    },
+    {
+      "id": "uni_bilgi",
+      "label": "Üniversite Bilgi Sorguları",
+      "queries": [
+        "Boğaziçi Üniversitesi hakkında bilgi ver",
+        "İskenderun Teknik Üniversitesi nasıl bir okul",
+        "ODTÜ tarihi ve fakülteleri",
+        "İstanbul Teknik Üniversitesi'nin kuruluş yılı",
+        "Sabancı Üniversitesi hangi şehirde",
+        "Bilkent Üniversitesi vakıf mı devlet mi",
+        "KKTC üniversiteleri lisans programları",
+        "Atatürk Üniversitesi kaç fakülte",
+        "Hacettepe Üniversitesi tıp fakültesi"
+      ]
+    },
+    {
+      "id": "bolum_bilgi",
+      "label": "Bölüm Bilgi Sorguları",
+      "queries": [
+        "Bilgisayar Mühendisliği taban puanları 2025",
+        "Tıp fakültesi olan üniversiteler hangileri",
+        "Yapay Zeka Mühendisliği hangi okullarda var",
+        "Endüstri Mühendisliği nedir ne iş yapar",
+        "Hemşirelik bölümünün taban sıralaması",
+        "Eczacılık bölümü kaç yıl",
+        "Mimarlık bölümü puan türü",
+        "Diş Hekimliği fakültesi olan vakıflar"
+      ]
+    },
+    {
+      "id": "filtre",
+      "label": "Filtreleme Sorguları",
+      "queries": [
+        "İngilizce eğitim veren mühendislik bölümleri",
+        "Vakıf üniversitelerinde tıp bursu",
+        "İstanbul'daki hukuk fakülteleri",
+        "Antalya'daki devlet üniversiteleri",
+        "Ankara'da bilgisayar mühendisliği olan okullar",
+        "Tam burslu vakıf üniversiteleri",
+        "Almanca eğitim veren bölümler"
+      ]
+    },
+    {
+      "id": "akademisyen",
+      "label": "Akademisyen Sorguları (özel kural — YÖK Akademik link)",
+      "queries": [
+        "Boğaziçi Bilgisayar Mühendisliği'nde hangi hocalar var",
+        "ODTÜ Bilgisayar profesörleri",
+        "İTÜ tıp akademik kadrosu",
+        "Bilkent Endüstri Mühendisliği öğretim üyeleri"
+      ]
+    },
+    {
+      "id": "karsilastirma",
+      "label": "Karşılaştırma Sorguları",
+      "queries": [
+        "Boğaziçi vs ODTÜ Bilgisayar Mühendisliği hangisi daha iyi",
+        "Hacettepe ve Ankara Üniversitesi tıp karşılaştırması",
+        "Sabancı Bilkent Koç vakıf üniversiteleri farkı"
+      ]
+    },
+    {
+      "id": "yöre",
+      "label": "Şehir/Yöre Sorguları",
+      "queries": [
+        "Antalya'daki üniversiteler",
+        "İskenderun'daki bölümler",
+        "Doğu Anadolu'daki devlet üniversiteleri",
+        "Ege Bölgesi'ndeki tıp fakülteleri"
+      ]
+    },
+    {
+      "id": "yore_geo",
+      "label": "Coğrafi Filtreler (deniz, merkez, metropol)",
+      "queries": [
+        "300.000 sırayla denizi olan illerdeki devlet üniversiteleri",
+        "Karadeniz kıyısındaki tıp fakülteleri",
+        "Akdeniz sahilindeki bilgisayar mühendisliği bölümleri",
+        "Ege denizi kıyısında 80000 sıra ile mühendislik",
+        "İstanbul'un merkezi ilçelerindeki üniversiteler",
+        "Şehir merkezinde olan vakıf üniversiteleri",
+        "Büyükşehir dışındaki devlet üniversiteleri",
+        "İçerideki Anadolu illerinde 100000 sıra mühendislik",
+        "Boğaz manzaralı üniversite kampüsleri",
+        "Karadeniz bölgesindeki devlet üniversiteleri 150000 sıra",
+        "Merkezi ilçedeki Bilgisayar Mühendisliği 50000 sıra",
+        "Sahil ilinde olmayan vakıf üniversiteleri"
+      ]
+    },
+    {
+      "id": "edge",
+      "label": "Edge Cases (kısa, anlamsız, uzun)",
+      "queries": [
+        "asdfgh",
+        "merhaba",
+        "tercih başvurusu nasıl yapılır",
+        "YKS ne zaman",
+        "OBP nedir",
+        "ek puan ne demek",
+        "yatay geçiş şartları"
+      ]
+    },
+    {
+      "id": "turkce_karakter",
+      "label": "Türkçe Karakter Zorlukları",
+      "queries": [
+        "İSKENDERUN TEKNİK ÜNİVERSİTESİ",
+        "iskenderun teknik üniversitesi",
+        "İskenderun teknik üniversitesi hakkında",
+        "ATATÜRK ÜNİVERSİTESİ tarihi",
+        "ÇANKAYA ÜNİVERSİTESİ vakıf mı"
+      ]
+    }
+  ]
+}

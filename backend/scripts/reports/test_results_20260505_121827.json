@@ -1,0 +1,178 @@
+[
+  {
+    "category": "manual",
+    "category_id": "manual",
+    "query": "Boğaziçi Üniversitesi hakkında bilgi",
+    "elapsed_ms": 13554,
+    "status": "❌",
+    "summary": "LLM error/quota",
+    "response": {
+      "query": "Boğaziçi Üniversitesi hakkında bilgi",
+      "text": "⚠️ Şu an cevap üretemedim: Tüm Gemini keylerinde quota aşıldı",
+      "docs": [
+        {
+          "content": "📚 Bilgisayar Mühendisliği (İngilizce) | 🏛 BOĞAZİÇİ ÜNİVERSİTESİ (İSTANBUL) | 🏫 Mühendislik Fakültesi | 📍 İSTANBUL | Puan türü: SAY | Eğitim seviyesi: Lisans | Eğitim dili: İngilizce | Süre: 4 yıl | Akreditasyon: ABET | Min başarı sırası şartı: 300000\n\n📊 2025 yerleştirme verisi:\n  • Taban puan: 533.05\n  • Başarı sırası: 1,448\n  • Kontenjan: 80\n  • Q1 (üst %25) puan: 539.32\n  • Q3 (alt %25) puan: 547.16\n\n👨‍🏫 Akademik kadro: 13 profesör, 1 doçent, 7 dr. öğretim üyesi, 13 araştırma görevlisi (toplam 34 kişi)\n\n📋 ÖSYM kodları: 144, 22, 23, 24\nTercih koşulları:\n  • 2 yıl içinde hazırlık tamamlanmazsa Türkçe programa geçirilir\n  • Öğretim dili İngilizce\n  • 1 yıl zorunlu yabancı dil hazırlığı",
+          "source": "YÖK Atlas 2025",
+          "source_url": "https://yokatlas.yok.gov.tr/lisans.php?y=102210277",
+          "university_code": "105322",
+          "department_code": "102210277",
+          "year": 2025,
+          "score_type": "SAY",
+          "distance": 0.0
+        },
+        {
+          "content": "📚 Elektrik-Elektronik Mühendisliği (İngilizce) | 🏛 BOĞAZİÇİ ÜNİVERSİTESİ (İSTANBUL) | 🏫 Mühendislik Fakültesi | 📍 İSTANBUL | Puan türü: SAY | Eğitim seviyesi: Lisans | Eğitim dili: İngilizce | Süre: 4 yıl | Akreditasyon: ABET | Min başarı sırası şartı: 300000\n\n📊 2025 yerleştirme verisi:\n  • Taban puan: 529.60\n  • Başarı sırası: 1,993\n  • Kontenjan: 75\n  • Q1 (üst %25) puan: 532.61\n  • Q3 (alt %25) puan: 539.43\n\n👨‍🏫 Akademik kadro: 15 profesör, 3 doçent, 1 dr. öğretim üyesi, 12 araştırma görevlisi, 1 öğretim görevlisi (toplam 32 kişi)\n\n📋 ÖSYM kodları: 144, 22, 23, 24\nTercih koşulları:\n  • 2 yıl içinde hazırlık tamamlanmazsa Türkçe programa geçirilir\n  • Öğretim dili İngilizce\n  • 1 yıl zorunlu yabancı dil hazırlığı",
+          "source": "YÖK Atlas 2025",
+          "source_url": "https://yokatlas.yok.gov.tr/lisans.php?y=102210286",
+          "university_code": "105322",
+          "department_code": "102210286",
+          "year": 2025,
+          "score_type": "SAY",
+          "distance": 0.0
+        },
+        {
+          "content": "📚 Endüstri Mühendisliği (İngilizce) | 🏛 BOĞAZİÇİ ÜNİVERSİTESİ (İSTANBUL) | 🏫 Mühendislik Fakültesi | 📍 İSTANBUL | Puan türü: SAY | Eğitim seviyesi: Lisans | Eğitim dili: İngilizce | Süre: 4 yıl | Akreditasyon: ABET | Min başarı sırası şartı: 300000\n\n📊 2025 yerleştirme verisi:\n  • Taban puan: 529.35\n  • Başarı sırası: 2,050\n  • Kontenjan: 50\n  • Q1 (üst %25) puan: 531.38\n  • Q3 (alt %25) puan: 537.73\n\n👨‍🏫 Akademik kadro: 8 profesör, 3 doçent, 1 dr. öğretim üyesi, 7 araştırma görevlisi (toplam 19 kişi)\n\n📋 ÖSYM kodları: 144, 22, 23, 24\nTercih koşulları:\n  • 2 yıl içinde hazırlık tamamlanmazsa Türkçe programa geçirilir\n  • Öğretim dili İngilizce\n  • 1 yıl zorunlu yabancı dil hazırlığı",
+          "source": "YÖK Atlas 2025",
+          "source_url": "https://yokatlas.yok.gov.tr/lisans.php?y=102210295",
+          "university_code": "105322",
+          "department_code": "102210295",
+          "year": 2025,
+          "score_type": "SAY",
+          "distance": 0.0
+        },
+        {
+          "content": "📚 Makine Mühendisliği (İngilizce) | 🏛 BOĞAZİÇİ ÜNİVERSİTESİ (İSTANBUL) | 🏫 Mühendislik Fakültesi | 📍 İSTANBUL | Puan türü: SAY | Eğitim seviyesi: Lisans | Eğitim dili: İngilizce | Süre: 4 yıl | Akreditasyon: ABET | Min başarı sırası şartı: 300000\n\n📊 2025 yerleştirme verisi:\n  • Taban puan: 521.95\n  • Başarı sırası: 3,596\n  • Kontenjan: 65\n  • Q1 (üst %25) puan: 522.39\n  • Q3 (alt %25) puan: 531.65\n\n👨‍🏫 Akademik kadro: 12 profesör, 3 doçent, 4 dr. öğretim üyesi, 13 araştırma görevlisi, 1 öğretim görevlisi (toplam 33 kişi)\n\n📋 ÖSYM kodları: 144, 22, 23, 24\nTercih koşulları:\n  • 2 yıl içinde hazırlık tamamlanmazsa Türkçe programa geçirilir\n  • Öğretim dili İngilizce\n  • 1 yıl zorunlu yabancı dil hazırlığı",
+          "source": "YÖK Atlas 2025",
+          "source_url": "https://yokatlas.yok.gov.tr/lisans.php?y=102210329",
+          "university_code": "105322",
+          "department_code": "102210329",
+          "year": 2025,
+          "score_type": "SAY",
+          "distance": 0.0
+        },
+        {
+          "content": "📚 Kimya Mühendisliği (İngilizce) | 🏛 BOĞAZİÇİ ÜNİVERSİTESİ (İSTANBUL) | 🏫 Mühendislik Fakültesi | 📍 İSTANBUL | Puan türü: SAY | Eğitim seviyesi: Lisans | Eğitim dili: İngilizce | Süre: 4 yıl | Akreditasyon: ABET | Min başarı sırası şartı: 300000\n\n📊 2025 yerleştirme verisi:\n  • Taban puan: 507.94\n  • Başarı sırası: 7,818\n  • Kontenjan: 50\n  • Q1 (üst %25) puan: 512.08\n  • Q3 (alt %25) puan: 520.45\n\n👨‍🏫 Akademik kadro: 8 profesör, 6 doçent, 1 dr. öğretim üyesi, 16 araştırma görevlisi, 5 öğretim görevlisi (toplam 36 kişi)\n\n📋 ÖSYM kodları: 144, 22, 23, 24\nTercih koşulları:\n  • 2 yıl içinde hazırlık tamamlanmazsa Türkçe programa geçirilir\n  • Öğretim dili İngilizce\n  • 1 yıl zorunlu yabancı dil hazırlığı",
+          "source": "YÖK Atlas 2025",
+          "source_url": "https://yokatlas.yok.gov.tr/lisans.php?y=102210311",
+          "university_code": "105322",
+          "department_code": "102210311",
+          "year": 2025,
+          "score_type": "SAY",
+          "distance": 0.0
+        },
+        {
+          "content": "📚 Matematik (İngilizce) | 🏛 BOĞAZİÇİ ÜNİVERSİTESİ (İSTANBUL) | 🏫 Fen Fakültesi | 📍 İSTANBUL | Puan türü: SAY | Eğitim seviyesi: Lisans | Eğitim dili: İngilizce | Süre: 4 yıl\n\n📊 2025 yerleştirme verisi:\n  • Taban puan: 497.01\n  • Başarı sırası: 12,452\n  • Kontenjan: 50\n  • Q1 (üst %25) puan: 504.06\n  • Q3 (alt %25) puan: 518.07\n\n👨‍🏫 Akademik kadro: 11 profesör, 4 doçent, 1 dr. öğretim üyesi, 12 araştırma görevlisi, 1 öğretim görevlisi (toplam 29 kişi)\n\n📋 ÖSYM kodları: 145, 22, 23, 24\nTercih koşulları:\n  • 2 yıl içinde hazırlık tamamlanmazsa Türkçe programa geçirilir\n  • Öğretim dili İngilizce\n  • 1 yıl zorunlu yabancı dil hazırlığı\n  • Bu programa, Yükseköğretim Kurulu Başkanlığı tarafından burs verilecektir",
+          "source": "YÖK Atlas 2025",
+          "source_url": "https://yokatlas.yok.gov.tr/lisans.php?y=102270126",
+          "university_code": "105322",
+          "department_code": "102270126",
+          "year": 2025,
+          "score_type": "SAY",
+          "distance": 0.0
+        },
+        {
+          "content": "📚 İnşaat Mühendisliği (İngilizce) | 🏛 BOĞAZİÇİ ÜNİVERSİTESİ (İSTANBUL) | 🏫 Mühendislik Fakültesi | 📍 İSTANBUL | Puan türü: SAY | Eğitim seviyesi: Lisans | Eğitim dili: İngilizce | Süre: 4 yıl | Akreditasyon: ABET | Min başarı sırası şartı: 300000\n\n📊 2025 yerleştirme verisi:\n  • Taban puan: 487.92\n  • Başarı sırası: 17,323\n  • Kontenjan: 50\n  • Q1 (üst %25) puan: 486.31\n  • Q3 (alt %25) puan: 497.50\n\n👨‍🏫 Akademik kadro: 11 profesör, 2 doçent, 4 dr. öğretim üyesi, 10 araştırma görevlisi, 3 öğretim görevlisi (toplam 30 kişi)\n\n📋 ÖSYM kodları: 144, 22, 23, 24\nTercih koşulları:\n  • 2 yıl içinde hazırlık tamamlanmazsa Türkçe programa geçirilir\n  • Öğretim dili İngilizce\n  • 1 yıl zorunlu yabancı dil hazırlığı",
+          "source": "YÖK Atlas 2025",
+          "source_url": "https://yokatlas.yok.gov.tr/lisans.php?y=102210302",
+          "university_code": "105322",
+          "department_code": "102210302",
+          "year": 2025,
+          "score_type": "SAY",
+          "distance": 0.0
+        },
+        {
+          "content": "📚 Fizik (İngilizce) | 🏛 BOĞAZİÇİ ÜNİVERSİTESİ (İSTANBUL) | 🏫 Fen Fakültesi | 📍 İSTANBUL | Puan türü: SAY | Eğitim seviyesi: Lisans | Eğitim dili: İngilizce | Süre: 4 yıl\n\n📊 2025 yerleştirme verisi:\n  • Taban puan: 485.49\n  • Başarı sırası: 18,856\n  • Kontenjan: 50\n  • Q1 (üst %25) puan: 495.76\n  • Q3 (alt %25) puan: 515.22\n\n👨‍🏫 Akademik kadro: 12 profesör, 4 doçent, 6 dr. öğretim üyesi, 16 araştırma görevlisi (toplam 38 kişi)\n\n📋 ÖSYM kodları: 145, 22, 23, 24\nTercih koşulları:\n  • 2 yıl içinde hazırlık tamamlanmazsa Türkçe programa geçirilir\n  • Öğretim dili İngilizce\n  • 1 yıl zorunlu yabancı dil hazırlığı\n  • Bu programa, Yükseköğretim Kurulu Başkanlığı tarafından burs verilecektir",
+          "source": "YÖK Atlas 2025",
+          "source_url": "https://yokatlas.yok.gov.tr/lisans.php?y=102270105",
+          "university_code": "105322",
+          "department_code": "102270105",
+          "year": 2025,
+          "score_type": "SAY",
+          "distance": 0.0
+        },
+        {
+          "content": "📖 AFYON KOCATEPE ÜNİVERSİTESİ (AFYONKARAHİSAR) — Yüksekokullar\n\nSandıklı Uygulamalı Bilimler Yüksekokulu\nDinar Uygulamalı Bilimler Yüksekokulu\nYabancı Diller Yüksekokulu\nDevlet Konservatuvarı",
+          "source": "Wikipedia TR",
+          "source_url": "https://tr.wikipedia.org/wiki/Afyon_Kocatepe_Üniversitesi",
+          "university_code": "100869",
+          "department_code": "",
+          "year": null,
+          "score_type": "",
+          "distance": 6.8752899169921875
+        },
+        {
+          "content": "📖 KIRKLARELİ ÜNİVERSİTESİ — İktisadi ve İdari Bilimler Fakültesi\n\nKırklareli Üniversitesi kuruluş tarihi ile aynı olarak 29 Mayıs 2007 tarih ve 26536 sayılı Resmî Gazete'de yayınlanan kanunla kurulmuştur. Fakülte üniversitenin Kayalı kampüsünde hizmet vermektedir. 4 bölümde eğitim verilmektedir.\n\nİktisat (I ve II. Öğretim)\nİşletme (I ve II. Öğretim)\nKamu Yönetimi (I. Öğretim)\nÇEKO (Çalışma Ekonomisi ve Endüstri İlişkileri) (I ve II. Öğretim)\nUluslararası İlişkiler (l ve ll. Öğretim)",
+          "source": "Wikipedia TR",
+          "source_url": "https://tr.wikipedia.org/wiki/Kırklareli_Üniversitesi",
+          "university_code": "118122",
+          "department_code": "",
+          "year": null,
+          "score_type": "",
+          "distance": 7.005563735961914
+        },
+        {
+          "content": "📖 ISPARTA UYGULAMALI BİLİMLER ÜNİVERSİTESİ — Giriş\n\ntoplam 3 yüksekokuldan oluşmuştur.\nISUBÜ bünyesinde yer alan meslek yüksekokulları ise, Süleyman Demirel Üniversitesine bağlı iken bağlantıları değiştirilerek Rektörlüğe bağlanan Aksu Mehmet Süreyya Demiraslan Meslek Yüksekokulu, Atabey Meslek Yüksekokulu, Eğirdir Meslek Yüksekokulu, Gelendost Meslek Yüksekokulu, Gönen Meslek Yüksekokulu, Isparta Meslek Yüksekokulu, Keçiborlu Meslek Yüksekokulu, Senirkent Meslek Yüksekokulu, Sütçüler Prof. Dr. Hasan Gürbüz Meslek Yüksekokulu, Şarkikaraağaç Meslek Yüksekokulu, Şarkikaraağaç Turizm Meslek Yüksekokulu, Teknik Bilimler Meslek Yüksekokulu, Uluborlu Selahattin Karasoy Meslek Yüksekokulu, Uzaktan Eğitim Meslek Yüksekokulu, Yalvaç Meslek Yüksekokulu, Yalvaç Teknik Bilimler Meslek Yüksekokulu ile Yenişarbademli Meslek Yüksekokulu olmak üzere toplam 17 meslek yüksekokulundan oluşmuştur.\nISUBÜ bünyesinde, Rektörlüğe bağlı olarak yeni kurulan Lisansüstü Eğitim Enstitüsü de yer almıştır.\nSonraki yıllarda Tarım Bilimleri ve Teknolojileri Fakültesi'nin adı tekrar Ziraat Fakültesi olarak değiştirilmiştir. Bununla beraber Eğirdir Turizm ve Otelcilik Yüksekokulu'nun adı Turizm Fakültesi, Yalvaç Büyükkutlu Uygulamalı Bilimler Yüksekokulu'nın adı ise ",
+          "source": "Wikipedia TR",
+          "source_url": "https://tr.wikipedia.org/wiki/Isparta_Uygulamalı_Bilimler_Üniversitesi",
+          "university_code": "339998",
+          "department_code": "",
+          "year": null,
+          "score_type": "",
+          "distance": 7.066833019256592
+        },
+        {
+          "content": "📖 ERCİYES ÜNİVERSİTESİ (KAYSERİ) — Tarihi\n\nsek Okulu'dur.\nErciyes Üniversitesi; eğitim, araştırma ve sağlık hizmetleri sunarak, çevresiyle bütünleşmiştir. Erciyes Üniversitesinde alt yapı ve hizmet binalarının önemli bir kısmı yörenin hayırsever işadamları tarafından yaptırılıp tefriş ve donanımı tamamlandıktan sonra üniversiteye bağışlanmıştır.",
+          "source": "Wikipedia TR",
+          "source_url": "https://tr.wikipedia.org/wiki/Erciyes_Üniversitesi",
+          "university_code": "109868",
+          "department_code": "",
+          "year": null,
+          "score_type": "",
+          "distance": 7.160057067871094
+        },
+        {
+          "content": "📖 SAKARYA UYGULAMALI BİLİMLER ÜNİVERSİTESİ — Giriş\n\nSakarya Uygulamalı Bilimler Üniversitesi (SUBÜ), 18 Mayıs 2018 tarihli Resmî Gazetede yayınlanan 7141 sayılı kanun ile kurulan devlet üniversitesi.\nÜniversite bünyesinde 1 enstitü, 6 fakülte, 1 yüksekokul ve 12 meslek yüksekokulu bulunmaktadır. Bu birimler üniversite kurulmadan önce Sakarya Üniversitesi'ne bağlıydı. Üniversite Sakarya Üniversitesi ile aynı yerleşkede yer almaktadır. Meslek Yüksekokulları ise Sakarya iline dağıtılmıştır. Üniversitenin temel amacı, normal üniversitelere nazaran uygulamalı mesleki eğitim amaçlıdır. Ayrıca üniversite Türkiye'de bulunan iki Uygulamalı Bilimler Üniversitesinden birisidir.",
+          "source": "Wikipedia TR",
+          "source_url": "https://tr.wikipedia.org/wiki/Sakarya_Uygulamalı_Bilimler_Üniversitesi",
+          "university_code": "339988",
+          "department_code": "",
+          "year": null,
+          "score_type": "",
+          "distance": 7.172761917114258
+        },
+        {
+          "content": "📖 DOĞU AKDENİZ ÜNİVERSİTESİ (KKTC-GAZİMAĞUSA) — Enstitüler\n\nLisansüstü Eğitim Öğretim ve Araştırma Enstitüsü\nİleri Teknoloji Araştırma Geliştirme Enstitüsü\nUzaktan Eğitim Enstitüsü",
+          "source": "Wikipedia TR",
+          "source_url": "https://tr.wikipedia.org/wiki/Doğu_Akdeniz_Üniversitesi",
+          "university_code": "202959",
+          "department_code": "",
+          "year": null,
+          "score_type": "",
+          "distance": 7.271029949188232
+        },
+        {
+          "content": "📖 İSTANBUL GEDİK ÜNİVERSİTESİ — Kartal Yerleşkesi\n\nÜniversitenin idari birimlerinin bulunduğu yerleşkedir. Hukuk Fakültesi, Mühendislik Fakültesi, İktisadi, İdari ve Sosyal Bilimler Fakültesi, Mimarlık ve Tasarım Fakültesi, Lisansüstü Eğitim Enstitüsü ve Yabancı Diller Yüksekokulu bu yerleşkededir.",
+          "source": "Wikipedia TR",
+          "source_url": "https://tr.wikipedia.org/wiki/İstanbul_Gedik_Üniversitesi",
+          "university_code": "315098",
+          "department_code": "",
+          "year": null,
+          "score_type": "",
+          "distance": 7.322450637817383
+        },
+        {
+          "content": "📖 GİRESUN ÜNİVERSİTESİ — Fakülteler\n\nDenizcilik Fakültesi\nDiş Hekimliği Fakültesi\nEğitim Fakültesi\nFen-Edebiyat Fakültesi\nGörele Güzel Sanatlar Fakültesi\nİktisadi ve İdari Bilimler Fakültesi\nİlahiyat Fakültesi\nMühendislik Fakültesi\nPiraziz Sağlık Bilimleri Fakültesi\nTıp Fakültesi\nTirebolu İletişim Fakültesi\nTurizm Fakültesi\nSpor Bilimleri Fakültesi\nSpor Bilimleri Fakültesinin temelleri Eğitim Fakültesi bünyesinde 2012-2013 Eğitim Öğretim yılında kurulan Beden Eğitimi ve Spor Öğretmenliği Bölümü olarak atılmıştır. Türkiye Cumhuriyeti Millî Eğitim Bakanlığı'nın 5/2/2015 tarihli ve 1307733 sayılı yazısı üzerine, 28/3/1983 tarihli ve 2809 sayılı Kanunun ek 30 uncu maddesine göre, Bakanlar Kurulunca 16/2/2015 tarihinde alınan kararla Spor Bilimleri Fakültesi kurulmuş olup hâlen bir aktif olmak üzere dört bölüm ve 265 öğrenci ile Eğitim-Öğretim sürdürülmektedir. Beden Eğitimi ve Spor Öğretmenliği, Antrenörlük, Spor Yöneticiliği, Rekreasyon bölümleri vardır.",
+          "source": "Wikipedia TR",
+          "source_url": "https://tr.wikipedia.org/wiki/Giresun_Üniversitesi",
+          "university_code": "112836",
+          "department_code": "",
+          "year": null,
+          "score_type": "",
+          "distance": 7.36653995513916
+        }
+      ],
+      "total_latency_ms": 11386,
+      "_status": 200
+    }
+  }
+]
