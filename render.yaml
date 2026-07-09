@@ -1,11 +1,15 @@
-# Render — Backend deploy konfigürasyonu
+# Render — Backend deploy konfigürasyonu (FREE tier, $0/ay)
 # Kullanım: Render dashboard → New → Blueprint → bu repo + branch seç
 # (Blueprint bu dosyayı SADECE repo kökünde arar — backend/ altına taşıma!)
 #
-# ÖNEMLİ ÖN KOŞULLAR:
-# 1. "sync: false" alanları (GEMINI_API_KEYS, FIREBASE_PROJECT_ID) Render UI'de elle gir.
-# 2. İlk deploy'da embed çalışır (birkaç dakika sürer) — logları izle.
-# 3. Veri dosyaları normal git blob'u (LFS DEĞİL) — ekstra ayar gerekmez.
+# ÖN KOŞULLAR:
+# 1. Index HF dataset deposunda olmalı: python scripts/upload_index_hf.py <kullanici>/unisense-index
+# 2. "sync: false" alanları (GEMINI_API_KEYS, FIREBASE_PROJECT_ID) Render UI'de elle gir.
+# 3. Free instance 15 dk boşta kalınca uyur — UptimeRobot ile /api/v1/health'i
+#    5 dk'da bir pingle (uyanma ~1-2 dk sürer: index HF'den iner + ONNX yüklenir).
+#
+# NOT: Embedding lokal ONNX (torch yok) → toplam RAM ~300-400MB, free'nin
+# 512MB'ına sığar. Trafik artarsa tek satırla plan: starter ($7) yapılır.
 
 services:
   - type: web
@@ -14,18 +18,11 @@ services:
     repo: https://github.com/BrokyEwing/UniSense
     branch: main
     region: frankfurt   # Türkiye'ye yakın, düşük latency
-    # Embedding lokal ONNX'e geçtiği için (torch yok) toplam RAM ~300MB —
-    # 512MB'lık starter artık yeterli. (Eski torch'lu halde standard gerekirdi.)
-    plan: starter
+    plan: free
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     autoDeploy: true
     healthCheckPath: /api/v1/health
-
-    disk:
-      name: chromadb-disk
-      mountPath: /data/chromadb
-      sizeGB: 1
 
     envVars:
       - key: APP_ENV
@@ -34,8 +31,11 @@ services:
         value: 0.0.0.0
       - key: APP_PORT
         value: "8002"
+      # Free tier'da kalıcı disk yok — index container FS'ine HF'den indirilir
       - key: CHROMA_PERSIST_DIR
-        value: /data/chromadb
+        value: /app/data/embeddings/chromadb
+      - key: HF_INDEX_REPO
+        value: BrokyEwing/unisense-index
       - key: CHROMA_COLLECTION
         value: unisense
       - key: EMBEDDING_PROVIDER

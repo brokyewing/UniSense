@@ -52,14 +52,14 @@ HEALTHCHECK --interval=60s --timeout=10s --start-period=120s --retries=3 \
 ENV APP_PORT=8002
 EXPOSE 8002
 
-# İlk boot'ta index boşsa embed çalıştır (idempotent + resume destekli).
-# CHROMA_PERSIST_DIR: Render'da /data/chromadb (persistent disk),
-# HF Space'te /app/data/embeddings/chromadb (imaja gömülü hazır index).
+# İlk boot'ta index boşsa: önce HF dataset'ten hazır index'i indir
+# (HF_INDEX_REPO tanımlıysa, ~30-60sn), o da olmazsa embed çalıştır.
+# Render free tier'da kalıcı disk yok — index bu yüzden HF'den gelir.
 # --proxy-headers: LB arkasında gerçek istemci IP'si (rate limit için şart)
-CMD CHROMA_DIR="${CHROMA_PERSIST_DIR:-/data/chromadb}" && \
+CMD CHROMA_DIR="${CHROMA_PERSIST_DIR:-./data/embeddings/chromadb}" && \
     if [ ! -d "$CHROMA_DIR" ] || [ -z "$(ls -A "$CHROMA_DIR" 2>/dev/null)" ]; then \
-      echo ">>> ChromaDB empty at $CHROMA_DIR, running embed..." && \
-      python -m unisense.cli.embed; \
+      python -m unisense.cli.fetch_index || \
+      { echo ">>> Index indirilemedi, embed calisiyor..." && python -m unisense.cli.embed; }; \
     fi && \
     exec uvicorn unisense.main:app --host 0.0.0.0 --port ${PORT:-8002} \
       --proxy-headers --forwarded-allow-ips "*"

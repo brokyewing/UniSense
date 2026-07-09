@@ -75,9 +75,14 @@ def _read_env(path: Path) -> dict[str, str]:
 def main() -> None:
     from huggingface_hub import HfApi
 
-    token = os.environ.get("HF_TOKEN")
+    # Önce env, yoksa backend/.env içindeki HF_TOKEN satırı
+    token = os.environ.get("HF_TOKEN") or _read_env(BACKEND / ".env").get("HF_TOKEN")
     if not token:
-        sys.exit("HF_TOKEN env değişkeni gerekli (https://huggingface.co/settings/tokens — write yetkili)")
+        sys.exit(
+            "HF_TOKEN bulunamadı. Ya ortam değişkeni olarak ver ya da backend/.env "
+            "dosyasına 'HF_TOKEN=hf_...' satırı ekle "
+            "(https://huggingface.co/settings/tokens — write yetkili)"
+        )
     if len(sys.argv) < 2:
         sys.exit("Kullanım: python scripts/deploy_hf_space.py <kullanici>/unisense-api")
     space_id = sys.argv[1]

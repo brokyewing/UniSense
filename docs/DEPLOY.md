@@ -5,33 +5,31 @@ ve uptime monitoring için adımları içerir.
 
 ---
 
-## 1A. Backend — Hugging Face Spaces (ÖNERİLEN, $0/ay)
+## 1A. Backend — Render Free + HF Dataset Index (ÖNERİLEN, $0/ay)
 
-Embedding lokal ONNX ile çalışır (`EMBEDDING_PROVIDER=local`) — API kotası
-ve ücreti yok. HF free tier: 2 vCPU / 16 GB RAM, fazlasıyla yeter.
+- Embedding lokal ONNX (`EMBEDDING_PROVIDER=local`) — API kotası/ücreti yok,
+  RAM ~300-400MB → Render free'nin 512MB'ına sığar.
+- Free tier'da kalıcı disk yok → hazır index HF **dataset** deposunda durur
+  (dataset barındırma ücretsiz), container boot'ta indirir (~30-60 sn).
+- NOT: HF Spaces'in Docker tipi artık PRO ($9/ay) istiyor — o yüzden Spaces
+  değil Render free + HF dataset kombinasyonu kullanılıyor.
 
 ### Adımlar
-1. https://huggingface.co → hesap aç → Settings → Access Tokens → **write** yetkili token
-2. Index'i lokalde üret (bir kez): `cd backend && python -m unisense.cli.embed`
-3. Deploy:
-   ```powershell
-   $env:HF_TOKEN="hf_..."
-   python scripts/deploy_hf_space.py <kullanici_adi>/unisense-api
-   ```
-   Script: Space'i oluşturur, backend + hazır index'i yükler, `.env`'deki
-   GEMINI_API_KEYS ve FIREBASE_PROJECT_ID'yi Space secret'ı yapar.
-4. Build'i izle: Space sayfası → Logs (~5-10 dk)
-5. API adresi: `https://<kullanici>-unisense-api.hf.space`
-   → Vercel'de `VITE_API_URL` bunu göstermeli
-   → `CORS_ALLOWED_ORIGINS` Space variable'ında Vercel domaini olmalı
-6. Uyumayı önle: UptimeRobot'a `/api/v1/health` monitörü ekle (5 dk)
+1. Index'i lokalde üret (bir kez): `cd backend && python -m unisense.cli.embed`
+2. Index'i HF'ye yükle (HF_TOKEN backend/.env içinde):
+   `python scripts/upload_index_hf.py <kullanici>/unisense-index`
+3. https://render.com → GitHub ile giriş (kart GEREKMEZ) → New + → **Blueprint**
+   → UniSense repo → Apply. Kökteki `render.yaml` free plan ile hazır.
+4. Sorulan env'leri gir: `GEMINI_API_KEYS`, `FIREBASE_PROJECT_ID`
+5. Deploy logunda `Index indiriliyor` → `Uvicorn running` gör; sonra:
+   `https://unisense-api.onrender.com/api/v1/health` → `{"status":"ok",...}`
+6. **UptimeRobot şart:** free instance 15 dk boşta uyur; `/api/v1/health`'e
+   5 dk'lık monitor ekle → hiç uyumaz (aylık 750 free saat 7/24'e yeter)
 
-### Notlar
-- Free Space ~48 saat trafiksiz kalırsa uyur; UptimeRobot ping'i bunu önler
-- Kalıcı disk yok ama gerekmiyor: index imaja gömülü gelir
-- Veri güncellenince: lokalde re-embed + script'i tekrar çalıştır
+### Veri güncellenince
+Lokalde re-embed → `upload_index_hf.py` tekrar → Render'da Manual Deploy.
 
-## 1B. Backend — Render (alternatif, $25/ay)
+## 1B. Backend — Render Starter (alternatif, $7/ay)
 
 ### Hazırlık
 Repo'da `backend/Dockerfile` ve kökte `render.yaml` zaten mevcut
