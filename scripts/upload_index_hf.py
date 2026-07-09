@@ -14,15 +14,19 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-INDEX_DIR = ROOT / "backend" / "data" / "embeddings" / "chromadb"
+# chromadb/ + static_model.npz + static_tokenizer.json birlikte yüklenir
+INDEX_DIR = ROOT / "backend" / "data" / "embeddings"
 
 README = """---
 license: mit
 ---
-# UniSense ChromaDB Index
+# UniSense Index + Statik Embedding Modeli
 
-UniSense backend'inin önceden hesaplanmış vektör index'i
-(ONNX MiniLM, 384-dim). Boot sırasında `unisense.cli.fetch_index` indirir.
+- `chromadb/` — önceden hesaplanmış vektör index'i (potion-multilingual, 256-dim)
+- `static_model.npz` — int8 quantize edilmiş Model2Vec tablosu
+- `static_tokenizer.json` — tokenizer
+
+Boot sırasında `unisense.cli.fetch_index` indirir.
 Kaynak: https://github.com/brokyewing/UniSense
 """
 
@@ -47,8 +51,10 @@ def main() -> None:
         sys.exit("Kullanım: python scripts/upload_index_hf.py <kullanici>/unisense-index")
     repo_id = sys.argv[1]
 
-    if not INDEX_DIR.exists() or not any(INDEX_DIR.iterdir()):
-        sys.exit(f"Index bulunamadı: {INDEX_DIR} — önce `python -m unisense.cli.embed` çalıştır")
+    if not (INDEX_DIR / "chromadb").exists():
+        sys.exit(f"Index bulunamadı: {INDEX_DIR}/chromadb — önce `python -m unisense.cli.embed` çalıştır")
+    if not (INDEX_DIR / "static_model.npz").exists():
+        sys.exit(f"Model yok: {INDEX_DIR}/static_model.npz — önce scripts/build_static_model.py çalıştır")
 
     api = HfApi(token=token)
     print(f"📚 Dataset deposu: {repo_id}")
@@ -64,7 +70,9 @@ def main() -> None:
         folder_path=str(INDEX_DIR),
         repo_id=repo_id,
         repo_type="dataset",
-        commit_message="index: ChromaDB güncellemesi",
+        commit_message="index: ChromaDB + statik model güncellemesi",
+        # Depo lokal klasörün aynası olsun — eski düzenden kalan dosyalar silinsin
+        delete_patterns=["*"],
     )
     print(f"✅ Bitti: https://huggingface.co/datasets/{repo_id}")
 

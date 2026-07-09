@@ -1,15 +1,22 @@
-"""Lokal ONNX embedding — torch'suz MiniLM.
+"""Lokal statik embedding — korpusa özel kelime tablosu (Model2Vec tekniği).
 
-sentence-transformers'ın resmi ONNX export'unu (quantize, 118MB) onnxruntime
-ile çalıştırır. PyTorch'a kıyasla RAM ~1.3GB → ~300MB. Çıktılar,
-sentence-transformers pipeline'ı ile aynı mimari (mean pooling + L2 norm);
-index bu dosyayla üretildiği sürece kendi içinde tutarlıdır.
+512MB'lık free instance gerçeği:
+- Transformer ONNX (MiniLM int8): yüklenince ~415MB → sığmadı
+- Hazır statik model (potion, 500k vocab): tokenizer'ı ~400MB → sığmadı
+Bu yüzden sözlük korpustan damıtıldı (scripts/build_static_model.py):
+~60-80k Türkçe kelime, her biri MiniLM ile embed'lenmiş, int8 tablo.
+Runtime: saf numpy + dict lookup → ~50MB RAM, <1ms sorgu.
 
-API kotası/bedeli yok — $0 çalışır.
+Embedding = kelimelerin idf-ağırlıklı ortalaması, L2 normalize.
+Sözlük dışı kelimeler atlanır (hibrit retrieval'daki keyword bacağı ve
+yapısal sorgu yönlendirmesi bu boşluğu kapatır).
 """
 from __future__ import annotations
 
+import os
+import re
 from functools import lru_cache
+from pathlib import Path
 
 import numpy as np
 
@@ -18,58 +25,56 @@ from unisense.core.logging import get_logger
 
 logger = get_logger(__name__)
 
-_BATCH = 32
-_MAX_TOKENS = 128  # modelin eğitildiği maksimum uzunluk
+# build_static_model.py ile AYNI tokenizasyon olmak ZORUNDA
+_WORD_RE = re.compile(r"[a-zçğıöşü]+", re.IGNORECASE)
+
+
+def _tr_lower(s: str) -> str:
+    return s.replace("İ", "i").replace("I", "ı").lower()
+
+
+def _tokenize(text: str) -> list[str]:
+    return _WORD_RE.findall(_tr_lower(text))
+
+
+def _model_path() -> Path:
+    # Model dosyası chroma dizininin yanında durur (birlikte indirilirler):
+    # data/embeddings/chromadb + data/embeddings/static_model.npz
+    return Path(os.path.abspath(get_settings().chroma_persist_dir)).parent / "static_model.npz"
 
 
 @lru_cache(maxsize=1)
-def _session_and_tokenizer():
-    import onnxruntime as ort
-    from huggingface_hub import hf_hub_download
-    from tokenizers import Tokenizer
-
-    settings = get_settings()
-    logger.info(
-        "loading_onnx_model",
-        repo=settings.embedding_onnx_repo,
-        file=settings.embedding_onnx_file,
-    )
-    onnx_path = hf_hub_download(settings.embedding_onnx_repo, settings.embedding_onnx_file)
-    tok_path = hf_hub_download(settings.embedding_onnx_repo, "tokenizer.json")
-
-    tokenizer = Tokenizer.from_file(tok_path)
-    pad_id = tokenizer.token_to_id("<pad>") or 0
-    tokenizer.enable_truncation(max_length=_MAX_TOKENS)
-    tokenizer.enable_padding(pad_id=pad_id, pad_token="<pad>")
-
-    session = ort.InferenceSession(onnx_path, providers=["CPUExecutionProvider"])
-    input_names = {i.name for i in session.get_inputs()}
-    return session, tokenizer, input_names
+def _load_model():
+    path = _model_path()
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Statik embedding modeli yok: {path} — "
+            "scripts/build_static_model.py çalıştır (veya HF dataset'ten indir)"
+        )
+    logger.info("loading_static_model", path=str(path))
+    data = np.load(path)
+    table = data["table"]                        # int8 (V, dim)
+    scales = data["scales"].astype(np.float32)   # (V,)
+    weights = data["weights"].astype(np.float32) # (V,) idf
+    word_to_id = {w: i for i, w in enumerate(data["vocab"].tolist())}
+    logger.info("static_model_ready", vocab=table.shape[0], dim=table.shape[1])
+    return table, scales, weights, word_to_id
 
 
 def embed_texts_local(texts: list[str]) -> np.ndarray:
-    """Metinleri lokal ONNX modeliyle embed eder (normalize float32)."""
-    session, tokenizer, input_names = _session_and_tokenizer()
+    """Metinleri statik tabloyla embed eder (normalize float32)."""
+    table, scales, weights, word_to_id = _load_model()
+    dim = table.shape[1]
 
-    out: list[np.ndarray] = []
-    for start in range(0, len(texts), _BATCH):
-        batch = [t or " " for t in texts[start:start + _BATCH]]
-        enc = tokenizer.encode_batch(batch)
-        input_ids = np.array([e.ids for e in enc], dtype=np.int64)
-        attention = np.array([e.attention_mask for e in enc], dtype=np.int64)
+    out = np.zeros((len(texts), dim), dtype=np.float32)
+    for i, text in enumerate(texts):
+        ids = [word_to_id[w] for w in _tokenize(text or "") if w in word_to_id]
+        if not ids:
+            continue
+        idx = np.array(ids, dtype=np.int64)
+        rows = table[idx].astype(np.float32) * scales[idx][:, None]
+        w = weights[idx][:, None]
+        out[i] = (rows * w).sum(axis=0) / (w.sum() + 1e-9)
 
-        feeds = {"input_ids": input_ids, "attention_mask": attention}
-        if "token_type_ids" in input_names:
-            feeds["token_type_ids"] = np.zeros_like(input_ids)
-
-        hidden = session.run(None, feeds)[0]  # (B, T, H)
-
-        # Mean pooling (attention mask ile) — sentence-transformers ile aynı
-        mask = attention[..., None].astype(np.float32)
-        summed = (hidden * mask).sum(axis=1)
-        counts = np.clip(mask.sum(axis=1), 1e-9, None)
-        out.append(summed / counts)
-
-    embs = np.vstack(out)
-    norms = np.linalg.norm(embs, axis=1, keepdims=True) + 1e-9
-    return (embs / norms).astype(np.float32)
+    norms = np.linalg.norm(out, axis=1, keepdims=True) + 1e-9
+    return (out / norms).astype(np.float32)

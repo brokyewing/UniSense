@@ -62,3 +62,4 @@ Thumbs.db
 backend/embed_log*.txt
 backend/infobox_log.txt
 backend/_housing_probe.py
+backend/data/embeddings/

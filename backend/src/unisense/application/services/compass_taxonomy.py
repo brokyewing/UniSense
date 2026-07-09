@@ -12,12 +12,8 @@ Kişilik ekseni (1-5 ölçek):
 """
 from __future__ import annotations
 
-import json
 import re
 from functools import lru_cache
-from pathlib import Path
-
-from unisense.core.config import get_settings
 
 
 # === Kategori şablonları: (id, label, emoji, default_axes [m,h,c,r,f]) ===
@@ -278,9 +274,12 @@ def get_taxonomy() -> dict:
       ]
     }
     """
-    settings = get_settings()
-    proc = Path(settings.project_root) / "data" / "processed"
-    departments = json.load(open(proc / "departments.json", encoding="utf-8"))
+    # BELLEK: departments.json'u İKİNCİ kez parse etme — recommendation
+    # servisinin cache'li (ve slim) yüklemesini paylaş. Ayrı json.load,
+    # 512MB instance'da OOM'a yol açan ~400MB'lık ikinci tepeyi yaratıyordu.
+    from unisense.application.services.recommendation_service import _load_data
+
+    _, departments, _ = _load_data()
 
     # Benzersiz group_name'leri ve program sayılarını topla
     counts: dict[str, int] = {}

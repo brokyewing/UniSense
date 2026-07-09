@@ -5,13 +5,10 @@ gibi alanları toplar; frontend'de yan yana tablo gösterimi için.
 """
 from __future__ import annotations
 
-import json
 from functools import lru_cache
-from pathlib import Path
 from typing import Any
 
 from unisense.application.services.trend_service import get_program_trend
-from unisense.core.config import get_settings
 from unisense.core.logging import get_logger
 
 logger = get_logger(__name__)
@@ -22,17 +19,18 @@ MIN_PROGRAMS = 2
 
 @lru_cache(maxsize=1)
 def _load_full_data() -> tuple[dict[str, dict], dict[str, dict], dict[str, dict]]:
-    """departments + universities + rankings — code → dict lookup'ları."""
-    settings = get_settings()
-    proc = Path(settings.project_root) / "data" / "processed"
+    """departments + universities + rankings — code → dict lookup'ları.
 
-    departments = json.load(open(proc / "departments.json", encoding="utf-8"))
-    universities = json.load(open(proc / "universities.json", encoding="utf-8"))
-    rankings = json.load(open(proc / "rankings.json", encoding="utf-8"))
+    BELLEK: veriyi kendisi YÜKLEMEZ — recommendation servisinin cache'li
+    (slim) yüklemesini paylaşır. Ayrı json.load, aynı verinin ikinci
+    kopyasını (~190MB) yaratıp 512MB instance'ı OOM'a taşıyordu.
+    """
+    from unisense.application.services.recommendation_service import _load_data
 
+    rankings, departments, uni_lookup = _load_data()
     return (
         {d["code"]: d for d in departments},
-        {u["code"]: u for u in universities},
+        uni_lookup,
         {r["department_code"]: r for r in rankings},
     )
 

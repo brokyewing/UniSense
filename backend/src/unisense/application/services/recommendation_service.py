@@ -49,9 +49,21 @@ def _load_data() -> tuple[list[dict], list[dict], dict[str, dict]]:
     proc = Path(settings.project_root) / "data" / "processed"
 
     rankings = json.load(open(proc / "rankings.json", encoding="utf-8"))
-    departments = json.load(open(proc / "departments.json", encoding="utf-8"))
-    universities = json.load(open(proc / "universities.json", encoding="utf-8"))
 
+    # BELLEK: departments.json 54MB — komple parse etmek ~400MB tepe yapar
+    # ve 512MB'lık instance'ı OOM'a sürükler. Docker build slim kopya üretir
+    # (cli/slim_data.py); varsa onu yükle. Yoksa (lokal dev) full'ü yükleyip
+    # ağır alanları at.
+    slim = proc / "departments_slim.json"
+    if slim.exists():
+        departments = json.load(open(slim, encoding="utf-8"))
+    else:
+        departments = json.load(open(proc / "departments.json", encoding="utf-8"))
+        for d in departments:
+            d.pop("osym_conditions", None)
+            d.pop("accreditation_full", None)
+
+    universities = json.load(open(proc / "universities.json", encoding="utf-8"))
     uni_lookup = {u["code"]: u for u in universities}
     return rankings, departments, uni_lookup
 

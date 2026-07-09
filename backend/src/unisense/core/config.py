@@ -36,19 +36,20 @@ class Settings(BaseSettings):
     chroma_persist_dir: str = "./data/embeddings/chromadb"
     chroma_collection: str = "unisense"
     # Sağlayıcı seçimi:
-    #   local  → ONNX MiniLM (torch'suz, $0, kota yok) — varsayılan
+    #   local  → statik Model2Vec tablosu (int8 ~130MB RAM, $0, kota yok,
+    #            <1ms/sorgu) — varsayılan. Not: transformer'lı MiniLM ONNX
+    #            denendi, yüklenince ~415MB RAM istiyor → 512MB'a sığmadı.
     #   gemini → Gemini API (daha kaliteli ama index kurulumu billing ister:
     #            free tier günlük istek limiti 24k chunk'a yetmez)
     # DİKKAT: Index hangi sağlayıcıyla üretildiyse sorgular da onunla yapılmalı.
     embedding_provider: str = Field(default="local", pattern="^(local|gemini)$")
-    embedding_onnx_repo: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-    embedding_onnx_file: str = "onnx/model_quint8_avx2.onnx"
     gemini_embedding_model: str = "models/gemini-embedding-001"
-    embedding_dim: int = 768  # sadece gemini için; local her zaman 384
+    embedding_dim: int = 768         # sadece gemini için
+    static_embedding_dim: int = 384  # damıtılmış tablo (MiniLM taban boyutu)
 
     @property
     def effective_embedding_dim(self) -> int:
-        return 384 if self.embedding_provider == "local" else self.embedding_dim
+        return self.static_embedding_dim if self.embedding_provider == "local" else self.embedding_dim
 
     # === Güvenlik ===
     security_require_api_key: bool = False

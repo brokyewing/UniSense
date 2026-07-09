@@ -43,9 +43,13 @@ def _load_history() -> dict[str, list[dict]]:
     out: dict[str, list[dict]] = {}
 
     # 1) Mevcut yıl (2025) + içindeki history (2024, 2023)
+    # BELLEK: rankings'i yeniden parse etme — recommendation'ın cache'li
+    # kopyasını paylaş (ayrı yükleme ikinci bir kopya bindiriyordu)
     if rankings_path.exists():
         try:
-            current = json.load(open(rankings_path, encoding="utf-8"))
+            from unisense.application.services.recommendation_service import _load_data
+
+            current, _, _ = _load_data()
             for r in current:
                 code = str(r.get("department_code", ""))
                 if not code:

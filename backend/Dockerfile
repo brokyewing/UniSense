@@ -26,15 +26,16 @@ COPY src ./src
 COPY scripts ./scripts
 RUN pip install -e . --no-deps
 
-# ONNX embedding modelini imaja göm (~120MB) — cold start'ta indirme olmasın
-RUN python -c "from huggingface_hub import hf_hub_download; \
-    hf_hub_download('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2', 'onnx/model_quint8_avx2.onnx'); \
-    hf_hub_download('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2', 'tokenizer.json')"
-
-# Veriyi container'a kopyala. HF Space build context'inde data/embeddings
-# (hazır index) de bulunur ve birlikte kopyalanır; GitHub/Render context'inde
-# o klasör yoktur, embed ilk boot'ta çalışır.
+# Veriyi container'a kopyala. Statik embedding modeli + hazır index
+# HF dataset'ten boot'ta iner (fetch_index) — imaja gömülmez.
 COPY data ./data
+
+# BELLEK (512MB instance için kritik): departments.json (54MB) → slim kopya
+# (~17MB); fat dosya imajdan silinir, yoksa runtime parse'ı ~400MB tepe
+# yapıp OOM'a yol açıyor. Compass bölüm matrisi (npz) repo'dan gelir
+# (data/processed/compass_dept_embeddings.npz — statik modelle üretilmiş).
+RUN python -m unisense.cli.slim_data \
+    && rm data/processed/departments.json
 
 # Non-root kullanıcı — container escape yüzeyini daraltır.
 # /data mount noktası da app kullanıcısına verilir; Render diski mount

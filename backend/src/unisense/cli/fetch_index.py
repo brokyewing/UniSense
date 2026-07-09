@@ -20,23 +20,26 @@ def main() -> int:
         print("HF_INDEX_REPO tanımlı değil — index indirme atlandı")
         return 1
 
+    # Depo düzeni: chromadb/ (index) + static_model.npz + static_tokenizer.json
+    # → hedef, chroma dizininin BİR ÜSTÜ (data/embeddings)
     persist_dir = Path(os.environ.get("CHROMA_PERSIST_DIR", "./data/embeddings/chromadb"))
+    target_dir = persist_dir.parent
     if persist_dir.exists() and any(persist_dir.iterdir()):
         print(f"Index zaten mevcut: {persist_dir} — indirme atlandı")
         return 0
 
     from huggingface_hub import snapshot_download
 
-    print(f">>> Index indiriliyor: {repo} → {persist_dir}")
-    persist_dir.mkdir(parents=True, exist_ok=True)
+    print(f">>> Index + statik model indiriliyor: {repo} → {target_dir}")
+    target_dir.mkdir(parents=True, exist_ok=True)
     snapshot_download(
         repo_id=repo,
         repo_type="dataset",
-        local_dir=str(persist_dir),
+        local_dir=str(target_dir),
         # .gitattributes vb. depo metadata'sını alma
         ignore_patterns=[".gitattributes", "README.md"],
     )
-    n_files = sum(1 for _ in persist_dir.rglob("*") if _.is_file())
+    n_files = sum(1 for _ in target_dir.rglob("*") if _.is_file())
     print(f">>> İndirme tamam: {n_files} dosya")
     return 0
 

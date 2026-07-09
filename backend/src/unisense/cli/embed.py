@@ -15,10 +15,10 @@ import sys
 import time
 from pathlib import Path
 
-import chromadb
+import chromadb  # noqa: E402
 
-from unisense.core.config import get_settings
-from unisense.infrastructure.embeddings import embed_texts
+from unisense.core.config import get_settings  # noqa: E402
+from unisense.infrastructure.embeddings import embed_texts  # noqa: E402
 
 if sys.platform == "win32":
     import io as _io
@@ -54,7 +54,7 @@ def main() -> None:
 
     target_dim = settings.effective_embedding_dim
     model_desc = (
-        f"{settings.embedding_onnx_repo} (ONNX, lokal)"
+        "potion-multilingual-128M (statik, lokal)"
         if settings.embedding_provider == "local"
         else f"{settings.gemini_embedding_model} (Gemini API)"
     )
