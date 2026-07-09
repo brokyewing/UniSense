@@ -8,8 +8,7 @@ import {
   Search as SearchIcon, X, ChevronRight, Wand2, Brain, ArrowRight,
 } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
-
-const API_BASE = import.meta.env.VITE_API_URL || ''
+import { apiFetch } from '../lib/api'
 
 const MAX_SELECTIONS = 40
 const MIN_SELECTIONS = 3
@@ -76,11 +75,7 @@ function CardsMode({ onResult }) {
     setError('')
 
     // Paralel: taksonomi + (varsa) kullanıcı profili
-    const taxoPromise = fetch(`${API_BASE}/api/v1/compass/interests`)
-      .then(async (r) => {
-        if (!r.ok) throw new Error(`API ${r.status} — backend çalışıyor mu? (${API_BASE || 'localhost:8002'})`)
-        return r.json()
-      })
+    const taxoPromise = apiFetch('/api/v1/compass/interests')
     const profilePromise = user
       ? getUserProfile(user.uid).catch(() => null)
       : Promise.resolve(null)
@@ -124,13 +119,10 @@ function CardsMode({ onResult }) {
     setError('')
     try {
       const interests = Array.from(selected)
-      const res = await fetch(`${API_BASE}/api/v1/compass/by-interests`, {
+      const data = await apiFetch('/api/v1/compass/by-interests', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ interests, top_k: 15 }),
+        body: { interests, top_k: 15 },
       })
-      if (!res.ok) throw new Error(`API ${res.status}`)
-      const data = await res.json()
       onResult({ ...data, selected: interests })
 
       // Login user — ilgileri profile'a kaydet (sessizce)
@@ -434,13 +426,10 @@ function QuizMode({ onResult }) {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch(`${API_BASE}/api/v1/compass/by-axes`, {
+      const data = await apiFetch('/api/v1/compass/by-axes', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...answers, top_k: 15 }),
+        body: { ...answers, top_k: 15 },
       })
-      if (!res.ok) throw new Error(`API ${res.status}`)
-      const data = await res.json()
       onResult({ ...data, axes: answers })
     } catch (e) {
       setError(e.message)

@@ -1,0 +1,30 @@
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+htmlcov
+*.egg-info
+*.log
+logs/
+
+# Local data — Dockerfile sadece data/raw + data/processed kopyalar
+# embeddings ve diğer büyük binary'ler container'a girmesin
+data/embeddings/
+data/training/
+
+# Local dev artifacts
+embed_log*.txt
+infobox_log.txt
+
+# IDE
+.vscode
+.idea
+
+# Env
+.env
+.env.local

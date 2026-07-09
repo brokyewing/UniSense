@@ -1,7 +1,6 @@
 """API v1 — request/response DTOs."""
 from __future__ import annotations
 
-from typing import Any
 from pydantic import BaseModel, Field
 
 from unisense.domain.enums import ScoreType
@@ -17,8 +16,8 @@ class AskRequest(BaseModel):
     top_k: int = Field(default=12, ge=1, le=30)
     # Son N tur (user+bot) — multi-turn chat için. Boş ise tek-tur sorgu.
     history: list[ChatTurn] = Field(default_factory=list, max_length=10)
-    # LLM seçimi: "gemini" (default) | "unisense-local"
-    model_preference: str = Field(default="gemini", pattern="^(gemini|unisense-local)$")
+    # LLM seçimi: şu an sadece "gemini" — ileride yeni model gelirse genişletilir
+    model_preference: str = Field(default="gemini")
 
 
 class ModelInfo(BaseModel):
@@ -83,6 +82,7 @@ class RecommendationItem(BaseModel):
     fit_score: float
     safety_level: str
     reason: str = ""
+    placement_probability: float | None = None
     last_year_base_rank: int | None = None
     last_year_base_score: float | None = None
 
@@ -195,6 +195,71 @@ class ProgramLookupItem(BaseModel):
 
 class ProgramLookupResponse(BaseModel):
     programs: list[ProgramLookupItem]
+
+
+# === Bölüm Karşılaştırma ===
+
+class CompareRequest(BaseModel):
+    codes: list[str] = Field(..., min_length=2, max_length=5)
+
+
+class CompareTrendPoint(BaseModel):
+    year: int | None = None
+    base_rank: int | None = None
+    base_score: float | None = None
+    quota: int | None = None
+
+
+class CompareItem(BaseModel):
+    code: str
+    found: bool
+    # Program
+    department_name: str = ""
+    department_group: str = ""
+    faculty_name: str = ""
+    score_type: str = ""
+    education_level: str = ""
+    education_language: str = ""
+    duration_years: int | None = None
+    scholarship: str = ""
+    fee_try: int | None = None
+    accreditation: str = ""
+    min_basari_sirasi_kosul: str | None = None
+    # Üniversite
+    university_code: str = ""
+    university_name: str = ""
+    university_type: str = ""
+    city: str = ""
+    region: str = ""
+    logo_url: str = ""
+    website: str = ""
+    founded_year: int | None = None
+    # 2025 yerleştirme
+    base_score: float | None = None
+    base_rank: int | None = None
+    quota: int | None = None
+    yerlesen: int | None = None
+    # Akademik kadro
+    academic_total: int = 0
+    academic_professor: int = 0
+    academic_associate: int = 0
+    academic_assistant: int = 0
+    # Trend
+    trend: list[CompareTrendPoint] = Field(default_factory=list)
+    # Coğrafi
+    is_coastal: bool = False
+    is_metropolis: bool = False
+
+
+class CompareDiffEntry(BaseModel):
+    best_code: str
+    worst_code: str
+
+
+class CompareResponse(BaseModel):
+    items: list[CompareItem]
+    diffs: dict[str, CompareDiffEntry] = Field(default_factory=dict)
+    error: str | None = None
 
 
 class CompassResponse(BaseModel):

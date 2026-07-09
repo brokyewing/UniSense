@@ -22,6 +22,7 @@ _INJECTION_PATTERNS = [
 _INJECTION_RE = re.compile("|".join(_INJECTION_PATTERNS), re.IGNORECASE)
 _CONTROL_CHARS_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 MAX_QUERY_LENGTH = 500
+MAX_HISTORY_TEXT_LENGTH = 4000
 
 
 def sanitize_query(text: str) -> str:
@@ -40,4 +41,21 @@ def sanitize_query(text: str) -> str:
             "Şüpheli prompt yapısı algılandı",
             details={"text_preview": text[:100]},
         )
+    return text
+
+
+def sanitize_history_text(text: str) -> str:
+    """History mesajları için yumuşak sanitizasyon.
+
+    History doğrudan LLM'e gittiği için query ile aynı temizlikten geçmeli;
+    ancak eski bir mesaj yüzünden tüm isteği reddetmek yerine şüpheli turu
+    sessizce düşürürüz (boş string döner → çağıran taraf filtreler).
+    """
+    if not text:
+        return ""
+    text = unicodedata.normalize("NFKC", text)
+    text = _CONTROL_CHARS_RE.sub("", text)
+    text = " ".join(text.split())[:MAX_HISTORY_TEXT_LENGTH]
+    if _INJECTION_RE.search(text):
+        return ""
     return text

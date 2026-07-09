@@ -5,7 +5,6 @@ import {
   Send, Loader2, BookOpen, ExternalLink, Sparkles, Bot, User,
   TrendingUp, Building2, MapPin, GraduationCap, Menu,
   ChevronDown, ChevronUp, Compass, Plus, Check, Hash,
-  Cloud, Zap,
 } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import ChatSidebar from '../components/ChatSidebar'
@@ -15,9 +14,7 @@ import {
   updateSessionTitle, MAX_SESSIONS_PER_USER,
   addToTercih, watchTercihList,
 } from '../firebase'
-
-const API_BASE = import.meta.env.VITE_API_URL || ''
-const API_URL = `${API_BASE}/api/v1/ask`
+import { apiFetch } from '../lib/api'
 
 function Avatar({ kind, photoURL }) {
   if (kind === 'user') {
@@ -274,23 +271,8 @@ export default function Search() {
   const [busyCode, setBusyCode] = useState(null)
   const [pusulaToast, setPusulaToast] = useState(null)
   const [tercihToast, setTercihToast] = useState(null)
-  const [modelPref, setModelPref] = useState(() => localStorage.getItem('unisense_model') || 'gemini')
-  const [availableModels, setAvailableModels] = useState([])
   const endRef = useRef(null)
   const { user, isAuthed } = useAuth()
-
-  // Mevcut LLM modellerini çek
-  useEffect(() => {
-    fetch(`${API_BASE}/api/v1/models`)
-      .then((r) => r.json())
-      .then((d) => setAvailableModels(d.models || []))
-      .catch(() => {/* sessizce ignore — fallback gemini */})
-  }, [])
-
-  function changeModel(id) {
-    setModelPref(id)
-    localStorage.setItem('unisense_model', id)
-  }
 
   // Tercih listesini canlı izle (Search chunk'larında "✓ Listemde" rozeti için)
   useEffect(() => {
@@ -345,13 +327,10 @@ export default function Search() {
     }
     try {
       // Lookup ile programları çek
-      const res = await fetch(`${API_BASE}/api/v1/programs/lookup`, {
+      const data = await apiFetch('/api/v1/programs/lookup', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ codes }),
+        body: { codes },
       })
-      if (!res.ok) throw new Error(`API ${res.status}`)
-      const data = await res.json()
       const found = (data.programs || []).filter((p) => p.found)
       let nextOrder = tercihIds.size + 1
       let added = 0, skipped = 0
@@ -511,18 +490,14 @@ export default function Search() {
       .map((m) => ({ role: m.role === 'bot' ? 'bot' : 'user', text: m.text }))
 
     try {
-      const res = await fetch(API_URL, {
+      const data = await apiFetch('/api/v1/ask', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           query: text,
           top_k: 12,
           history: recentHistory,
-          model_preference: modelPref,
-        }),
+        },
       })
-      if (!res.ok) throw new Error(`API ${res.status}`)
-      const data = await res.json()
 
       const botMsg = {
         role: 'bot',
@@ -551,7 +526,9 @@ export default function Search() {
         ])
       }
     } catch (e) {
-      const errorMsg = `⚠️ Sunucuya ulaşılamadı: ${e.message}\n\nBackend ayakta mı? (port 8002)`
+      const errorMsg = e.name === 'ApiError'
+        ? `⚠️ ${e.message}`
+        : `⚠️ Sunucuya ulaşılamadı: ${e.message}\n\nBackend ayakta mı? (port 8002)`
       if (sid && user) {
         await addSessionMessage(user.uid, sid, {
           role: 'bot',
@@ -625,9 +602,9 @@ export default function Search() {
 
         {/* Ana Chat — sağ */}
         <div className="flex-1 flex flex-col h-[calc(100vh-200px)] min-w-0">
-          {/* Üst bar — mobile menu + Model seçici */}
-          <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
-            {isAuthed && (
+          {/* Üst bar — mobile menu */}
+          {isAuthed && (
+            <div className="flex items-center justify-between gap-2 mb-3">
               <button
                 onClick={() => setSidebarOpen(true)}
                 className="lg:hidden btn-ghost inline-flex items-center gap-2 text-sm"
@@ -635,42 +612,8 @@ export default function Search() {
                 <Menu size={14} />
                 Geçmiş Sohbetler
               </button>
-            )}
-
-            {/* Model seçici */}
-            <div className="flex items-center gap-1.5 ml-auto">
-              <span className="text-[10px] text-slate-500 mr-1">AI Modeli:</span>
-              {[
-                { id: 'gemini', label: 'Gemini', Icon: Cloud, color: 'from-blue-500 to-cyan-400', desc: 'Bulut · Hızlı · Geniş bilgi' },
-              ].map((m) => {
-                const active = modelPref === m.id
-                const info = availableModels.find((x) => x.id === m.id)
-                const isAvail = info?.available !== false
-                return (
-                  <button
-                    key={m.id}
-                    onClick={() => isAvail && changeModel(m.id)}
-                    disabled={!isAvail}
-                    title={isAvail ? m.desc : 'Bu model şu an erişilemez (Ollama çalışıyor mu?)'}
-                    className={`
-                      relative inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition
-                      ${active
-                        ? `bg-gradient-to-br ${m.color} text-white shadow-md`
-                        : isAvail
-                        ? 'glass glass-hover text-slate-300 hover:text-white'
-                        : 'opacity-40 cursor-not-allowed text-slate-500 bg-white/[0.02]'
-                      }
-                    `}
-                  >
-                    <m.Icon size={12} />
-                    {m.label}
-                    {!isAvail && <span className="text-[8px] opacity-70">(offline)</span>}
-                    {active && isAvail && <Zap size={10} className="opacity-80" />}
-                  </button>
-                )
-              })}
             </div>
-          </div>
+          )}
 
           {/* Sohbet alanı */}
           <div className="flex-1 overflow-y-auto pr-2 space-y-4 pb-6">

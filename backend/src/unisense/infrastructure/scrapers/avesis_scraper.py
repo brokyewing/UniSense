@@ -157,7 +157,7 @@ def main() -> None:
         print(f"\n[{i}/{len(TOP_UNIVERSITIES)}] {uni_name[:50]:<50} ({base_url})")
 
         if not check_avesis_alive(base_url):
-            print(f"   ❌ Site cevap vermiyor")
+            print("   ❌ Site cevap vermiyor")
             failed += 1
             all_data.append({
                 "university_code": uni_code,

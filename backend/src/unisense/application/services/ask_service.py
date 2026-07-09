@@ -1,9 +1,12 @@
 """Ask service — RAG sorgu orkestrasyonu + sıra/puan intent routing."""
 from __future__ import annotations
 
+import hashlib
 import re
 import time
 from typing import TYPE_CHECKING
+
+from cachetools import TTLCache
 
 from unisense.application.interfaces.llm_provider import LLMProvider
 from unisense.application.services.retrieval_service import RetrievalService
@@ -16,6 +19,20 @@ if TYPE_CHECKING:
     from unisense.application.services.recommendation_service import RecommendationService
 
 logger = get_logger(__name__)
+
+# Cevap önbelleği — aynı sorgu (+ history + model) için Gemini'yi tekrar çağırmaktan kaçın.
+# maxsize=512 ~5 MB civarı; ttl=3600 (1 saat) — guncel veri sınırı.
+_response_cache: TTLCache[str, str] = TTLCache(maxsize=512, ttl=3600)
+
+
+def _make_cache_key(query: Query, model_pref: str) -> str:
+    """Sorgu + top_k + history + model tercihinden deterministic anahtar üret."""
+    parts = [query.text.strip(), model_pref, str(getattr(query, "top_k", ""))]
+    if query.history:
+        for t in query.history[-8:]:  # son 8 mesaj
+            parts.append(f"{t.role}:{t.text.strip()}")
+    raw = "|".join(parts).encode("utf-8")
+    return hashlib.sha256(raw).hexdigest()[:32]
 
 
 # === Türkçe-güvenli lowercase ===
@@ -247,6 +264,23 @@ class AskService:
     def execute(self, query: Query) -> Answer:
         start = time.perf_counter()
 
+        # 0. Cache check — aynı sorgu+history+model son 1 saat içinde cevaplanmış mı?
+        model_pref = getattr(query, "model_preference", None) or "gemini"
+        cache_key = _make_cache_key(query, model_pref)
+        cached_text = _response_cache.get(cache_key)
+        if cached_text is not None:
+            # Cache'de cevap var — retrieval yine yap (frontend kaynak chunk'larını bekliyor),
+            # ama LLM çağırma. Toplam latency ~50-300ms.
+            docs = self._retrieval.retrieve(query)
+            total_ms = int((time.perf_counter() - start) * 1000)
+            logger.info("ask_cache_hit", cache_key=cache_key[:8], total_ms=total_ms)
+            return Answer(
+                query=query.text,
+                text=cached_text,
+                docs=docs,
+                total_latency_ms=total_ms,
+            )
+
         # 1. Intent kontrolü — sıra/puan tabanlı sorgu mu?
         intent = _extract_intent(query.text)
         rec_context = ""
@@ -308,19 +342,22 @@ class AskService:
             for t in query.history:
                 history_dicts.append({"role": t.role, "text": t.text})
 
-        # Model tercihi (varsa) — multi-router'da kullanılır
-        model_pref = getattr(query, "model_preference", None) or "gemini"
-
         text = ""
+        llm_ok = False
         try:
-            # MultiLLMRouter model_preference parametresi alır; tek-model provider'lar yoksayar
-            kwargs = {"context": context, "history": history_dicts if history_dicts else None}
-            if hasattr(self._llm, "_providers"):  # MultiLLMRouter
-                kwargs["model_preference"] = model_pref
-            text = self._llm.generate(query.text, **kwargs)
+            text = self._llm.generate(
+                query.text,
+                context=context,
+                history=history_dicts if history_dicts else None,
+            )
+            llm_ok = True
         except Exception as e:  # noqa: BLE001
             logger.warning("llm_failed", error=str(e)[:200])
             text = f"⚠️ Şu an cevap üretemedim: {str(e)[:120]}"
+
+        # Cevabı önbelleğe yaz (sadece başarılı LLM cevabı için, hata mesajını cache'leme)
+        if llm_ok and text:
+            _response_cache[cache_key] = text
 
         total_ms = int((time.perf_counter() - start) * 1000)
         logger.info(
@@ -329,6 +366,7 @@ class AskService:
             docs=len(docs),
             has_recommendation=bool(rec_context),
             total_ms=total_ms,
+            cache_size=len(_response_cache),
         )
 
         return Answer(

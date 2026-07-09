@@ -35,6 +35,6 @@ def require_api_key(
     is_valid = any(secrets.compare_digest(api_key, k) for k in valid_keys)
     if not is_valid:
         client_ip = request.client.host if request.client else "?"
-        logger.warning("auth_failed", ip=client_ip, key_prefix=api_key[:8])
+        logger.warning("auth_failed", ip=client_ip, key_prefix=api_key[:4])
         raise AuthenticationError("Geçersiz API key")
     return api_key

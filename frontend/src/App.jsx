@@ -150,11 +150,21 @@ export default function App() {
       </main>
 
       <footer className="border-t border-white/5 py-4 text-center text-xs text-slate-500 relative z-10">
-        <div className="max-w-6xl mx-auto px-4">
-          UniSense • <span className="text-slate-400">YÖK Atlas + Wikipedia</span> • Resmi tercih için{' '}
-          <a className="text-accent-400 hover:underline" href="https://yokatlas.yok.gov.tr">
-            yokatlas.yok.gov.tr
-          </a>
+        <div className="max-w-6xl mx-auto px-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+          <span>UniSense</span>
+          <span className="text-slate-700">•</span>
+          <span className="text-slate-400">YÖK Atlas + Wikipedia</span>
+          <span className="text-slate-700">•</span>
+          <span>
+            Resmi tercih için{' '}
+            <a className="text-accent-400 hover:underline" href="https://yokatlas.yok.gov.tr">
+              yokatlas.yok.gov.tr
+            </a>
+          </span>
+          <span className="text-slate-700">•</span>
+          <Link to="/privacy" className="text-slate-400 hover:text-accent-300 transition">
+            KVKK / Gizlilik
+          </Link>
         </div>
       </footer>
     </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -6,6 +6,7 @@ import {
   FileDown, Compass, ChevronUp, ChevronDown, Loader2,
   TrendingUp, Hash, ArrowDownUp, ShieldCheck, Target, Mountain,
   Copy, Check as CheckIcon, Plus, X as XIcon, Search as SearchIcon,
+  BarChart3, StickyNote,
 } from 'lucide-react'
 import {
   DndContext,
@@ -26,11 +27,11 @@ import { CSS } from '@dnd-kit/utilities'
 import { useAuth } from '../contexts/AuthContext'
 import {
   watchTercihList, removeFromTercih, reorderTercihList, backfillTercihList,
+  updateTercihNote,
   addToTercih,
 } from '../firebase'
 import BackgroundScene from '../components/three/BackgroundScene'
-
-const API_BASE = import.meta.env.VITE_API_URL || ''
+import { apiFetch } from '../lib/api'
 
 /** ÖSYM kodu rozeti — tıklayınca kopyalar */
 function CodeChip({ code }) {
@@ -160,7 +161,7 @@ function SafetyBadge({ level }) {
 }
 
 // === Sürüklenebilir tek satır ===
-function SortableRow({ item, idx, total, onRemove, onMove, isLast }) {
+function SortableRow({ item, idx, total, onRemove, onMove, onSaveNote, isLast }) {
   const {
     attributes,
     listeners,
@@ -177,16 +178,42 @@ function SortableRow({ item, idx, total, onRemove, onMove, isLast }) {
     opacity: isDragging ? 0.85 : 1,
   }
 
+  const hasNote = !!(item.note && item.note.trim())
+  const [noteOpen, setNoteOpen] = useState(false)
+  const [noteValue, setNoteValue] = useState(item.note || '')
+  const [savingNote, setSavingNote] = useState(false)
+  const debounceRef = useRef(null)
+
+  // Firestore'dan gelen item.note değişirse local state'i senkronla
+  useEffect(() => {
+    setNoteValue(item.note || '')
+  }, [item.note, item.id])
+
+  function handleNoteChange(e) {
+    const next = e.target.value.slice(0, 500)
+    setNoteValue(next)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(async () => {
+      setSavingNote(true)
+      try {
+        await onSaveNote?.(item.department_code || item.id, next)
+      } finally {
+        setSavingNote(false)
+      }
+    }, 700)
+  }
+
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-3 px-3 py-3 rounded-xl transition group ${
+      className={`flex flex-col rounded-xl transition group ${
         isDragging
           ? 'bg-accent-500/15 ring-2 ring-accent-500/50 shadow-2xl shadow-accent-500/30'
           : 'hover:bg-white/[0.03]'
       }`}
     >
+      <div className="flex items-center gap-3 px-3 py-3">
       {/* Drag tutamacı */}
       <button
         {...attributes}
@@ -272,6 +299,19 @@ function SortableRow({ item, idx, total, onRemove, onMove, isLast }) {
         </button>
       </div>
 
+      {/* Not toggle */}
+      <button
+        onClick={() => setNoteOpen((o) => !o)}
+        title={hasNote ? 'Notu düzenle' : 'Kişisel not ekle'}
+        className={`p-1 rounded transition ml-1 ${
+          hasNote || noteOpen
+            ? 'text-amber-300 hover:text-amber-200'
+            : 'text-slate-500 hover:text-amber-300 opacity-0 group-hover:opacity-100'
+        }`}
+      >
+        <StickyNote size={14} />
+      </button>
+
       {/* Sil */}
       <button
         onClick={() => onRemove(item.id)}
@@ -280,6 +320,41 @@ function SortableRow({ item, idx, total, onRemove, onMove, isLast }) {
       >
         <Trash2 size={14} />
       </button>
+      </div>
+
+      {/* Kişisel not — expandable */}
+      <AnimatePresence initial={false}>
+        {(noteOpen || hasNote) && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="px-3 pb-3 pt-1 ml-12">
+              <div className="flex items-center gap-2 mb-1">
+                <StickyNote size={11} className="text-amber-300" />
+                <span className="text-[10px] text-slate-500 font-medium">KİŞİSEL NOT</span>
+                {savingNote && (
+                  <span className="text-[10px] text-accent-400 inline-flex items-center gap-0.5">
+                    <Loader2 size={9} className="animate-spin" /> kaydediliyor
+                  </span>
+                )}
+                <span className="text-[10px] text-slate-600 ml-auto">{noteValue.length}/500</span>
+              </div>
+              <textarea
+                value={noteValue}
+                onChange={handleNoteChange}
+                placeholder="Bu tercih hakkında not yaz… (ör. burs miktarı, ulaşım, akrabalık, ÖSYM puanın uygunluğu…)"
+                maxLength={500}
+                rows={2}
+                className="w-full text-xs rounded-lg bg-white/[0.03] border border-white/10 focus:border-amber-500/40 focus:outline-none focus:ring-1 focus:ring-amber-500/40 px-3 py-2 text-slate-200 placeholder-slate-600 resize-y min-h-[44px]"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -325,13 +400,10 @@ export default function TercihList() {
     let cancelled = false
     ;(async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/v1/programs/lookup`, {
+        const data = await apiFetch('/api/v1/programs/lookup', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ codes }),
+          body: { codes },
         })
-        if (!res.ok) throw new Error(`API ${res.status}`)
-        const data = await res.json()
         if (cancelled) return
 
         // codeToData map
@@ -383,6 +455,15 @@ export default function TercihList() {
       await removeFromTercih(user.uid, code)
     } catch (e) {
       setError(e.message)
+    }
+  }
+
+  async function handleSaveNote(code, note) {
+    if (!user) return
+    try {
+      await updateTercihNote(user.uid, code, note)
+    } catch (e) {
+      setError('Not kaydedilemedi: ' + (e.message || e))
     }
   }
 
@@ -482,13 +563,10 @@ export default function TercihList() {
     let ok = 0, fail = 0
     try {
       // Batch lookup ile programları çek
-      const res = await fetch(`${API_BASE}/api/v1/programs/lookup`, {
+      const data = await apiFetch('/api/v1/programs/lookup', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ codes }),
+        body: { codes },
       })
-      if (!res.ok) throw new Error(`API ${res.status}`)
-      const data = await res.json()
       const found = (data.programs || []).filter((p) => p.found)
       const existing = new Set(items.map((i) => String(i.department_code || i.id)))
       let nextOrder = items.length + 1
@@ -590,6 +668,15 @@ export default function TercihList() {
                 <ArrowDownUp size={14} /> Sıraya Göre Diz
               </button>
             )}
+            {items.length >= 2 && (
+              <Link
+                to={`/compare?d=${items.slice(0, 5).map((i) => i.department_code).filter(Boolean).join(',')}`}
+                title="İlk 5 tercihini yan yana karşılaştır"
+                className="btn-ghost inline-flex items-center gap-2 text-sm"
+              >
+                <BarChart3 size={14} /> Karşılaştır
+              </Link>
+            )}
             <Link to="/pusula" className="btn-ghost inline-flex items-center gap-2 text-sm">
               <Compass size={14} /> Pusula
             </Link>
@@ -660,6 +747,7 @@ export default function TercihList() {
                           isLast={idx === items.length - 1}
                           onRemove={handleRemove}
                           onMove={handleMove}
+                          onSaveNote={handleSaveNote}
                         />
                       </motion.div>
                     ))}

@@ -1,9 +1,12 @@
+import { lazy, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowRight, Sparkles } from 'lucide-react'
-import Scene3D from '../components/three/Scene3D'
 import ThemeToggle from '../components/ThemeToggle'
 import Logo from '../components/Logo'
+
+// 3D sahne büyük — Three.js bundle'ı ayrı chunk'tan lazy yükle (ilk paint hızlansın)
+const Scene3D = lazy(() => import('../components/three/Scene3D'))
 
 /**
  * Splash / Giriş ekranı
@@ -16,9 +19,11 @@ export default function Splash() {
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-gradient-cyber">
-      {/* 3D arkaplan */}
+      {/* 3D arkaplan — lazy, ilk paint'i bloklamasın */}
       <div className="absolute inset-0">
-        <Scene3D />
+        <Suspense fallback={<div className="w-full h-full bg-gradient-cyber" />}>
+          <Scene3D />
+        </Suspense>
       </div>
 
       {/* Grid overlay */}

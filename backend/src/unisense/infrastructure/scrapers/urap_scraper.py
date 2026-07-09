@@ -39,7 +39,7 @@ def parse_urap_pdf(pdf_path: Path) -> list[dict]:
     doc.close()
 
     # Satır satır işle: "ÜNİ ADI\nSIRA\nPUAN" pattern'i
-    lines = [l.strip() for l in full_text.split("\n") if l.strip()]
+    lines = [ln.strip() for ln in full_text.split("\n") if ln.strip()]
 
     rankings: list[dict] = []
     seen: set[tuple[str, int]] = set()

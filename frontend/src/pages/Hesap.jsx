@@ -45,8 +45,7 @@ import {
 import BackgroundScene from '../components/three/BackgroundScene'
 import { useAuth } from '../contexts/AuthContext'
 import { getUserProfile, updateUserProfile } from '../firebase'
-
-const API_BASE = import.meta.env.VITE_API_URL || ''
+import { apiFetch } from '../lib/api'
 
 // === ÖSYM 2025 katsayıları (yaklaşık, ders-bazlı)
 const TYT_BIAS = 100
@@ -378,19 +377,16 @@ export default function Hesap() {
     setSimLoading(true)
     setSimError('')
     try {
-      const res = await fetch(`${API_BASE}/api/v1/recommend`, {
+      const data = await apiFetch('/api/v1/recommend', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           score_type: tab === 'TYT' ? 'TYT' : tab,
           score: parseFloat(result.finalScore.toFixed(2)),
           rank: null,
           preferred_departments: [],
           preferred_uni_types: [],
-        }),
+        },
       })
-      if (!res.ok) throw new Error(`API ${res.status}`)
-      const data = await res.json()
       setSimResults(data)
     } catch (e) {
       setSimError(e.message)

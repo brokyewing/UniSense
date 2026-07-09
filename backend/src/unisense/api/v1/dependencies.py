@@ -1,9 +1,15 @@
 """FastAPI Depends helpers."""
 from __future__ import annotations
 
-from unisense.application.services import AskService, CompassService, RecommendationService
+from unisense.application.services import (
+    AskService,
+    CompareService,
+    CompassService,
+    RecommendationService,
+)
 from unisense.core.di import (
     get_ask_service as _di_ask,
+    get_compare_service as _di_compare,
     get_compass_service as _di_compass,
     get_recommendation_service as _di_rec,
 )
@@ -19,3 +25,7 @@ def recommendation_service_dep() -> RecommendationService:
 
 def compass_service_dep() -> CompassService:
     return _di_compass()
+
+
+def compare_service_dep() -> CompareService:
+    return _di_compare()

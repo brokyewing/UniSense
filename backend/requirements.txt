@@ -1,3 +1,7 @@
+# NOT: Bunlar alt sınırlar — tekrarlanabilir build için Linux'ta
+# (ör. Docker içinde) `pip freeze > requirements.lock` üretip
+# Dockerfile'da onu kurmak daha güvenli. Windows'ta üretilen freeze
+# platform-özel paketler içerebileceği için buraya koymadık.
 fastapi>=0.115.0
 uvicorn[standard]>=0.32.0
 pydantic>=2.9.0
@@ -16,3 +20,5 @@ pandas>=2.2.0
 slowapi>=0.1.9
 structlog>=24.4.0
 tenacity>=9.0.0
+cachetools>=5.3.0
+firebase-admin>=6.5.0

@@ -9,9 +9,7 @@ import {
 import BackgroundScene from '../components/three/BackgroundScene'
 import { useAuth } from '../contexts/AuthContext'
 import { getUserProfile, addToTercih, removeFromTercih, watchTercihList } from '../firebase'
-
-const API_BASE = import.meta.env.VITE_API_URL || ''
-const API_URL = `${API_BASE}/api/v1/recommend`
+import { apiFetch } from '../lib/api'
 
 const SCORE_TYPES = [
   { v: 'SAY', label: 'Sayısal', color: 'from-blue-500 to-cyan-400' },
@@ -111,8 +109,8 @@ function ItemCard({ item, isInTercih, onAdd, onRemove, busyCode }) {
         )}
       </div>
 
-      {(item.last_year_base_rank || item.last_year_base_score) && (
-        <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-4 text-xs">
+      {(item.last_year_base_rank || item.last_year_base_score || item.placement_probability != null) && (
+        <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-4 text-xs flex-wrap">
           {item.last_year_base_rank && (
             <div>
               <div className="text-slate-500">Sıra</div>
@@ -129,6 +127,24 @@ function ItemCard({ item, isInTercih, onAdd, onRemove, busyCode }) {
               </div>
             </div>
           )}
+          {item.placement_probability != null && (() => {
+            const pct = Math.round(item.placement_probability * 100)
+            const color =
+              pct >= 75 ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/30' :
+              pct >= 40 ? 'text-amber-300 bg-amber-500/10 border-amber-500/30' :
+                          'text-rose-300 bg-rose-500/10 border-rose-500/30'
+            return (
+              <div className="ml-auto">
+                <div className="text-slate-500 text-[10px] text-right">Yerleşme olasılığı</div>
+                <div
+                  className={`inline-flex items-center px-2 py-0.5 rounded-lg border font-mono font-semibold ${color}`}
+                  title="Geçen yılki sıraya göre tahmini sigmoid olasılık"
+                >
+                  %{pct}
+                </div>
+              </div>
+            )
+          })()}
         </div>
       )}
 
@@ -402,19 +418,17 @@ export default function Recommend() {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch(API_URL, {
+      const data = await apiFetch('/api/v1/recommend', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           score_type: scoreType,
           score: score ? parseFloat(score) : null,
           rank: rank ? parseInt(rank, 10) : null,
           preferred_departments: pusulaState.names,
           preferred_uni_types: uniType === 'all' ? [] : [uniType],
-        }),
+        },
       })
-      if (!res.ok) throw new Error(`API ${res.status}`)
-      setResult(await res.json())
+      setResult(data)
     } catch (e) {
       setError(e.message)
     } finally {

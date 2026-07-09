@@ -5,7 +5,6 @@ sentence-transformers ile 384-dim embedding üretir, ChromaDB persistent store'a
 from __future__ import annotations
 
 import json
-import os
 import sys
 from pathlib import Path
 

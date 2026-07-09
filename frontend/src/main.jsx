@@ -11,6 +11,8 @@ import TercihList from './pages/TercihList.jsx'
 import Profile from './pages/Profile.jsx'
 import Pusula from './pages/Pusula.jsx'
 import Hesap from './pages/Hesap.jsx'
+import Privacy from './pages/Privacy.jsx'
+import Compare from './pages/Compare.jsx'
 import { AuthProvider } from './contexts/AuthContext.jsx'
 import { ThemeProvider } from './contexts/ThemeContext.jsx'
 import './index.css'
@@ -31,6 +33,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/profile" element={<Profile />} />
               <Route path="/pusula" element={<Pusula />} />
               <Route path="/hesap" element={<Hesap />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/compare" element={<Compare />} />
             </Route>
           </Routes>
         </BrowserRouter>

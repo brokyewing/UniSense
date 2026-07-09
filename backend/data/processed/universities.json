@@ -35,7 +35,15 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.medipol.edu.tr/",
+    "founded_year": 2009,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/b/b0/%C4%B0stanbul_Medipol_%C3%9Cniversitesi.png/250px-%C4%B0stanbul_Medipol_%C3%9Cniversitesi.png",
+    "address": "İstanbul , Türkiye",
+    "rector": "Bahadır Kürşat Güntürk [ 3 ]",
+    "wiki_type": "Vakıf",
+    "colors": "Gri, Mavi ve Beyaz [ 6 ]",
+    "student_count_raw": "49.759 [ 5 ]"
   },
   {
     "code": "118853",
@@ -64,7 +72,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://ku.edu.tr",
+    "founded_year": 1993,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Ko%C3%A7_University_logo.svg/250px-Ko%C3%A7_University_logo.svg.png",
+    "address": "Sarıyer , İstanbul , Türkiye 41°12′21″N 29°04′25″E ﻿ / ﻿ 41.205789°K 29.07370°D ﻿ / 41.205789; 29.07370",
+    "rector": "Prof. Dr. Alphan Sennaroğlu Prof. Dr. Zeynep Gürhan Canlı",
+    "wiki_type": "Vakıf [ 1 ]",
+    "student_count_raw": "7.947 [ 2 ]"
   },
   {
     "code": "326654",
@@ -93,7 +108,15 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.acibadem.edu.tr/",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/2/2a/AcibademUniLogoOrjinal.png/250px-AcibademUniLogoOrjinal.png",
+    "address": "İstanbul , Türkiye 40°55′31″K 29°09′16″D ﻿ / ﻿ 40.92528°K 29.15444°D ﻿ / 40.92528; 29.15444",
+    "rector": "Prof. Dr. Ahmet Şahin",
+    "wiki_type": "Vakıf Üniversitesi [ 2 ]",
+    "colors": "Lacivert ve turuncu",
+    "student_count_raw": "162"
   },
   {
     "code": "105118",
@@ -121,7 +144,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://w3.bilkent.edu.tr/www/",
+    "founded_year": 1984,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/e/ee/Bilkent%C3%9Cniversitesi-logo.png/250px-Bilkent%C3%9Cniversitesi-logo.png",
+    "address": "Bilkent , Çankaya [ 8 ] , Türkiye [ 9 ]",
+    "rector": "Prof. Dr. Kürşat Aydoğan",
+    "wiki_type": "Vakıf üniversitesi [ 1 ] [ 2 ]",
+    "colors": "Refleks mavisi ve Bayrak kırmızısı",
+    "student_count_raw": "539 [ 7 ]"
   },
   {
     "code": "113082",
@@ -159,7 +190,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.hacettepe.edu.tr/",
+    "founded_year": 1967,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/2/28/Hacettepe_%C3%9Cniversitesi_Logosu.svg/120px-Hacettepe_%C3%9Cniversitesi_Logosu.svg.png",
+    "address": "Ankara , Türkiye",
+    "rector": "Ahmet Serper, Serhat Ünal, Sibel Aksu Yıldırım",
+    "wiki_type": "Devlet üniversitesi [ 1 ]",
+    "colors": "Kırmızı ve beyaz",
+    "student_count_raw": "50.000 [ 2 ]"
   },
   {
     "code": "122571",
@@ -184,7 +223,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.metu.edu.tr/tr",
+    "founded_year": 1956,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Logo_of_METU.svg/250px-Logo_of_METU.svg.png",
+    "address": "Çankaya , Ankara [ 10 ] Güzelyurt Kuzey Kıbrıs [ 11 ] , Türkiye [ 12 ]",
+    "rector": "Tülin Gençöz Oğuzhan Hasançebi Mehmet T. Zeyrek [ 7 ]",
+    "wiki_type": "Devlet [ 3 ] [ 4 ] [ 5 ]",
+    "colors": "Kırmızı ve beyaz"
   },
   {
     "code": "339984",
@@ -221,7 +267,15 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://iuc.edu.tr",
+    "founded_year": 2018,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/%C4%B0stanbul_%C3%9Cniversitesi-Cerrahpa%C5%9Fa_logo.svg/250px-%C4%B0stanbul_%C3%9Cniversitesi-Cerrahpa%C5%9Fa_logo.svg.png",
+    "address": "İstanbul , Türkiye",
+    "rector": "Prof. Dr. Mehmet Bilgin Prof. Dr. Elif Güzel Meydanlı Prof. Dr. Erol İnce",
+    "wiki_type": "Devlet",
+    "colors": "Lacivert ve Altın Sarısı [ 2 ]",
+    "student_count_raw": "34.337"
   },
   {
     "code": "115069",
@@ -258,7 +312,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://itu.edu.tr",
+    "founded_year": 1773,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Istanbul_asv2020-02_img69_Ma%C3%A7ka_Armory.jpg/250px-Istanbul_asv2020-02_img69_Ma%C3%A7ka_Armory.jpg",
+    "address": "İstanbul , Türkiye",
+    "rector": "Hasan Mandal [ 5 ]",
+    "wiki_type": "Devlet [ 4 ]",
+    "colors": "Lacivert ve Petek Sarısı [ 15 ]"
   },
   {
     "code": "105322",
@@ -286,7 +347,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://bogazici.edu.tr/",
+    "founded_year": 1863,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Bogazici_University.jpg/250px-Bogazici_University.jpg",
+    "address": "İstanbul , Türkiye",
+    "rector": "Fazıl Önder Sönmez (Araştırmadan Sorumlu) [ 2 ] Fatih Usluer (Dış İlişkilerden Sorumlu) [ 3 ] Mustafa Öztürk (Eğitimden Sorumlu) [ 4 ]",
+    "wiki_type": "Devlet Araştırma Üniversitesi",
+    "colors": "Mavi Lacivert"
   },
   {
     "code": "122827",
@@ -315,7 +383,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.ozyegin.edu.tr/",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/%C3%96zye%C4%9Fin_University_logo.svg/250px-%C3%96zye%C4%9Fin_University_logo.svg.png",
+    "address": "İstanbul , İstanbul ili [ 3 ] , Türkiye",
+    "rector": "Prof. Dr. Barış Tan [ 2 ]",
+    "wiki_type": "Vakıf [ 1 ]"
   },
   {
     "code": "339997",
@@ -343,7 +417,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.eskisehir.edu.tr",
+    "founded_year": 2018,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Eski%C5%9Fehir_Technical_University_logo.svg/250px-Eski%C5%9Fehir_Technical_University_logo.svg.png",
+    "address": "Eskişehir , Türkiye",
+    "rector": "Prof. Dr. Adnan Özcan",
+    "wiki_type": "Devlet üniversitesi , Teknik üniversite",
+    "colors": "Kırmızı, Beyaz ve Gri",
+    "student_count_raw": "14.000~"
   },
   {
     "code": "123400",
@@ -368,7 +450,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://www.sabanciuniv.edu",
+    "founded_year": 1999,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Sabanc%C4%B1_University_logo.svg/250px-Sabanc%C4%B1_University_logo.svg.png",
+    "address": "Tuzla , İstanbul [ 6 ] , Türkiye",
+    "rector": "Cem Güneri, Mehmet Yıldız [ 4 ]",
+    "wiki_type": "Vakıf Üniversitesi [ 2 ]"
   },
   {
     "code": "125552",
@@ -393,7 +481,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.etu.edu.tr/",
+    "founded_year": 2003,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/4/4d/TOBB_ET%C3%9C_logo.png/250px-TOBB_ET%C3%9C_logo.png",
+    "address": "Çankaya , Ankara , Türkiye",
+    "rector": "Yusuf Sarınay",
+    "colors": "Kırmızı, mavi ve sarı",
+    "student_count_raw": "105"
   },
   {
     "code": "203267",
@@ -418,7 +513,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.thk.edu.tr/tr/",
+    "founded_year": 2011,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/4/4f/T%C3%BCrk_Hava_Kurumu_%C3%9Cniversitesi_logo.png/250px-T%C3%BCrk_Hava_Kurumu_%C3%9Cniversitesi_logo.png",
+    "address": "Etimesgut , Ankara",
+    "rector": "Prof. Dr. Rahmi Er [ 2 ]",
+    "wiki_type": "Vakıf",
+    "colors": "Mavi, Beyaz"
   },
   {
     "code": "126818",
@@ -454,7 +556,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.yeditepe.edu.tr/",
+    "founded_year": 1996,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/2/28/Yeditepe_%C3%9Cniversitesi_logo.png/250px-Yeditepe_%C3%9Cniversitesi_logo.png",
+    "address": "İstanbul , Türkiye 40°58′22″K 29°09′07″D ﻿ / ﻿ 40.97278°K 29.15194°D ﻿ / 40.97278; 29.15194",
+    "rector": "Prof. Dr. Mehmet Durman",
+    "wiki_type": "Özel"
   },
   {
     "code": "102738",
@@ -506,7 +614,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.ankara.edu.tr",
+    "founded_year": 1946,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/5/5f/Ankara_%C3%9Cniversitesi_logosu.png/250px-Ankara_%C3%9Cniversitesi_logosu.png",
+    "address": "Ankara , Ankara , Türkiye",
+    "rector": "Necdet Ünüvar [ 3 ]",
+    "student_count_raw": "6.276 (2021-22)"
   },
   {
     "code": "104140",
@@ -540,7 +654,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.bau.edu.tr",
+    "founded_year": 1998,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/d/d8/Bah%C3%A7e%C5%9Fehir_%C3%9Cniversitesi_logo.png/250px-Bah%C3%A7e%C5%9Fehir_%C3%9Cniversitesi_logo.png",
+    "address": "Türkiye",
+    "rector": "Prof. Dr. Ahmet Beşkese Prof. Dr. Tunç Bozbura",
+    "wiki_type": "Vakıf Üniversitesi",
+    "colors": "Açık mavi, lacivert ve beyaz"
   },
   {
     "code": "114827",
@@ -676,7 +797,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.atilim.edu.tr/",
+    "founded_year": 1996,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/At%C4%B1l%C4%B1m_%C3%9Cniversitesi_logo.svg/250px-At%C4%B1l%C4%B1m_%C3%9Cniversitesi_logo.svg.png",
+    "address": "Ankara , Türkiye",
+    "rector": "Prof. Dr. Serkan Eryılmaz",
+    "wiki_type": "Vakıf",
+    "colors": "Mavi ve Kırmızı",
+    "student_count_raw": "197 (2023-24)"
   },
   {
     "code": "133520",
@@ -710,7 +839,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.gazi.edu.tr/",
+    "founded_year": 1926,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/4/4e/Gazi_%C3%9Cniversitesi_logo.png/250px-Gazi_%C3%9Cniversitesi_logo.png",
+    "address": "Ankara , Türkiye",
+    "rector": "Prof. Dr. Uğur Ünal [ 2 ]",
+    "wiki_type": "Devlet",
+    "colors": "Lacivert ve Mavi"
   },
   {
     "code": "109290",
@@ -762,7 +898,13 @@
     ],
     "coast_km": 629,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.ege.edu.tr",
+    "founded_year": 1955,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Ege_University_logo.svg/250px-Ege_University_logo.svg.png",
+    "address": "İzmir , Türkiye",
+    "rector": "Prof. Dr. Banu Yücel Prof. Dr. Mehmet Ersan Prof. Dr. İlkin Şengün",
+    "wiki_type": "Devlet Üniversitesi"
   },
   {
     "code": "104628",
@@ -800,7 +942,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.baskent.edu.tr/",
+    "founded_year": 1994,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Ba%C5%9Fkent_%C3%9Cniversitesi_logo.svg/250px-Ba%C5%9Fkent_%C3%9Cniversitesi_logo.svg.png",
+    "address": "Bağlıca , Ankara , Türkiye",
+    "rector": "Prof. Dr. Hakan Özkardeş",
+    "wiki_type": "Vakıf Üniversitesi"
   },
   {
     "code": "119094",
@@ -845,7 +993,15 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.marmara.edu.tr",
+    "founded_year": 1883,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/7/70/Marmara_%C3%9Cniversitesi_logo.png",
+    "address": "İstanbul , Türkiye",
+    "rector": "Prof. Dr. Gül Üstün Prof. Dr. Ümit Süleyman Şehirli Prof. Dr. Yaşar Kabataş",
+    "wiki_type": "Devlet Üniversitesi",
+    "colors": "Mavi, metalik gümüş, beyaz",
+    "student_count_raw": "7.753 (ön lisans) 47.256 (lisans) 16.157 (lisansüstü) 3.699 (doktora)"
   },
   {
     "code": "447904",
@@ -878,7 +1034,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.nisantasi.edu.tr/",
+    "founded_year": 2012,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Mavi.png/250px-Mavi.png",
+    "address": "İstanbul , Sarıyer , Türkiye",
+    "rector": "Prof.Dr. Uğur YOZGAT [ 1 ]",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "163894",
@@ -905,7 +1067,12 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.bezmialem.edu.tr",
+    "founded_year": 2010,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/2/21/Bezmi%C3%A2lem_Vak%C4%B1f_%C3%9Cniversitesi_logosu.png/250px-Bezmi%C3%A2lem_Vak%C4%B1f_%C3%9Cniversitesi_logosu.png",
+    "address": "Fatih , İstanbul , Türkiye",
+    "rector": "Prof. Dr. Adem AKÇAKAYA"
   },
   {
     "code": "311737",
@@ -942,7 +1109,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://aybu.edu.tr",
+    "founded_year": 2010,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Ankara_Y%C4%B1ld%C4%B1r%C4%B1m_Beyaz%C4%B1t_University_logo.svg/250px-Ankara_Y%C4%B1ld%C4%B1r%C4%B1m_Beyaz%C4%B1t_University_logo.svg.png",
+    "address": "Ankara , Türkiye",
+    "rector": "Ali Cengiz Köseoğlu",
+    "wiki_type": "Devlet",
+    "colors": "Lacivert, Turkuaz",
+    "student_count_raw": "1.208 (2025-26)"
   },
   {
     "code": "360777",
@@ -977,7 +1152,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.okan.edu.tr",
+    "founded_year": 1999,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/3/3d/Okan_%C3%9Cniversitesi_logo.png/250px-Okan_%C3%9Cniversitesi_logo.png",
+    "address": "İstanbul [ 3 ] , Türkiye",
+    "rector": "Prof. Dr. Güliz Muğan",
+    "wiki_type": "Vakıf [ 1 ]",
+    "student_count_raw": "16.392"
   },
   {
     "code": "274888",
@@ -1010,7 +1192,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://istinye.edu.tr",
+    "founded_year": 2015,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/%C4%B0stinye_%C3%9Cniversitesi_logo.svg/250px-%C4%B0stinye_%C3%9Cniversitesi_logo.svg.png",
+    "address": "İstanbul , İstanbul , Türkiye",
+    "rector": "Prof. Dr. Erkan İbiş [ 2 ]",
+    "wiki_type": "Vakıf Üniversitesi"
   },
   {
     "code": "111395",
@@ -1038,7 +1226,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://gsu.edu.tr/",
+    "founded_year": 1994,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Galatasaray_%C3%9Cniversitesi.jpg/250px-Galatasaray_%C3%9Cniversitesi.jpg",
+    "address": "Beşiktaş , İstanbul , Türkiye 41°2′42.7″K 29°1′8.8″D ﻿ / ﻿ 41.045194°K 29.019111°D ﻿ / 41.045194; 29.019111",
+    "rector": "Prof. Dr. Pınar Kartal Prof. Dr. Temel Öncan",
+    "wiki_type": "Devlet üniversitesi",
+    "colors": "Sarı-Kırmızı"
   },
   {
     "code": "270121",
@@ -1083,7 +1278,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.sbu.edu.tr/",
+    "founded_year": 1903,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/0/06/SB%C3%9C_logo.png/250px-SB%C3%9C_logo.png",
+    "address": "İstanbul , Türkiye",
+    "rector": "Mustafa Gerek Yunus Karakoç Murat Elevli Mehmet Ali Gülçelik",
+    "wiki_type": "Devlet üniversitesi"
   },
   {
     "code": "126982",
@@ -1115,7 +1316,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.yildiz.edu.tr/",
+    "founded_year": 1911,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Y%C4%B1ld%C4%B1z_Technical_University_logo.svg/250px-Y%C4%B1ld%C4%B1z_Technical_University_logo.svg.png",
+    "address": "Beşiktaş 41°3′0″K 29°0′36″D ﻿ / ﻿ 41.05000°K 29.01000°D ﻿ / 41.05000; 29.01000",
+    "rector": "Eyüp Debik [ 2 ]",
+    "wiki_type": "Devlet üniversitesi",
+    "colors": "Lacivert, Sarı ve Beyaz"
   },
   {
     "code": "108163",
@@ -1160,7 +1368,15 @@
     ],
     "coast_km": 629,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.deu.edu.tr",
+    "founded_year": 1982,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/1/1e/Deu_logo.png/250px-Deu_logo.png",
+    "address": "Konak , İzmir , Türkiye [ 3 ]",
+    "rector": "Prof. Dr. Esra Bukova Güzel Prof. Dr. M. Refik Korkusuz Prof. Dr. Caner Çavdar",
+    "wiki_type": "Devlet Üniversitesi [ 1 ]",
+    "colors": "Mavi ve Beyaz",
+    "student_count_raw": "9.936 (doktora dahil)"
   },
   {
     "code": "250548",
@@ -1199,7 +1415,14 @@
     ],
     "coast_km": 396,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://www.girne.edu.tr",
+    "founded_year": 2013,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/9/96/Girne_%C3%9Cniversitesi.png",
+    "address": "Girne , Kuzey Kıbrıs Türk Cumhuriyeti",
+    "rector": "Prof. Dr. İlkay Salihoğlu [ 1 ]",
+    "wiki_type": "Vakıf",
+    "colors": "Turkuaz-beyaz"
   },
   {
     "code": "332474",
@@ -1224,7 +1447,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.lokmanhekim.edu.tr/",
+    "founded_year": 2017,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Lokman_Hekim_%C3%9Cniversitesi_logo.svg/250px-Lokman_Hekim_%C3%9Cniversitesi_logo.svg.png",
+    "address": "Ankara , Türkiye",
+    "rector": "Prof. Dr. Fatih Gültekin [ 3 ]",
+    "wiki_type": "Vakıf",
+    "colors": "Mavi, Beyaz",
+    "student_count_raw": "23"
   },
   {
     "code": "101458",
@@ -1280,7 +1511,15 @@
     ],
     "coast_km": 657,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.akdeniz.edu.tr",
+    "founded_year": 1982,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/d/dc/Akdeniz_%C3%9Cniversitesi_logosu.IMG_0838.png/250px-Akdeniz_%C3%9Cniversitesi_logosu.IMG_0838.png",
+    "address": "Antalya , Türkiye",
+    "rector": "Ayşe Gülbin Arıcı Cengiz Toker Şükrü Özen",
+    "wiki_type": "Devlet",
+    "colors": "Lacivert, Mavi ve Turuncu",
+    "student_count_raw": "1.540 (2021-22)"
   },
   {
     "code": "340001",
@@ -1311,7 +1550,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.ankaramedipol.edu.tr",
+    "founded_year": 2018,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/3/3c/Ankara_Medipol_%C3%9Cniversitesi_logosu.svg/250px-Ankara_Medipol_%C3%9Cniversitesi_logosu.svg.png",
+    "address": "Ankara , Türkiye",
+    "rector": "Prof. Dr. Tolga Tolunay",
+    "wiki_type": "Vakıf üniversitesi",
+    "student_count_raw": "20 (2021-22) [ 1 ]"
   },
   {
     "code": "202542",
@@ -1348,7 +1594,14 @@
     ],
     "coast_km": 396,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://www.gau.edu.tr",
+    "founded_year": 1985,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Girne_Amerikan_%C3%9Cniversitesi_Kamp%C3%BCs.JPG/250px-Girne_Amerikan_%C3%9Cniversitesi_Kamp%C3%BCs.JPG?utm_source=tr.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+    "address": "Girne , Kuzey Kıbrıs Türk Cumhuriyeti",
+    "rector": "Prof. Dr. Serdar Yurtsever",
+    "wiki_type": "Özel",
+    "student_count_raw": "18.000"
   },
   {
     "code": "125968",
@@ -1376,7 +1629,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.ufuk.edu.tr",
+    "founded_year": 1999,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Ufuk_%C3%9Cniversitesi_Yeni_Logo.png/250px-Ufuk_%C3%9Cniversitesi_Yeni_Logo.png",
+    "address": "Ankara , Türkiye",
+    "rector": "Prof. Dr. Mete DOLAPÇI [ 3 ]",
+    "wiki_type": "Vakıf [ 2 ]"
   },
   {
     "code": "110538",
@@ -1412,7 +1671,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.ogu.edu.tr",
+    "founded_year": 1993,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/6/6d/Esogu_logo.png/250px-Esogu_logo.png",
+    "address": "Eskişehir , Türkiye 39°45′01.8″K 30°29′06.5″D ﻿ / ﻿ 39.750500°K 30.485139°D ﻿ / 39.750500; 30.485139",
+    "rector": "Hakan Demiral, Ramazan Erdağ, Kürşat Bora Çarman",
+    "wiki_type": "Devlet",
+    "colors": "Turkuaz ve Mavi",
+    "student_count_raw": "Önlisans 2956"
   },
   {
     "code": "107211",
@@ -1463,7 +1730,13 @@
     ],
     "coast_km": 70,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.cu.edu.tr",
+    "founded_year": 1973,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/%C3%87ukurova_University_logo.svg/250px-%C3%87ukurova_University_logo.svg.png",
+    "address": "Sarıçam , Adana , Türkiye 37°3′0″K 35°21′36″D ﻿ / ﻿ 37.05000°K 35.36000°D ﻿ / 37.05000; 35.36000",
+    "rector": "Prof. Dr. Hüseyin Akıllı Prof. Dr. Ömer Korkut Prof. Dr. Selim Büyükkurt",
+    "wiki_type": "Devlet [ 3 ]"
   },
   {
     "code": "173496",
@@ -1496,7 +1769,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.medeniyet.edu.tr/",
+    "founded_year": 2010,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/%C4%B0stanbul_Medeniyet_%C3%9Cniversitesi_logo.svg/250px-%C4%B0stanbul_Medeniyet_%C3%9Cniversitesi_logo.svg.png",
+    "address": "İstanbul , Türkiye 40°59′43.98″K 29°3′45.03″D ﻿ / ﻿ 40.9955500°K 29.0625083°D ﻿ / 40.9955500; 29.0625083",
+    "rector": "Yaşar Bülbül, Fatih Sarıoğlu, Nuriye Akbay",
+    "wiki_type": "Devlet üniversitesi",
+    "colors": "Turkuaz ve Gri"
   },
   {
     "code": "362386",
@@ -1545,7 +1825,13 @@
     ],
     "coast_km": 134,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://uludag.edu.tr",
+    "founded_year": 1975,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Bursa_Uluda%C4%9F_University_logo.svg/250px-Bursa_Uluda%C4%9F_University_logo.svg.png",
+    "address": "Bursa , Türkiye",
+    "rector": "İrfan Kırıştıoğlu [ 3 ] Cafer Çiftçi Zekeriyya Arı",
+    "wiki_type": "Devlet"
   },
   {
     "code": "251241",
@@ -1575,7 +1861,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://biruni.edu.tr",
+    "founded_year": 2014,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Biruni_%C3%9Cniversitesi_logo.svg/250px-Biruni_%C3%9Cniversitesi_logo.svg.png",
+    "address": "İstanbul , Türkiye",
+    "rector": "Prof. Dr. Mustafa Solak Prof. Dr. Sevim Savaşer Prof. Dr. Fatma Çelik",
+    "wiki_type": "Vakıf Üniversitesi",
+    "colors": "Turkuaz, lacivert ve Turuncu"
   },
   {
     "code": "121946",
@@ -1627,7 +1920,13 @@
     ],
     "coast_km": 175,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://omu.edu.tr",
+    "founded_year": 1975,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/c/c4/OM%C3%9C_logo.svg/250px-OM%C3%9C_logo.svg.png",
+    "address": "Samsun , Türkiye 41°22′K 36°12′D ﻿ / ﻿ 41.367°K 36.200°D ﻿ / 41.367; 36.200",
+    "rector": "Prof. Dr. Alper KESTEN Prof. Dr. Çetin KURNAZ",
+    "wiki_type": "Devlet"
   },
   {
     "code": "206792",
@@ -1650,7 +1949,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.yuksekihtisasuniversitesi.edu.tr/",
+    "founded_year": 2011,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/3/34/Yuksek_ihtisas_universitesi.png",
+    "address": "Ankara , Türkiye",
+    "rector": "Prof. Dr. Şebnem Kavaklı [ 2 ]",
+    "wiki_type": "Vakıf",
+    "colors": "Mavi, Beyaz, Kırmızı"
   },
   {
     "code": "327022",
@@ -1681,7 +1987,15 @@
     ],
     "coast_km": 657,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.antalya.edu.tr",
+    "founded_year": 2010,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Antalya_Bilim_%C3%9Cniversitesi_logo.svg/250px-Antalya_Bilim_%C3%9Cniversitesi_logo.svg.png",
+    "address": "Döşemealtı , Antalya , Türkiye",
+    "rector": "Prof. Dr. Semih Ekercin [ 2 ]",
+    "wiki_type": "Vakıf Üniversitesi [ 1 ]",
+    "colors": "Beyaz Mavi",
+    "student_count_raw": "4 (2021-22)"
   },
   {
     "code": "116147",
@@ -1713,7 +2027,15 @@
     ],
     "coast_km": 629,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.ieu.edu.tr/tr",
+    "founded_year": 2001,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/%C4%B0zmir_Ekonomi_%C3%9Cniversitesi_logo.svg/250px-%C4%B0zmir_Ekonomi_%C3%9Cniversitesi_logo.svg.png",
+    "address": "İzmir , Türkiye",
+    "rector": "Prof. Dr. Mehmet Efe Biresselioğlu Prof. Dr. Aslı Ceylan Öner",
+    "wiki_type": "Vakıf üniversitesi",
+    "colors": "Turuncu ve Siyah",
+    "student_count_raw": "97 (2025-2026) [ 2 ]"
   },
   {
     "code": "118883",
@@ -1746,7 +2068,12 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.maltepe.edu.tr/en",
+    "founded_year": 1997,
+    "address": "Maltepe , İstanbul , Türkiye 40°57′35″K 29°11′39″D ﻿ / ﻿ 40.95972°K 29.19417°D ﻿ / 40.95972; 29.19417",
+    "rector": "Prof. Dr. Edibe Sözen",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "173498",
@@ -1782,7 +2109,15 @@
     ],
     "coast_km": 629,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.ikcu.edu.tr",
+    "founded_year": 2010,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/%C4%B0zmir_Katip_%C3%87elebi_%C3%9Cniversitesi_Giri%C5%9F_ve_%C3%87%C4%B1k%C4%B1%C5%9F_Kap%C4%B1s%C4%B1.jpg/250px-%C4%B0zmir_Katip_%C3%87elebi_%C3%9Cniversitesi_Giri%C5%9F_ve_%C3%87%C4%B1k%C4%B1%C5%9F_Kap%C4%B1s%C4%B1.jpg",
+    "address": "İzmir , Türkiye",
+    "rector": "Prof. Dr. Muhsin Akbaş, Prof. Dr. Süleyman Akbulut, Prof. Dr. Yasin Bulduklu",
+    "wiki_type": "Devlet Üniversitesi [ 1 ]",
+    "colors": "Pantone 187C",
+    "student_count_raw": "329 [ kaynak belirtilmeli ]"
   },
   {
     "code": "123902",
@@ -1849,7 +2184,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.selcuk.edu.tr",
+    "founded_year": 1975,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/f/f5/Sel%C3%A7uk_%C3%9Cniversitesi_logosu.png/250px-Sel%C3%A7uk_%C3%9Cniversitesi_logosu.png",
+    "address": "Selçuklu , Konya , Türkiye 38°1′48″K 32°30′36″D ﻿ / ﻿ 38.03000°K 32.51000°D ﻿ / 38.03000; 32.51000",
+    "rector": "Prof. Dr. Ahmet Ak Prof. Dr. Haldun Soysal Prof. Dr. Zeki Bayramoğlu [ 3 ]",
+    "wiki_type": "Devlet Üniversitesi [ 1 ]",
+    "student_count_raw": "61.725 [ 4 ] [ 5 ]"
   },
   {
     "code": "206795",
@@ -1878,7 +2220,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.uskudar.edu.tr",
+    "founded_year": 2011,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/b/ba/%C3%9Csk%C3%BCdar_%C3%9Cniversitesi_logo.png/250px-%C3%9Csk%C3%BCdar_%C3%9Cniversitesi_logo.png",
+    "address": "Türkiye , İstanbul",
+    "rector": "Prof. Dr. Nazife Güngör",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "118239",
@@ -1932,7 +2280,15 @@
     ],
     "coast_km": 161,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.kocaeli.edu.tr/",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/1/1a/Kouyenilogo.png",
+    "address": "Kocaeli , Türkiye",
+    "rector": "Prof. Dr. Ercüment Çiftçi Prof. Dr. Mehmet Yıldırım Prof. Dr. Elif Öğüt",
+    "wiki_type": "Devlet [ 2 ]",
+    "colors": "Yeşil ve Siyah",
+    "student_count_raw": "66.921 [ 4 ]"
   },
   {
     "code": "201784",
@@ -1959,7 +2315,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.tau.edu.tr/",
+    "founded_year": 2010,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/9/90/T%C3%BCrk_Alman_%C3%9Cniversitesi_Logo.jpg/250px-T%C3%BCrk_Alman_%C3%9Cniversitesi_Logo.jpg",
+    "address": "İstanbul , Türkiye",
+    "rector": "Prof. Dr. Aysel Uzuntaş; Prof. Dr. H. Özden Özkaya-Ferendeci; Prof. Dr. Ali Gökhan Yavuz",
+    "wiki_type": "Devlet",
+    "colors": "Beyaz, Siyah, Turkuaz"
   },
   {
     "code": "109868",
@@ -1997,7 +2360,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.erciyes.edu.tr",
+    "founded_year": 1978,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Erciyes_University_logo.svg/330px-Erciyes_University_logo.svg.png",
+    "address": "Melikgazi ve Talas , Kayseri , Türkiye 38°42′36″K 35°32′24″D ﻿ / ﻿ 38.71000°K 35.54000°D ﻿ / 38.71000; 35.54000",
+    "rector": "Prof. Dr. Fatih Altun",
+    "student_count_raw": "52534 (2020) [ 3 ]"
   },
   {
     "code": "119917",
@@ -2048,7 +2417,13 @@
     ],
     "coast_km": 321,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.mersin.edu.tr/",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Mersin_University_logo.svg/250px-Mersin_University_logo.svg.png",
+    "address": "Mersin , Türkiye",
+    "rector": "Prof. Dr. Erol Yaşar",
+    "wiki_type": "Devlet [ 1 ]"
   },
   {
     "code": "122831",
@@ -2102,7 +2477,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.pau.edu.tr",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Pamukkale_University_logo.svg/250px-Pamukkale_University_logo.svg.png",
+    "address": "Denizli , Türkiye",
+    "rector": "Prof. Dr. Ersan Öz Prof. Dr. Mehmet İnel Prof. Dr. İbrahim Türkcüer [ 4 ]",
+    "wiki_type": "Devlet",
+    "colors": "Mavi ve Lacivert",
+    "student_count_raw": "763"
   },
   {
     "code": "106545",
@@ -2157,7 +2540,13 @@
     ],
     "coast_km": 671,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.comu.edu.tr",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/2/26/18martuni.jpg/250px-18martuni.jpg",
+    "address": "Çanakkale , Türkiye",
+    "rector": "Prof. Dr. Ramazan Cüneyt Erenoğlu [ 1 ]",
+    "student_count_raw": "3.763"
   },
   {
     "code": "339995",
@@ -2186,7 +2575,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.atlas.edu.tr",
+    "founded_year": 2018,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Atlas_University_logo.svg/250px-Atlas_University_logo.svg.png",
+    "address": "Kağıthane, İstanbul, Türkiye",
+    "rector": "Prof. Dr. Ersoy Kocabıçak",
+    "wiki_type": "Vakıf Üniversitesi"
   },
   {
     "code": "117127",
@@ -2225,7 +2620,15 @@
     ],
     "coast_km": 114,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.ktu.edu.tr",
+    "founded_year": 1955,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/1/13/Blackseatechnical_university.png",
+    "address": "Ortahisar , Trabzon , Türkiye",
+    "rector": "Prof. Dr. Hamdullah Çuvalcı [ 2 ]",
+    "wiki_type": "Teknik Üniversite",
+    "colors": "Mavi ve Beyaz",
+    "student_count_raw": "30.000"
   },
   {
     "code": "302686",
@@ -2253,7 +2656,15 @@
     ],
     "coast_km": 629,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://bakircay.edu.tr",
+    "founded_year": 2016,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Bak%C4%B1r%C3%A7ay_%C3%9Cniversitesi_logo.svg/250px-Bak%C4%B1r%C3%A7ay_%C3%9Cniversitesi_logo.svg.png",
+    "address": "İzmir , Türkiye 38°34′55″K 26°57′50″D ﻿ / ﻿ 38.58194°K 26.96389°D ﻿ / 38.58194; 26.96389",
+    "rector": "Prof. Dr. Reşat Duman",
+    "wiki_type": "Devlet Üniversitesi",
+    "colors": "Turkuaz ve gri",
+    "student_count_raw": "147"
   },
   {
     "code": "339989",
@@ -2284,7 +2695,15 @@
     ],
     "coast_km": 175,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://samsun.edu.tr",
+    "founded_year": 2018,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/c/c6/Samsun_%C3%9Cniversitesi_logo.png/250px-Samsun_%C3%9Cniversitesi_logo.png",
+    "address": "Samsun , Türkiye",
+    "rector": "Ali Bilgin, Adem Soruç",
+    "wiki_type": "Devlet üniversitesi",
+    "colors": "Lacivert, kırmızı, yeşil",
+    "student_count_raw": "8114 (2025)"
   },
   {
     "code": "364158",
@@ -2340,7 +2759,13 @@
     ],
     "coast_km": 99,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.adu.edu.tr/",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Ayd%C4%B1n_Adnan_Menderes_University_logo.svg/250px-Ayd%C4%B1n_Adnan_Menderes_University_logo.svg.png",
+    "address": "Aydın , Türkiye",
+    "rector": "Prof. Dr. Cemal İyem Prof. Dr. Nuh Kılıç Prof. Dr. Erkan Salan",
+    "student_count_raw": "665 (2023-24)"
   },
   {
     "code": "112080",
@@ -2386,7 +2811,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.gaziantep.edu.tr",
+    "founded_year": 1973,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Giris.jpg/250px-Giris.jpg",
+    "address": "Gaziantep , Türkiye",
+    "rector": "Prof. Dr. Fahrettin Göğüş Prof. Dr. Mehmet Tarakçıoğlu [ 7 ]",
+    "wiki_type": "Devlet [ 1 ]",
+    "student_count_raw": "54.504 [ 8 ]"
   },
   {
     "code": "173500",
@@ -2432,7 +2864,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.erbakan.edu.tr",
+    "founded_year": 2010,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/7/79/Necmettin_Erbakan_%C3%9Cniversitesi_logosu.png/250px-Necmettin_Erbakan_%C3%9Cniversitesi_logosu.png",
+    "address": ", Konya , Türkiye",
+    "rector": "Prof. Dr. Ali Kahraman, Prof. Dr. Mehmet Birekul, Prof. Dr. Bahadır Feyzioğlu",
+    "colors": "Lacivert, Mavi ve Beyaz",
+    "student_count_raw": "1337"
   },
   {
     "code": "260621",
@@ -2459,7 +2898,14 @@
     ],
     "coast_km": 161,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.gyte.edu.tr/",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/2/23/Gebze_Teknik_%C3%9Cniversitesi.PNG/250px-Gebze_Teknik_%C3%9Cniversitesi.PNG",
+    "address": "Gebze , Kocaeli",
+    "rector": "Hacı Ali Mantar [ 1 ]",
+    "wiki_type": "Devlet Üniversitesi",
+    "colors": "Lacivert, sarı ve kırmızı"
   },
   {
     "code": "116207",
@@ -2483,7 +2929,14 @@
     ],
     "coast_km": 629,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.iyte.edu.tr/",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/d/de/IYTE_logo_T%C3%BCrk%C3%A7e.svg/250px-IYTE_logo_T%C3%BCrk%C3%A7e.svg.png",
+    "address": "Urla , İzmir , Türkiye 38°19′13″K 26°38′11″D ﻿ / ﻿ 38.32028°K 26.63639°D ﻿ / 38.32028; 26.63639",
+    "rector": "Prof. Dr. Alper Baba Prof. Dr. Gamze Tanoğlu Prof. Dr. Serdar Kale",
+    "wiki_type": "Devlet Üniversitesi [ 2 ]",
+    "student_count_raw": "1728 [ 7 ]"
   },
   {
     "code": "124902",
@@ -2519,7 +2972,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://w3.sdu.edu.tr",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/e/e5/S%C3%BCleyman_Demirel_%C3%9Cniversitesi_logosu.png",
+    "address": "Isparta , Türkiye",
+    "rector": "Prof. Dr. Nihat Ayyıldız Prof. Dr. Alim Koşar Prof. Dr. Mehmet Gençtürk",
+    "wiki_type": "Devlet [ 1 ]",
+    "student_count_raw": "1.313 [ 2 ]"
   },
   {
     "code": "315839",
@@ -2569,7 +3029,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.mcbu.edu.tr/",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/f/f3/Celal_bayar_%C3%BCniversitesi_yeni_logosu.png",
+    "address": "Yunusemre , Manisa , Türkiye",
+    "rector": "Prof. Dr. Rana Kibar",
+    "wiki_type": "Devlet [ 1 ]",
+    "student_count_raw": "2975"
   },
   {
     "code": "120444",
@@ -2627,7 +3094,14 @@
     ],
     "coast_km": 1480,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.mu.edu.tr",
+    "founded_year": 1975,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Mu%C4%9Fla_S%C4%B1tk%C4%B1_Ko%C3%A7man_University_logo.svg/250px-Mu%C4%9Fla_S%C4%B1tk%C4%B1_Ko%C3%A7man_University_logo.svg.png",
+    "address": "Muğla , Türkiye",
+    "rector": "Prof. Dr. Turhan Kaçar",
+    "wiki_type": "Devlet [ 1 ]",
+    "colors": "Kırmızı, beyaz, mavi"
   },
   {
     "code": "123409",
@@ -2664,7 +3138,15 @@
     ],
     "coast_km": 56,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.sakarya.edu.tr/",
+    "founded_year": 1970,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Sakarya_University_logo.svg/250px-Sakarya_University_logo.svg.png",
+    "address": "Sakarya , Türkiye",
+    "rector": "Prof. Dr. Emrah Doğan [ 3 ] Prof. Dr. Özer Köseoğlu [ 3 ]",
+    "wiki_type": "Devlet Üniversitesi",
+    "colors": "Cardinal Blue ve Beyaz",
+    "student_count_raw": "6177 (önlisans)"
   },
   {
     "code": "125577",
@@ -2713,7 +3195,15 @@
     ],
     "coast_km": 25,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.trakya.edu.tr",
+    "founded_year": 1982,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/1/14/Trakya_%C3%9Cniversitesi_logosu.jpg/250px-Trakya_%C3%9Cniversitesi_logosu.jpg",
+    "address": "Edirne , Türkiye",
+    "rector": "Mustafa Hatipler",
+    "wiki_type": "Devlet [ 1 ]",
+    "colors": "Altın başak ve Lacivert",
+    "student_count_raw": "3.400 [ 4 ]"
   },
   {
     "code": "103545",
@@ -2766,7 +3256,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.atauni.edu.tr",
+    "founded_year": 1957,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/c/cc/Ataturkuni_logo.png/250px-Ataturkuni_logo.png",
+    "address": "Yakutiye , Erzurum , Türkiye 39°54′0″K 41°15′0″D ﻿ / ﻿ 39.90000°K 41.25000°D ﻿ / 39.90000; 41.25000",
+    "rector": "Prof. Dr. Ahmet Hacımüftüoğlu [ 2 ]",
+    "wiki_type": "Devlet [ 1 ]",
+    "student_count_raw": "Açıköğretim öğrenci sayısı: 491.339 (2021-22)"
   },
   {
     "code": "117803",
@@ -2803,7 +3300,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.kku.edu.tr/",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/f/f4/K%C4%B1r%C4%B1kkale_%C3%BCniversitesi_yeni_logosu.jpeg/250px-K%C4%B1r%C4%B1kkale_%C3%BCniversitesi_yeni_logosu.jpeg",
+    "address": "Kırıkkale , Türkiye",
+    "rector": "Prof. Dr. Erol Yılmaz [ 6 ] Prof. Dr. Mehmet Başalan [ 7 ] Prof. Dr. Sedat Aktan [ 8 ]",
+    "colors": "Lacivert ve Kırmızı",
+    "student_count_raw": "Ön Lisans 8.654 [ 9 ] Lisans 20.584 [ 9 ]"
   },
   {
     "code": "274881",
@@ -2842,7 +3346,15 @@
     ],
     "coast_km": 250,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://www.bandirma.edu.tr/",
+    "founded_year": 2015,
+    "logo_url": "https://maps.wikimedia.org/img/osm-intl,12,a,a,270x200.png?lang=tr&domain=tr.wikipedia.org&title=Band%C4%B1rma_Onyedi_Eyl%C3%BCl_%C3%9Cniversitesi&revid=36750394&groups=_d04471f72fdda40da186d96b519e4a9193b00b96&parser=legacy",
+    "address": "Bandırma , Balıkesir , Türkiye",
+    "rector": "[ 2 ] Prof. Dr. Alpaslan SEREL [ 2 ] Prof. Dr. Ebru KAYA MUTLU [ 2 ] Prof. Dr. Mehmet Emin ERÇAKAR [ 2 ]",
+    "wiki_type": "Devlet",
+    "colors": "Pantone 7678C, Pantone 298C",
+    "student_count_raw": "2000 [ 3 ]"
   },
   {
     "code": "339996",
@@ -2867,7 +3379,14 @@
     ],
     "coast_km": 629,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.tinaztepe.edu.tr",
+    "founded_year": 2018,
+    "logo_url": "https://maps.wikimedia.org/img/osm-intl,12,a,a,270x200.png?lang=tr&domain=tr.wikipedia.org&title=%C4%B0zmir_T%C4%B1naztepe_%C3%9Cniversitesi&revid=36021617&groups=_c2e9685df538715ea0ed380dc9ce3206cb144d9f&parser=legacy",
+    "address": "İzmir , Türkiye",
+    "rector": "Prof. Dr. Mustafa Güvençer",
+    "wiki_type": "Vakıf üniversitesi",
+    "colors": "Mavi ve Beyaz"
   },
   {
     "code": "107723",
@@ -2911,7 +3430,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.dicle.edu.tr/",
+    "founded_year": 1973,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/c/c8/Dicle_%C3%9Cniversitesi_eski_logo.png/250px-Dicle_%C3%9Cniversitesi_eski_logo.png",
+    "address": "Diyarbakır , Türkiye",
+    "rector": "Prof. Dr. Vahap ÖZPOLAT, Prof. Dr. Mehmet Siraç Özerdem, Prof. Dr. Velat Şen [ 1 ]",
+    "wiki_type": "Devlet",
+    "student_count_raw": "27900"
   },
   {
     "code": "410560",
@@ -2939,7 +3465,15 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.istun.edu.tr",
+    "founded_year": 2018,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/%C4%B0ST%C3%9CN1IMG_0065.jpg/250px-%C4%B0ST%C3%9CN1IMG_0065.jpg",
+    "address": "Türkiye , İstanbul 41°03′23″N 28°57′04″E ﻿ / ﻿ 41.056255°K 28.951131°D ﻿ / 41.056255; 28.951131",
+    "rector": "Prof. Dr. Necati Örmeci",
+    "wiki_type": "Vakıf Üniversitesi",
+    "colors": "Kırmızı-Beyaz",
+    "student_count_raw": "2.293(Aktif)"
   },
   {
     "code": "241177",
@@ -2961,7 +3495,12 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.sanko.edu.tr",
+    "founded_year": 2013,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Sanko_%C3%9Cniversitesi_logo.svg/250px-Sanko_%C3%9Cniversitesi_logo.svg.png",
+    "address": "Gaziantep , Gaziantep , Türkiye",
+    "rector": "Prof. Dr. Güner Dağlı [ 1 ]"
   },
   {
     "code": "341799",
@@ -3003,7 +3542,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.ibu.edu.tr",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/BA%C4%B0B%C3%9C_logo.png/250px-BA%C4%B0B%C3%9C_logo.png",
+    "address": "Bolu , Türkiye",
+    "rector": "Prof. Dr. Coşkun Karaca Prof. Dr. Ferudun Kaya Prof. Dr. Kaya Yıldız",
+    "wiki_type": "Vakıf destekli devlet üniversitesi",
+    "colors": "Yeşil ve Lacivert"
   },
   {
     "code": "356278",
@@ -3047,7 +3593,14 @@
     ],
     "coast_km": 134,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.nku.edu.tr",
+    "founded_year": 2006,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Tekirda%C4%9F_Nam%C4%B1k_Kemal_University_logo.svg/250px-Tekirda%C4%9F_Nam%C4%B1k_Kemal_University_logo.svg.png",
+    "address": "Süleymanpaşa , Tekirdağ , Türkiye",
+    "rector": "Prof. Dr. Celalettin Vatandaş Prof. Dr. Gülsüm Özkan Prof. Dr. Murat Taşan",
+    "wiki_type": "Devlet",
+    "colors": "Lacivert"
   },
   {
     "code": "384591",
@@ -3075,7 +3628,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://demiroglu.bilim.edu.tr",
+    "founded_year": 2006,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/1/18/Demiro%C4%9Flu_Bilim_%C3%9Cniversitesi_logo.png/250px-Demiro%C4%9Flu_Bilim_%C3%9Cniversitesi_logo.png",
+    "address": "Şişli, İstanbul , Türkiye",
+    "rector": "Prof. Dr. Çavlan Çiftçi",
+    "wiki_type": "Vakıf Üniversitesi"
   },
   {
     "code": "126742",
@@ -3110,7 +3669,15 @@
     ],
     "coast_km": 100,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.yalova.edu.tr",
+    "founded_year": 2008,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/8/86/Yalova_%C3%9Cniversitesi_logosu.jpg/250px-Yalova_%C3%9Cniversitesi_logosu.jpg",
+    "address": "Yalova , Türkiye",
+    "rector": "Prof. Dr. Vefik Arıca Prof. Dr. Senay Yürür Karslıoğlu Prof. Dr. Hamit Er",
+    "wiki_type": "Devlet",
+    "colors": "Turkuaz ve Bordo",
+    "student_count_raw": "1286"
   },
   {
     "code": "104213",
@@ -3158,7 +3725,13 @@
     ],
     "coast_km": 250,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.balikesir.edu.tr",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/6/69/Bal%C4%B1kesir_%C3%9Cniversitesi_logo.png/250px-Bal%C4%B1kesir_%C3%9Cniversitesi_logo.png",
+    "address": "Merkez , Balıkesir , Türkiye",
+    "rector": "Prof. Dr. Yücel Oğurlu",
+    "wiki_type": "Devlet Üniversitesi [ 1 ]"
   },
   {
     "code": "114436",
@@ -3194,7 +3767,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.inonu.edu.tr",
+    "founded_year": 1975,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/%C4%B0n%C3%B6n%C3%BC_University_logo.svg/250px-%C4%B0n%C3%B6n%C3%BC_University_logo.svg.png",
+    "address": "Malatya , Türkiye",
+    "rector": "Prof. Dr. Ali Özer Prof. Dr. Mehmet Sağlam Prof. Dr. Süleyman Nihat Şad",
+    "wiki_type": "Devlet [ 1 ]",
+    "student_count_raw": "40.682 (2020 Yılı) [ 2 ]"
   },
   {
     "code": "326019",
@@ -3227,7 +3807,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.altinbas.edu.tr/",
+    "founded_year": 2008,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Coat_of_Arms_of_Alt%C4%B1nba%C5%9F_University.svg/250px-Coat_of_Arms_of_Alt%C4%B1nba%C5%9F_University.svg.png",
+    "address": "İstanbul , [ 3 ] Türkiye",
+    "rector": "Prof. Dr. Çağrı Erhan [ 2 ]",
+    "wiki_type": "Vakıf Üniversitesi [ 1 ]",
+    "student_count_raw": "338 (2021-22)"
   },
   {
     "code": "202959",
@@ -3263,7 +3850,13 @@
     ],
     "coast_km": 396,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://www.emu.edu.tr/tr",
+    "founded_year": 1979,
+    "logo_url": "https://maps.wikimedia.org/img/osm-intl,12,a,a,270x200.png?lang=tr&domain=tr.wikipedia.org&title=Do%C4%9Fu_Akdeniz_%C3%9Cniversitesi&revid=36711241&groups=_c19b3ff1c220c12995e4f9d4f6497510dee2bc2d&parser=legacy",
+    "address": "Gazimağusa , Kuzey Kıbrıs Türk Cumhuriyeti",
+    "rector": "Hasan Kılıç",
+    "wiki_type": "Devlet"
   },
   {
     "code": "274883",
@@ -3298,7 +3891,15 @@
     ],
     "coast_km": 657,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://www.alanya.edu.tr/",
+    "founded_year": 2015,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/7/75/Alk%C3%BC_logo.png/250px-Alk%C3%BC_logo.png",
+    "address": "Alanya , Türkiye 36°33′00″N 32°00′00″E ﻿ / ﻿ 36.550°K 32.000°D ﻿ / 36.550; 32.000",
+    "rector": "Prof. Dr. Oğuz Karahan Prof. Dr. Mehmet Kılıç",
+    "wiki_type": "Devlet üniversitesi",
+    "colors": "Turkuaz ve Lacivert",
+    "student_count_raw": "93 (2023-24)"
   },
   {
     "code": "315415",
@@ -3331,7 +3932,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.yeniyuzyil.edu.tr/",
+    "founded_year": 2009,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/f/ff/Yeni_Y%C3%BCzy%C4%B1l_%C3%9Cniversitesi_logo.png/250px-Yeni_Y%C3%BCzy%C4%B1l_%C3%9Cniversitesi_logo.png",
+    "address": "Dr. Azmi Ofluoğlu Kampüsü- Topkapı İstanbul",
+    "rector": "Prof. Dr. İ. Yaşar Hacısalihoğlu",
+    "colors": "Kırmızı-Beyaz"
   },
   {
     "code": "339999",
@@ -3357,7 +3964,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.afsu.edu.tr",
+    "founded_year": 2018,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/e/e3/Afyonkarahisar_Sa%C4%9Fl%C4%B1k_Bilimleri_%C3%9Cniversitesi_logo.png/250px-Afyonkarahisar_Sa%C4%9Fl%C4%B1k_Bilimleri_%C3%9Cniversitesi_logo.png",
+    "address": "Afyonkarahisar , Türkiye",
+    "rector": "Ümit Dündar İbrahim Keleş Ahmet Ali Tuncer",
+    "colors": "Siyah, Lacivert, Kırmızı ve Altın sarısı",
+    "student_count_raw": "7 (2024-25) [ 1 ]"
   },
   {
     "code": "344737",
@@ -3410,7 +4024,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.cumhuriyet.edu.tr",
+    "founded_year": 1974,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/4/45/SivasCumhuriyet%C3%9CniLogo.png/250px-SivasCumhuriyet%C3%9CniLogo.png",
+    "address": "Sivas , Sivas , Türkiye 39°42′24.8″K 37°1′46.2″D ﻿ / ﻿ 39.706889°K 37.029500°D ﻿ / 39.706889; 37.029500",
+    "rector": "Prof. Dr. Hayati ÖZTÜRK Prof. Dr. Salih Cem İNAN",
+    "wiki_type": "Devlet [ 2 ]"
   },
   {
     "code": "339992",
@@ -3447,7 +4067,14 @@
     ],
     "coast_km": 114,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.trabzon.edu.tr/",
+    "founded_year": 2018,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/8/89/Trabzon_%C3%9Cniversitesi.png/250px-Trabzon_%C3%9Cniversitesi.png",
+    "address": "Akçaabat , Trabzon , Türkiye 41°00′38″N 39°36′35″E ﻿ / ﻿ 41.010490°K 39.609821°D ﻿ / 41.010490; 39.609821",
+    "rector": "Prof. Dr. Atilla Çimer [ 2 ] Prof. Dr. Hasan Karal [ 2 ] Prof. Dr. Hüseyin Serencam",
+    "wiki_type": "Devlet",
+    "colors": "Bordo-Turkuaz-Lacivert-Kırmızı-Turuncu-Yeşil"
   },
   {
     "code": "109110",
@@ -3492,7 +4119,14 @@
     ],
     "coast_km": 27,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.duzce.edu.tr",
+    "founded_year": 2006,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/D%C3%BCzce_University_logo.svg/250px-D%C3%BCzce_University_logo.svg.png",
+    "address": "Düzce , Düzce , Türkiye",
+    "rector": "Prof. Dr. İlhan Genç Prof. Dr. Ali Öztürk Prof. Dr. Serkan Torun",
+    "wiki_type": "Devlet üniversitesi [ 1 ]",
+    "colors": "Lacivert, turkuaz ve açık turkuaz"
   },
   {
     "code": "114773",
@@ -3523,7 +4157,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.arel.edu.tr/",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/%C4%B0stanbul_Arel_University_logo.svg/250px-%C4%B0stanbul_Arel_University_logo.svg.png",
+    "address": "İstanbul [ 3 ] , Türkiye",
+    "rector": "Prof. Dr. Ersin Göse [ 2 ]",
+    "wiki_type": "Vakıf üniversitesi [ 1 ]"
   },
   {
     "code": "339982",
@@ -3550,7 +4190,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://ksbu.edu.tr/",
+    "founded_year": 2018,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/1/1f/K%C3%BCtahya_Sa%C4%9Fl%C4%B1k_Bilimleri_%C3%9Cniversitesi_logo.png/250px-K%C3%BCtahya_Sa%C4%9Fl%C4%B1k_Bilimleri_%C3%9Cniversitesi_logo.png",
+    "address": "Kütahya , Türkiye 12°20′42″N 98°45′54″W ﻿ / ﻿ 12.345°K 98.765°B ﻿ / 12.345; -98.765",
+    "rector": "Prof. Dr. Fatih Özcura Prof. Dr. Sezgin Zeren",
+    "wiki_type": "Devlet"
   },
   {
     "code": "365890",
@@ -3594,7 +4240,14 @@
     ],
     "coast_km": 80,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://w3.beun.edu.tr",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/9/92/B%C3%BClent_Ecevit_%C3%9Cniversitesi_logo.png/250px-B%C3%BClent_Ecevit_%C3%9Cniversitesi_logo.png",
+    "address": "Zonguldak , Türkiye",
+    "rector": "İsmail Hakkı Özölçer",
+    "wiki_type": "Devlet [ 2 ]",
+    "colors": "Kırmızı, Mavi, Yeşil, Beyaz"
   },
   {
     "code": "110987",
@@ -3638,7 +4291,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.firat.edu.tr/",
+    "founded_year": 1975,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/F%C4%B1rat_University_logo.svg/250px-F%C4%B1rat_University_logo.svg.png",
+    "address": "Elazığ , Türkiye",
+    "rector": "Prof. Dr. Fahrettin Göktaş [ 2 ]",
+    "wiki_type": "Devlet",
+    "colors": "Bordo ve beyaz",
+    "student_count_raw": "5610"
   },
   {
     "code": "122395",
@@ -3681,7 +4342,13 @@
     ],
     "coast_km": 121,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.odu.edu.tr",
+    "founded_year": 2006,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Ordu_University_logo.svg/250px-Ordu_University_logo.svg.png",
+    "address": "Ordu , Türkiye",
+    "rector": "Prof. Dr. Alparslan İnce Prof. Dr. Derya Bostancı",
+    "wiki_type": "Devlet [ 1 ]"
   },
   {
     "code": "337414",
@@ -3726,7 +4393,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.yyu.edu.tr",
+    "founded_year": 1982,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/7/77/Y%C3%BCz%C3%BCnc%C3%BC_Y%C4%B1l_%C3%9Cniversitesi_logo.png/250px-Y%C3%BCz%C3%BCnc%C3%BC_Y%C4%B1l_%C3%9Cniversitesi_logo.png",
+    "address": "Van , Türkiye",
+    "rector": "Şenay Baydaş Aydın Görmez Cemil Göya",
+    "colors": "Mavi ve Beyaz"
   },
   {
     "code": "126537",
@@ -3769,7 +4442,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.usak.edu.tr",
+    "founded_year": 2006,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/U%C5%9Fak_University_logo.svg/250px-U%C5%9Fak_University_logo.svg.png",
+    "address": "Uşak , Türkiye",
+    "rector": "Prof. Dr. Ahmet Demir",
+    "wiki_type": "Devlet",
+    "student_count_raw": "180"
   },
   {
     "code": "302685",
@@ -3801,7 +4481,14 @@
     ],
     "coast_km": 629,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.idu.edu.tr",
+    "founded_year": 2016,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/4/45/%C4%B0zmir_Demokrasi_%C3%9Cniversitesi_logo.png/250px-%C4%B0zmir_Demokrasi_%C3%9Cniversitesi_logo.png",
+    "address": "İzmir , Türkiye",
+    "rector": "Prof. Dr. Devrim Ünay Prof. Dr. Ecehan Aras",
+    "wiki_type": "Devlet",
+    "colors": "Turuncu-Lacivert"
   },
   {
     "code": "448766",
@@ -3833,7 +4520,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://www.beykent.edu.tr/",
+    "founded_year": 1995,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/7/7e/Beykent_Universitesi_Logo_Yeni.png/250px-Beykent_Universitesi_Logo_Yeni.png",
+    "address": "İstanbul , Türkiye",
+    "rector": "Prof. Dr. Hamparsun Hampikyan, Prof. Dr. Yalçın Kırdar, Prof. Dr. Günay Deniz Dursun [ 4 ]",
+    "wiki_type": "Vakıf Üniversitesi",
+    "colors": "Sarı , Siyah , Turkuaz"
   },
   {
     "code": "102198",
@@ -3869,7 +4563,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.amasya.edu.tr",
+    "founded_year": 2006,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Amasya_University_logo.svg/250px-Amasya_University_logo.svg.png",
+    "address": "Amasya , Türkiye",
+    "rector": "Prof. Dr. Murat Kurt, Prof. Dr. Mehmet Kızılkaya",
+    "wiki_type": "Devlet üniversitesi [ 1 ]",
+    "colors": "Yeşil-Beyaz-Kırmızı",
+    "student_count_raw": "31 (2021-22)"
   },
   {
     "code": "118122",
@@ -3908,7 +4610,13 @@
     ],
     "coast_km": 60,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.klu.edu.tr",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/e/e7/K%C4%B1rklareli_%C3%9Cniversitesi_logosu.jpg",
+    "address": "Kırklareli , Türkiye",
+    "rector": "Prof. Dr. Kadriye Eylem Özkaya Lassalle Prof. Dr. Murat Gençbay",
+    "wiki_type": "Devlet [ 1 ]"
   },
   {
     "code": "105024",
@@ -3945,7 +4653,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.bilecik.edu.tr/",
+    "founded_year": 2007,
+    "logo_url": "https://maps.wikimedia.org/img/osm-intl,12,a,a,270x200.png?lang=tr&domain=tr.wikipedia.org&title=Bilecik_%C5%9Eeyh_Edebali_%C3%9Cniversitesi&revid=36694252&groups=_14c8f349587d6de0b8a7437968a78b694211ed73&parser=legacy",
+    "address": "Bilecik , Türkiye",
+    "rector": "Nazile Ural Murat Yurdakul Mehmet Kurban",
+    "wiki_type": "Devlet [ 1 ]"
   },
   {
     "code": "113699",
@@ -3976,7 +4690,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.halic.edu.tr/",
+    "founded_year": 1998,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Hali%C3%A7_University_logo_%282022%29.svg/250px-Hali%C3%A7_University_logo_%282022%29.svg.png",
+    "address": "İstanbul , Türkiye",
+    "rector": "Prof. Dr. Enes Eryarsoy [ 2 ]",
+    "wiki_type": "Vakıf Üniversitesi [ 1 ]",
+    "student_count_raw": "6 Bölüm, 2 Sanatta Yeterlik"
   },
   {
     "code": "306556",
@@ -4017,7 +4738,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.ohu.edu.tr",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Ni%C4%9Fde_%C3%96mer_Halisdemir_University_logo.svg/250px-Ni%C4%9Fde_%C3%96mer_Halisdemir_University_logo.svg.png",
+    "address": "Niğde , Türkiye 37°56′29″N 34°37′28″E ﻿ / ﻿ 37.94151°K 34.624515°D ﻿ / 37.94151; 34.624515",
+    "rector": "Prof. Dr. Hasan Uslu",
+    "wiki_type": "Devlet",
+    "colors": "Beyaz ve Kuvarz Mavisi"
   },
   {
     "code": "367208",
@@ -4060,7 +4788,13 @@
     ],
     "coast_km": 187,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.mku.edu.tr",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/1/17/Hmku_logo.png/250px-Hmku_logo.png",
+    "address": "Hatay , Türkiye",
+    "rector": "Prof. Dr. Veysel Eren",
+    "wiki_type": "Devlet [ 1 ]"
   },
   {
     "code": "117553",
@@ -4096,7 +4830,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.kmu.edu.tr",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/1/13/Karamano%C4%9Flu_Mehmetbey_%C3%9Cniversitesi_logosu.jpg/250px-Karamano%C4%9Flu_Mehmetbey_%C3%9Cniversitesi_logosu.jpg",
+    "address": "Karaman , Türkiye",
+    "rector": "Prof. Dr. Münir Oktay Prof. Dr. Nevzat Aydın",
+    "wiki_type": "Devlet"
   },
   {
     "code": "102005",
@@ -4134,7 +4874,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.aksaray.edu.tr",
+    "founded_year": 2006,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/3/3b/Aksaray_%C3%9Cniversitesi_logo.jpg/250px-Aksaray_%C3%9Cniversitesi_logo.jpg",
+    "address": "Aksaray , Türkiye",
+    "rector": "Alpay Arıbaş",
+    "wiki_type": "Devlet [ 1 ]",
+    "colors": "Mavi-Beyaz",
+    "student_count_raw": "190 (2022- 2023)"
   },
   {
     "code": "367245",
@@ -4184,7 +4932,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.gop.edu.tr",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Tokat_Gaziosmanpa%C5%9Fa_University_logo.svg/250px-Tokat_Gaziosmanpa%C5%9Fa_University_logo.svg.png",
+    "address": "Tokat , Türkiye 40°19′58.1189″K 36°28′39.0821″D ﻿ / ﻿ 40.332810806°K 36.477522806°D ﻿ / 40.332810806; 36.477522806",
+    "rector": "Prof. Dr. Mücahit Eğri Prof. Dr. Rasim Koçyiğit Prof. Dr. Yusuf Temür",
+    "wiki_type": "Devlet",
+    "colors": "Mor ve Firuze"
   },
   {
     "code": "117673",
@@ -4232,7 +4987,15 @@
     ],
     "coast_km": 170,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.kastamonu.edu.tr/",
+    "founded_year": 2006,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/3/37/Kastamonu_%C3%9Cniversitesi_logosu.jpg",
+    "address": "Kastamonu [ 4 ] , Kastamonu ili , Türkiye",
+    "rector": "Prof. Dr. Ahmet Hamdi Topal [ 2 ]",
+    "wiki_type": "Devlet Üniversitesi",
+    "colors": "Kırmızı, Siyah, Beyaz",
+    "student_count_raw": "371 [ 3 ]"
   },
   {
     "code": "384577",
@@ -4259,7 +5022,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.gibtu.edu.tr/",
+    "founded_year": 2018,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/0/09/Gaziantep_Islam_Bilim_ve_Teknoloji_Universitesi_logo.svg/250px-Gaziantep_Islam_Bilim_ve_Teknoloji_Universitesi_logo.svg.png",
+    "address": "Gaziantep , Türkiye",
+    "rector": "Prof. Dr. Şehmus Demir",
+    "wiki_type": "Devlet üniversitesi"
   },
   {
     "code": "116608",
@@ -4300,7 +5069,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.ksu.edu.tr",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/6/6f/Kahramanmara%C5%9F-S%C3%BCt%C3%A7%C3%BC-%C4%B0mam-%C3%9Cniversitesi-logo.svg/250px-Kahramanmara%C5%9F-S%C3%BCt%C3%A7%C3%BC-%C4%B0mam-%C3%9Cniversitesi-logo.svg.png",
+    "address": "Kahramanmaraş , Türkiye",
+    "rector": "Prof. Dr. Alptekin Yasım",
+    "wiki_type": "Devlet [ 1 ]"
   },
   {
     "code": "354265",
@@ -4336,7 +5111,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.ahievran.edu.tr",
+    "founded_year": 2006,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/K%C4%B1r%C5%9Fehir_Ahi_Evran_University_logo.svg/250px-K%C4%B1r%C5%9Fehir_Ahi_Evran_University_logo.svg.png",
+    "address": "Kırşehir , Türkiye",
+    "rector": "Prof. Dr. Hüseyin Şimşek Prof. Dr. Ali Güneş Prof. Dr. Musa Özata",
+    "wiki_type": "Devlet üniversitesi [ 1 ]",
+    "colors": "Yeşil mavi turuncu"
   },
   {
     "code": "339983",
@@ -4371,7 +5153,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.ozal.edu.tr",
+    "founded_year": 2018,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Malatya_Turgut_%C3%96zal_%C3%9Cniversitesi_logo.svg/250px-Malatya_Turgut_%C3%96zal_%C3%9Cniversitesi_logo.svg.png",
+    "address": "Malatya",
+    "rector": "Prof. Dr. Recep Bentli",
+    "wiki_type": "Devlet"
   },
   {
     "code": "113746",
@@ -4418,7 +5206,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.harran.edu.tr",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/2/22/Harran_%C3%9Cniversitesi_logo.png/250px-Harran_%C3%9Cniversitesi_logo.png",
+    "address": "Şanlıurfa , Türkiye",
+    "rector": "Prof. Dr. Mehmet Tahir Güllüoğlu",
+    "wiki_type": "Devlet [ 2 ]",
+    "colors": "Mavi, Sarı, Beyaz"
   },
   {
     "code": "123221",
@@ -4460,7 +5255,15 @@
     ],
     "coast_km": 80,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.erdogan.edu.tr/",
+    "founded_year": 2006,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/3/32/Recep_Tayyip_Erdo%C4%9Fan_%C3%9Cniversitesi.png/250px-Recep_Tayyip_Erdo%C4%9Fan_%C3%9Cniversitesi.png",
+    "address": "Rize , Türkiye",
+    "rector": "Prof. Dr. Yusuf Yılmaz [ 2 ]",
+    "wiki_type": "Devlet [ 1 ]",
+    "colors": "Turkuaz",
+    "student_count_raw": "18.735 (2024-2025) [ 3 ]"
   },
   {
     "code": "163892",
@@ -4484,7 +5287,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.tedu.edu.tr/",
+    "founded_year": 2009,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/8/89/TED_%C3%9Cniversitesi_logosu.png",
+    "address": "Çankaya , Ankara",
+    "rector": "Prof. Dr. İhsan Sabuncuoğlu",
+    "wiki_type": "Vakıf üniversitesi",
+    "student_count_raw": "4848"
   },
   {
     "code": "112836",
@@ -4531,7 +5341,14 @@
     ],
     "coast_km": 121,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.giresun.edu.tr",
+    "founded_year": 2006,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/a/ab/Giresun_%C3%9Cniversitesi_Logosu.png/250px-Giresun_%C3%9Cniversitesi_Logosu.png",
+    "address": "Giresun , Türkiye",
+    "rector": "Prof. Dr. Güven Özdem Prof. Dr. Hüseyin Şahin",
+    "wiki_type": "Devlet [ 1 ]",
+    "student_count_raw": "178"
   },
   {
     "code": "114218",
@@ -4564,7 +5381,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.hitit.edu.tr",
+    "founded_year": 2006,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Hitit_University_logo.svg/250px-Hitit_University_logo.svg.png",
+    "address": "Çorum , Türkiye",
+    "rector": "Prof. Dr. Halil İbrahim ŞİMŞEK, Prof. Dr. Nurcan BAYKAM",
+    "wiki_type": "Devlet üniversitesi [ 1 ]",
+    "colors": "Turuncu mavi beyaz"
   },
   {
     "code": "118994",
@@ -4601,7 +5425,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.artuklu.edu.tr",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Mardin_Artuklu_University_logo.svg/250px-Mardin_Artuklu_University_logo.svg.png",
+    "address": "Mardin , Türkiye",
+    "rector": "Prof. Dr. Yılmaz Demirhan Prof. Dr. Yusuf Doğan Prof. Dr. Hıdır Apak",
+    "wiki_type": "Devlet"
   },
   {
     "code": "124703",
@@ -4638,7 +5468,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.siirt.edu.tr",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Siirt_%C3%BCniversitesi.png/250px-Siirt_%C3%BCniversitesi.png",
+    "address": "Siirt , Türkiye",
+    "rector": "Prof. Dr. Nihat Şındak [ 2 ]",
+    "wiki_type": "Devlet"
   },
   {
     "code": "359730",
@@ -4680,7 +5516,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.bozok.edu.tr",
+    "founded_year": 2006,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/8/87/Yozgatbozokuni_logo.jpg/250px-Yozgatbozokuni_logo.jpg",
+    "address": "Yozgat , Yozgat , Türkiye 39°46′12″K 34°48′0″D ﻿ / ﻿ 39.77000°K 34.80000°D ﻿ / 39.77000; 34.80000",
+    "rector": "Prof. Dr. Güngör Yılmaz, Prof. Dr. Tansel Hacıhasanoğlu, Prof. Dr. Yusuf Hıdır",
+    "wiki_type": "Devlet üniversitesi [ 1 ]"
   },
   {
     "code": "100259",
@@ -4716,7 +5558,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://adiyaman.edu.tr",
+    "founded_year": 2006,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Ad%C4%B1yaman_University_logo.svg/250px-Ad%C4%B1yaman_University_logo.svg.png",
+    "address": "Adıyaman , Türkiye",
+    "rector": "Prof. Dr.Mehmet Kelleş",
+    "student_count_raw": "61"
   },
   {
     "code": "116950",
@@ -4754,7 +5602,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://karabuk.edu.tr",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/2/2c/Karab%C3%BCk_%C3%9Cniversitesi_logosu.png",
+    "address": "Karabük , Türkiye [ 8 ]",
+    "rector": "Prof. Dr. Fatih Kırışık [ 3 ]",
+    "student_count_raw": "32.000[2013-2014]"
   },
   {
     "code": "370189",
@@ -4797,7 +5651,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://ebyu.edu.tr/tr/",
+    "founded_year": 2006,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Erzincanuni.jpg/250px-Erzincanuni.jpg",
+    "address": "Erzincan , Türkiye",
+    "rector": "Prof. Dr. Akın Levent [ 2 ]",
+    "wiki_type": "Devlet [ 1 ]"
   },
   {
     "code": "116345",
@@ -4871,7 +5731,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.agri.edu.tr/",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/b/be/A%C4%9Fr%C4%B1%C4%B0brahim%C3%87e%C3%A7en%C3%9Cniversitesi-logo.png/250px-A%C4%9Fr%C4%B1%C4%B0brahim%C3%87e%C3%A7en%C3%9Cniversitesi-logo.png",
+    "address": "Ağrı , Türkiye",
+    "rector": "Prof. Dr. İlhami Gülçin",
+    "wiki_type": "Devlet [ 1 ]",
+    "student_count_raw": "36 (2021-22)"
   },
   {
     "code": "202952",
@@ -4912,7 +5779,15 @@
     ],
     "coast_km": 396,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.neu.edu.tr",
+    "founded_year": 1988,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/1/10/Yak%C4%B1n_Do%C4%9Fu_%C3%9Cniversitesi.svg/250px-Yak%C4%B1n_Do%C4%9Fu_%C3%9Cniversitesi.svg.png",
+    "address": "Lefkoşa , Kuzey Kıbrıs Türk Cumhuriyeti",
+    "rector": "Prof. Dr. Ümit Hassan",
+    "wiki_type": "Özel",
+    "colors": "Bordo ve beyaz",
+    "student_count_raw": "27.000 [ 6 ]"
   },
   {
     "code": "116281",
@@ -4939,7 +5814,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.khas.edu.tr/",
+    "founded_year": 1997,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/0/00/Kadir_Has_%C3%9Cniversitesi_logo.png/250px-Kadir_Has_%C3%9Cniversitesi_logo.png",
+    "address": "Fatih, İstanbul , Türkiye 41°01′29.8″K 28°57′32.3″D ﻿ / ﻿ 41.024944°K 28.958972°D ﻿ / 41.024944; 28.958972",
+    "rector": "Mitat Çelikpala Nilay Arat Ayşın Ertüzün",
+    "wiki_type": "Vakıf üniversitesi",
+    "colors": "Mavi ve Beyaz"
   },
   {
     "code": "163891",
@@ -4965,7 +5847,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.nny.edu.tr/",
+    "founded_year": 2009,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/7/72/Nuh_Naci_Yazgan_%C3%9Cniversitesi_logosu.jpg/250px-Nuh_Naci_Yazgan_%C3%9Cniversitesi_logosu.jpg",
+    "address": "Kocasinan , Kayseri , Türkiye 38°47′11″N 35°24′25″E ﻿ / ﻿ 38.786373°K 35.406928°D ﻿ / 38.786373; 35.406928",
+    "rector": "Prof. Dr. Erkan KÖSE Prof. Dr. Neriman İNANÇ",
+    "wiki_type": "Vakıf Üniversitesi"
   },
   {
     "code": "130959",
@@ -4996,7 +5884,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.gelisim.edu.tr/",
+    "founded_year": 2010,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/3/3e/%C4%B0stanbul_Geli%C5%9Fim_%C3%9Cniversitesi_logo%2C_2022.png/250px-%C4%B0stanbul_Geli%C5%9Fim_%C3%9Cniversitesi_logo%2C_2022.png",
+    "address": "İstanbul , Türkiye",
+    "rector": "Bahri Şahin",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "302687",
@@ -5026,7 +5920,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.turkeyuniversity.org/universities/istanbul-kent-university/",
+    "founded_year": 2016,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/a/a9/%C4%B0stanbul_Kent_%C3%9Cniversitesi_logo.png/250px-%C4%B0stanbul_Kent_%C3%9Cniversitesi_logo.png",
+    "address": "41°02′00.9″K 28°59′03.5″D ﻿ / ﻿ 41.033583°K 28.984306°D ﻿ / 41.033583; 28.984306",
+    "rector": "Prof. Dr. A. Tuğrul Biren",
+    "colors": "Bordo"
   },
   {
     "code": "215913",
@@ -5052,7 +5952,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://mef.edu.tr",
+    "founded_year": 2012,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/0/0a/Mef_Universitesi_Logo.jpg/250px-Mef_Universitesi_Logo.jpg",
+    "address": "İstanbul , Türkiye",
+    "rector": "Prof. Dr. Muhittin Gökmen",
+    "wiki_type": "Vakıf",
+    "colors": "Kraliyet mavisi , kırmızı"
   },
   {
     "code": "411763",
@@ -5080,7 +5987,13 @@
     ],
     "coast_km": 161,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://kocaelisaglik.edu.tr/",
+    "founded_year": 2009,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/7/74/Kost%C3%BC_logo.png/250px-Kost%C3%BC_logo.png",
+    "address": "Kocaeli , Türkiye",
+    "rector": "Prof. Dr. Firdevs Karahan",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "355074",
@@ -5128,7 +6041,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.mehmetakif.edu.tr",
+    "founded_year": 2006,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/7/7c/Mehmet_Akif_Ersoy_%C3%9Cniversitesi_logosu.jpg/250px-Mehmet_Akif_Ersoy_%C3%9Cniversitesi_logosu.jpg",
+    "address": "Burdur , Türkiye",
+    "rector": "Prof. Dr. Hüseyin Dalgar [ 2 ]",
+    "wiki_type": "Devlet",
+    "colors": "Lacivert, kırmızı",
+    "student_count_raw": "28,974"
   },
   {
     "code": "246224",
@@ -5165,7 +6086,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.nevsehir.edu.tr",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/c/c9/Nev%C5%9Fehir_%C3%9Cniversitesi_logo.png",
+    "address": "Nevşehir , Türkiye 38°40′30.7″K 34°44′31.9″D ﻿ / ﻿ 38.675194°K 34.742194°D ﻿ / 38.675194; 34.742194",
+    "rector": "Prof. Dr. Semih Aktekin",
+    "wiki_type": "Devlet",
+    "student_count_raw": "1.287"
   },
   {
     "code": "107012",
@@ -5190,7 +6118,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.cankaya.edu.tr",
+    "founded_year": 1997,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/2/21/%C3%87ankaya_%C3%9Cniversitesi_logo.png",
+    "address": "Ankara , Türkiye",
+    "rector": "Prof. Dr. Hadi Hakan Maraş [ 2 ] [ 3 ]",
+    "wiki_type": "Vakıf üniversitesi [ 1 ]",
+    "colors": "Sarı ve Siyah"
   },
   {
     "code": "107056",
@@ -5226,7 +6161,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.karatekin.edu.tr",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/%C3%87ank%C4%B1r%C4%B1_Karatekin_University_logo.svg/250px-%C3%87ank%C4%B1r%C4%B1_Karatekin_University_logo.svg.png",
+    "address": "Çankırı , Türkiye",
+    "rector": "Prof. Dr. Mevlüt Karataş [ 2 ]",
+    "wiki_type": "Devlet [ 1 ]",
+    "student_count_raw": "13.038 (2015) [ 3 ]"
   },
   {
     "code": "104803",
@@ -5260,7 +6202,12 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/d/d8/Batman_%C3%9Cniversitesi_logosu.jpg/250px-Batman_%C3%9Cniversitesi_logosu.jpg",
+    "address": "Batman , Türkiye",
+    "rector": "Prof. Dr. Necmettin Sezgin, Prof. Dr. Rohat Cebe [ 2 ]",
+    "wiki_type": "Devlet"
   },
   {
     "code": "391144",
@@ -5287,7 +6234,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.galata.edu.tr",
+    "founded_year": 2019,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/4/42/%C4%B0stanbul_Galata_%C3%9Cniversitesi_logo.png/250px-%C4%B0stanbul_Galata_%C3%9Cniversitesi_logo.png",
+    "address": "Beyoğlu , İstanbul",
+    "rector": "Şeyma Aydınoğlu [ 1 ]",
+    "wiki_type": "Vakıf üniversitesi",
+    "colors": "Lacivert, Turuncu"
   },
   {
     "code": "325756",
@@ -5313,7 +6267,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://www.kapadokya.edu.tr/",
+    "founded_year": 2005,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/a/a5/Kapadokya_%C3%9Cniversitesi.png/250px-Kapadokya_%C3%9Cniversitesi.png",
+    "address": "Nevşehir , İstanbul , Türkiye",
+    "rector": "Prof. Dr. Serhat Karakaş Prof. Dr. Mehmet Yılmaz [ 1 ]",
+    "wiki_type": "Vakıf",
+    "student_count_raw": "12 (2023-24)"
   },
   {
     "code": "136233",
@@ -5340,7 +6301,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.pirireis.edu.tr",
+    "founded_year": 2008,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/c/cf/PiriReisUniversitesiLogo.png",
+    "address": "İstanbul , Türkiye",
+    "rector": "Prof. Dr. Mehmet Ziya Söğüt Prof Dr. H. Funda Yercan",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "105196",
@@ -5376,7 +6343,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.bingol.edu.tr",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/9/9d/Bing%C3%B6l_%C3%9Cniversitesi_Logo.png/250px-Bing%C3%B6l_%C3%9Cniversitesi_Logo.png",
+    "address": "Bingöl , Türkiye",
+    "rector": "Prof. Dr. Hasan Çiftçi , Prof. Dr. İbrahim Yasin Erdoğan",
+    "wiki_type": "Devlet"
   },
   {
     "code": "114315",
@@ -5409,7 +6382,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.igdir.edu.tr/",
+    "founded_year": 2008,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/I%C4%9Fd%C4%B1r_University_logo.svg/250px-I%C4%9Fd%C4%B1r_University_logo.svg.png",
+    "address": "Iğdır , Türkiye",
+    "rector": "Prof.Dr Ekrem Gürel [ 2 ]",
+    "wiki_type": "Devlet üniversitesi [ 1 ]"
   },
   {
     "code": "102261",
@@ -5442,7 +6421,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.anadolu.edu.tr",
+    "founded_year": 1958,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Anadolu_%C3%9Cniversitesi_Logosu.svg/250px-Anadolu_%C3%9Cniversitesi_Logosu.svg.png",
+    "address": "Eskişehir , Türkiye",
+    "rector": "Prof. Dr. Yusuf Adıgüzel",
+    "wiki_type": "Devlet [ 2 ]",
+    "colors": "Bordo ve Mavi",
+    "student_count_raw": "Uzaktan öğretim öğrenci sayısı: 873.584 (2025-26) [ 4 ]"
   },
   {
     "code": "202954",
@@ -5460,7 +6447,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.manas.edu.kg/",
+    "founded_year": 1995,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/5/51/Manas_logo2.gif",
+    "address": "Bişkek , Kırgızistan",
+    "rector": "Prof. Dr. Alpaslan Ceylan [ 1 ]",
+    "student_count_raw": "2558 [ 1 ]"
   },
   {
     "code": "202950",
@@ -5497,7 +6490,13 @@
     ],
     "coast_km": 396,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.eul.edu.tr",
+    "founded_year": 1990,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/0/08/Lefke_Avrupa_%C3%9Cniversitesi_logosu.gif/250px-Lefke_Avrupa_%C3%9Cniversitesi_logosu.gif",
+    "address": "Lefke , Kuzey Kıbrıs Türk Cumhuriyeti",
+    "rector": "Prof. Dr. Mehmet Ali Yükselen [ 1 ]",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "317343",
@@ -5527,7 +6526,12 @@
     ],
     "coast_km": 396,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://www.final.edu.tr/",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/b/b9/Uluslararas%C4%B1_final_universitesi_logo.png/250px-Uluslararas%C4%B1_final_universitesi_logo.png",
+    "address": "Girne , Kuzey Kıbrıs Türk Cumhuriyeti",
+    "rector": "Prof. Dr. Hüseyin Yaratan",
+    "wiki_type": "Özel"
   },
   {
     "code": "317400",
@@ -5553,7 +6557,14 @@
     ],
     "coast_km": 396,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.kstu.edu.tr",
+    "founded_year": 2016,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/K%C4%B1br%C4%B1s_Sa%C4%9Fl%C4%B1k_ve_Toplum_Bilimleri_%C3%9Cniversitesi.jpg/250px-K%C4%B1br%C4%B1s_Sa%C4%9Fl%C4%B1k_ve_Toplum_Bilimleri_%C3%9Cniversitesi.jpg",
+    "address": "Güzelyurt , Kuzey Kıbrıs Türk Cumhuriyeti",
+    "rector": "Prof. Dr. İbrahim Levent Taner",
+    "wiki_type": "Özel",
+    "colors": "Koyu Kırmızı ve Beyaz"
   },
   {
     "code": "202951",
@@ -5590,7 +6601,14 @@
     ],
     "coast_km": 396,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.ciu.edu.tr/",
+    "founded_year": 1997,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Uluslararas%C4%B1_K%C4%B1br%C4%B1s_%C3%9Cniversitesi_Resmi_Logo.png/250px-Uluslararas%C4%B1_K%C4%B1br%C4%B1s_%C3%9Cniversitesi_Resmi_Logo.png",
+    "address": "Lefkoşa , KKTC",
+    "rector": "Prof. Dr. Erbuğ Çelebi",
+    "wiki_type": "Özel",
+    "student_count_raw": "18.000"
   },
   {
     "code": "375111",
@@ -5615,7 +6633,15 @@
     ],
     "coast_km": 396,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://adakent.edu.tr",
+    "founded_year": 2015,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Flag_of_the_Turkish_Republic_of_Northern_Cyprus.svg/40px-Flag_of_the_Turkish_Republic_of_Northern_Cyprus.svg.png",
+    "address": "Gazimağusa , Kuzey Kıbrıs",
+    "rector": "Prof. Dr. Osman Bülent Yorulmaz",
+    "wiki_type": "Vakıf",
+    "colors": "Turuncu ve Mavi",
+    "student_count_raw": "1000 +"
   },
   {
     "code": "114907",
@@ -5648,7 +6674,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://bilgi.edu.tr",
+    "founded_year": 1996,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/%C4%B0stanbul_Bilgi_%C3%9Cniversitesi_logo.svg/250px-%C4%B0stanbul_Bilgi_%C3%9Cniversitesi_logo.svg.png",
+    "address": "İstanbul , Türkiye 41°04′00″K 28°56′45″D ﻿ / ﻿ 41.06667°K 28.94583°D ﻿ / 41.06667; 28.94583",
+    "rector": "Ege Yazgan",
+    "wiki_type": "Özel",
+    "student_count_raw": "22.000"
   },
   {
     "code": "339990",
@@ -5671,7 +6704,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.sivas.edu.tr",
+    "founded_year": 2018,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/4/4c/Sivas_Bilim_ve_Teknoloji_%C3%9Cniversitesi_logosu.png",
+    "address": "Sivas , Türkiye",
+    "rector": "Prof. Dr. Tolga Karaköy Prof. Dr. Hüsnü Deniz Başdemir",
+    "wiki_type": "Devlet [ 1 ]"
   },
   {
     "code": "324992",
@@ -5694,7 +6733,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.ostimteknik.edu.tr",
+    "founded_year": 2017,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/b/b7/Ostim_Teknik_%C3%9Cniversitesi_Logosu.png/250px-Ostim_Teknik_%C3%9Cniversitesi_Logosu.png",
+    "address": "Ankara , Türkiye 39°58′20″N 32°45′23″E ﻿ / ﻿ 39.9723°K 32.7563°D ﻿ / 39.9723; 32.7563",
+    "rector": "Prof. Dr. Ünsal Sığrı Prof. Dr. Mustafa Polat [ 3 ]",
+    "wiki_type": "Vakıf üniversitesi"
   },
   {
     "code": "126773",
@@ -5725,7 +6770,15 @@
     ],
     "coast_km": 629,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.yasar.edu.tr/",
+    "founded_year": 2001,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/e/e3/Ya%C5%9Far_%C3%9Cniversitesi_logo.png",
+    "address": "İzmir , Türkiye",
+    "rector": "Prof. Dr. Levent Kandiller [ 1 ]",
+    "wiki_type": "Vakıf",
+    "colors": "Mavi Beyaz",
+    "student_count_raw": "133 (2023)"
   },
   {
     "code": "310017",
@@ -5755,7 +6808,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://fbu.edu.tr",
+    "founded_year": 2016,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Fenerbah%C3%A7e_%C3%9Cniversitesi_Binas%C4%B1.jpg/250px-Fenerbah%C3%A7e_%C3%9Cniversitesi_Binas%C4%B1.jpg",
+    "rector": "Prof. Dr. Ş. Güniz Küçükgüzel Prof. Dr. Mehmet Yıldırım Üçtuğ",
+    "wiki_type": "Vakıf",
+    "colors": "Lacivert Sarı"
   },
   {
     "code": "173499",
@@ -5779,7 +6838,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.agu.edu.tr",
+    "founded_year": 2010,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Abdullah_G%C3%BCl_University_logo.svg/250px-Abdullah_G%C3%BCl_University_logo.svg.png",
+    "address": "Kocasinan , Kayseri , Türkiye",
+    "rector": "Prof. Dr. Cengiz Yılmaz [ 1 ]",
+    "wiki_type": "Devlet",
+    "student_count_raw": "103"
   },
   {
     "code": "411762",
@@ -5803,7 +6869,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.ankarabilim.edu.tr",
+    "founded_year": 2020,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Ankara_Bilim_%C3%9Cniversitesi_Kurumsal_Logo.png/250px-Ankara_Bilim_%C3%9Cniversitesi_Kurumsal_Logo.png",
+    "address": "Ankara , Türkiye",
+    "rector": "Prof. Dr. Yavuz Demir [ 2 ]",
+    "wiki_type": "Vakıf üniversitesi",
+    "colors": "Lacivert, gri ve sarı",
+    "student_count_raw": "57 (2021-22)"
   },
   {
     "code": "202953",
@@ -5851,7 +6925,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.izu.edu.tr/",
+    "founded_year": 2010,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Izulogoyuvarlak.png?utm_source=tr.wikipedia.org&utm_campaign=parser&utm_content=thumbnail_unscaled",
+    "address": "İstanbul",
+    "rector": "Prof.Dr. Ahmet Cevat Acar",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "114385",
@@ -5877,7 +6957,15 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.isikun.edu.tr",
+    "founded_year": 1996,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/I%C5%9F%C4%B1k_5869.jpg/250px-I%C5%9F%C4%B1k_5869.jpg",
+    "address": "İstanbul , Türkiye",
+    "rector": "Prof. Dr. Serhat Koloğlugil",
+    "wiki_type": "Vakıf",
+    "colors": "Mavi ve Beyaz",
+    "student_count_raw": "450"
   },
   {
     "code": "163897",
@@ -5907,7 +6995,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.fsm.edu.tr/",
+    "founded_year": 2010,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Fatih_Sultan_Mehmet_University_logo.svg/250px-Fatih_Sultan_Mehmet_University_logo.svg.png",
+    "address": "İstanbul , Türkiye",
+    "rector": "Prof. Dr. Fahameddin Başar Prof. Dr. Zühtü Hakan Akpolat",
+    "wiki_type": "Vakıf",
+    "student_count_raw": "7000'den fazla"
   },
   {
     "code": "173494",
@@ -5933,7 +7028,15 @@
     ],
     "coast_km": 134,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.btu.edu.tr/",
+    "founded_year": 2010,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/0/04/Bursa_Teknik_%C3%9Cniversitesi_Logosu.png/250px-Bursa_Teknik_%C3%9Cniversitesi_Logosu.png",
+    "address": "Bursa , Türkiye",
+    "rector": "Prof. Dr. Naci Çağlar",
+    "wiki_type": "Devlet üniversitesi",
+    "colors": "Lacivert, Turkuaz",
+    "student_count_raw": "2.786"
   },
   {
     "code": "120301",
@@ -5961,7 +7064,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://msgsu.edu.tr",
+    "founded_year": 1882,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/7/7a/Mimar_Sinan_G%C3%BCzel_Sanatlar_%C3%9Cniversitesi_logo.png/250px-Mimar_Sinan_G%C3%BCzel_Sanatlar_%C3%9Cniversitesi_logo.png",
+    "address": "İstanbul , Türkiye 41°01′48″N 28°59′21″E ﻿ / ﻿ 41.03°K 28.9892°D ﻿ / 41.03; 28.9892",
+    "rector": "Ahmet Sacit Açıkgözoğlu [ 1 ]",
+    "wiki_type": "Devlet",
+    "student_count_raw": "6.942"
   },
   {
     "code": "115335",
@@ -5990,7 +7100,15 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.ticaret.edu.tr",
+    "founded_year": 2001,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/%C4%B0stanbul_Ticaret_%C3%9Cniversitesi_Logo.png/250px-%C4%B0stanbul_Ticaret_%C3%9Cniversitesi_Logo.png",
+    "address": "İstanbul , Türkiye 41°01′08″N 28°58′01″E ﻿ / ﻿ 41.01884°K 28.96681°D ﻿ / 41.01884; 28.96681",
+    "rector": "Prof. Dr. Berk Ayvaz Prof. Dr. Hanifi Parlar",
+    "wiki_type": "Vakıf",
+    "colors": "Sarı ve Siyah",
+    "student_count_raw": "2500"
   },
   {
     "code": "115022",
@@ -6021,7 +7139,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.iku.edu.tr/",
+    "founded_year": 1997,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/3/38/K%C3%BClt%C3%BCr_%C3%9Cniversitesi_Logo.png/250px-K%C3%BClt%C3%BCr_%C3%9Cniversitesi_Logo.png",
+    "address": "İstanbul , Türkiye",
+    "rector": "Prof.Dr. Fadime Uney Yuksektepe [ 2 ]",
+    "wiki_type": "Vakıf",
+    "student_count_raw": "15.116"
   },
   {
     "code": "138586",
@@ -6050,7 +7175,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.hku.edu.tr/",
+    "founded_year": 2008,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/e/e6/Hasan_Kalyoncu_%C3%9Cniversitesi_logosu.png",
+    "address": "Gaziantep , Türkiye 37°00′29″N 37°26′10″E ﻿ / ﻿ 37.008099°K 37.436116°D ﻿ / 37.008099; 37.436116",
+    "rector": "Gül Rengin Küçükerdoğan (vekil) [ 3 ]",
+    "wiki_type": "Vakıf üniversitesi",
+    "colors": "Bordo, Lacivert, Turkuaz",
+    "student_count_raw": "1.200+"
   },
   {
     "code": "301255",
@@ -6068,7 +7201,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "founded_year": 2006,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/International_Balkan_University_Campus_Skopje.jpg/330px-International_Balkan_University_Campus_Skopje.jpg",
+    "address": "Üsküp , Kuzey Makedonya",
+    "rector": "Prof. Dr. Lütfi Sunar",
+    "wiki_type": "Vakıf üniversitesi, kâr amacı gütmeyen",
+    "student_count_raw": "3.800 (2024–25) [ 1 ]"
   },
   {
     "code": "108112",
@@ -6097,7 +7236,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://dogus.edu.tr",
+    "founded_year": 1997,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Dogus_universitesi_yeni_logo.png/250px-Dogus_universitesi_yeni_logo.png",
+    "address": "İstanbul , Çengelköy , Ümraniye , Türkiye 41°00′01″K 29°02′49″D ﻿ / ﻿ 41.00028°K 29.04694°D ﻿ / 41.00028; 29.04694",
+    "rector": "Prof. Dr. Ahmet Alkan Çelik [ 1 ]",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "339979",
@@ -6120,7 +7265,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.ktun.edu.tr/",
+    "founded_year": 1970,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Konya_Teknik_%C3%9Cniversitesi_logo.svg/250px-Konya_Teknik_%C3%9Cniversitesi_logo.svg.png",
+    "address": "Akademi Mahallesi, Yeni İstanbul Cad. No:235/1, Selçuklu, Konya 38°01′35″N 32°30′35″E ﻿ / ﻿ 38.026366°K 32.509595°D ﻿ / 38.026366; 32.509595",
+    "rector": "Prof. Dr. Hüseyin Deveci",
+    "wiki_type": "Devlet üniversitesi",
+    "colors": "Kırmızı, Beyaz",
+    "student_count_raw": "12.298 (2024) [ 2 ]"
   },
   {
     "code": "442563",
@@ -6145,7 +7298,14 @@
     ],
     "coast_km": 134,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://mudanya.edu.tr/",
+    "founded_year": 2022,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/8/89/Mudanya_%C3%9Cniversitesi.png/250px-Mudanya_%C3%9Cniversitesi.png",
+    "address": "Mudanya , Bursa , Türkiye 40°18′02″N 28°56′51″E ﻿ / ﻿ 40.30043°K 28.94759°D ﻿ / 40.30043; 28.94759",
+    "rector": "Prof. Dr. Ahmet KESİK [ 3 ]",
+    "wiki_type": "Vakıf üniversitesi",
+    "colors": "Mavi, Beyaz"
   },
   {
     "code": "339988",
@@ -6184,7 +7344,15 @@
     ],
     "coast_km": 56,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.subu.edu.tr",
+    "founded_year": 2018,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Sakarya_University_of_Applied_Sciences_logo.svg/250px-Sakarya_University_of_Applied_Sciences_logo.svg.png",
+    "address": "Sakarya , Türkiye",
+    "rector": "Sinan Serdar Özkan Ali Fuat Boz Oğuz Türkay",
+    "wiki_type": "Devlet",
+    "colors": "Mavi ve yeşil",
+    "student_count_raw": "31397 (2023)"
   },
   {
     "code": "385368",
@@ -6211,7 +7379,14 @@
     ],
     "coast_km": 70,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.atu.edu.tr/#!/",
+    "founded_year": 2011,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/ATU_logo.png/250px-ATU_logo.png",
+    "address": "Adana , Türkiye",
+    "rector": "Adnan Sözen",
+    "wiki_type": "Devlet",
+    "student_count_raw": "117 (2021-22)"
   },
   {
     "code": "339991",
@@ -6240,7 +7415,14 @@
     ],
     "coast_km": 321,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.tarsus.edu.tr",
+    "founded_year": 2018,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Tarsus_%C3%9Cniversitesi_logo.svg/250px-Tarsus_%C3%9Cniversitesi_logo.svg.png",
+    "address": "Tarsus , Mersin , Türkiye 12°20′42″N 98°45′54″W ﻿ / ﻿ 12.345°K 98.765°B ﻿ / 12.345; -98.765",
+    "rector": "Prof. Dr. Tuğba Yolcu Prof. Dr. Osman Murat Özkendir Prof. Dr. Serkan Şahin",
+    "wiki_type": "Devlet",
+    "colors": "Beyaz - Mavi"
   },
   {
     "code": "163900",
@@ -6269,7 +7451,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://www.29mayis.edu.tr",
+    "founded_year": 2010,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/%C4%B0stanbul_29_May%C4%B1s_%C3%9Cniversitesi_logo.svg/250px-%C4%B0stanbul_29_May%C4%B1s_%C3%9Cniversitesi_logo.svg.png",
+    "address": "Ümraniye , İstanbul , Türkiye 41°02′13″N 29°07′00″E ﻿ / ﻿ 41.03694°K 29.11667°D ﻿ / 41.03694; 29.11667",
+    "rector": "Prof. Dr. İlyas Çelebi [ 3 ]",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "315098",
@@ -6298,7 +7486,15 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.gedik.edu.tr/",
+    "founded_year": 2010,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/9/95/%C4%B0stanbul-Gedik-%C3%9Cniversitesi-Yeni-Logo.png/250px-%C4%B0stanbul-Gedik-%C3%9Cniversitesi-Yeni-Logo.png",
+    "address": "İstanbul , Türkiye 40°54′05.6″K 29°13′09.8″D ﻿ / ﻿ 40.901556°K 29.219389°D ﻿ / 40.901556; 29.219389",
+    "rector": "Prof. Dr. Mehmet Zafer Akdemir, Prof. Dr. Süha Atatüre",
+    "wiki_type": "Vakıf üniversitesi",
+    "colors": "Magenta, Gri, Siyah",
+    "student_count_raw": "4000+ Önlisans (2024-2025) [ 3 ]"
   },
   {
     "code": "306383",
@@ -6327,7 +7523,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://beykoz.edu.tr/",
+    "founded_year": 2008,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Beykoz_University_logo.svg/250px-Beykoz_University_logo.svg.png",
+    "rector": "Prof. Dr. Burak Küntay",
+    "wiki_type": "Vakıf üniversitesi",
+    "colors": "Burgonya ve koyu gri"
   },
   {
     "code": "301253",
@@ -6345,7 +7547,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.ius.edu.ba/",
+    "founded_year": 2004,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/7/73/IUS_Official_Logo.png/250px-IUS_Official_Logo.png",
+    "address": "Saraybosna , Bosna-Hersek",
+    "rector": "Prof.Dr. Ali Osman Kuşakcı",
+    "wiki_type": "Özel",
+    "student_count_raw": "200"
   },
   {
     "code": "440213",
@@ -6375,7 +7584,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://topkapi.edu.tr/",
+    "founded_year": 2009,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/%C4%B0stanbul_Topkap%C4%B1_%C3%9Cniversitesi_logo.svg/250px-%C4%B0stanbul_Topkap%C4%B1_%C3%9Cniversitesi_logo.svg.png",
+    "address": "İstanbul , Türkiye",
+    "rector": "Prof. Dr. Berrin Ataman Prof. Dr. Erhan Aslanoğlu",
+    "wiki_type": "Vakıf",
+    "colors": "Kırmızı , Beyaz"
   },
   {
     "code": "241176",
@@ -6397,7 +7613,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.gidatarim.edu.tr",
+    "founded_year": 2013,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/KGTU-Logo.jpg/250px-KGTU-Logo.jpg",
+    "address": "Konya , Türkiye",
+    "rector": "Prof. Dr. Erol Turan [ 1 ]",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "100869",
@@ -6443,7 +7665,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://aku.edu.tr/",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/4/4c/Afyon_Kocatepe_%C3%9Cniversitesi_logo.png/250px-Afyon_Kocatepe_%C3%9Cniversitesi_logo.png",
+    "address": "Afyonkarahisar , Türkiye",
+    "rector": "Şuayıp Özdemir Murat Peker Yılmaz Yalçın",
+    "wiki_type": "Devlet Üniversitesi",
+    "colors": "Turkuaz Mavi Bordo",
+    "student_count_raw": "411 (2024-25)"
   },
   {
     "code": "447662",
@@ -6469,7 +7699,15 @@
     ],
     "coast_km": 657,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://www.belek.edu.tr",
+    "founded_year": 2015,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/4/4a/Antalya_Belek_%C3%9Cniversitesi_Logo.png/250px-Antalya_Belek_%C3%9Cniversitesi_Logo.png",
+    "address": "Belek, Serik , Antalya , Türkiye 36°51′23″N 31°02′04″E ﻿ / ﻿ 36.8565°K 31.0344°D ﻿ / 36.8565; 31.0344",
+    "rector": "Prof. Dr. Abdullah Kuzu",
+    "wiki_type": "Vakıf Üniversitesi",
+    "colors": "Kırmızı",
+    "student_count_raw": "587 (2021–22)"
   },
   {
     "code": "447835",
@@ -6495,7 +7733,14 @@
     ],
     "coast_km": 657,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://www.alanyauniversity.edu.tr/",
+    "founded_year": 2011,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/0/00/Alanya_%C3%9Cniversitesi_logo.png/250px-Alanya_%C3%9Cniversitesi_logo.png",
+    "address": "Alanya , Antalya , Türkiye",
+    "rector": "Prof. Dr. Turan Sağer [ 3 ]",
+    "wiki_type": "Vakıf Üniversitesi",
+    "student_count_raw": "40 (2021-22)"
   },
   {
     "code": "274886",
@@ -6524,7 +7769,13 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://rumeli.edu.tr",
+    "founded_year": 2015,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/1/10/%C4%B0stanbul_Rumeli_%C3%9Cniversitesi_logo.png/250px-%C4%B0stanbul_Rumeli_%C3%9Cniversitesi_logo.png",
+    "address": "İstanbul , Silivri , Türkiye",
+    "rector": "Prof. Dr. Mustafa Kara",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "163889",
@@ -6551,7 +7802,14 @@
     ],
     "coast_km": 321,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.toros.edu.tr",
+    "founded_year": 2009,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Flag_of_Turkey.svg/40px-Flag_of_Turkey.svg.png",
+    "address": "Mersin , Türkiye",
+    "rector": "Prof. Dr. Adnan Mazmanoğlu",
+    "wiki_type": "Vakıf Üniversitesi",
+    "colors": "Lacivert , Altın"
   },
   {
     "code": "339993",
@@ -6589,7 +7847,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.kayseri.edu.tr",
+    "founded_year": 2018,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/c/c3/Kayseri_%C3%9Cniversitesi_logo.png/250px-Kayseri_%C3%9Cniversitesi_logo.png",
+    "address": "Kayseri , Türkiye",
+    "rector": "Prof. Dr. Kurtuluş Karamustafa",
+    "wiki_type": "Devlet"
   },
   {
     "code": "351149",
@@ -6633,7 +7897,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.dpu.edu.tr/",
+    "founded_year": 1992,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/b/b5/K%C3%BCtahya_Dumlup%C4%B1nar_%C3%9Cniversitesi_logo.png/250px-K%C3%BCtahya_Dumlup%C4%B1nar_%C3%9Cniversitesi_logo.png",
+    "address": "Kütahya , Türkiye 39°28′41″N 29°53′49″E ﻿ / ﻿ 39.478°K 29.897°D ﻿ / 39.478; 29.897",
+    "rector": "Prof. Dr. İsmail Yalçın Prof. Dr. M. Arif Özgür Prof. Dr. Ayhan Kahraman",
+    "wiki_type": "Devlet",
+    "colors": "Kırmızı - Mavi - Beyaz",
+    "student_count_raw": "14.158"
   },
   {
     "code": "339998",
@@ -6677,7 +7949,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.isparta.edu.tr/",
+    "founded_year": 2018,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/2/28/ISUB%C3%9C_logo.png/250px-ISUB%C3%9C_logo.png",
+    "address": "Isparta",
+    "rector": "Prof. Dr. Murat Öztürk Prof. Dr. Ayhan Gösterit Prof. Dr. Ramazan Özçelik",
+    "wiki_type": "Devlet"
   },
   {
     "code": "173495",
@@ -6701,7 +7979,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.erzurum.edu.tr/",
+    "founded_year": 2010,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Erzurum_Technical_University_logo.svg/250px-Erzurum_Technical_University_logo.svg.png",
+    "address": "Erzurum , Türkiye 39°54′54″N 41°16′34″E ﻿ / ﻿ 39.915°K 41.276°D ﻿ / 39.915; 41.276",
+    "rector": "Prof. Dr. Ali Fatih Yetim Prof. Dr. Ceren Sultan Elmalı Prof. Dr. Naim Ürkmez [ 2 ]",
+    "wiki_type": "Devlet üniversitesi",
+    "student_count_raw": "548 (2023-24)"
   },
   {
     "code": "241174",
@@ -6732,7 +8017,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://esenyurt.edu.tr/",
+    "founded_year": 2013,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/0/00/%C4%B0stanbul_esenyurt_universitesi.png",
+    "address": "İstanbul , Türkiye",
+    "rector": "Prof. Dr. Dinçer Atlı",
+    "wiki_type": "Vakıf",
+    "colors": "Kraliyet mavisi ve beyaz"
   },
   {
     "code": "274882",
@@ -6766,7 +8058,13 @@
     ],
     "coast_km": 187,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://www.iste.edu.tr/",
+    "founded_year": 2015,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/3/38/%C4%B0skenderun_Teknik_%C3%9Cniversitesi.png/250px-%C4%B0skenderun_Teknik_%C3%9Cniversitesi.png",
+    "address": "İskenderun, Hatay , Türkiye 36°35′07″N 36°10′25″E ﻿ / ﻿ 36.5853°K 36.1736°D ﻿ / 36.5853; 36.1736",
+    "rector": "Prof. Dr. Mehmet Duruel [ 2 ]",
+    "wiki_type": "Devlet üniversitesi"
   },
   {
     "code": "105248",
@@ -6801,7 +8099,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.beu.edu.tr/",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/9/9c/Bitlis_Eren_%C3%9Cniversitesi_logosu.jpg/250px-Bitlis_Eren_%C3%9Cniversitesi_logosu.jpg",
+    "address": "Bitlis , Bitlis , Türkiye",
+    "rector": "Prof. Dr. Ayşe Dilek Özşahin Kireçci Prof. Dr. Ayhan Yılmaz",
+    "wiki_type": "Devlet Üniversitesi [ 1 ]",
+    "student_count_raw": "15532"
   },
   {
     "code": "122735",
@@ -6834,7 +8139,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.osmaniye.edu.tr",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/8/84/Osmaniye_Korkut_Ata_%C3%9Cniversitesi.jpg/250px-Osmaniye_Korkut_Ata_%C3%9Cniversitesi.jpg",
+    "address": "Osmaniye , Türkiye",
+    "rector": "Prof. Dr. Turgay UZUN",
+    "wiki_type": "Devlet"
   },
   {
     "code": "307919",
@@ -6863,7 +8174,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.munzur.edu.tr",
+    "founded_year": 2008,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Munzur_University_logo.svg/250px-Munzur_University_logo.svg.png",
+    "address": "Tunceli , Türkiye",
+    "rector": "Prof. Dr. Kenan Peker [ 1 ]",
+    "wiki_type": "Devlet"
   },
   {
     "code": "124805",
@@ -6900,7 +8217,13 @@
     ],
     "coast_km": 380,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.sinop.edu.tr",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/7/72/Sinop_Universitesi_Logo.png",
+    "address": "Sinop , Türkiye 42°00′20″N 35°05′29″E ﻿ / ﻿ 42.0056028°K 35.0913877°D ﻿ / 42.0056028; 35.0913877",
+    "rector": "Prof. Dr. Şakir Taşdemir",
+    "wiki_type": "Devlet"
   },
   {
     "code": "339994",
@@ -6929,7 +8252,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.istiklal.edu.tr/",
+    "founded_year": 2018,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/D%C4%B1%C5%9F_%C3%A7ekim.jpg/250px-D%C4%B1%C5%9F_%C3%A7ekim.jpg",
+    "address": ", Kahramanmaraş , Türkiye",
+    "rector": "Prof. Dr. H. Seçil Fettahlıoğlu, Prof. Dr. Burcu Ersahan",
+    "wiki_type": "Devlet",
+    "student_count_raw": "1.730(ön lisans) 884 (lisans) 26 (lisansüstü) [ 1 ]"
   },
   {
     "code": "121164",
@@ -6963,7 +8293,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.alparslan.edu.tr/",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Mu%C5%9F_Alparslan_%C3%9Cniversitesi_logo.svg/250px-Mu%C5%9F_Alparslan_%C3%9Cniversitesi_logo.svg.png?utm_source=tr.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+    "address": "Muş , Türkiye",
+    "rector": "Prof. Dr. Mustafa Alican [ 1 ]",
+    "wiki_type": "Devlet"
   },
   {
     "code": "104578",
@@ -6996,7 +8332,14 @@
     ],
     "coast_km": 59,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.bartin.edu.tr",
+    "founded_year": 2008,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/7/7b/Bart%C4%B1n_%C3%9Cniversitesi_logosu.jpg/250px-Bart%C4%B1n_%C3%9Cniversitesi_logosu.jpg",
+    "address": "Bartın , Türkiye",
+    "rector": "Prof. Dr. Ahmet Akkaya [ 2 ]",
+    "wiki_type": "Devlet",
+    "colors": "Mavi, Açık Mavi, Beyaz"
   },
   {
     "code": "125536",
@@ -7026,7 +8369,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.sirnak.edu.tr",
+    "founded_year": 2008,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/b/b8/%C5%9E%C4%B1rnak_%C3%9Cniversitesi_logosu.jpg/250px-%C5%9E%C4%B1rnak_%C3%9Cniversitesi_logosu.jpg?utm_source=tr.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+    "address": "Şırnak , Türkiye",
+    "rector": "Prof.Dr.E. Mustafa Eyyüboğlu",
+    "wiki_type": "Devlet [ 1 ]"
   },
   {
     "code": "205351",
@@ -7056,7 +8405,14 @@
     ],
     "coast_km": 114,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.avrasya.edu.tr",
+    "founded_year": 2010,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/e/ee/Avrasya_%C3%9Cniversitesi.png/250px-Avrasya_%C3%9Cniversitesi.png",
+    "address": "Trabzon , Türkiye",
+    "rector": "Prof. Dr. Yavuz Özoran Prof. Dr. Aytap Sezer",
+    "wiki_type": "Vakıf üniversitesi [ 1 ]",
+    "student_count_raw": "28 (2021-22)"
   },
   {
     "code": "118186",
@@ -7087,7 +8443,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.kilis.edu.tr",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/K7AU_Main_Gate.jpg/250px-K7AU_Main_Gate.jpg",
+    "address": "Kilis , Kilis , Türkiye",
+    "rector": "Prof. Dr. Zekeriya Akman",
+    "wiki_type": "Devlet"
   },
   {
     "code": "103443",
@@ -7126,7 +8488,14 @@
     ],
     "coast_km": 33,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.artvin.edu.tr",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Artvin_%C3%87oruh_University_logo.svg/250px-Artvin_%C3%87oruh_University_logo.svg.png",
+    "address": "Artvin , Türkiye",
+    "rector": "Prof. Dr. İbrahim Aydın",
+    "wiki_type": "Devlet",
+    "student_count_raw": "36 (2021-22)"
   },
   {
     "code": "113023",
@@ -7164,7 +8533,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.gumushane.edu.tr/",
+    "founded_year": 2008,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/G%C3%BCm%C3%BC%C5%9Fhane_University_logo.svg/250px-G%C3%BCm%C3%BC%C5%9Fhane_University_logo.svg.png",
+    "address": "Gümüşhane , Türkiye",
+    "rector": "Prof. Dr. Oktay Yıldız",
+    "wiki_type": "Devlet üniversitesi"
   },
   {
     "code": "113681",
@@ -7191,7 +8566,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://hakkari.edu.tr/",
+    "founded_year": 2008,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Hakkari_University_logo.svg/250px-Hakkari_University_logo.svg.png",
+    "address": "Hakkâri , Türkiye",
+    "rector": "Prof. Dr. Ömer Pakiş",
+    "wiki_type": "Devlet [ 1 ]"
   },
   {
     "code": "104922",
@@ -7223,7 +8604,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.bayburt.edu.tr",
+    "founded_year": 2008,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Bayburt_University_logo.svg/250px-Bayburt_University_logo.svg.png",
+    "address": "Bayburt , Türkiye",
+    "rector": "Prof. Dr. Mutlu Türkmen [ 1 ]",
+    "wiki_type": "Devlet",
+    "student_count_raw": "669"
   },
   {
     "code": "103400",
@@ -7255,7 +8643,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.ardahan.edu.tr/",
+    "founded_year": 2008,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/3/3b/Ardahan_%C3%9Cniversitesi_logosu.png",
+    "address": "Ardahan , Türkiye",
+    "rector": "Prof. Dr. Mustafa YILDIZ Prof. Dr. Zafer AYKANAT",
+    "wiki_type": "Devlet",
+    "student_count_raw": "40 (2021-22)"
   },
   {
     "code": "464048",
@@ -7284,7 +8679,13 @@
     ],
     "coast_km": 396,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.cau.edu.tr/",
+    "founded_year": 2013,
+    "logo_url": "https://maps.wikimedia.org/img/osm-intl,12,a,a,270x200.png?lang=tr&domain=tr.wikipedia.org&title=K%C4%B1br%C4%B1s_Ayd%C4%B1n_%C3%9Cniversitesi&revid=36841883&groups=_b15c0d50455cc569ce63792356290572bf181c7c&parser=legacy",
+    "address": "Girne , Kuzey Kıbrıs Türk Cumhuriyeti",
+    "rector": "Prof. Dr. Yadigar İzmirli",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "339985",
@@ -7316,7 +8717,15 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.hacibayram.edu.tr",
+    "founded_year": 2018,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Ankara_Hac%C4%B1_Bayram_Veli_University_logo_%28vertical_tr%29.svg/250px-Ankara_Hac%C4%B1_Bayram_Veli_University_logo_%28vertical_tr%29.svg.png",
+    "address": "Ankara , Türkiye",
+    "rector": "Prof. Dr. Naci Bostancı",
+    "wiki_type": "Devlet",
+    "colors": "Kırmızı ve beyaz",
+    "student_count_raw": "2.188 (2021-22)"
   },
   {
     "code": "417386",
@@ -7340,7 +8749,12 @@
     ],
     "coast_km": 396,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "arucad.edu.tr",
+    "founded_year": 2017,
+    "address": "Girne , Kuzey Kıbrıs Türk Cumhuriyeti",
+    "rector": "Prof. Dr. Asım Vehbi",
+    "wiki_type": "Özel üniversite"
   },
   {
     "code": "418550",
@@ -7363,7 +8777,13 @@
     ],
     "coast_km": 396,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://www.cwu.edu.tr",
+    "founded_year": 2015,
+    "logo_url": "https://maps.wikimedia.org/img/osm-intl,12,a,a,270x200.png?lang=tr&domain=tr.wikipedia.org&title=K%C4%B1br%C4%B1s_Bat%C4%B1_%C3%9Cniversitesi&revid=35967051&groups=_71a45f4550862144dcdb667829247ad2e55f01b0&parser=legacy",
+    "address": "Gazimağusa , Kuzey Kıbrıs Türk Cumhuriyeti",
+    "rector": "Prof. Dr. Canan Hecer",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "263352",
@@ -7389,7 +8809,13 @@
     ],
     "coast_km": 396,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.auc.edu.tr",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/6/66/American_University_of_Cyprus_logo.png",
+    "address": "Lefkoşa - Güzelyurt Anayolu, Alayköy 9920",
+    "rector": "Prof. Dr. Gökçe Keçeci",
+    "wiki_type": "Özel",
+    "colors": "Lacivert ve altın"
   },
   {
     "code": "474572",
@@ -7437,7 +8863,14 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://www.ihu.edu.tr/",
+    "founded_year": 2015,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/%C4%B0bn_Haldun_%C3%9Cniversitesi_logo.svg/250px-%C4%B0bn_Haldun_%C3%9Cniversitesi_logo.svg.png",
+    "address": "Başakşehir , İstanbul , Türkiye",
+    "rector": "Prof. Dr. Özcan Erkan Akgün Prof. Dr. Mustafa Kemal Yılmaz",
+    "wiki_type": "Vakıf Üniversitesi",
+    "student_count_raw": "996 (Eylül 2024)"
   },
   {
     "code": "232846",
@@ -7463,7 +8896,14 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.asbu.edu.tr",
+    "founded_year": 2013,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/b/ba/ASB%C3%9C_logo.png/250px-ASB%C3%9C_logo.png",
+    "address": "Ankara , Türkiye 39°56′36.3″K 32°51′19.5″D ﻿ / ﻿ 39.943417°K 32.855417°D ﻿ / 39.943417; 32.855417",
+    "rector": "Prof. Dr. Musa Kazım Arıcan",
+    "wiki_type": "Devlet",
+    "student_count_raw": "328 (2022-23)"
   },
   {
     "code": "106499",
@@ -7488,7 +8928,14 @@
     ],
     "coast_km": 321,
     "is_metropolis": true,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.cag.edu.tr/",
+    "founded_year": 1997,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/9/9b/Cag_universitesi.png?utm_source=tr.wikipedia.org&utm_campaign=parser&utm_content=thumbnail_unscaled",
+    "address": "Mersin , Türkiye",
+    "rector": "Prof. Dr. Çetin Bedestenci Prof. Dr. H. Mahir Fisunoğlu",
+    "wiki_type": "Vakıf üniversitesi [ 1 ]",
+    "colors": "Mavi beyaz"
   },
   {
     "code": "333623",
@@ -7511,7 +8958,13 @@
     ],
     "coast_km": 396,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://baucyprus.edu.tr/",
+    "founded_year": 2017,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/a/ae/Bah%C3%A7e%C5%9Fehir_K%C4%B1br%C4%B1s_%C3%9Cniversitesi_Logosu.png",
+    "address": "Lefkoşa , Kuzey Kıbrıs Türk Cumhuriyeti",
+    "rector": "Prof. Dr. Mehmet Toycan [ 1 ]",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "240640",
@@ -7534,7 +8987,13 @@
     ],
     "coast_km": 396,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.akun.edu.tr/",
+    "founded_year": 2012,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/University_of_Mediterranean_Karpasia%2C_Nicosia_City_Campus%2C_Cyprus.jpg/250px-University_of_Mediterranean_Karpasia%2C_Nicosia_City_Campus%2C_Cyprus.jpg",
+    "address": "Lefkoşa , Kuzey Kıbrıs Türk Cumhuriyeti",
+    "rector": "Prof. Dr. Ali Şen",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "417385",
@@ -7556,7 +9015,12 @@
     ],
     "coast_km": 396,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "https://rdu.edu.tr",
+    "founded_year": 2013,
+    "address": "Lefkoşa , Kuzey Kıbrıs Türk Cumhuriyeti",
+    "rector": "Mehmet Karaca",
+    "wiki_type": "Özel"
   },
   {
     "code": "324993",
@@ -7577,7 +9041,13 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://mgu.edu.tr",
+    "founded_year": 2017,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/3/33/Ankara_M%C3%BCzik_ve_G%C3%BCzel_Sanatlar_%C3%9Cniversitesi_logosu.png",
+    "address": "Ankara , Türkiye",
+    "rector": "Prof. Dr. Barış Demirci Prof. Dr. Zafer Kurtaslan",
+    "student_count_raw": "45 (2025-26)"
   },
   {
     "code": "334490",
@@ -7599,7 +9069,13 @@
     ],
     "coast_km": 629,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.konak.edu.tr/",
+    "founded_year": 2007,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/tr/thumb/d/d1/%C4%B0zmir_Kavram_MYO_logo.png/250px-%C4%B0zmir_Kavram_MYO_logo.png",
+    "address": "İzmir , Türkiye",
+    "wiki_type": "Vakıf",
+    "colors": "Kırmızı , Beyaz , Gri"
   },
   {
     "code": "432690",
@@ -7622,7 +9098,12 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "https://www.issb.edu.tr/",
+    "founded_year": 2010,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/%C4%B0stanbul_Sa%C4%9Fl%C4%B1k_ve_Sosyal_Bilimler_MYO_logo.svg/250px-%C4%B0stanbul_Sa%C4%9Fl%C4%B1k_ve_Sosyal_Bilimler_MYO_logo.svg.png",
+    "address": "İstanbul , Türkiye",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "255896",
@@ -7645,7 +9126,12 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.adiguzel.edu.tr/",
+    "founded_year": 2014,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Ata%C5%9Fehir_Ad%C4%B1g%C3%BCzel_Meslek_Y%C3%BCksekokulu_logo.svg/250px-Ata%C5%9Fehir_Ad%C4%B1g%C3%BCzel_Meslek_Y%C3%BCksekokulu_logo.svg.png",
+    "address": "İstanbul , Türkiye",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "220121",
@@ -7668,7 +9154,12 @@
     ],
     "coast_km": 110,
     "is_metropolis": true,
-    "is_central_district": true
+    "is_central_district": true,
+    "website": "http://www.sisli.edu.tr/",
+    "founded_year": 2012,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/%C4%B0stanbul_%C5%9Ei%C5%9Fli_Meslek_Y%C3%BCksekokulu_logo.svg/250px-%C4%B0stanbul_%C5%9Ei%C5%9Fli_Meslek_Y%C3%BCksekokulu_logo.svg.png?utm_source=tr.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+    "address": "İstanbul , Türkiye",
+    "wiki_type": "Vakıf"
   },
   {
     "code": "301240",
@@ -7686,6 +9177,12 @@
     "seas": [],
     "coast_km": null,
     "is_metropolis": false,
-    "is_central_district": false
+    "is_central_district": false,
+    "website": "http://www.ndu.edu.az/",
+    "founded_year": 1967,
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/NDUNAJ.JPG/250px-NDUNAJ.JPG",
+    "address": "Nahçıvan , Azerbaycan",
+    "rector": "Elbrus İsayev",
+    "wiki_type": "Devlet Üniversitesi"
   }
 ]

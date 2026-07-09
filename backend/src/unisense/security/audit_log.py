@@ -34,7 +34,7 @@ def audit(event: str, *, ip=None, user_agent=None, query=None,
     if api_key_prefix:
         record["api_key_prefix"] = api_key_prefix
     if extra:
-        record.update(extra)
+        record.update({k: v for k, v in extra.items() if v is not None})
 
     path = Path(settings.audit_log_path)
     try:

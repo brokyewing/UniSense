@@ -57,3 +57,8 @@ dist/
 
 # OS
 Thumbs.db
+
+# Gecici script/log ciktilari
+backend/embed_log*.txt
+backend/infobox_log.txt
+backend/_housing_probe.py

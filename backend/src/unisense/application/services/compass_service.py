@@ -10,13 +10,9 @@ Aşağıdakiler ortak:
 """
 from __future__ import annotations
 
-import json
-import math
 from functools import lru_cache
-from pathlib import Path
 
 import numpy as np
-from sentence_transformers import SentenceTransformer
 
 from unisense.application.services.compass_interests import (
     get_dept_to_interests,
@@ -34,7 +30,11 @@ logger = get_logger(__name__)
 
 
 @lru_cache(maxsize=1)
-def _model() -> SentenceTransformer:
+def _model():
+    # Lazy import: sentence_transformers (torch) ağır — modül import edilirken
+    # değil, ilk kullanımda yüklensin (test/startup hızı)
+    from sentence_transformers import SentenceTransformer
+
     settings = get_settings()
     return SentenceTransformer(settings.embedding_model)
 
@@ -106,7 +106,6 @@ class CompassService:
         # Kategoriye göre grupla
         by_cat: dict[str, list[dict]] = {k: [] for k in CATEGORIES}
         for d in tax["departments"]:
-            cat = CATEGORIES[d["category"]]
             by_cat[d["category"]].append({
                 "name": d["name"],
                 "tags": d["tags"],

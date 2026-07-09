@@ -1,0 +1,61 @@
+# Render — Backend deploy konfigürasyonu
+# Kullanım: Render dashboard → New → Blueprint → bu repo + branch seç
+# (Blueprint bu dosyayı SADECE repo kökünde arar — backend/ altına taşıma!)
+#
+# ÖNEMLİ ÖN KOŞULLAR:
+# 1. "sync: false" alanları (GEMINI_API_KEYS, FIREBASE_PROJECT_ID) Render UI'de elle gir.
+# 2. İlk deploy'da embed çalışır (birkaç dakika sürer) — logları izle.
+# 3. Veri dosyaları normal git blob'u (LFS DEĞİL) — ekstra ayar gerekmez.
+
+services:
+  - type: web
+    name: unisense-api
+    runtime: docker
+    repo: https://github.com/BrokyEwing/UniSense
+    branch: main
+    region: frankfurt   # Türkiye'ye yakın, düşük latency
+    # 512MB (starter) YETMEZ: sentence-transformers + torch tek başına ~500MB+
+    # RAM ister → OOM crash loop. En az 2GB'lık plan gerekli.
+    plan: standard
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    autoDeploy: true
+    healthCheckPath: /api/v1/health
+
+    disk:
+      name: chromadb-disk
+      mountPath: /data/chromadb
+      sizeGB: 1
+
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_HOST
+        value: 0.0.0.0
+      - key: APP_PORT
+        value: "8002"
+      - key: CHROMA_PERSIST_DIR
+        value: /data/chromadb
+      - key: CHROMA_COLLECTION
+        value: unisense
+      - key: EMBEDDING_MODEL
+        value: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+      - key: GEMINI_MODEL_FAST
+        value: gemini-2.5-flash-lite
+      # Kimlik doğrulama: Firebase ID token (SPA'ya gizli key gömülemez;
+      # frontend Authorization: Bearer <idToken> gönderir)
+      - key: SECURITY_REQUIRE_AUTH
+        value: "true"
+      - key: SECURITY_REQUIRE_API_KEY
+        value: "false"
+      - key: RATE_LIMIT_ASK
+        value: "20"
+      - key: RATE_LIMIT_DEFAULT
+        value: "60"
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://unisense.vercel.app
+      # Hassas / ortama özgü — Render UI'de elle gir:
+      - key: GEMINI_API_KEYS
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false

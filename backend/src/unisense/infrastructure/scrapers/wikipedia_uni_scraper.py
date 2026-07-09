@@ -294,7 +294,7 @@ def main() -> None:
 
     print()
     print("=" * 60)
-    print(f"✅ Tamamlandı")
+    print("✅ Tamamlandı")
     print(f"   ✓ Bulundu: {found}")
     print(f"   ❌ Bulunamadı: {not_found}")
     print(f"   📁 {out_file}")

@@ -190,8 +190,10 @@ export async function uploadAvatar(uid, file) {
   if (file.size > 5 * 1024 * 1024) {
     throw new Error('Dosya çok büyük (max 5 MB)')
   }
-  if (!file.type.startsWith('image/')) {
-    throw new Error('Sadece resim dosyası kabul edilir')
+  // storage.rules ile aynı liste — SVG bilerek yok (script gömülebilir)
+  const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    throw new Error('Sadece PNG, JPEG veya WebP kabul edilir')
   }
   const ext = (file.name.split('.').pop() || 'png').toLowerCase()
   const ref = storageRef(storage, `avatars/${uid}/avatar-${Date.now()}.${ext}`)
@@ -259,6 +261,19 @@ export async function addToTercih(uid, dept, order) {
 export async function removeFromTercih(uid, code) {
   if (!db) throw new Error('Firebase yok')
   await deleteDoc(doc(db, 'users', uid, 'tercih', String(code)))
+}
+
+/**
+ * Tercih item'ına kişisel not yaz (boş string silmek için).
+ * Maks 500 karakter UI'da clamp edilir.
+ */
+export async function updateTercihNote(uid, code, note) {
+  if (!db) throw new Error('Firebase yok')
+  const trimmed = (note || '').slice(0, 500)
+  await updateDoc(doc(db, 'users', uid, 'tercih', String(code)), {
+    note: trimmed,
+    noteUpdatedAt: serverTimestamp(),
+  })
 }
 
 /**

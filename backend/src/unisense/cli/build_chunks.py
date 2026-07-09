@@ -177,6 +177,8 @@ def build_university_summary_chunks(universities: list[dict],
         if u.get("short_name"):
             bits.append(f"Kısa ad: {u['short_name']}")
         bits.append(f"Türü: {u['type']}")
+        if u.get("founded_year"):
+            bits.append(f"Kuruluş: {u['founded_year']}")
         if u.get("city"):
             bits.append(f"Şehir: {u['city']}")
         if u.get("region") and u["region"] != "Bilinmiyor":
@@ -187,6 +189,18 @@ def build_university_summary_chunks(universities: list[dict],
         bits.append(f"Fakülte/birim sayısı: {len(fac_codes[c]) - (1 if '' in fac_codes[c] else 0)}")
         if score_types[c]:
             bits.append(f"Mevcut puan türleri: {', '.join(sorted(score_types[c] - {''}))}")
+        if u.get("website"):
+            bits.append(f"Web: {u['website']}")
+        if u.get("phone"):
+            bits.append(f"Tel: {u['phone']}")
+        if u.get("email"):
+            bits.append(f"E-posta: {u['email']}")
+        if u.get("rector"):
+            # Rektör metni uzun olabilir; ilk 80 karakteri al
+            rector_short = u["rector"][:80] + ("..." if len(u["rector"]) > 80 else "")
+            bits.append(f"Rektör: {rector_short}")
+        if u.get("address"):
+            bits.append(f"Adres: {u['address']}")
 
         content = " | ".join(bits)
         chunks.append({
@@ -198,9 +212,12 @@ def build_university_summary_chunks(universities: list[dict],
             "city": u.get("city", ""),
             "region": u.get("region", ""),
             "heading": u["name"],
-            "source": "YÖK Atlas 2025 (özet)",
-            "source_url": "",
+            "source": "YÖK Atlas 2025 + Wikipedia",
+            "source_url": u.get("website", ""),
             "language": "tr",
+            # Metadata için sayısal/string ek alanlar (chunk_meta'da kullanılabilir)
+            "founded_year": u.get("founded_year") or 0,
+            "logo_url": u.get("logo_url", ""),
         })
     return chunks
 
@@ -212,7 +229,6 @@ def build_wikipedia_chunks(wiki_data: list[dict]) -> list[dict]:
         if not w.get("wikipedia_title") or not w.get("sections"):
             continue
         uni_name = w["name"]
-        title = w["wikipedia_title"]
         url = w.get("wikipedia_url", "")
         for i, sec in enumerate(w["sections"]):
             heading = sec.get("heading", "")

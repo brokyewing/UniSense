@@ -1,8 +1,10 @@
-# UniSense
+# UniSense — v3.0
 
 > Türkiye üniversite tercih sürecini akıllı bir asistana dönüştüren açık kaynak proje.
-> RAG (Retrieval-Augmented Generation) tabanlı, YÖK Atlas / ÖSYM / URAP verileriyle beslenen,
+> RAG (Retrieval-Augmented Generation) tabanlı, YÖK Atlas / ÖSYM / URAP / Wikipedia verileriyle beslenen,
 > öğrencinin puanına ve ilgi alanına göre **gerçek sayılarla** öneri üretir.
+
+**v3.0 yenilikleri:** Bölüm Karşılaştırma (`/compare`), Yerleşme olasılığı sigmoid, Kişisel tercih notları, Production deploy hazır (Render + Vercel + Firebase).
 
 ---
 
@@ -28,9 +30,14 @@
 
 - **Sohbet (Ask)** — "İstanbul'da 80 bin sıralamayla hangi bilgisayar mühendisliği bölümlerine girebilirim?" gibi doğal dil sorgularına RAG ile cevap verir; her programın **ÖSYM tercih kodunu** (örn. `[203910363]`) cevabın içine ekler, frontend tek tıkla tercihe atar.
 - **Pusula (Compass)** — İlgi alanı + güçlü dersler + şehir tercihi gibi eksenler üzerinden öğrenciye uygun **bölüm önerisi** üretir.
-- **Tercih Listesi** — 24 sıralık tercihe ekleme, sürükle-bırak ile yeniden sıralama, otomatik backfill (eksik puan/sıra/kontenjan alanları arka planda doldurulur).
-- **Sohbet Geçmişi** — Kişi başı 5 oturumu Firestore'da saklar, FIFO ile en eskiyi düşürür.
-- **Akademisyen Linkleri** — "Hoca/akademisyen" sorularında YÖK Akademik Arama linkini otomatik üretir.
+- **Recommend** — Puan ve sıralamana göre safe/target/reach kovaları + **yerleşme olasılığı** (sigmoid yüzde rozet).
+- **Tercih Listesi** — 24 sıralık tercihe ekleme, drag-drop sıralama, otomatik backfill, **kişisel notlar** (her tercih için 500 char).
+- **Bölüm Karşılaştırma (Compare)** — 2-5 program yan yana, EN İYİ/EN ZAYIF vurgu, mini SVG trend grafiği.
+- **Hesap Makinesi** — TYT/AYT-SAY/EA/SÖZ/DİL/DGS net → puan + simulasyon.
+- **Sohbet Geçmişi** — Kişi başı 5 oturumu Firestore'da saklar, FIFO.
+- **Wikipedia infobox enrich** — 221 üni için website, logo, kuruluş yılı, rektör, adres.
+- **KVKK / Gizlilik** — `/privacy` 10 bölüm gizlilik politikası.
+- **Otomatik veri güncelleme** — GitHub Actions yıllık cron (15 Ağustos, ÖSYM dönemi sonrası).
 
 ---
 
@@ -259,15 +266,19 @@ Tümü `/api/v1` prefix'i altındadır.
 
 ## Deploy
 
-**Backend** — Hugging Face Spaces (Docker), Railway, Render, Fly.io ya da kendi VPS'in.
-- ChromaDB persistent path için kalıcı disk gerekir.
-- `APP_ENV=production` yap → API docs URL'leri kapanır.
-- `CORS_ALLOWED_ORIGINS` ayarına frontend domain'ini ekle.
+Detaylı adım adım rehber: **[docs/DEPLOY.md](docs/DEPLOY.md)**
 
-**Frontend** — Vercel ya da Netlify.
-- Build komutu: `npm run build`
-- Output: `dist/`
-- Environment variables sayfasından tüm `VITE_FIREBASE_*` ve `VITE_API_URL` değerlerini gir.
+Hazır config dosyaları:
+- `backend/Dockerfile` + `backend/render.yaml` — Render blueprint
+- `frontend/vercel.json` — Vercel SPA config
+- `firestore.rules` + `storage.rules` — Firebase Security Rules
+- `.github/workflows/yearly-data-sync.yml` — yıllık otomatik scrape
+
+Tek satır özet:
+1. Backend → Render (Dockerfile, $7/ay starter plan)
+2. Frontend → Vercel (Hobby ücretsiz)
+3. Firebase → Security Rules publish + Authorized domains güncelle
+4. UptimeRobot → `/api/v1/health` 5 dakikada bir kontrol
 
 ---
 
@@ -294,29 +305,34 @@ UniSense/
 ├── backend/
 │   ├── src/unisense/
 │   │   ├── api/            # FastAPI router + middleware
-│   │   ├── application/    # Use case servisleri (Ask, Compass, Recommend...)
+│   │   ├── application/    # Use case servisleri (Ask, Compass, Recommend, Compare...)
 │   │   ├── core/           # Config, DI, logging
 │   │   ├── domain/         # Domain modelleri + enums + exceptions
-│   │   ├── infrastructure/ # LLM provider, vector store, scrapers
+│   │   ├── infrastructure/ # Gemini provider, ChromaDB, scrapers (yokatlas, wikipedia, infobox)
 │   │   ├── security/       # Auth, rate limit, sanitizer, audit log
 │   │   └── cli/            # build_chunks, embed
 │   ├── data/
-│   │   ├── raw/            # Scrape edilmiş ham JSON'lar
-│   │   ├── processed/      # universities / departments / chunks
-│   │   ├── embeddings/     # ChromaDB persistent dir (gitignore'da)
-│   │   └── training/       # Fine-tuning dataset (Kaggle)
-│   ├── scripts/            # Yardımcı script'ler + test_queries
-│   ├── pyproject.toml
-│   └── requirements.txt
+│   │   ├── raw/            # Scrape edilmiş ham JSON'lar (yokatlas + wikipedia + infobox)
+│   │   ├── processed/      # universities (enriched) / departments / chunks
+│   │   └── embeddings/     # ChromaDB persistent dir (gitignore'da)
+│   ├── scripts/            # enrich_geo, probe_dgs
+│   ├── Dockerfile          # Production container
+│   ├── render.yaml         # Render blueprint
+│   └── pyproject.toml
 ├── frontend/
 │   ├── src/
-│   │   ├── pages/          # Splash, Login, Home, Search, Pusula, Tercih...
+│   │   ├── pages/          # Splash, Login, Home, Search, Pusula, Tercih, Compare, Privacy...
 │   │   ├── components/     # ChatSidebar, ThemeToggle, Three sahneler...
 │   │   ├── contexts/       # Auth, Theme
-│   │   └── firebase.js     # Firebase init + helper'lar
+│   │   └── firebase.js     # Firebase init + helper'lar (updateTercihNote, vb.)
 │   ├── package.json
-│   └── vite.config.js
-├── docs/                   # AI handoff & roadmap notları
+│   ├── vite.config.js      # manualChunks vendor split
+│   └── vercel.json         # Vercel SPA + cache headers
+├── .github/workflows/
+│   └── yearly-data-sync.yml  # Otomatik yıllık veri sync
+├── docs/                   # AI_CONTEXT, ROADMAP, PROJECT_STATUS, AI_HANDOFF, DEPLOY
+├── firestore.rules         # Firebase Security Rules
+├── storage.rules
 ├── .gitignore
 ├── LICENSE
 └── README.md

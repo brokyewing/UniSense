@@ -2,16 +2,44 @@
 from __future__ import annotations
 
 import json
+import math
 from functools import lru_cache
 from pathlib import Path
 
 from unisense.application.interfaces.vector_store import VectorStore
 from unisense.core.config import get_settings
 from unisense.core.logging import get_logger
-from unisense.domain.enums import ScoreType
 from unisense.domain.models import Recommendation, RecommendationList, StudentProfile
 
 logger = get_logger(__name__)
+
+
+def placement_probability(
+    user_rank: int | None,
+    base_rank: int | None,
+    q1_rank: int | None = None,
+) -> float | None:
+    """Yerleşme olasılığını sigmoid ile yumuşat.
+
+    - user_rank == base_rank → 0.50 (medyan = yarı yarıya)
+    - user_rank << base_rank → 0.90+ (rahat yerleşir)
+    - user_rank >> base_rank → 0.10- (zor yerleşir)
+
+    q1_rank verildiğinde (eski yıl en üst %25 sırası) eğri daha duyarlı.
+    Yoksa base_rank'ın %15'i kadar varsayılan spread kullanılır.
+    """
+    if not user_rank or not base_rank or user_rank <= 0 or base_rank <= 0:
+        return None
+    if q1_rank and 0 < q1_rank < base_rank:
+        spread = (base_rank - q1_rank) * 1.5
+    else:
+        spread = max(base_rank * 0.15, 50)
+    # Küçük user_rank → büyük z → yüksek olasılık
+    z = (base_rank - user_rank) / spread
+    # Aşırı uçları sınırla (overflow korunması)
+    z = max(min(z, 10.0), -10.0)
+    prob = 1.0 / (1.0 + math.exp(-z))
+    return round(prob, 3)
 
 
 @lru_cache(maxsize=1)
@@ -189,6 +217,11 @@ class RecommendationService:
             # Kategoriye göre uyum
             ratio = prog_rank / user_rank if user_rank > 0 else float('inf')
 
+            prob = placement_probability(
+                user_rank=user_rank,
+                base_rank=prog_rank,
+                q1_rank=r.get("rank_q1"),
+            )
             rec = Recommendation(
                 department_code=r["department_code"],
                 university_code=dept["university_code"],
@@ -198,6 +231,7 @@ class RecommendationService:
                 score_type=profile.score_type,
                 fit_score=min(100.0, max(0.0, 100 - abs(ratio - 1.0) * 50)),
                 safety_level="",
+                placement_probability=prob,
                 last_year_base_rank=prog_rank,
                 last_year_base_score=r["base_score"],
                 quota=r.get("quota"),

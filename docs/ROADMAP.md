@@ -1,7 +1,7 @@
 # 🗺️ UniSense — Yol Haritası
 
-**Son güncelleme:** 2026-05-07
-**Sürüm:** v2.0 (Pusula + Hesap + Önlisans + Qwen fine-tuning hazır)
+**Son güncelleme:** 2026-05-17
+**Sürüm:** v2.5 (Önlisans + Infobox + KVKK + Perf + Cron)
 
 > Türkiye 2025 YKS üniversite tercih asistanı.
 
@@ -17,86 +17,71 @@ asistanı**.
 
 ---
 
-## ✅ Tamamlananlar (v2.0)
+## ✅ Tamamlananlar
 
-### Veri katmanı
-- ✅ **227 üniversite** (DEVLET 128 + VAKIF 74 + KKTC 16 + diğer)
-- ✅ **21.602 program** (12.265 lisans + 9.337 önlisans)
-- ✅ **3.061 fakülte/MYO**
-- ✅ **Trend verisi (3 yıl):** rankings.json `history` alanında 2024+2023 otomatik
-- ✅ **Coğrafi metadata:** 28 sahil ili (deniz adları, kıyı km), 30 metropol, 31 ilin merkez ilçeleri
-- ✅ **Akademik kadro:** prof, doçent, dr.üyesi, ar.gör., öğr.gör. sayıları
-- ✅ **Akreditasyon:** MÜDEK, FEDEK, TEPDAD, vs.
-- ✅ **ÖSYM koşul kodları:** kosulList parser
-- ✅ **Burs/ücret bilgisi:** vakıf programları için
-- ✅ **Eğitim dili:** TR/İngilizce/Almanca/Fransızca/Arapça
-- ❌ DGS — yokatlas-py 0.6.0 desteklemiyor, ileride manuel scrape
+### v2.5 (2026-05-17) — Zenginleştirme + Perf
+- ✅ **Önlisans (TYT) chunk'ları** RAG'a eklendi (+9.337 chunk, toplam 23.876)
+- ✅ **Wikipedia infobox enrich** — 219 üni için website + logo + kuruluş yılı + rektör + adres
+- ✅ **KVKK / Gizlilik Politikası** sayfası (`/privacy` — 10 bölüm)
+- ✅ **Embedding warm-up** (FastAPI lifespan startup → cold start ~10sn → ~4sn)
+- ✅ **Gemini cevap cache** (TTLCache 1 saat → tekrar sorgu <300ms)
+- ✅ **Retrieval optimize** (ChromaDB collection reuse, yeni client açma yok)
+- ✅ **Frontend bundle split** (Vite manualChunks: react/three/firebase/ui)
+- ✅ **Splash 3D lazy** (Three.js bundle ilk paint'i bloklamıyor)
+- ✅ **GitHub Actions yıllık cron** (15 Ağustos → scrape + chunks + embed otomatik)
+- ❌ **Qwen3-4B / UniSenseLocal kaldırıldı** (multi-LLM router, dataset, GGUF — disk ~2.4 GB temizlik)
 
-### Backend (Clean Architecture)
+### v2.0 (2026-05-07)
+- ✅ Pusula (3 mod: Kart Seç, Soru Sor, 5 Soru) — 358 bölüm grubu, 9 kategori, 150+ ilgi pill
+- ✅ Hesap Makinesi (TYT/AYT-SAY/EA/SÖZ/DİL/DGS + simulasyon)
+- ✅ Önlisans verisi (9.337 program TYT — sadece data, RAG eklenmesi v2.5'te)
+- ✅ Trend service (3 yıllık taban+sıra + momentum 📈/📉/📊)
+- ✅ Coğrafi filtreler (28 sahil ili + 30 metropol + 31 merkez ilçe)
+- ✅ Multi-turn chat (history son 8 mesaj)
+- ✅ Akademik kadro + akreditasyon + burs + eğitim dili
+- ✅ Firebase Auth + Firestore (Google/Email + sessions/tercih/profile/queries)
+- ✅ TercihList drag-drop + ÖSYM kod chip + Kodları Kopyala + Kod ile Ekle
+- ✅ Recommend Pusula gating + Devlet/Vakıf toggle + +Tercihe Ekle/Çıkar
+- ✅ Profile YKS tab (puan/sıra/şehir/üni türü/preferred interests)
+- ✅ Logo transparent PNG (RGB→RGBA) + favicon multi-size
+
+### v1.x — Temel kurulum
 - ✅ FastAPI 0.115 + Pydantic v2 + structlog + slowapi
-- ✅ ChromaDB (14.539 chunk; önlisans için rebuild gerek)
-- ✅ Hybrid retrieval (keyword + vector, Türkçe-safe upper/lower)
-- ✅ AskService **multi-turn chat** (history son 8 mesaj)
-- ✅ AskService **intent routing** — sıra/puan/coğrafi pattern detect → Recommend hybrid context
-- ✅ Recommend service: safe/target/reach kovaları + filtreler (puan türü, üni türü, şehir, bölüm, geo)
-- ✅ Compass service: 358 lisans bölüm grubu, 9 kategori, 150+ ilgi pill, 5-boyutlu kişilik vektörü
-- ✅ Trend service: program-bazlı 3 yıllık tablo + momentum (📈/📉/📊)
-- ✅ Geo enrich: deniz/merkez/metropol filtreleri Recommend'a entegre
-- ✅ Multi-LLM router: Gemini (default) + UniSenseLocal (Ollama, opsiyonel)
-- ✅ `/api/v1/models` endpoint — frontend hangisi available öğrenir
-
-### LLM
-- ✅ **Gemini API** — multi-key, model fallback chain (3.1 Flash Lite preview)
-- ✅ Quota dolunca fast model'e fallback
-- ✅ 404 / model not found handling
-- ✅ Multi-turn `contents` formatı (chat history desteği)
-- ⏳ **UniSenseLocal (Qwen3-4B fine-tuned)** — dataset 58k hazır, Kaggle eğitim bekleniyor
-
-### Frontend (React + Vite)
-- ✅ **Splash** — 3D arkaplan + Logo (sağ üst, ThemeToggle yanında)
-- ✅ **Auth** — Login (Google + Email) + Logo, Profile sayfa (avatar + şifre + YKS)
-- ✅ **Profile YKS tab:** puan/sıra/şehir/üni tipi/preferred interests
-- ✅ **Pusula** — 3 mod: Kart Seç (ilgi pill'leri), Soru Sor (Search'e yönlendir), 5 Soru
-- ✅ **Recommend** — Pusula gating, Devlet/Vakıf toggle, +Tercihe Ekle/-Çıkar
-- ✅ **Hesap Makinesi** — TYT/AYT-SAY/EA/SÖZ/DİL/DGS, ders-bazlı katsayı, OBP 100'lük (DGS 4'lük), simulasyon paneli
-- ✅ **Search** — RAG + multi-turn + LLM seçici (Gemini/UniSenseLocal) + kaynak collapsible + auto-scroll fix
-- ✅ **TercihList** — drag-drop sıralama (@dnd-kit) + ↑↓ butonlar + ÖSYM kodu chip + sıra/taban/kontenjan + auto-fill backfill + Sıraya Göre Diz + Kodları Kopyala + Kod ile Ekle (manuel input)
-- ✅ **Tema** dark/light (3D arkaplan korunur)
-- ✅ **Logo** — yeni transparent PNG (RGB → RGBA dönüştürüldü), favicon güncel
-
-### UX akış (uçtan uca)
-```
-Splash → Login → Pusula (ilgi seç) → Recommend (puan + tercih) → TercihList (sırala + ÖSYM kod kopyala)
-       Hesap (net gir → puan)  ↗
-       Search (sohbet RAG)     ↗
-```
-
-### NLP / Dataset (Qwen fine-tuning için)
-- ✅ **build_unisense_dataset.py** — 58.585 unique Q/A çifti (Alpaca format, 16.5 MB)
-- ✅ Kategoriler: tüm program detayı, trend, akademik kadro, akreditasyon, burs, eğitim dili, coğrafi, ilgi, hesap mantığı
-- ✅ **unisense-egitimi-kaggle.ipynb** — Qwen3-4B-Instruct-2507 LoRA pipeline
-- ✅ Ollama provider (`infrastructure/llm/qwen.py`) + multi-router
+- ✅ ChromaDB persistent (hibrit keyword + vector retrieval)
+- ✅ Clean Architecture (domain → application → infrastructure)
+- ✅ Gemini API multi-key + fallback chain
+- ✅ Geo enrich + scrapers (YÖK Atlas, URAP, Wikipedia)
 
 ---
 
 ## 🚧 Şu an pending
 
-### Hemen yapılacaklar
-- ⏳ **Kaggle Qwen eğitimi başlat** — dataset Kaggle'a yüklendi, notebook hazır, eğitim bekleniyor (~6-8 saat T4)
-- ⏳ ChromaDB rebuild — önlisans chunk'ları RAG'a eklensin (Search'te önlisans cevapları için)
+### Faz 3 — Yeni özellikler (devam ediyor)
+- ⏳ **Bölüm Karşılaştırma sayfası** (`/compare?d=X,Y,Z`)
+  - Backend: `/api/v1/programs/compare` endpoint + `compare_service.py`
+  - Frontend: `Compare.jsx` (yan yana tablo, recharts grafik)
+  - TercihList'e "Karşılaştır" butonu
+- ⏳ **Yerleşme olasılığı simülasyonu**
+  - `rank_q1`/`rank_q3` quartile alanları → ECDF probability hesabı
+  - `recommendation_service.py`'a `placement_probability` eklemesi
+  - Recommend.jsx'te yüzde rozet (yeşil/sarı/kırmızı)
+- ⏳ **Tercih başı kişisel notlar**
+  - Firestore: `users/{uid}/tercih/{slot}` → `note` alanı
+  - TercihList.jsx expandable textarea (max 500 char, debounced)
 
-### Kısa vade (1-2 hafta)
-- ⏳ DGS desteği — yokatlas-py'da yok, HTML scrape veya ÖSYM PDF parser
-- ⏳ Bölüm karşılaştırma sayfası (`/compare?d=X,Y,Z`)
-- ⏳ Yerleşme olasılığı simülasyonu (`rank_q1`/`rank_q3` kullanılarak)
-- ⏳ Üretim deploy: Vercel (frontend) + Render/Cloudflare Tunnel (backend)
-- ⏳ KVKK / Gizlilik politikası sayfası
+### Faz 4 — Production deploy
+- ⏳ Backend → Render (Dockerfile + persistent disk for ChromaDB)
+- ⏳ Frontend → Vercel
+- ⏳ Firebase Security Rules (production) + API key restrictions
+- ⏳ Uptime monitoring (UptimeRobot veya Better Stack)
+- ⏳ README + dokümantasyon güncelleme (canlı URL'ler)
 
 ### Orta vade
+- ⏳ DGS manuel scrape (yokatlas-py 0.6.0 desteklemiyor)
+- ⏳ Geçmiş yıl history (2022, 2021) — 5 yıllık trend grafiği için
 - ⏳ LinkedIn alumni intelligence (mezunlar nereye yerleşmiş)
-- ⏳ Reddit/Ekşi öğrenci yorumlarından sentiment analizi
+- ⏳ Reddit/Ekşi öğrenci yorumları sentiment analizi
 - ⏳ Maliyet hesabı (kira+yemek+ulaşım × 4 yıl)
-- ⏳ Bölüm önerisinden sonra "kişisel notlar" alanı (her tercih için)
 - ⏳ Email bildirimleri (tercih son günü)
 
 ### Uzun vade
@@ -110,28 +95,33 @@ Splash → Login → Pusula (ilgi seç) → Recommend (puan + tercih) → Tercih
 
 | Özellik | Sebep |
 |---|---|
+| **UniSenseLocal (Qwen3-4B fine-tuned)** | v2.5'te kaldırıldı; tek LLM (Gemini) stratejisine geçildi |
 | **DGS desteği (kısa vade)** | yokatlas-py 0.6.0'da DGS endpoint yok; HTML scrape karmaşık |
-| **Akademisyen detay scrape (Avesis)** | Her üni farklı subdomain + HTML; YÖK Akademik anti-bot. Çözüm: linkin gösterimi |
-| **Cloudflare Tunnel + Ollama lokal** | Henüz değerlendirilecek; UniSenseLocal kullanmak için Ollama gerek |
+| **Akademisyen detay scrape (Avesis)** | Her üni farklı subdomain + HTML; YÖK Akademik anti-bot |
 
 ---
 
 ## 📊 Mevcut metrikler
 
-- **Backend**: 21.602 program, 3.061 fakülte, 227 üni, 14.539 RAG chunk
-- **Dataset (Qwen fine-tuning)**: 58.585 Q/A (16.5 MB JSONL, ~5.7M token)
-- **Frontend sayfa**: Splash, Home, Search, Pusula, Recommend, TercihList, Profile, Hesap, Login (9 sayfa)
-- **Auth**: Firebase Auth (Google + Email) + Firestore (sessions, tercih, profile, queries)
-- **API endpoints**: `/ask`, `/recommend`, `/health`, `/models`, `/programs/lookup`, `/compass/{taxonomy,interests,by-selection,by-text,by-axes,by-interests}`
+- **Backend**: 21.602 program, 3.061 fakülte, 227 üni, **23.876 RAG chunk**
+- **Wikipedia infobox enrich**: 219/227 üni (website + logo + kuruluş)
+- **Frontend sayfa**: Splash, Home, Search, Pusula, Recommend, TercihList, Profile, Hesap, Login, **Privacy** (10 sayfa)
+- **Auth**: Firebase Auth (Google + Email) + Firestore
+- **LLM**: Gemini API (sadece)
+- **Otomatik update**: GitHub Actions yıllık cron (15 Ağustos)
 
 ---
 
 ## 🚀 Sürüm tarihçesi
 
+- **v2.5** (2026-05-17) — Zenginleştirme + Performans:
+  - Önlisans RAG'a, Wikipedia infobox enrich, KVKK sayfası
+  - Embedding warm-up, Gemini cache, retrieval optimize, bundle split
+  - GitHub Actions yıllık cron
+  - Qwen/UniSenseLocal kaldırıldı
 - **v2.0** (2026-05-07) — Devasa güncelleme:
-  - Pusula (İlgi Pusulası) + Hesap Makinesi + Önlisans + Trend + Coğrafi filtreler + Multi-turn chat + LLM seçici + Logo + Favicon transparent
-  - Qwen fine-tuning pipeline (dataset + notebook + Ollama provider) hazır
+  - Pusula + Hesap Makinesi + Önlisans data + Trend + Coğrafi filtreler + Multi-turn chat
 - **v1.5** — Tercih akışı sertleştirildi:
-  - Pusula gating, drag-drop sıralama, ÖSYM kodu, +Tercihe Ekle/Çıkar, Kod ile Ekle
+  - Pusula gating, drag-drop sıralama, ÖSYM kodu
 - **v1.0** — Temel kurulum:
   - Clean Architecture, ChromaDB, Search, Recommend, Auth, Profile, Tema

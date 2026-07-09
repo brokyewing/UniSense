@@ -1,16 +1,23 @@
 """API v1 — routes."""
-from __future__ import annotations
+# NOT: `from __future__ import annotations` BİLEREK YOK. slowapi'nin
+# @limiter.limit dekoratörü fonksiyonu sarmalar; string annotation'lar
+# sarmalayıcının __globals__'ında çözülemez ve FastAPI body parametrelerini
+# query param sanır (tüm istekler 422 döner).
+import re
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Response
 
 from unisense.api.v1.dependencies import (
     ask_service_dep,
+    compare_service_dep,
     compass_service_dep,
     recommendation_service_dep,
 )
 from unisense.api.v1.schemas import (
     AskRequest,
     AskResponse,
+    CompareRequest,
+    CompareResponse,
     CompassAxesRequest,
     CompassInterestsRequest,
     CompassInterestsTaxonomyResponse,
@@ -27,44 +34,66 @@ from unisense.api.v1.schemas import (
     RecommendResponse,
     StudentProfileRequest,
 )
-from unisense.application.services import AskService, CompassService, RecommendationService
+from unisense.application.services import (
+    AskService,
+    CompareService,
+    CompassService,
+    RecommendationService,
+)
+from unisense.api.middleware.rate_limit import ASK_LIMIT, DEFAULT_LIMIT, limiter
 from unisense.core.di import get_vector_store
 from unisense.core.logging import get_logger
 from unisense.domain.models import Query, StudentProfile
 from unisense.security.audit_log import audit
 from unisense.security.auth import require_api_key
-from unisense.security.input_sanitizer import sanitize_query
+from unisense.security.firebase_auth import require_user
+from unisense.security.input_sanitizer import sanitize_history_text, sanitize_query
 
 router = APIRouter(prefix="/api/v1", tags=["v1"])
 logger = get_logger(__name__)
 
+# LLM cevabındaki ÖSYM program kodları (9 hane) — doğrulama için
+_OSYM_CODE_RE = re.compile(r"\b(\d{9})\b")
+
 
 @router.get("/health", response_model=HealthResponse)
-def health() -> HealthResponse:
+def health(response: Response) -> HealthResponse:
+    """Sağlık kontrolü — vector index boş/erişilemezse 503 döner.
+
+    Aksi halde Render 'sağlıklı ama cevap veremeyen' bir instance'ı
+    trafikte tutar.
+    """
     try:
         count = get_vector_store().count()
     except Exception:  # noqa: BLE001
         count = None
+    if not count:
+        response.status_code = 503
+        return HealthResponse(status="degraded", version="0.1.0", chunks_count=count)
     return HealthResponse(status="ok", version="0.1.0", chunks_count=count)
 
 
 @router.get("/models", response_model=ModelsResponse)
 def list_models() -> ModelsResponse:
-    """Mevcut LLM modellerini listele (Gemini + UniSenseLocal)."""
+    """Mevcut LLM modellerini listele — şu an sadece Gemini."""
     from unisense.core.di import get_llm_provider
     llm = get_llm_provider()
-    if hasattr(llm, "get_available_models"):
-        models = llm.get_available_models()
-    else:
-        models = [{"id": "gemini", "name": "Gemini", "available": True, "description": ""}]
+    available = bool(getattr(llm, "is_available", lambda: True)())
+    models = [{
+        "id": "gemini",
+        "name": "Gemini",
+        "available": available,
+        "description": "Google Gemini Flash Lite — bulut, hızlı, geniş bilgi",
+    }]
     return ModelsResponse(models=[ModelInfo(**m) for m in models])
 
 
 @router.post(
     "/ask",
     response_model=AskResponse,
-    dependencies=[Depends(require_api_key)],
+    dependencies=[Depends(require_api_key), Depends(require_user)],
 )
+@limiter.limit(ASK_LIMIT)
 def ask(
     request: Request,
     body: AskRequest,
@@ -78,11 +107,18 @@ def ask(
         ip=request.client.host if request.client else None,
         user_agent=request.headers.get("user-agent"),
         query=safe_query,
+        extra={"uid": getattr(request.state, "uid", None)},
     )
 
-    # History'i domain'e geçir (max son 8 mesaj — daha fazlası token şişirir)
+    # History'i domain'e geçir (max son 8 mesaj — daha fazlası token şişirir).
+    # History de LLM'e gittiği için sanitize edilir; şüpheli turlar düşürülür.
     from unisense.domain.models import ChatTurn as DomainTurn
-    history = [DomainTurn(role=t.role, text=t.text) for t in (body.history or [])][-8:]
+    history = []
+    for t in (body.history or []):
+        safe_text = sanitize_history_text(t.text)
+        if safe_text:
+            history.append(DomainTurn(role=t.role, text=safe_text))
+    history = history[-8:]
 
     domain_query = Query(
         text=safe_query,
@@ -93,17 +129,31 @@ def ask(
     answer = svc.execute(domain_query)
 
     # Program chunk'larındaki dept/uni isimlerini ve sıra/taban bilgilerini lookup ile doldur
-    # — frontend'in "+ Pusulaya Ekle" / "+ Tercihe Ekle" butonları için gerekli
+    # — frontend'in "+ Pusulaya Ekle" / "+ Tercihe Ekle" butonları için gerekli.
+    # LLM cevabındaki 9 haneli kodlar da doğrulanır: veritabanında olmayan kodlar
+    # (halüsinasyon ya da RAG kaynağına sızmış injection) cevaptan temizlenir.
     from unisense.core.di import get_recommendation_service
     rec_svc = get_recommendation_service()
-    program_codes = [d.department_code for d in answer.docs if d.department_code]
+    doc_codes = [d.department_code for d in answer.docs if d.department_code]
+    text_codes = _OSYM_CODE_RE.findall(answer.text or "")
+    program_codes = list(dict.fromkeys(doc_codes + text_codes))
     lookup_map: dict[str, dict] = {}
+    lookup_ok = False
     if program_codes:
         try:
             lookups = rec_svc.lookup_programs(program_codes)
             lookup_map = {p["department_code"]: p for p in lookups if p.get("found")}
+            lookup_ok = True
         except Exception as e:  # noqa: BLE001
             logger.warning("ask_lookup_failed", error=str(e)[:200])
+
+    answer_text = answer.text
+    if lookup_ok:
+        invalid_codes = [c for c in set(text_codes) if c not in lookup_map]
+        for c in invalid_codes:
+            answer_text = re.sub(rf"\[{c}\]\s*|\b{c}\b", "", answer_text)
+        if invalid_codes:
+            logger.warning("ask_invalid_codes_stripped", codes=invalid_codes[:10])
 
     docs_resp = []
     for d in answer.docs:
@@ -128,7 +178,7 @@ def ask(
 
     return AskResponse(
         query=answer.query,
-        text=answer.text,
+        text=answer_text,
         docs=docs_resp,
         total_latency_ms=answer.total_latency_ms,
     )
@@ -137,9 +187,11 @@ def ask(
 @router.post(
     "/recommend",
     response_model=RecommendResponse,
-    dependencies=[Depends(require_api_key)],
+    dependencies=[Depends(require_api_key), Depends(require_user)],
 )
+@limiter.limit(DEFAULT_LIMIT)
 def recommend(
+    request: Request,
     body: StudentProfileRequest,
     svc: RecommendationService = Depends(recommendation_service_dep),
 ) -> RecommendResponse:
@@ -157,6 +209,7 @@ def recommend(
             "fit_score": r.fit_score,
             "safety_level": r.safety_level,
             "reason": r.reason,
+            "placement_probability": r.placement_probability,
             "last_year_base_rank": r.last_year_base_rank,
             "last_year_base_score": r.last_year_base_score,
         }
@@ -181,7 +234,9 @@ def compass_taxonomy(
 
 
 @router.post("/compass/by-selection", response_model=CompassResponse)
+@limiter.limit(DEFAULT_LIMIT)
 def compass_by_selection(
+    request: Request,
     body: CompassSelectionRequest,
     svc: CompassService = Depends(compass_service_dep),
 ) -> CompassResponse:
@@ -195,17 +250,22 @@ def compass_by_selection(
 
 
 @router.post("/compass/by-text", response_model=CompassResponse)
+@limiter.limit(ASK_LIMIT)
 def compass_by_text(
+    request: Request,
     body: CompassTextRequest,
     svc: CompassService = Depends(compass_service_dep),
 ) -> CompassResponse:
     """Mod B: serbest metinden bölüm önerisi."""
+    # Her istek embedding hesabı tetikler — /ask ile aynı sıkı limit
     matches = svc.by_text(body.text, top_k=body.top_k)
     return CompassResponse(matches=matches, mode="text")
 
 
 @router.post("/compass/by-axes", response_model=CompassResponse)
+@limiter.limit(DEFAULT_LIMIT)
 def compass_by_axes(
+    request: Request,
     body: CompassAxesRequest,
     svc: CompassService = Depends(compass_service_dep),
 ) -> CompassResponse:
@@ -224,7 +284,9 @@ def compass_interests(
 
 
 @router.post("/compass/by-interests", response_model=CompassResponse)
+@limiter.limit(DEFAULT_LIMIT)
 def compass_by_interests(
+    request: Request,
     body: CompassInterestsRequest,
     svc: CompassService = Depends(compass_service_dep),
 ) -> CompassResponse:
@@ -238,10 +300,24 @@ def compass_by_interests(
 
 
 @router.post("/programs/lookup", response_model=ProgramLookupResponse)
+@limiter.limit(DEFAULT_LIMIT)
 def programs_lookup(
+    request: Request,
     body: ProgramLookupRequest,
     svc: RecommendationService = Depends(recommendation_service_dep),
 ) -> ProgramLookupResponse:
     """Tercih listesindeki kodlar için sıra/taban/kontenjan bilgisini batch döner."""
     programs = svc.lookup_programs(body.codes)
     return ProgramLookupResponse(programs=programs)
+
+
+@router.post("/programs/compare", response_model=CompareResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def programs_compare(
+    request: Request,
+    body: CompareRequest,
+    svc: CompareService = Depends(compare_service_dep),
+) -> CompareResponse:
+    """2-5 ÖSYM kodunu yan yana karşılaştır (trend, taban, sıra, kontenjan, kadro)."""
+    result = svc.compare(body.codes)
+    return CompareResponse(**result)

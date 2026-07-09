@@ -10,61 +10,71 @@
 Selam! UniSense isimli mevcut Türkiye 2025 YKS Üniversite Tercih Asistanı projemde
 devam etmen gerekiyor.
 
-PROJE ÖZETİ:
+PROJE ÖZETİ (v3.0):
 - YÖK Atlas/ÖSYM verilerini doğal Türkçe sorgulayabilen tercih asistanı
-- Kullanıcının ilgilerine göre bölüm öneren Pusula
-- Puan/sıralamaya göre safe/target/reach öneri
-- Drag-drop tercih listesi + ÖSYM kod kopyalama
+- Wikipedia infobox ile zenginleştirilmiş üni verisi (website/logo/kuruluş)
+- Kullanıcının ilgilerine göre bölüm öneren Pusula (5-axis)
+- Puan/sıralamaya göre safe/target/reach öneri + yerleşme olasılığı (sigmoid)
+- 2-5 program yan yana karşılaştırma (Compare)
+- Drag-drop tercih listesi + kişisel notlar + ÖSYM kod kopyalama
 - TYT/AYT/DGS hesap makinesi
-- 9 sayfa frontend (React + Vite + Three.js + Firebase)
+- 11 sayfa frontend (React + Vite + Three.js + Firebase)
 
 MİMARİ:
 - Backend: Python FastAPI 0.115 + Pydantic v2 + ChromaDB + Gemini API
 - Clean Architecture: domain/application/infrastructure/api/security/core/cli
-- LLM: gemini-3.1-flash-lite-preview (multi-key + 429 fallback)
-- Opsiyonel: UniSenseLocal (Ollama Qwen3-4B fine-tuned)
-- Frontend: React 18 + Vite 5 + Tailwind 3 + Firebase Auth/Firestore + @dnd-kit
+- LLM: sadece Gemini (gemini-2.5-flash-lite, multi-key + 429 fallback)
+- Cache: TTLCache (512 entry, 1 saat)
+- Warmup: FastAPI lifespan startup ile embedding modeli ısınır
+- Frontend: React 18 + Vite 5 (manualChunks vendor split + lazy 3D)
+- Tailwind 3 + Firebase Auth/Firestore/Storage + @dnd-kit
 - 3D: Three.js + R3F + Drei (BackgroundScene + Splash 3D)
 
-ÖNEMLİ KARARLAR (v2 - 2026-05):
-- ✅ Pusula (3 mod: Kart Seç + Soru Sor + 5 Soru) — 358 bölüm grubu, 150+ ilgi pill
-- ✅ Hesap Makinesi (TYT/AYT-SAY/EA/SÖZ/DİL/DGS, OBP 100'lük, DGS 4'lük)
-- ✅ Önlisans verisi (9.337 program TYT, total 21.602 program)
-- ✅ Trend (3 yıllık taban + sıra + momentum 📈/📉/📊)
-- ✅ Coğrafi filtreler (28 sahil ili + 30 metropol + 31 merkez ilçe)
-- ✅ Multi-turn chat (history son 8)
-- ✅ Multi-LLM router (Gemini ↔ UniSenseLocal)
-- ✅ Logo transparent PNG (RGB→RGBA dönüştürüldü)
-- ✅ Qwen fine-tuning pipeline hazır (58.585 Q/A dataset + Kaggle notebook)
+ÖNEMLİ KARARLAR (v3.0 — 2026-05):
+- ✅ Compare (/compare?d=X,Y,Z) — 2-5 program yan yana, EN İYİ/EN ZAYIF vurgu
+- ✅ Yerleşme olasılığı — sigmoid (user_rank vs base_rank, q1 ile yumuşatma) yüzde rozet
+- ✅ Kişisel tercih notları — TercihList textarea, debounced 700ms save
+- ✅ Production deploy hazır — Dockerfile, render.yaml, vercel.json, firestore.rules, storage.rules
+- ✅ Wikipedia infobox enrich (221 üni) — website/logo/kuruluş yılı/rektör
+- ✅ Önlisans RAG'a eklendi (toplam 23.876 chunk)
+- ✅ KVKK / Gizlilik sayfası (/privacy)
+- ✅ Embedding warm-up + Gemini cache + retrieval optimize
+- ✅ GitHub Actions yıllık cron (15 Ağustos otomatik scrape)
+- ❌ UniSenseLocal / Qwen3-4B / Ollama tamamen KALDIRILDI (v2.5)
 - ❌ DGS desteği yok (yokatlas-py 0.6.0 desteklemiyor — manuel ileride)
 
 KOD KONUMLARI:
 - Backend Clean Arch: backend/src/unisense/ (api/v1/routes.py, application/services/...)
-- Frontend pages: frontend/src/pages/ (Splash, Home, Login, Profile, Pusula, Search, Recommend, TercihList, Hesap)
-- Dataset üretici: backend/scripts/build_unisense_dataset.py
-- Kaggle notebook: backend/data/training/unisense-egitimi-kaggle.ipynb
+- Frontend pages: frontend/src/pages/ (Splash, Home, Login, Profile, Pusula, Search, Recommend, TercihList, Compare, Hesap, Privacy)
+- Compare service: backend/src/unisense/application/services/compare_service.py
+- Yerleşme olasılığı: backend/src/unisense/application/services/recommendation_service.py (placement_probability fn)
+- Firebase helper: frontend/src/firebase.js (updateTercihNote)
+- Wikipedia infobox: backend/src/unisense/infrastructure/scrapers/wikipedia_infobox_scraper.py
 - Config: backend/.env (GEMINI_API_KEYS zorunlu)
+- Production deploy: docs/DEPLOY.md (Render + Vercel + Firebase rules)
+- Workflow: .github/workflows/yearly-data-sync.yml
 
 ÇALIŞTIRMA:
 - Backend: cd backend && uvicorn unisense.main:app --port 8002 --reload
-- Frontend: cd frontend && npm run dev (http://localhost:5173)
-- (Opsiyonel) Ollama: ollama serve (UniSenseLocal için)
+- Frontend: cd frontend && npm run dev (http://localhost:5174)
 
 NE YAPACAĞIZ:
 [Buraya kendi sorunu/isteğini yaz. Örnek:
-- "Bölüm karşılaştırma sayfası ekle (/compare?d=X,Y,Z)"
-- "ChromaDB rebuild et — önlisans chunks'ları ekle"
-- "DGS manuel scrape yaz"
-- "Kaggle eğitiminden Qwen modelini Ollama'ya import et"
-- "Yerleşme olasılığı simülasyonu (rank_q1/rank_q3)"
-- "Production deploy: Vercel + Render"]
+- "DGS manuel scrape yaz (HTML scrape veya ÖSYM PDF parser)"
+- "Geçmiş yıl (2022, 2021) history scrape — 5 yıllık trend grafiği için"
+- "LinkedIn alumni intelligence — bir üniden mezunlar nereye gitmiş"
+- "Email bildirim sistemi — tercih son günü hatırlatması"
+- "Maliyet hesabı (kira+yemek+ulaşım × 4 yıl)"
+- "Production deploy gerçekleştir (docs/DEPLOY.md adımları)"
+- "Compare sayfasına recharts ile gerçek grafik ekle"
+- "Mobile app (Expo) MVP"]
 
 HİZMET TARZI:
 - Doğrudan kod değişikliği yap (Edit/Write tool kullan)
 - Önce dosyayı oku, sonra değiştir
 - Türkçe açıklama yap, kısa ve sayısal cevaplar ver
 - Önemli kararlar için onay iste
-- docs/AI_CONTEXT.md, ROADMAP.md, PROJECT_STATUS.md'yi oku — tüm bağlam orada
+- docs/AI_CONTEXT.md, ROADMAP.md, PROJECT_STATUS.md, DEPLOY.md'yi oku — tüm bağlam orada
 
 Hadi başla.
 ```
@@ -91,51 +101,44 @@ test.json: {"query":"<sorgu>","top_k":12,"history":[]}
 Sorun çıkarsa:
 1. Türkçe karakter varsa → _tr_lower / _tr_upper kullan
 2. Üni adı tespit edilmiyorsa → _detect_university_keywords() SHORT_NAMES ekle
-3. ChromaDB'de chunk yok mu → curl /api/v1/health (chunks_count)
-4. Önlisans cevap eksik → ChromaDB rebuild gerek
-5. Multi-LLM router hata → hasattr(self._llm, '_providers') check
+3. ChromaDB'de chunk yok mu → curl /api/v1/health (chunks_count = 23876 olmalı)
+4. Cache hit dönüyor olabilir — query'ye \n boşluk ekle
 ```
 
 ### D) Yeni veri kaynağı ekle
 ```
 1. backend/src/unisense/infrastructure/scrapers/<kaynak>_scraper.py oluştur
 2. Çıktı: backend/data/raw/<kaynak>/<isim>.json
-3. transform_yokatlas.py'a benzer transform yaz (history + geo enrich)
-4. cli/build_chunks.py'a yeni chunk türü ekle
-5. ChromaDB'yi yeniden embedle (collection: unisense)
-6. (Opsiyonel) build_unisense_dataset.py'a yeni Q/A kategorisi ekle
+3. transform veya enrich script ile processed/universities.json'a katil
+4. cli/build_chunks.py — yeni chunk türü veya alan ekle
+5. python -m unisense.cli.build_chunks && python -m unisense.cli.embed
 ```
 
 ### E) Frontend yeni sayfa ekle
 ```
-1. frontend/src/pages/<NewPage>.jsx oluştur
-2. App.jsx'e route ekle
+1. frontend/src/pages/<NewPage>.jsx oluştur (Privacy.jsx veya Compare.jsx tasarım dilini izle)
+2. main.jsx'e route ekle: <Route path="/x" element={<NewPage />} />
 3. Tasarım: index.css'deki .glass, .card, .btn-primary kullan
-4. 3D efekt: BackgroundScene veya yeni Scene komponenti
-5. Framer Motion + lucide-react icons
-6. Firebase entegrasyonu için: src/lib/firestore.js + src/lib/auth.js
+4. BackgroundScene + Framer Motion + lucide-react icons
+5. Firebase entegrasyonu için: frontend/src/firebase.js helper'ları
 ```
 
-### F) Production deploy et
+### F) Production deploy
 ```
-1. Backend → Render (auto-deploy from GitHub main)
-   - render.yaml + Dockerfile
-   - Environment: GEMINI_API_KEYS, CHROMA_PERSIST_DIR
-2. Frontend → Vercel (auto-deploy)
-   - VITE_API_URL + Firebase env'leri
-3. CORS güncelle (production domain)
-4. SECURITY_REQUIRE_API_KEY=true
+docs/DEPLOY.md adımlarını izle:
+1. Backend Render (Dockerfile + render.yaml hazır)
+2. Frontend Vercel (vercel.json hazır)
+3. Firebase Security Rules publish (firestore.rules + storage.rules hazır)
+4. Authorized domains + API key restrictions
+5. UptimeRobot health monitor
 ```
 
-### G) Qwen fine-tuning training
+### G) Yıllık veri sync (cron)
 ```
-1. Kaggle hesabına gir
-2. Notebook: backend/data/training/unisense-egitimi-kaggle.ipynb yükle
-3. Dataset: ibrahimaskeroglu/unisense-dataset (58.585 Q/A) attach et
-4. T4 GPU seç, ~6-8 saat eğitim
-5. Output: model GGUF veya HF format
-6. Ollama import: Modelfile + ollama create unisense-local
-7. UniSense'e ekle: OLLAMA_URL ayarı + frontend Search'te seçici
+GitHub Actions otomatik 15 Ağustos'ta tetiklenir.
+Manuel: GitHub repo → Actions → "Yearly YKS Data Sync" → Run workflow.
+Akış: scrape (yokatlas + urap + wikipedia + infobox) → transform → enrich → build_chunks → commit
+Render auto-deploy push sonrası tetiklenir, container start'ta embed çalışır.
 ```
 
 ---
@@ -145,57 +148,67 @@ Sorun çıkarsa:
 | "Şunu nerede bulurum?" | Dosya |
 |---|---|
 | Tüm endpoint'ler | `backend/src/unisense/api/v1/routes.py` |
-| Multi-turn chat + intent | `backend/src/unisense/application/services/ask_service.py` |
-| LLM router (Gemini ↔ UniSenseLocal) | `backend/src/unisense/infrastructure/llm/multi_router.py` |
+| Multi-turn chat + intent + cache | `backend/src/unisense/application/services/ask_service.py` |
 | Gemini provider | `backend/src/unisense/infrastructure/llm/gemini.py` |
-| Ollama provider | `backend/src/unisense/infrastructure/llm/qwen.py` |
-| ChromaDB sorguları | `backend/src/unisense/infrastructure/vector_store/chroma_store.py` |
+| ChromaDB sorguları + warmup | `backend/src/unisense/infrastructure/vector_store/chroma_store.py` |
 | Hibrit retrieval (TR-safe) | `backend/src/unisense/application/services/retrieval_service.py` |
-| Tercih önerme + filter + geo | `backend/src/unisense/application/services/recommendation_service.py` |
+| Tercih önerme + filter + geo + olasılık | `backend/src/unisense/application/services/recommendation_service.py` |
 | Trend (3 yıl) | `backend/src/unisense/application/services/trend_service.py` |
+| **Compare service (v3)** | `backend/src/unisense/application/services/compare_service.py` |
 | Pusula (5-axis) | `backend/src/unisense/application/services/compass_service.py` |
-| Pusula taxonomy + interests | `backend/src/unisense/application/services/compass_{taxonomy,interests}.py` |
 | Önlisans scraper | `backend/src/unisense/infrastructure/scrapers/yokatlas_extra_scraper.py` |
-| Veri pipeline | `backend/src/unisense/infrastructure/scrapers/transform_yokatlas.py` |
-| Dataset üretici | `backend/scripts/build_unisense_dataset.py` |
-| Kaggle notebook | `backend/data/training/unisense-egitimi-kaggle.ipynb` |
+| **Wikipedia infobox (v2.5)** | `backend/src/unisense/infrastructure/scrapers/wikipedia_infobox_scraper.py` |
+| **Enrich universities (v2.5)** | `backend/src/unisense/infrastructure/scrapers/enrich_universities.py` |
+| Yokatlas transform | `backend/src/unisense/infrastructure/scrapers/transform_yokatlas.py` |
 | Geo enrich | `backend/scripts/enrich_geo.py` |
 | Türkçe karakter helper | `_tr_lower`, `_tr_upper` (retrieval_service.py) |
-| Frontend ana komponen | `frontend/src/App.jsx` |
-| Sayfalar (9) | `frontend/src/pages/` |
+| Frontend ana | `frontend/src/App.jsx` + `main.jsx` |
+| Sayfalar (11) | `frontend/src/pages/` |
+| **Compare.jsx (v3)** | `frontend/src/pages/Compare.jsx` |
+| **Privacy.jsx (v2.5)** | `frontend/src/pages/Privacy.jsx` |
 | Logo + Theme | `frontend/src/components/Logo.jsx` + `ThemeToggle.jsx` |
-| Firestore | `frontend/src/lib/firestore.js` |
+| Firestore + **updateTercihNote** | `frontend/src/firebase.js` |
 | 3D arkaplan | `frontend/src/components/three/BackgroundScene.jsx` |
-| Veri (chunks) | `backend/data/processed/chunks.json` (14.539 chunk) |
+| Veri (chunks) | `backend/data/processed/chunks.json` (23.876 chunk) |
+| **Production Dockerfile** | `backend/Dockerfile` |
+| **Render blueprint** | `backend/render.yaml` |
+| **Vercel config** | `frontend/vercel.json` |
+| **Firebase rules** | `firestore.rules` + `storage.rules` |
+| **Deploy rehberi** | `docs/DEPLOY.md` |
 
 ---
 
 ## ⚠️ Kritik Kurallar
 
-1. **API endpoint'leri BOZMA** — frontend kullanıyor (`/api/v1/ask`, `/api/v1/recommend`, `/api/v1/health`, `/api/v1/models`)
+1. **API endpoint'leri BOZMA** — frontend kullanıyor (`/api/v1/ask`, `/recommend`, `/health`, `/models`, `/programs/{lookup,compare}`)
 2. **ChromaDB collection adı `unisense`** — değiştirme, data uçar
 3. **Embedding modeli sabit** — `paraphrase-multilingual-MiniLM-L12-v2` (chunks bu boyutla embed edildi)
 4. **`.env` asla commit etme** — `.env.example` üzerinden çalış
 5. **Türkçe karakter** — Python default `lower()`/`upper()` BOZUK, `_tr_lower`/`_tr_upper` kullan
 6. **yokatlas-py 0.6.0 KKTC bug** — raw HTTP (`yokatlas_py.http_client`) ile bypass
 7. **logo.png** — `frontend/public/logo.png` transparent RGBA, RGB'ye çevirme
-8. **Multi-LLM AskService** — `hasattr(self._llm, '_providers')` check, kwargs'a `model_preference` ekle
-9. **DGS** — yokatlas-py 0.6.0'da yok, manuel scrape gerek (henüz yapılmadı)
+8. **ChromaVectorStore.collection property** — yeni `chromadb.PersistentClient` açma, mevcut store'u kullan
+9. **TTLCache key** — query + history + model_pref hash; cache hit'te LLM'ye gitme
+10. **DGS** — yokatlas-py 0.6.0'da yok, manuel scrape gerek (henüz yapılmadı)
 
 ---
 
-## 📝 v2 Migration Notes
+## 📝 v3.0 Migration Notes
 
 ❌ Eski referansları kullanma:
-- Tek-LLM AskService (artık MultiLLMRouter)
-- Eski `/api/v1/ask` body (artık `history[]` opsiyonel)
-- Pusula bölüm pill'leri (artık ilgi pill, 5-axis vektör)
-- 4-üzerinden OBP her tabda (artık DGS dışı 100'lük)
+- `MultiLLMRouter`, `QwenProvider`, `UniSenseLocal`, `unisense-local` model_preference
+- `backend/data/training/` (Qwen dataset)
+- `unisense-tr-gguf/` (GGUF model)
+- `backend/scripts/build_unisense_dataset.py`
+- Eski Pusula bölüm pill'leri (artık ilgi pill, 5-axis vektör)
 
 ✅ Yeni kullan:
-- `MultiLLMRouter` + `model_preference: "Gemini" | "UniSenseLocal"`
-- Multi-turn `history: [{role: "user"|"assistant", content: "..."}]`
-- Compass services: `taxonomy`, `interests`, `compass_service`
-- TYT katsayıları: TR/Mat 3.3, Sosyal/Fen 3.4 (max 500)
+- Sadece Gemini API (multi-key fallback)
+- TTLCache cevap önbelleği (1 saat)
+- Lifespan startup warmup (cold start ~4sn)
+- `placement_probability` Recommendation alanı (sigmoid)
+- `/api/v1/programs/compare` endpoint (2-5 ÖSYM)
+- `updateTercihNote(uid, code, note)` Firestore helper
+- TYT katsayıları: TR/Mat 3.3, Sosyal/Fen 3.4
 - AYT-SAY: 3.0/2.85/3.07/3.07
-- OBP: 100'lük × 0.12 (TYT/AYT için), DGS: 4'lük AOBP (× 25 × 0.5)
+- OBP: 100'lük × 0.12 (TYT/AYT), DGS: 4'lük AOBP (× 25 × 0.5)

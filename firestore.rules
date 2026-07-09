@@ -1,0 +1,81 @@
+// UniSense — Firestore Security Rules
+//
+// Deploy: CI workflow (.github/workflows/firebase-rules.yml) otomatik yapar,
+// ya da manuel: npx firebase-tools deploy --only firestore:rules
+//
+// Mantık:
+//   1. Her kullanıcı SADECE kendi users/{uid}/** alanına erişir.
+//   2. Yazılan dokümanlar alan sayısı + string uzunluğu ile sınırlandırılır —
+//      sahiplik doğru olsa bile bir kullanıcının sınırsız veri yazıp
+//      Firestore faturası şişirmesi engellenir.
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function fieldCountMax(n) {
+      return request.resource.data.size() <= n;
+    }
+
+    // Alan varsa string tipinde ve uzunluğu sınırda olmalı
+    function strMax(field, n) {
+      return !(field in request.resource.data)
+        || (request.resource.data[field] is string
+            && request.resource.data[field].size() <= n);
+    }
+
+    // Kullanıcı profil dokümanı
+    match /users/{uid} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && fieldCountMax(12)
+        && strMax('displayName', 100)
+        && strMax('email', 200)
+        && strMax('photoURL', 1000);
+
+      // Tercih listesi (max 24 sıra — sayı sınırı client'ta, boyut sınırı burada)
+      match /tercih/{code} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(18)
+          && strMax('note', 500)
+          && strMax('department_name', 300)
+          && strMax('university_name', 300)
+          && strMax('city', 100);
+      }
+
+      // Sorgu geçmişi — sadece ekleme + okuma + silme (değiştirilemez log)
+      match /queries/{qid} {
+        allow read, delete: if isOwner(uid);
+        allow create: if isOwner(uid)
+          && fieldCountMax(8)
+          && strMax('query', 600)
+          && strMax('response_preview', 600);
+      }
+
+      // Sohbet oturumları (max 5/kişi — FIFO client'ta)
+      match /sessions/{sid} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(8)
+          && strMax('title', 100);
+
+        match /messages/{mid} {
+          allow read, delete: if isOwner(uid);
+          allow create: if isOwner(uid)
+            && fieldCountMax(10)
+            && strMax('text', 10000);
+        }
+      }
+    }
+
+    // Herhangi bir başka koleksiyona genel erişim YOK
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

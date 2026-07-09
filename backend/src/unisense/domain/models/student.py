@@ -38,6 +38,10 @@ class Recommendation(BaseModel):
     fit_score: float = Field(..., ge=0, le=100, description="0-100 uygunluk")
     safety_level: str = Field(..., description="hedef / safe / reach (hedef üstü)")
     reason: str = ""
+    placement_probability: float | None = Field(
+        None, ge=0, le=1,
+        description="Yerleşme olasılığı (0-1). Sigmoid: user_rank vs base_rank, q1 ile yumuşatma.",
+    )
 
     # Referans veriler
     last_year_base_rank: int | None = None

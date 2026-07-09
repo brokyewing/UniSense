@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from unisense.application.interfaces.llm_provider import LLMProvider
     from unisense.application.interfaces.vector_store import VectorStore
     from unisense.application.services.ask_service import AskService
+    from unisense.application.services.compare_service import CompareService
     from unisense.application.services.compass_service import CompassService
     from unisense.application.services.recommendation_service import RecommendationService
     from unisense.application.services.retrieval_service import RetrievalService
@@ -21,11 +22,9 @@ def get_vector_store() -> VectorStore:
 
 @lru_cache(maxsize=1)
 def get_llm_provider() -> LLMProvider:
-    """Multi-LLM router döner — Gemini + UniSenseLocal arasında geçiş yapabilir."""
+    """Gemini sağlayıcı."""
     from unisense.infrastructure.llm.gemini import GeminiProvider
-    from unisense.infrastructure.llm.qwen import QwenProvider
-    from unisense.infrastructure.llm.multi_router import MultiLLMRouter
-    return MultiLLMRouter(gemini=GeminiProvider(), qwen=QwenProvider())
+    return GeminiProvider()
 
 
 @lru_cache(maxsize=1)
@@ -56,9 +55,16 @@ def get_compass_service() -> CompassService:
     return CompassService()
 
 
+@lru_cache(maxsize=1)
+def get_compare_service() -> CompareService:
+    from unisense.application.services.compare_service import CompareService
+    return CompareService()
+
+
 def reset_di_cache() -> None:
     for fn in (
         get_vector_store, get_llm_provider, get_retrieval_service,
         get_ask_service, get_recommendation_service, get_compass_service,
+        get_compare_service,
     ):
         fn.cache_clear()

@@ -32,10 +32,6 @@ class Settings(BaseSettings):
     # Quota dolunca otomatik fallback için fallback model (opsiyonel)
     gemini_model_fallback: str = "gemini-2.5-flash-lite"
 
-    # === UniSenseLocal (Qwen3-4B fine-tuned, Ollama üzerinden) ===
-    qwen_base_url: str = "http://localhost:11434"
-    qwen_model_name: str = "unisense-local"
-
     # === ChromaDB ===
     chroma_persist_dir: str = "./data/embeddings/chromadb"
     chroma_collection: str = "unisense"
@@ -44,7 +40,12 @@ class Settings(BaseSettings):
     # === Güvenlik ===
     security_require_api_key: bool = False
     security_api_keys: str = ""
+    # Firebase ID token doğrulaması — production'da true olmalı.
+    # SPA'ya gizli API key gömülemez; kullanıcı kimliği Firebase Auth ile doğrulanır.
+    security_require_auth: bool = False
+    firebase_project_id: str = ""
     rate_limit_ask: int = 20
+    rate_limit_default: int = 60
     cors_allowed_origins: str = "https://unisense.vercel.app,http://localhost:5173,http://localhost:5174"
     audit_log_path: str = "./logs/audit.log"
 
@@ -61,7 +62,8 @@ class Settings(BaseSettings):
         keys = [k.strip() for k in v.split(",") if k.strip()]
         for k in keys:
             if not k.startswith("AIza"):
-                raise ValueError(f"Invalid Gemini key: {k[:10]}...")
+                # Key içeriğini hata mesajına yazma — loglara sızmasın
+                raise ValueError("Invalid Gemini key format (must start with 'AIza')")
         return v
 
     @property

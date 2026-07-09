@@ -1,0 +1,114 @@
+name: Yearly YKS Data Sync
+
+# YKS yerleştirme sonuçları her yıl Ağustos başında açıklanır.
+# Bu workflow yılda 1 kez (15 Ağustos UTC 03:00) tetiklenir.
+# Manuel tetikleme: GitHub Actions → "Yearly YKS Data Sync" → Run workflow.
+
+on:
+  schedule:
+    # Saniye dk sa gün ay haftagünü — UTC
+    - cron: '0 3 15 8 *'  # 15 Ağustos 03:00 UTC = 06:00 TRT
+  workflow_dispatch:
+    inputs:
+      skip_scrape:
+        description: 'Scrape adımlarını atla (sadece chunks+embed yeniden üret)'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360  # 6 saat (full scrape uzun sürebilir)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Scrape — YÖK Atlas (lisans + önlisans)
+        if: github.event.inputs.skip_scrape != 'true'
+        working-directory: backend
+        run: |
+          python -m unisense.infrastructure.scrapers.yokatlas_scraper
+          python -m unisense.infrastructure.scrapers.yokatlas_extra_scraper
+        continue-on-error: false
+
+      - name: Scrape — URAP
+        if: github.event.inputs.skip_scrape != 'true'
+        working-directory: backend
+        run: python -m unisense.infrastructure.scrapers.urap_scraper
+        continue-on-error: true
+
+      - name: Scrape — Wikipedia üniversite metinleri
+        if: github.event.inputs.skip_scrape != 'true'
+        working-directory: backend
+        run: python -m unisense.infrastructure.scrapers.wikipedia_uni_scraper
+        continue-on-error: true
+
+      - name: Scrape — Wikipedia infobox (website/logo/kuruluş)
+        if: github.event.inputs.skip_scrape != 'true'
+        working-directory: backend
+        run: python -m unisense.infrastructure.scrapers.wikipedia_infobox_scraper
+        continue-on-error: true
+
+      - name: Transform — YÖK Atlas raw → processed
+        if: github.event.inputs.skip_scrape != 'true'
+        working-directory: backend
+        run: python -m unisense.infrastructure.scrapers.transform_yokatlas
+
+      - name: Enrich — Wikipedia infobox merge
+        working-directory: backend
+        run: python -m unisense.infrastructure.scrapers.enrich_universities
+
+      - name: Enrich — Coğrafi metadata
+        working-directory: backend
+        run: python scripts/enrich_geo.py
+        continue-on-error: true
+
+      - name: Build chunks
+        working-directory: backend
+        run: python -m unisense.cli.build_chunks
+
+      - name: Commit data updates
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backend/data/raw backend/data/processed
+          if git diff --staged --quiet; then
+            echo "Hiç değişiklik yok, commit atlandı"
+          else
+            git commit -m "chore(data): yıllık YKS veri senkronizasyonu ($(date -u +%Y-%m-%d))
+
+            - YÖK Atlas lisans + önlisans güncel
+            - URAP sıralamaları güncel
+            - Wikipedia infobox (website/logo/kuruluş yılı) güncel
+            - Chunks yeniden üretildi (deploy ortamı embed'i kendi çalıştırır)
+            "
+            git push
+          fi
+
+      - name: Trigger backend rebuild (Render webhook — opsiyonel)
+        if: env.RENDER_DEPLOY_HOOK != ''
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$RENDER_DEPLOY_HOOK" ]; then
+            curl -fsSL -X POST "$RENDER_DEPLOY_HOOK"
+            echo "Render redeploy tetiklendi (embed yeniden çalışacak)"
+          fi

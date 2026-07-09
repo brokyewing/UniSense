@@ -2,12 +2,8 @@
 from __future__ import annotations
 
 import re
-import unicodedata
-
-import chromadb
 
 from unisense.application.interfaces.vector_store import VectorStore
-from unisense.core.config import get_settings
 from unisense.core.logging import get_logger
 from unisense.domain.models import Chunk, Query
 
@@ -118,11 +114,22 @@ class RetrievalService:
         self._store = store
 
     def _keyword_search(self, query: str, limit: int = 6) -> list[Chunk]:
-        """ChromaDB metadata + content içinde kelime ara."""
+        """ChromaDB metadata + content içinde kelime ara.
+
+        Mevcut store collection'ını yeniden kullanır — her çağrıda yeni
+        PersistentClient açmak yerine. Bu lock conflict riskini önler ve
+        cold start sonrası latency'yi düşürür.
+        """
         try:
-            settings = get_settings()
-            client = chromadb.PersistentClient(path=settings.chroma_persist_dir)
-            collection = client.get_collection(settings.chroma_collection)
+            # Mevcut ChromaVectorStore'un collection'ını kullan (varsa)
+            collection = getattr(self._store, "collection", None)
+            if collection is None:
+                # Eski davranış: yeni client aç (fallback)
+                import chromadb
+                from unisense.core.config import get_settings
+                settings = get_settings()
+                client = chromadb.PersistentClient(path=settings.chroma_persist_dir)
+                collection = client.get_collection(settings.chroma_collection)
 
             # Sorgudaki üniversite-tipi keyword'leri çıkar
             kws = _detect_university_keywords(query)
