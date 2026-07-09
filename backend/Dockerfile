@@ -26,11 +26,15 @@ COPY src ./src
 COPY scripts ./scripts
 RUN pip install -e . --no-deps
 
-# Veriyi container'a kopyala (raw + processed + chunks)
-# Veri dosyaları normal git blob'u (LFS değil) — doğrudan kopyalanır.
-# embeddings/ Render'da persistent disk olarak mount edilir; container'da boş kalır
-COPY data/processed ./data/processed
-COPY data/raw ./data/raw
+# ONNX embedding modelini imaja göm (~120MB) — cold start'ta indirme olmasın
+RUN python -c "from huggingface_hub import hf_hub_download; \
+    hf_hub_download('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2', 'onnx/model_quint8_avx2.onnx'); \
+    hf_hub_download('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2', 'tokenizer.json')"
+
+# Veriyi container'a kopyala. HF Space build context'inde data/embeddings
+# (hazır index) de bulunur ve birlikte kopyalanır; GitHub/Render context'inde
+# o klasör yoktur, embed ilk boot'ta çalışır.
+COPY data ./data
 
 # Non-root kullanıcı — container escape yüzeyini daraltır.
 # /data mount noktası da app kullanıcısına verilir; Render diski mount
@@ -48,10 +52,13 @@ HEALTHCHECK --interval=60s --timeout=10s --start-period=120s --retries=3 \
 ENV APP_PORT=8002
 EXPOSE 8002
 
-# İlk boot'ta index boşsa embed çalıştır (idempotent), sonra uvicorn.
-# --proxy-headers: Render LB arkasında gerçek istemci IP'si (rate limit için şart)
-CMD if [ ! -d "/data/chromadb" ] || [ -z "$(ls -A /data/chromadb 2>/dev/null)" ]; then \
-      echo ">>> ChromaDB empty, running embed..." && \
+# İlk boot'ta index boşsa embed çalıştır (idempotent + resume destekli).
+# CHROMA_PERSIST_DIR: Render'da /data/chromadb (persistent disk),
+# HF Space'te /app/data/embeddings/chromadb (imaja gömülü hazır index).
+# --proxy-headers: LB arkasında gerçek istemci IP'si (rate limit için şart)
+CMD CHROMA_DIR="${CHROMA_PERSIST_DIR:-/data/chromadb}" && \
+    if [ ! -d "$CHROMA_DIR" ] || [ -z "$(ls -A "$CHROMA_DIR" 2>/dev/null)" ]; then \
+      echo ">>> ChromaDB empty at $CHROMA_DIR, running embed..." && \
       python -m unisense.cli.embed; \
     fi && \
     exec uvicorn unisense.main:app --host 0.0.0.0 --port ${PORT:-8002} \

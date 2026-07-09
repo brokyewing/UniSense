@@ -1,27 +1,21 @@
-"""ChromaDB vector store — UniSense."""
+"""ChromaDB vector store — UniSense.
+
+Embedding'ler Gemini API'den gelir (infrastructure/embeddings.py) —
+lokal model/torch yok. Index, embed CLI'ı ile aynı model+boyutta
+üretilmiş olmalı; boyut uyuşmazsa search hata loglar ve boş döner.
+"""
 from __future__ import annotations
 
 import os
-from functools import lru_cache
 
 import chromadb
 
 from unisense.core.config import get_settings
 from unisense.core.logging import get_logger
 from unisense.domain.models import Chunk
+from unisense.infrastructure.embeddings import embed_query
 
 logger = get_logger(__name__)
-
-
-@lru_cache(maxsize=1)
-def _get_embedding_model():
-    # Lazy import: sentence_transformers (torch) ağır — modül import edilirken
-    # değil, ilk kullanımda yüklensin (test/startup hızı)
-    from sentence_transformers import SentenceTransformer
-
-    settings = get_settings()
-    logger.info("loading_embedding_model", model=settings.embedding_model)
-    return SentenceTransformer(settings.embedding_model)
 
 
 class ChromaVectorStore:
@@ -50,21 +44,17 @@ class ChromaVectorStore:
         return self._collection.count()
 
     def warmup(self) -> None:
-        """Cold start sırasında embedding modeli + ChromaDB index'i ısıtır.
+        """Cold start'ta embedding modelini + HNSW index'i belleğe yükler.
 
-        Bu fonksiyon ilk gerçek kullanıcı sorgusundan önce çağrılırsa
-        SentenceTransformer model dosyaları diske okunur, CUDA/CPU init
-        yapılır ve HNSW index ilk query ile yüklenir. Sonuç: p50 latency
-        ~10sn → ~4sn.
+        İlk gerçek sorgudan önce çağrılınca ONNX modeli (~10sn) ve index
+        yüklemesi kullanıcıya yansımaz.
         """
         try:
-            model = _get_embedding_model()
-            _ = model.encode(["ısınma sorgusu"], convert_to_numpy=True)
-            # ChromaDB index'i de ısıt
-            _ = self._collection.query(query_texts=["ısınma"], n_results=1)
+            emb = embed_query("ısınma sorgusu")  # modeli yükler (local: ONNX init)
+            _ = self._collection.query(query_embeddings=[emb.tolist()], n_results=1)
             logger.info("warmup_done", chunks=self._collection.count())
-        except Exception as e:
-            logger.warning("warmup_failed", error=str(e))
+        except Exception as e:  # noqa: BLE001
+            logger.warning("warmup_failed", error=str(e)[:200])
 
     def search(
         self,
@@ -72,8 +62,7 @@ class ChromaVectorStore:
         top_k: int = 6,
         filters: dict | None = None,
     ) -> list[Chunk]:
-        model = _get_embedding_model()
-        embedding = model.encode([query], convert_to_numpy=True).tolist()
+        embedding = [embed_query(query).tolist()]
 
         result = self._collection.query(
             query_embeddings=embedding,

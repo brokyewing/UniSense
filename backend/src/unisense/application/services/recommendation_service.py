@@ -56,6 +56,61 @@ def _load_data() -> tuple[list[dict], list[dict], dict[str, dict]]:
     return rankings, departments, uni_lookup
 
 
+def _tr_lower(s: str) -> str:
+    return s.replace("İ", "i").replace("I", "ı").lower()
+
+
+# Şehir adıyla başlayan üniversiteler ("İSTANBUL ÜNİVERSİTESİ" gibi) sadece
+# "istanbul üniversitesi" tam öbeği geçerse eşleşir — yoksa her "istanbul"
+# geçen sorgu o üniversiteye bağlanırdı.
+_CITY_AMBIGUOUS = {
+    "istanbul", "ankara", "izmir", "bursa", "adana", "antalya", "konya",
+    "eskişehir", "samsun", "trabzon", "erzurum", "van", "gaziantep",
+    "kayseri", "mersin", "malatya", "sivas", "denizli", "sakarya",
+}
+
+
+@lru_cache(maxsize=1)
+def _uni_name_index() -> list[tuple[str, str, bool]]:
+    """(arama_anahtarı, uni_code, şehir_adı_mı) listesi — uzun anahtar önce."""
+    _, _, uni_lookup = _load_data()
+    import re as _re
+
+    index: list[tuple[str, str, bool]] = []
+    for code, uni in uni_lookup.items():
+        name = _tr_lower(uni.get("name", ""))
+        # "(ANKARA)", "(KKTC-GAZİMAĞUSA)" gibi şehir eklerini at
+        name = _re.sub(r"\(.*?\)", " ", name)
+        for word in ("üniversitesi", "üniversite", "university"):
+            name = name.replace(word, " ")
+        key = " ".join(name.split()).strip()
+        if len(key) < 3:
+            continue
+        # Kısa adlar ("koç") ve şehir adları yanlış eşleşir — bunlar için
+        # "X üniversitesi / X üni" öbeği zorunlu
+        needs_phrase = key in _CITY_AMBIGUOUS or len(key) <= 4
+        index.append((key, code, needs_phrase))
+    index.sort(key=lambda x: -len(x[0]))
+    return index
+
+
+def detect_universities(query: str) -> list[str]:
+    """Sorguda geçen üniversiteleri tespit et → uni code listesi.
+
+    "hacettepe tıp kaç puan" → [Hacettepe kodu]. Şehir adlı üniversiteler
+    ("İstanbul Üniversitesi") için "X üniversitesi" öbeği aranır.
+    """
+    q = _tr_lower(query)
+    found: list[str] = []
+    for key, code, ambiguous in _uni_name_index():
+        if ambiguous:
+            if f"{key} üniversitesi" in q or f"{key} üni " in q:
+                found.append(code)
+        elif key in q:
+            found.append(code)
+    return found
+
+
 class RecommendationService:
     """Sıralama bazlı tercih önerme servisi."""
 
@@ -98,6 +153,62 @@ class RecommendationService:
                 "quota": r.get("quota"),
             })
         return out
+
+    def list_programs(
+        self,
+        *,
+        cities: list[str] | None = None,
+        uni_codes: list[str] | None = None,
+        dept_keywords: list[str] | None = None,
+        limit: int = 30,
+    ) -> dict:
+        """Şehir/üniversite/bölüm filtresine uyan programları listeler.
+
+        "İstanbul'daki tıp fakülteleri kaç puan, kaç kişi alıyor?" gibi
+        SIRA/PUAN VERİLMEDEN sorulan envanter sorularını yapısal veriden
+        cevaplamak için — RAG'in top_k limiti bu tür soruları eksik bırakır.
+        """
+        rankings, departments, uni_lookup = _load_data()
+        rank_lookup = {r["department_code"]: r for r in rankings}
+
+        # Şehirler geo.REGIONS'tan Türkçe büyük harfle gelir ("İSTANBUL")
+        want_cities = {c.upper() for c in (cities or [])}
+        kw_lower = [_tr_lower(k) for k in (dept_keywords or [])]
+
+        results: list[dict] = []
+        total_quota = 0
+        for d in departments:
+            if kw_lower and not any(kw in _tr_lower(d.get("name", "")) for kw in kw_lower):
+                continue
+            if want_cities and d.get("city", "").upper() not in want_cities:
+                continue
+            if uni_codes and d.get("university_code", "") not in uni_codes:
+                continue
+            r = rank_lookup.get(d["code"], {})
+            uni = uni_lookup.get(d.get("university_code", ""), {})
+            quota = r.get("quota")
+            if isinstance(quota, int):
+                total_quota += quota
+            results.append({
+                "department_code": d["code"],
+                "department_name": d.get("name", ""),
+                "university_name": uni.get("name", ""),
+                "university_type": uni.get("type", ""),
+                "city": d.get("city", ""),
+                "score_type": d.get("score_type", ""),
+                "base_rank": r.get("base_rank"),
+                "base_score": r.get("base_score"),
+                "quota": quota,
+                "scholarship": d.get("scholarship", ""),
+            })
+
+        # En iyi (küçük) sıradan kötüye; sırası olmayanlar sona
+        results.sort(key=lambda x: (x["base_rank"] is None, x["base_rank"] or 0))
+        return {
+            "programs": results[:limit],
+            "total": len(results),
+            "total_quota": total_quota,
+        }
 
     def recommend(self, profile: StudentProfile) -> RecommendationList:
         if profile.rank is None and profile.score is None:

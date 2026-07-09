@@ -35,6 +35,47 @@ class TestExtractIntent:
         assert "coastal" in intent["geo_flags"]
 
 
+class TestListingIntent:
+    """Şehir/üniversite + bölüm envanter soruları — sıra/puan olmadan tetiklenir."""
+
+    def test_city_plus_department_triggers(self):
+        intent = _extract_intent("istanbul ünilerinde tıp kaç puan kaç kişi var")
+        assert intent is not None
+        assert "İSTANBUL" in intent["cities"]
+        assert "tıp" in intent["departments"]
+
+    def test_city_suffix_matches(self):
+        # "ankara'daki", "ankaradaki" gibi ek almış haller
+        intent = _extract_intent("ankaradaki hukuk fakülteleri hangileri")
+        assert intent is not None
+        assert "ANKARA" in intent["cities"]
+
+    def test_department_without_location_no_trigger(self):
+        # Sadece bölüm adı → saf RAG (listeleme tetiklenmez)
+        assert _extract_intent("tıp okumak zor mu") is None
+
+    def test_university_detection(self):
+        from unisense.application.services.recommendation_service import detect_universities
+
+        assert detect_universities("hacettepede tıp taban puanı") != []
+        assert detect_universities("koç üniversitesi tıp kontenjanı") != []
+        # Şehir adı tek başına üniversiteye bağlanmamalı
+        assert detect_universities("istanbul gezilecek yerler") == []
+
+    def test_listing_returns_programs(self):
+        from unisense.core.di import get_recommendation_service
+
+        result = get_recommendation_service().list_programs(
+            cities=["İSTANBUL"], dept_keywords=["tıp"], limit=10
+        )
+        assert result["total"] > 20  # İstanbul'da onlarca tıp programı var
+        assert result["total_quota"] > 1000
+        assert len(result["programs"]) == 10
+        # En iyi sıra başta
+        ranks = [p["base_rank"] for p in result["programs"] if p["base_rank"]]
+        assert ranks == sorted(ranks)
+
+
 class TestCacheKey:
     def _q(self, **kw):
         defaults = dict(text="test sorgusu", top_k=12, history=[], model_preference="gemini")

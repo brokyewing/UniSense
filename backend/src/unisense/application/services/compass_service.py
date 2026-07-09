@@ -29,32 +29,53 @@ from unisense.core.logging import get_logger
 logger = get_logger(__name__)
 
 
-@lru_cache(maxsize=1)
-def _model():
-    # Lazy import: sentence_transformers (torch) ağır — modül import edilirken
-    # değil, ilk kullanımda yüklensin (test/startup hızı)
-    from sentence_transformers import SentenceTransformer
-
+def _dept_matrix_cache_path():
     settings = get_settings()
-    return SentenceTransformer(settings.embedding_model)
+    return settings.project_root / "data" / "processed" / "compass_dept_embeddings.npz"
 
 
 @lru_cache(maxsize=1)
 def _dept_matrix() -> tuple[np.ndarray, list[str]]:
-    """358 bölüm için embedding matrisi + isim listesi."""
+    """358 bölüm için embedding matrisi + isim listesi.
+
+    Matris bir kez Gemini API ile üretilip data/processed altına npz olarak
+    cache'lenir — sonraki açılışlarda API çağrısı gerekmez. Taxonomy'deki
+    bölüm listesi değişirse otomatik yeniden üretilir.
+    """
     tax = get_taxonomy()
     names = [d["name"] for d in tax["departments"]]
+
+    cache_path = _dept_matrix_cache_path()
+    if cache_path.exists():
+        try:
+            data = np.load(cache_path, allow_pickle=False)
+            cached_names = [str(n) for n in data["names"]]
+            dim_ok = data["embs"].shape[1] == get_settings().effective_embedding_dim
+            if cached_names == names and dim_ok:
+                return data["embs"].astype(np.float32), names
+            logger.info("compass_dept_cache_stale", cached=len(cached_names), current=len(names))
+        except Exception as e:  # noqa: BLE001
+            logger.warning("compass_dept_cache_read_failed", error=str(e)[:120])
+
     # Embedlemek için: ad + etiketler + kategori label
+    from unisense.infrastructure.embeddings import embed_texts
+
     texts = []
     for d in tax["departments"]:
         cat_label = CATEGORIES[d["category"]]["label"]
         tag_str = ", ".join(d["tags"])
         texts.append(f"{d['name']} ({cat_label}). {tag_str}.")
     logger.info("compass_embedding_dept_matrix", count=len(texts))
-    embs = _model().encode(texts, convert_to_numpy=True, show_progress_bar=False)
-    # L2 normalize
-    norms = np.linalg.norm(embs, axis=1, keepdims=True) + 1e-9
-    return embs / norms, names
+    embs = embed_texts(texts, task_type="SEMANTIC_SIMILARITY")
+
+    try:
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        np.savez_compressed(cache_path, embs=embs, names=np.array(names))
+        logger.info("compass_dept_cache_saved", path=str(cache_path))
+    except Exception as e:  # noqa: BLE001
+        logger.warning("compass_dept_cache_write_failed", error=str(e)[:120])
+
+    return embs, names
 
 
 @lru_cache(maxsize=1)
@@ -70,8 +91,9 @@ def _axes_matrix() -> tuple[np.ndarray, list[str]]:
 
 
 def _normalize_query(text: str) -> np.ndarray:
-    emb = _model().encode([text], convert_to_numpy=True, show_progress_bar=False)[0]
-    return emb / (np.linalg.norm(emb) + 1e-9)
+    from unisense.infrastructure.embeddings import embed_texts
+
+    return embed_texts([text], task_type="SEMANTIC_SIMILARITY")[0]
 
 
 def _format_dept(name: str, score: float) -> dict:

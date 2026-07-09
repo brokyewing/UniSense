@@ -32,10 +32,23 @@ class Settings(BaseSettings):
     # Quota dolunca otomatik fallback için fallback model (opsiyonel)
     gemini_model_fallback: str = "gemini-2.5-flash-lite"
 
-    # === ChromaDB ===
+    # === ChromaDB / Embeddings ===
     chroma_persist_dir: str = "./data/embeddings/chromadb"
     chroma_collection: str = "unisense"
-    embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    # Sağlayıcı seçimi:
+    #   local  → ONNX MiniLM (torch'suz, $0, kota yok) — varsayılan
+    #   gemini → Gemini API (daha kaliteli ama index kurulumu billing ister:
+    #            free tier günlük istek limiti 24k chunk'a yetmez)
+    # DİKKAT: Index hangi sağlayıcıyla üretildiyse sorgular da onunla yapılmalı.
+    embedding_provider: str = Field(default="local", pattern="^(local|gemini)$")
+    embedding_onnx_repo: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    embedding_onnx_file: str = "onnx/model_quint8_avx2.onnx"
+    gemini_embedding_model: str = "models/gemini-embedding-001"
+    embedding_dim: int = 768  # sadece gemini için; local her zaman 384
+
+    @property
+    def effective_embedding_dim(self) -> int:
+        return 384 if self.embedding_provider == "local" else self.embedding_dim
 
     # === Güvenlik ===
     security_require_api_key: bool = False

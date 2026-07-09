@@ -110,6 +110,22 @@ _GEO_PATTERNS = [
     (re.compile(r"\bbo(ğ|g)az\s*manzara"),                                "sea_marmara"),
 ]
 
+# 81 il — sorgudan şehir tespiti için (geo.REGIONS'tan düzleştirilmiş)
+def _city_patterns() -> list[tuple["re.Pattern[str]", str]]:
+    from unisense.domain.geo import REGIONS
+
+    pats = []
+    for cities in REGIONS.values():
+        for city in cities:
+            low = _tr_lower(city)
+            # "istanbul", "istanbul'da", "istanbuldaki" — ek almış halleri de yakala
+            pats.append((re.compile(rf"\b{re.escape(low)}"), city))
+    return pats
+
+
+_CITY_PATTERNS: list[tuple["re.Pattern[str]", str]] | None = None
+
+
 # Yaygın bölüm anahtar kelimeleri (kısmi eşleşme için)
 _DEPT_KEYWORDS = [
     "tıp", "diş", "eczacılık", "hemşirelik", "fizyoterapi", "veteriner",
@@ -127,11 +143,15 @@ _DEPT_KEYWORDS = [
 
 
 def _extract_intent(query: str) -> dict | None:
-    """Sorgudan sıra/puan/üni-türü/bölüm intent'i çıkar.
+    """Sorgudan sıra/puan/şehir/üni/bölüm intent'i çıkar.
 
     Return:
-        None  → bu sorgu sıra/puan tabanlı değil (saf RAG kullan)
-        dict  → {rank?, score?, score_type, uni_types: [...], departments: [...]}
+        None  → yapılandırılmış veri gerektirmeyen sorgu (saf RAG kullan)
+        dict  → {rank?, score?, score_type, uni_types, departments,
+                 cities, universities, geo_flags}
+    Tetikleyiciler: sıra/puan VEYA coğrafi filtre VEYA (bölüm + şehir/üni)
+    — "İstanbul'daki tıp fakülteleri kaç puan?" tarzı envanter soruları
+    RAG'in top_k limitine takılır, yapısal listeleme gerekir.
     """
     q = _tr_lower(query)
 
@@ -166,7 +186,31 @@ def _extract_intent(query: str) -> dict | None:
         if pat.search(q):
             geo_flags.append(label)
 
-    if rank is None and score is None and not geo_flags:
+    # Şehirler (81 il, ek almış halleriyle)
+    global _CITY_PATTERNS
+    if _CITY_PATTERNS is None:
+        _CITY_PATTERNS = _city_patterns()
+    cities: list[str] = []
+    for pat, city in _CITY_PATTERNS:
+        if pat.search(q):
+            cities.append(city)
+
+    # Bölüm anahtar kelimeleri
+    departments: list[str] = []
+    for kw in _DEPT_KEYWORDS:
+        if kw in q:
+            departments.append(kw)
+
+    # Üniversite adları (Hacettepe, Boğaziçi... — veri destekli, cache'li)
+    universities: list[str] = []
+    try:
+        from unisense.application.services.recommendation_service import detect_universities
+        universities = detect_universities(query)
+    except Exception:  # noqa: BLE001 — veri dosyası yoksa (test ortamı) sessiz geç
+        pass
+
+    has_listing_target = departments and (cities or universities)
+    if rank is None and score is None and not geo_flags and not has_listing_target:
         return None
 
     # Puan türü
@@ -182,24 +226,71 @@ def _extract_intent(query: str) -> dict | None:
         if pat.search(q):
             uni_types.append(label)
 
-    # Bölüm anahtar kelimeleri
-    departments: list[str] = []
-    for kw in _DEPT_KEYWORDS:
-        if kw in q:
-            departments.append(kw)
-
     return {
         "rank": rank,
         "score": score,
         "score_type": score_type,
         "uni_types": uni_types,
         "departments": departments,
+        "cities": cities,
+        "universities": universities,
         "geo_flags": geo_flags,
     }
 
 
+def _build_listing_context(intent: dict, rec_service: "RecommendationService") -> str:
+    """Sıra/puan VERİLMEDEN sorulan envanter soruları için program listesi.
+
+    Örn: "İstanbul'daki tıp fakülteleri kaç puan, kontenjan kaç?"
+    RAG top_k=12 ile ~98 programın tamamını getiremez; yapısal veriden
+    eksiksiz liste + toplam kontenjan üretilir.
+    """
+    result = rec_service.list_programs(
+        cities=intent.get("cities") or None,
+        uni_codes=intent.get("universities") or None,
+        dept_keywords=intent.get("departments") or None,
+        limit=30,
+    )
+    if not result["total"]:
+        return ""
+
+    scope = []
+    if intent.get("cities"):
+        scope.append("/".join(intent["cities"]))
+    if intent.get("universities"):
+        scope.append(f"{len(intent['universities'])} üniversite")
+    scope.append(", ".join(intent.get("departments") or []))
+
+    lines = [f"=== PROGRAM LİSTESİ ({' — '.join(s for s in scope if s)}) — 2025 verisi ==="]
+    lines.append(
+        f"Toplam {result['total']} program, toplam kontenjan {result['total_quota']:,}. "
+        f"(İlk {len(result['programs'])} tanesi taban sırasına göre listelendi)"
+    )
+    for p in result["programs"]:
+        rank_s = f"{p['base_rank']:,}" if p["base_rank"] else "?"
+        score_s = f"{p['base_score']:.2f}" if p["base_score"] else "?"
+        # Burs bilgisi bölüm adında zaten varsa tekrarlama
+        burs = ""
+        if p.get("scholarship") and p["scholarship"] not in p["department_name"]:
+            burs = f" ({p['scholarship']})"
+        uni = p["university_name"]
+        city = "" if p["city"] and p["city"] in uni else f" ({p['city']})"
+        lines.append(
+            f"• [{p['department_code']}] {p['department_name']}{burs} — {uni}{city} "
+            f"sıra: {rank_s} | taban: {score_s} | kontenjan: {p['quota'] or '?'}"
+        )
+    return "\n".join(lines)
+
+
 def _build_recommendation_context(intent: dict, rec_service: "RecommendationService") -> str:
     """Intent → recommendation servisi → kısa context string."""
+    # Sıra/puan yoksa bu bir envanter sorusu — kişisel öneri yerine liste dön
+    if intent.get("rank") is None and intent.get("score") is None:
+        listing = _build_listing_context(intent, rec_service)
+        if listing:
+            return listing
+        # Liste boş döndüyse (filtre tutmadı) normal akışa düş
+
     try:
         st_enum = ScoreType(intent["score_type"]) if isinstance(intent["score_type"], str) else intent["score_type"]
     except ValueError:
@@ -209,6 +300,7 @@ def _build_recommendation_context(intent: dict, rec_service: "RecommendationServ
         score_type=st_enum,
         score=intent.get("score"),
         rank=intent.get("rank"),
+        preferred_cities=intent.get("cities") or [],
         preferred_uni_types=intent.get("uni_types") or [],
         preferred_departments=intent.get("departments") or [],
     )

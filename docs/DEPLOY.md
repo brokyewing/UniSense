@@ -5,7 +5,33 @@ ve uptime monitoring için adımları içerir.
 
 ---
 
-## 1. Backend — Render
+## 1A. Backend — Hugging Face Spaces (ÖNERİLEN, $0/ay)
+
+Embedding lokal ONNX ile çalışır (`EMBEDDING_PROVIDER=local`) — API kotası
+ve ücreti yok. HF free tier: 2 vCPU / 16 GB RAM, fazlasıyla yeter.
+
+### Adımlar
+1. https://huggingface.co → hesap aç → Settings → Access Tokens → **write** yetkili token
+2. Index'i lokalde üret (bir kez): `cd backend && python -m unisense.cli.embed`
+3. Deploy:
+   ```powershell
+   $env:HF_TOKEN="hf_..."
+   python scripts/deploy_hf_space.py <kullanici_adi>/unisense-api
+   ```
+   Script: Space'i oluşturur, backend + hazır index'i yükler, `.env`'deki
+   GEMINI_API_KEYS ve FIREBASE_PROJECT_ID'yi Space secret'ı yapar.
+4. Build'i izle: Space sayfası → Logs (~5-10 dk)
+5. API adresi: `https://<kullanici>-unisense-api.hf.space`
+   → Vercel'de `VITE_API_URL` bunu göstermeli
+   → `CORS_ALLOWED_ORIGINS` Space variable'ında Vercel domaini olmalı
+6. Uyumayı önle: UptimeRobot'a `/api/v1/health` monitörü ekle (5 dk)
+
+### Notlar
+- Free Space ~48 saat trafiksiz kalırsa uyur; UptimeRobot ping'i bunu önler
+- Kalıcı disk yok ama gerekmiyor: index imaja gömülü gelir
+- Veri güncellenince: lokalde re-embed + script'i tekrar çalıştır
+
+## 1B. Backend — Render (alternatif, $25/ay)
 
 ### Hazırlık
 Repo'da `backend/Dockerfile` ve kökte `render.yaml` zaten mevcut
@@ -185,14 +211,15 @@ Manuel tetikleme: GitHub Actions sekmesi → **Yearly YKS Data Sync** → **Run 
 
 | Servis | Plan | $/ay |
 |---|---|---|
-| Render (backend + 1GB disk) | Starter | $7 |
+| Hugging Face Spaces (backend) | Free (2 vCPU / 16GB) | $0 |
 | Vercel (frontend) | Hobby | $0 |
 | Firebase Auth + Firestore + Storage | Spark (free) | $0 |
-| Gemini API | Free tier (500 RPD/key × 3 key = 1500 RPD) | $0 |
+| Gemini API (sadece cevap üretimi; embedding lokal ONNX) | Free tier (500 RPD/key) | $0 |
 | UptimeRobot | Free (50 monitor) | $0 |
-| **TOPLAM** | | **~$7** |
+| **TOPLAM** | | **$0** |
 
-> Trafik artarsa: Render Standard ($15), Vercel Pro ($20), Gemini paid tier.
+> Trafik artarsa ilk ücretli kalem Gemini generation olur (~$0.0006/sorgu);
+> alternatif hosting: Render Starter $7 (ONNX sayesinde 512MB'a sığar).
 
 ---
 
