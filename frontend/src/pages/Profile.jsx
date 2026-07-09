@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  User, Lock, GraduationCap, Camera, Check, Loader2, Upload,
+  User, Lock, GraduationCap, Camera, Check, Loader2,
   Save, AlertCircle, Eye, EyeOff,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
@@ -10,7 +10,6 @@ import {
   PRESET_AVATARS,
   updateUserBasicInfo,
   updateUserProfile,
-  uploadAvatar,
   changePassword,
   getUserProfile,
   getAuthProvider,
@@ -132,30 +131,18 @@ function AccountTab({ user }) {
   const [name, setName] = useState(user.displayName || '')
   const [photoURL, setPhotoURL] = useState(user.photoURL || '')
   const [showAvatars, setShowAvatars] = useState(false)
-  const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState(null)
-  const fileInputRef = useRef(null)
 
   async function handleSelectPreset(url) {
     setPhotoURL(url)
     setShowAvatars(false)
   }
 
-  async function handleFileUpload(e) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setUploading(true)
-    setMsg(null)
-    try {
-      const url = await uploadAvatar(user.uid, file)
-      setPhotoURL(url)
-    } catch (e) {
-      setMsg({ type: 'error', text: e.message })
-    } finally {
-      setUploading(false)
-    }
-  }
+  // NOT: Bilgisayardan avatar yükleme kaldırıldı — Firebase Storage yeni
+  // projelerde Blaze (ücretli) plan istiyor. Hazır avatarlar (DiceBear URL)
+  // Storage gerektirmez. Blaze'e geçilirse: storage.rules deploy et +
+  // firebase.js'teki uploadAvatar ile bu butonu geri getir.
 
   async function handleSave() {
     setSaving(true)
@@ -200,11 +187,6 @@ function AccountTab({ user }) {
                 {(name || user.email || 'U')[0].toUpperCase()}
               </div>
             )}
-            {uploading && (
-              <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center">
-                <Loader2 size={24} className="animate-spin text-white" />
-              </div>
-            )}
           </div>
 
           <div className="flex flex-col gap-2 flex-1 w-full">
@@ -214,20 +196,6 @@ function AccountTab({ user }) {
             >
               <Camera size={14} />
               {showAvatars ? 'Hazır avatarları gizle' : 'Hazır avatar seç'}
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleFileUpload}
-              className="hidden"
-            />
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className="btn-ghost inline-flex items-center justify-center gap-2 text-sm disabled:opacity-50"
-            >
-              <Upload size={14} /> Bilgisayardan yükle
             </button>
             {photoURL && (
               <button

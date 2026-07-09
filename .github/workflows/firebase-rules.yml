@@ -1,7 +1,13 @@
 name: Deploy Firebase Rules
 
-# Firestore/Storage kuralları değişince otomatik deploy eder.
+# Firestore kuralları değişince otomatik deploy eder.
 # Console'daki kural ile repo'daki kuralın ayrışmasını engeller.
+#
+# NOT: Storage kuralları deploy EDİLMİYOR — Firebase Storage yeni projelerde
+# Blaze (ücretli) plan istiyor, proje Spark'ta. Avatar yükleme de frontend'den
+# kaldırıldı (hazır avatarlar kullanılıyor). Blaze'e geçilirse: Console'da
+# Storage'ı kur, firebase.json'a storage bloğunu geri ekle, --only'ye
+# ",storage" ekle (storage.rules repoda hazır bekliyor).
 #
 # Kurulum (bir kez):
 # 1. Firebase Console → Project Settings → Service Accounts → Generate new private key
@@ -46,12 +52,12 @@ jobs:
           fi
           echo "$FIREBASE_SERVICE_ACCOUNT" > /tmp/firebase-sa.json
 
-      - name: Deploy Firestore + Storage rules
+      - name: Deploy Firestore rules
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-sa.json
         run: |
           npx firebase-tools deploy \
-            --only firestore:rules,storage \
+            --only firestore:rules \
             --project "${{ secrets.FIREBASE_PROJECT_ID }}" \
             --non-interactive
 
