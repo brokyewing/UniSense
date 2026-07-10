@@ -44,6 +44,28 @@ SOURCE_PAGES = {
     "2025/1": "https://www.osym.gov.tr/TR,33363/kpss-20251-bazi-kamu-kurum-ve-kuruluslarin-kadro-ve-pozisyonlarina-yerlestirme-sonuclarina-iliskin-sayisal-bilgiler.html",
 }
 
+# Otomatik keşif: ÖSYM arşiv aramasında yeni "yerleştirme sonuçlarına ilişkin
+# sayısal bilgiler" duyuruları taranır — yeni dönem (2026/1, 2026/2...)
+# yayınlandığında elle URL eklemeye gerek kalmaz (aylık cron çağırır).
+DISCOVER_URL = "https://www.osym.gov.tr/arama?_Dil=1&aranan=kpss+yerlestirme+sonuclarina+iliskin+sayisal"
+_DONEM_RE = re.compile(r"kpss-?(20\d\d)(\d)[^0-9]", re.I)
+
+
+def _discover_pages(s: requests.Session) -> dict[str, str]:
+    """ÖSYM arama sayfasından yeni dönem duyurularını keşfet."""
+    pages = dict(SOURCE_PAGES)
+    try:
+        html = s.get(DISCOVER_URL, timeout=60).text
+        for m in re.finditer(
+            r'href="(/TR,\d+/kpss-?(20\d\d)(\d)-[^"]*sayisal-bilgiler[^"]*\.html)"',
+            html, re.I,
+        ):
+            donem = f"{m.group(2)}/{m.group(3)}"
+            pages.setdefault(donem, "https://www.osym.gov.tr" + m.group(1))
+    except Exception as e:  # noqa: BLE001
+        print(f"   ⚠️ keşif atlandı ({str(e)[:60]}) — bilinen sayfalarla devam")
+    return pages
+
 LEVEL_HINTS = {  # PDF dosya adındaki ipucu → düzey + puan türü
     "lisans": ("lisans", "P3"),
     "onl": ("önlisans", "P93"),
@@ -152,7 +174,9 @@ def main() -> None:
     s = _session()
     all_records: list[dict] = []
 
-    for donem, page in SOURCE_PAGES.items():
+    pages = _discover_pages(s)
+    print(f"📡 {len(pages)} dönem kaynağı (keşif dahil)")
+    for donem, page in pages.items():
         pdfs = _find_pdfs(s, page)
         print(f"📄 {donem}: {len(pdfs)} PDF bulundu")
         for hint, url in pdfs.items():

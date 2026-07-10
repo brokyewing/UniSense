@@ -62,7 +62,7 @@ export default function Splash() {
           className="badge bg-accent-500/20 text-accent-300 border border-accent-500/30 mb-6"
         >
           <Sparkles size={10} />
-          2026 YKS Tercih Asistanı
+          2026 Tercih Asistanı
         </motion.div>
 
         {/* Slogan */}
@@ -82,7 +82,7 @@ export default function Splash() {
           transition={{ duration: 1, delay: 1 }}
           className="text-sm text-slate-400 mb-10"
         >
-          21.602 program · 227 üniversite · Lisans + Önlisans · 2025 yerleştirme verisi
+          21.602 program · 227 üniversite · YKS · DGS · KPSS · Güncel resmi veriler
         </motion.p>
 
         {/* CTA */}

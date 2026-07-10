@@ -29,18 +29,55 @@ OUT_KADRO = BACKEND / "data" / "processed" / "kpss_kadrolar.json"
 OUT_NITELIK = BACKEND / "data" / "processed" / "kpss_nitelikler.json"
 CACHE = BACKEND / ".cache" / "kpss"
 
+# Varsayılan (bilinen son dönem) — keşif başarısızsa buna düşülür
 DONEM = "2026/1"
-BASE = "https://dokuman.osym.gov.tr/pdfdokuman/2026/KPSS/TERCIH1/"
-TABLO_PDFS = {  # kadro kodu ilk hanesi → düzey/puan türü zaten koddan çıkarılıyor
-    "tablo1": BASE + "tablo1_t1d03072026.pdf",
-    "tablo2": BASE + "tablo2_t1d03062026.pdf",
-    "tablo3": BASE + "tablo3_t1d03072026.pdf",
-}
-NITELIK_PDFS = {
-    "lisans": BASE + "lisans-nitelik_t1d03072026.pdf",
-    "önlisans": BASE + "onlisans-nitelik_t1d03072026.pdf",
-    "ortaöğretim": BASE + "ortaogretim-nitelik_t1d03072026.pdf",
-}
+KILAVUZ_PAGE = ("https://www.osym.gov.tr/TR,34174/kpss-20261-bazi-kamu-kurum-ve-"
+                "kuruluslarinin-kadro-ve-pozisyonlarina-yerlestirme-yapmak-icin-"
+                "tercih-kilavuzu-ve-tablolar.html")
+# Yeni dönem kılavuzu otomatik keşfi (aylık cron için)
+DISCOVER_URL = ("https://www.osym.gov.tr/arama?_Dil=1&aranan="
+                "kpss+tercih+kilavuzu+ve+tablolar")
+
+
+def _discover_kilavuz(s: requests.Session) -> tuple[str, str]:
+    """En yeni KPSS tercih kılavuzu duyurusunu bul → (dönem, sayfa_url)."""
+    known = tuple(int(x) for x in DONEM.split("/"))
+    try:
+        html = s.get(DISCOVER_URL, timeout=60).text
+        best = None
+        for m in re.finditer(
+            r'href="(/TR,\d+/kpss-?(20\d\d)(\d)-[^"]*tercih-kilavuzu[^"]*\.html)"',
+            html, re.I,
+        ):
+            key = (int(m.group(2)), int(m.group(3)))  # (yıl, dönem) — en yenisi
+            if best is None or key > best[0]:
+                best = (key, f"{m.group(2)}/{m.group(3)}",
+                        "https://www.osym.gov.tr" + m.group(1))
+        # Keşfedilen, bilinen dönemden YENİYSE kullan; eskiyse bilinene düş
+        if best and best[0] > known:
+            return best[1], best[2]
+    except Exception as e:  # noqa: BLE001
+        print(f"   ⚠️ kılavuz keşfi atlandı ({str(e)[:60]})")
+    return DONEM, KILAVUZ_PAGE
+
+
+def _find_kilavuz_pdfs(s: requests.Session, page_url: str) -> tuple[dict, dict]:
+    """Kılavuz sayfasından tablo + nitelik PDF linklerini çıkar."""
+    html = s.get(page_url, timeout=60).text
+    urls = re.findall(r'href="(https://dokuman\.osym\.gov\.tr/[^"]*\.pdf)"', html, re.I)
+    tablolar, nitelikler = {}, {}
+    for u in dict.fromkeys(urls):
+        fname = u.rsplit("/", 1)[-1].lower()
+        m = re.match(r"tablo(\d)_", fname)
+        if m:
+            tablolar[f"tablo{m.group(1)}"] = u
+        elif "lisans-nitelik" in fname and "onlisans" not in fname:
+            nitelikler["lisans"] = u
+        elif "onlisans-nitelik" in fname:
+            nitelikler["önlisans"] = u
+        elif "ortaogretim-nitelik" in fname:
+            nitelikler["ortaöğretim"] = u
+    return tablolar, nitelikler
 
 # Kadro kodu ilk hanesi → düzey + merkezi yerleştirme puan türü
 _LEVEL_BY_PREFIX = {"1": ("ortaöğretim", "P94"), "2": ("önlisans", "P93"),
@@ -184,12 +221,21 @@ def _parse_nitelik(path: Path, duzey: str) -> dict[str, dict]:
 
 
 def main() -> None:
+    global DONEM
     CACHE.mkdir(parents=True, exist_ok=True)
     s = _session()
 
+    DONEM, page = _discover_kilavuz(s)
+    print(f"📡 Aktif kılavuz: {DONEM} → {page[:80]}")
+    tablo_pdfs, nitelik_pdfs = _find_kilavuz_pdfs(s, page)
+    if not tablo_pdfs:
+        print("⛔ Kılavuz tabloları bulunamadı (dönem arası olabilir) — çıkılıyor")
+        return
+    tag = DONEM.replace("/", "_")
+
     kadrolar: list[dict] = []
-    for name, url in TABLO_PDFS.items():
-        p = _get(s, url, f"t2026_{name}.pdf")
+    for name, url in tablo_pdfs.items():
+        p = _get(s, url, f"k{tag}_{name}.pdf")
         recs = _parse_tablo(p)
         print(f"   {name}: {len(recs)} kadro")
         kadrolar.extend(recs)
@@ -198,8 +244,8 @@ def main() -> None:
     print(f"✅ {len(kadrolar)} aktif kadro → {OUT_KADRO}")
 
     nitelikler: dict[str, dict] = {}
-    for duzey, url in NITELIK_PDFS.items():
-        p = _get(s, url, f"t2026_nitelik_{duzey[:3]}.pdf")
+    for duzey, url in nitelik_pdfs.items():
+        p = _get(s, url, f"k{tag}_nitelik_{duzey[:3]}.pdf")
         d = _parse_nitelik(p, duzey)
         print(f"   nitelik/{duzey}: {len(d)} kod")
         nitelikler.update(d)

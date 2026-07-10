@@ -1,0 +1,64 @@
+name: KPSS Data Sync
+
+# KPSS dönemlik veri güncellemesi:
+#  - Yerleştirme sonuçları (min/max taban puanlar) — yılda ~2 kez açıklanır
+#  - Aktif tercih kılavuzu kadroları — dönem başında yayınlanır
+# Aylık koşar; scraper ÖSYM duyurularından yeni dönemi otomatik keşfeder,
+# değişiklik yoksa commit atmaz. Push → Render autodeploy yeni veriyi alır.
+#
+# Veri yenileme takviminin tamamı:
+#   KPSS  : bu workflow (aylık kontrol, dönemlik veri)
+#   YKS   : yearly-data-sync.yml (15 Ağustos — yerleştirme sonrası)
+#   DGS   : eklenince yearly-data-sync'e bağlanacak (yıllık)
+
+on:
+  schedule:
+    - cron: '0 4 5 * *'   # her ayın 5'i, 04:00 UTC (07:00 TRT)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e . --no-deps
+
+      - name: KPSS yerleştirme sonuçları (taban puanlar)
+        working-directory: backend
+        run: python -m unisense.infrastructure.scrapers.kpss_scraper
+
+      - name: KPSS aktif tercih kılavuzu (kadrolar + nitelikler)
+        working-directory: backend
+        run: python -m unisense.infrastructure.scrapers.kpss_kilavuz_scraper
+        continue-on-error: true  # dönem arası kılavuz sayfası kalkmış olabilir
+
+      - name: Commit data updates
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backend/data/processed/kpss_*.json
+          if git diff --staged --quiet; then
+            echo "KPSS verisi güncel — commit yok"
+          else
+            git commit -m "chore(data): KPSS veri senkronizasyonu ($(date -u +%Y-%m-%d))"
+            git push
+          fi

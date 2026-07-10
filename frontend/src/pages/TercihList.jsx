@@ -29,6 +29,7 @@ import {
   watchTercihList, removeFromTercih, reorderTercihList, backfillTercihList,
   updateTercihNote,
   addToTercih,
+  watchKpssTercih, removeFromKpssTercih, MAX_KPSS_TERCIH,
 } from '../firebase'
 import BackgroundScene from '../components/three/BackgroundScene'
 import { apiFetch } from '../lib/api'
@@ -359,10 +360,83 @@ function SortableRow({ item, idx, total, onRemove, onMove, onSaveNote, isLast })
   )
 }
 
+/** KPSS tercih listesi — YKS listesinden AYRI alan (merkezi yerleştirme, max 30) */
+function KpssTercihPanel({ user }) {
+  const [items, setItems] = useState([])
+
+  useEffect(() => {
+    if (!user) return
+    return watchKpssTercih(user.uid, setItems)
+  }, [user])
+
+  async function remove(code) {
+    try { await removeFromKpssTercih(user.uid, code) } catch {}
+  }
+
+  function copyAll() {
+    navigator.clipboard?.writeText(items.map((i) => i.kadro_kodu).join('\n'))
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <p className="text-sm text-slate-400">
+          {items.length} / {MAX_KPSS_TERCIH} kadro — 2026/1 tercihleri 9-16 Temmuz'da
+          <a href="https://ais.osym.gov.tr" target="_blank" rel="noreferrer"
+            className="text-accent-300 hover:underline ml-1">ais.osym.gov.tr</a>'de yapılır
+        </p>
+        {items.length > 0 && (
+          <button onClick={copyAll} className="btn-ghost text-xs inline-flex items-center gap-1">
+            <Copy size={12} /> Kadro kodlarını kopyala
+          </button>
+        )}
+      </div>
+      {items.length === 0 ? (
+        <div className="card text-center py-10 text-slate-400 text-sm">
+          KPSS tercih listen boş. <br />
+          <span className="text-slate-500 text-xs">
+            Hesap → KPSS sekmesinde bölümünle kadro arayıp "+ Tercih" ile ekleyebilirsin.
+          </span>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {items.map((k, idx) => (
+            <div key={k.kadro_kodu}
+              className="card !py-3 flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-accent-500/20 text-accent-300 text-xs font-bold flex items-center justify-center shrink-0">
+                {idx + 1}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm text-slate-200 font-medium truncate">
+                  {k.unvan} · {k.il}
+                </div>
+                <div className="text-xs text-slate-400 truncate">{k.kurum}</div>
+                <div className="text-[10px] text-slate-500 flex gap-3 mt-0.5">
+                  <span className="font-mono">{k.kadro_kodu}</span>
+                  <span>Kontenjan: {k.kontenjan ?? '?'}</span>
+                  {k.gecmis_taban && (
+                    <span className="text-amber-300">Geçen dönem: {Number(k.gecmis_taban).toFixed(2)}</span>
+                  )}
+                </div>
+              </div>
+              <button onClick={() => remove(k.kadro_kodu)}
+                className="text-slate-500 hover:text-rose-400 text-xs shrink-0">
+                Kaldır
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+
 export default function TercihList() {
   const nav = useNavigate()
   const { user, isAuthed, loading } = useAuth()
   const [items, setItems] = useState([])
+  const [mode, setMode] = useState('YKS')  // YKS | KPSS — ayrı listeler
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [copiedAll, setCopiedAll] = useState(false)
@@ -633,6 +707,20 @@ export default function TercihList() {
               <ListChecks className="text-accent-400" size={26} />
               Tercih Listen
             </h1>
+            {/* YKS / KPSS ayrı listeler */}
+            <div className="flex gap-1 mt-2">
+              {['YKS', 'KPSS'].map((m) => (
+                <button key={m} onClick={() => setMode(m)}
+                  className={`px-3 py-1 rounded-lg text-xs font-medium border ${
+                    mode === m
+                      ? 'border-accent-500/50 bg-accent-500/15 text-accent-200'
+                      : 'border-white/10 text-slate-400 hover:bg-white/5'
+                  }`}>
+                  {m}
+                </button>
+              ))}
+            </div>
+            {mode === 'YKS' && (
             <p className="text-sm text-slate-400 mt-1 flex items-center gap-2">
               <span>{items.length} / 24 tercih • {remaining > 0 ? `${remaining} ekleyebilirsin` : 'Liste dolu'}</span>
               {saving && (
@@ -641,7 +729,9 @@ export default function TercihList() {
                 </span>
               )}
             </p>
+            )}
           </div>
+          {mode === 'YKS' && (
           <div className="flex gap-2 flex-wrap items-start">
             <CodeAdder
               onSubmit={addByCodes}
@@ -689,8 +779,12 @@ export default function TercihList() {
               </button>
             )}
           </div>
+          )}
         </div>
 
+        {mode === 'KPSS' && <KpssTercihPanel user={user} />}
+
+        {mode === 'YKS' && (<>
         {error && (
           <div className="text-sm text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-3">
             ⚠️ {error}
@@ -764,6 +858,7 @@ export default function TercihList() {
             Kesin tercih için: <a href="https://aday.osym.gov.tr/" target="_blank" rel="noreferrer" className="text-accent-400 hover:underline">ÖSYM ödeme sistemi</a>
           </div>
         )}
+        </>)}
       </div>
     </>
   )

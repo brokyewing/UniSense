@@ -318,6 +318,44 @@ export async function backfillTercihList(uid, codeToData) {
   await batch.commit()
 }
 
+// === KPSS TERCIH LISTESI (YKS tercihinden AYRI alan; merkezi yerleştirmede 30 tercih) ===
+
+export const MAX_KPSS_TERCIH = 30
+
+export function watchKpssTercih(uid, callback) {
+  if (!db) return () => {}
+  const q = query(
+    collection(db, 'users', uid, 'kpss_tercih'),
+    orderBy('order', 'asc'),
+    limit(MAX_KPSS_TERCIH)
+  )
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+  })
+}
+
+export async function addToKpssTercih(uid, kadro, order) {
+  if (!db) throw new Error('Firebase yok')
+  const code = String(kadro.kadro_kodu)
+  await setDoc(doc(db, 'users', uid, 'kpss_tercih', code), {
+    kadro_kodu: code,
+    kurum: kadro.kurum || '',
+    unvan: kadro.unvan || '',
+    il: kadro.il || '',
+    duzey: kadro.duzey || '',
+    puan_turu: kadro.puan_turu || '',
+    kontenjan: kadro.kontenjan ?? null,
+    gecmis_taban: kadro.gecmis_taban ?? null,
+    order,
+    addedAt: serverTimestamp(),
+  })
+}
+
+export async function removeFromKpssTercih(uid, code) {
+  if (!db) throw new Error('Firebase yok')
+  await deleteDoc(doc(db, 'users', uid, 'kpss_tercih', String(code)))
+}
+
 // === QUERY HISTORY (basit log) ===
 
 export async function logQuery(uid, queryText, response) {

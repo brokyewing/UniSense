@@ -44,7 +44,11 @@ import {
 } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import { useAuth } from '../contexts/AuthContext'
-import { getUserProfile, updateUserProfile } from '../firebase'
+import {
+  getUserProfile, updateUserProfile,
+  watchKpssTercih, addToKpssTercih, removeFromKpssTercih, MAX_KPSS_TERCIH,
+} from '../firebase'
+import { useAuth as useAuthCtx } from '../contexts/AuthContext'
 import { apiFetch } from '../lib/api'
 
 // === Yaklaşık ÖSYM katsayıları (ders-bazlı)
@@ -319,11 +323,36 @@ function NetInput({ field, value, onChange }) {
 
 /** KPSS: puan + bölümle başvurulabilir kadroları listeler (2026/1 dönemi) */
 function KpssKadroPanel({ score }) {
+  const { user } = useAuthCtx()
   const [bolum, setBolum] = useState('')
   const [duzey, setDuzey] = useState('lisans')
   const [res, setRes] = useState(null)
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
+  const [tercihIds, setTercihIds] = useState(new Set())
+  const [toast, setToast] = useState('')
+
+  useEffect(() => {
+    if (!user) return
+    return watchKpssTercih(user.uid, (items) =>
+      setTercihIds(new Set(items.map((i) => String(i.kadro_kodu)))))
+  }, [user])
+
+  async function toggleTercih(k) {
+    if (!user) { setToast('Tercihe eklemek için giriş yap'); setTimeout(() => setToast(''), 2500); return }
+    try {
+      if (tercihIds.has(String(k.kadro_kodu))) {
+        await removeFromKpssTercih(user.uid, k.kadro_kodu)
+      } else {
+        if (tercihIds.size >= MAX_KPSS_TERCIH) {
+          setToast(`KPSS tercih listesi dolu (max ${MAX_KPSS_TERCIH})`); setTimeout(() => setToast(''), 2500); return
+        }
+        await addToKpssTercih(user.uid, k, tercihIds.size + 1)
+        setToast('✓ KPSS tercihine eklendi — Tercihlerim sayfasında')
+        setTimeout(() => setToast(''), 2500)
+      }
+    } catch (e) { setToast(e.message); setTimeout(() => setToast(''), 2500) }
+  }
 
   async function ara() {
     setLoading(true); setErr('')
@@ -367,16 +396,34 @@ function KpssKadroPanel({ score }) {
         {loading ? <Loader2 size={14} className="animate-spin inline" /> : 'Başvurabileceğim kadroları bul'}
       </button>
       {err && <div className="text-xs text-rose-400">{err}</div>}
+      {toast && <div className="text-xs text-accent-300">{toast}</div>}
       {res && (
         <div className="space-y-2">
           <div className="text-xs text-slate-400">
             {res.total} kadro bulundu {score > KPSS_BASE && `(puanına uygun olanlar)`}
           </div>
           <div className="max-h-72 overflow-y-auto space-y-1.5 pr-1">
-            {res.items.map((k) => (
+            {res.items.map((k) => {
+              const inList = tercihIds.has(String(k.kadro_kodu))
+              return (
               <div key={k.kadro_kodu} className="rounded-lg bg-black/20 px-3 py-2 text-xs">
-                <div className="text-slate-200 font-medium">{k.unvan} · {k.il}</div>
-                <div className="text-slate-400 text-[11px]">{k.kurum}</div>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="text-slate-200 font-medium">{k.unvan} · {k.il}</div>
+                    <div className="text-slate-400 text-[11px]">{k.kurum}</div>
+                  </div>
+                  <button
+                    onClick={() => toggleTercih(k)}
+                    title={inList ? 'Tercihten çıkar' : 'KPSS tercihine ekle'}
+                    className={`shrink-0 rounded-lg px-2 py-1 text-[10px] border ${
+                      inList
+                        ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10'
+                        : 'border-white/10 text-slate-300 hover:bg-white/10'
+                    }`}
+                  >
+                    {inList ? '✓ Listede' : '+ Tercih'}
+                  </button>
+                </div>
                 <div className="flex gap-3 mt-1 text-[10px]">
                   <span className="text-slate-500">Kontenjan: {k.kontenjan ?? '?'}</span>
                   {k.gecmis_taban
@@ -385,7 +432,8 @@ function KpssKadroPanel({ score }) {
                   <span className="text-accent-300">{k.eslesme}</span>
                 </div>
               </div>
-            ))}
+              )
+            })}
           </div>
           <div className="text-[10px] text-slate-600">{res.uyari}</div>
         </div>
