@@ -147,6 +147,16 @@ const DGS_FIELDS = [
   { id: 'dgs_soz', label: 'DGS Sözel (Türkçe)',   max: 50 },
 ]
 
+// === KPSS GY-GK (lisans P3 / önlisans P93 / ortaöğretim P94 — aynı oturum yapısı)
+const KPSS_FIELDS = [
+  { id: 'kpss_gy', label: 'Genel Yetenek', max: 60 },
+  { id: 'kpss_gk', label: 'Genel Kültür',  max: 60 },
+]
+// Yaklaşık model: 40 + 0.5×(GY+GK neti) → tam net = 100. Gerçek puan ÖSYM
+// standart sapma normalizasyonuyla hesaplanır; sapma birkaç puan olabilir.
+const KPSS_BASE = 40
+const KPSS_COEF = 0.5
+
 const TABS = [
   { id: 'TYT', label: 'TYT', desc: 'Önlisans / temel', color: 'from-purple-500 to-violet-500' },
   { id: 'SAY', label: 'AYT-SAY', desc: 'Sayısal lisans', color: 'from-blue-500 to-cyan-400' },
@@ -154,6 +164,7 @@ const TABS = [
   { id: 'SÖZ', label: 'AYT-SÖZ', desc: 'Sözel lisans',  color: 'from-rose-500 to-pink-400' },
   { id: 'DİL', label: 'YDT-DİL', desc: 'Yabancı dil',   color: 'from-amber-500 to-orange-400' },
   { id: 'DGS', label: 'DGS',     desc: 'Önlisans→Lisans', color: 'from-fuchsia-500 to-purple-500' },
+  { id: 'KPSS', label: 'KPSS',   desc: 'Memurluk (GY-GK)', color: 'from-sky-500 to-indigo-500' },
 ]
 
 // === Net hesaplama: doğru - 0.25*yanlış
@@ -207,6 +218,14 @@ function aytWeighted(nets, type) {
     : null
   if (!coefMap) return 0
   return weightedSum(nets, coefMap)  // max ≈ 240
+}
+
+// === KPSS puanı (yaklaşık P3/P93/P94 — GY+GK, düzeye göre etiket değişir)
+function kpssScore(nets) {
+  const gy = parseFloat(nets.kpss_gy) || 0
+  const gk = parseFloat(nets.kpss_gk) || 0
+  if (gy <= 0 && gk <= 0) return 0
+  return KPSS_BASE + KPSS_COEF * (gy + gk)
 }
 
 // === DGS puanları — üç tür birden (SAY/EA/SÖZ farklı ağırlıklarla)
@@ -348,7 +367,7 @@ export default function Hesap() {
     const out = {}
     const allFields = [
       ...TYT_FIELDS, ...AYT_SAY_FIELDS, ...AYT_EA_FIELDS,
-      ...AYT_SOZ_FIELDS, ...AYT_DIL_FIELDS, ...DGS_FIELDS,
+      ...AYT_SOZ_FIELDS, ...AYT_DIL_FIELDS, ...DGS_FIELDS, ...KPSS_FIELDS,
     ]
     const seen = new Set()
     for (const f of allFields) {
@@ -368,6 +387,15 @@ export default function Hesap() {
         ham: tytH,
         finalScore: tytH + obp * OBP_MULT,
         label: 'TYT Yerleştirme Puanı',
+      }
+    }
+    if (tab === 'KPSS') {
+      const s = kpssScore(nets)
+      return {
+        scoreType: 'KPSS',
+        ham: s,
+        finalScore: s,
+        label: 'KPSS GY-GK Puanı (yaklaşık)',
       }
     }
     if (tab === 'DGS') {
@@ -470,6 +498,7 @@ export default function Hesap() {
     if (tab === 'SÖZ') return AYT_SOZ_FIELDS
     if (tab === 'DİL') return AYT_DIL_FIELDS
     if (tab === 'DGS') return DGS_FIELDS
+    if (tab === 'KPSS') return KPSS_FIELDS
     return []
   }, [tab])
 
@@ -529,7 +558,10 @@ export default function Hesap() {
             <div className="flex items-center justify-between border-b border-white/5 pb-2">
               <h3 className="text-sm font-semibold text-white flex items-center gap-2">
                 <BookOpen size={14} className="text-accent-300" />
-                {tab === 'DGS' ? 'DGS Net Girişi' : tab === 'TYT' ? 'TYT Net Girişi' : `TYT + ${tab} Net Girişi`}
+                {tab === 'DGS' ? 'DGS Net Girişi'
+                  : tab === 'KPSS' ? 'KPSS GY-GK Net Girişi'
+                  : tab === 'TYT' ? 'TYT Net Girişi'
+                  : `TYT + ${tab} Net Girişi`}
               </h3>
               <div className="text-[10px] text-slate-500 flex items-center gap-3">
                 <span>D: doğru</span>
@@ -538,8 +570,8 @@ export default function Hesap() {
               </div>
             </div>
 
-            {/* TYT zorunlu (DGS hariç) */}
-            {tab !== 'DGS' && tab !== 'TYT' && (
+            {/* TYT zorunlu (DGS ve KPSS hariç) */}
+            {tab !== 'DGS' && tab !== 'TYT' && tab !== 'KPSS' && (
               <div className="opacity-90">
                 <div className="text-[10px] text-slate-500 uppercase mt-2 mb-1">TYT (zorunlu)</div>
                 {TYT_FIELDS.map((f) => (
@@ -549,7 +581,7 @@ export default function Hesap() {
             )}
 
             <div>
-              {tab !== 'DGS' && tab !== 'TYT' && (
+              {tab !== 'DGS' && tab !== 'TYT' && tab !== 'KPSS' && (
                 <div className="text-[10px] text-slate-500 uppercase mt-2 mb-1">{tab}</div>
               )}
               {activeFields.map((f) => (
@@ -557,7 +589,8 @@ export default function Hesap() {
               ))}
             </div>
 
-            {/* Diploma notu — Tab'a göre 100'lük (YKS) veya 4'lük (DGS) */}
+            {/* Diploma notu — Tab'a göre 100'lük (YKS) veya 4'lük (DGS); KPSS'de yok */}
+            {tab !== 'KPSS' && (
             <div className="pt-2 mt-2 border-t border-white/5">
               {tab === 'DGS' ? (
                 <>
@@ -631,6 +664,7 @@ export default function Hesap() {
                 </>
               )}
             </div>
+            )}
           </div>
 
           {/* Sağ: Sonuç paneli */}
@@ -655,7 +689,9 @@ export default function Hesap() {
                 </div>
               ) : (
                 <div className="text-5xl font-display font-bold mt-2 bg-gradient-to-br from-amber-300 to-rose-400 bg-clip-text text-transparent">
-                  {result.finalScore > 100 ? result.finalScore.toFixed(2) : '—'}
+                  {/* KPSS 40-100 aralığında; YKS puanları 100 tabanlı */}
+                  {result.finalScore > (tab === 'KPSS' ? KPSS_BASE : 100)
+                    ? result.finalScore.toFixed(2) : '—'}
                 </div>
               )}
               <div className="text-[10px] text-slate-500 mt-2 flex items-center justify-center gap-2">
