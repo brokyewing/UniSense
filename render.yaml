@@ -52,8 +52,9 @@ services:
         value: "20"
       - key: RATE_LIMIT_DEFAULT
         value: "60"
+      # DİKKAT: gerçek Vercel domaini TİRELİ çıktı (uni-sense), ikisi de kalsın
       - key: CORS_ALLOWED_ORIGINS
-        value: https://unisense.vercel.app
+        value: https://uni-sense.vercel.app,https://unisense.vercel.app
       # Hassas / ortama özgü — Render UI'de elle gir:
       - key: GEMINI_API_KEYS
         sync: false
