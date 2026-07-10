@@ -1,15 +1,19 @@
-"""Firebase ID token authentication.
+"""Firebase ID token doğrulaması — service account GEREKTİRMEZ.
 
 Frontend, Firebase Auth ile giriş yapan kullanıcının ID token'ını
-`Authorization: Bearer <token>` header'ında gönderir. Burada token
-Google'ın public sertifikalarıyla doğrulanır — service account
-credential'ı GEREKMEZ, sadece FIREBASE_PROJECT_ID yeterlidir.
+`Authorization: Bearer <token>` header'ında gönderir. Token, Google'ın
+halka açık sertifikalarıyla doğrulanır (imza + süre + audience + issuer).
+
+NOT: firebase-admin KULLANILMIYOR — onun verify_id_token'ı Application
+Default Credentials (service account dosyası) istiyor; Render free'de
+gereksiz kurulum yükü. google-auth'un JWT doğrulaması aynı işi
+credential'sız yapar (Firebase'in 3. parti doğrulama dokümanındaki yöntem).
 
 SECURITY_REQUIRE_AUTH=false iken (local dev) doğrulama atlanır.
 """
 from __future__ import annotations
 
-import threading
+import time
 
 from fastapi import Header, Request
 
@@ -19,34 +23,44 @@ from unisense.domain.exceptions import AuthenticationError
 
 logger = get_logger(__name__)
 
-_lock = threading.Lock()
-_firebase_app = None
-_init_failed = False
+# Firebase ID token'larını imzalayan sertifikalar (halka açık endpoint)
+_CERTS_URL = (
+    "https://www.googleapis.com/robot/v1/metadata/x509/"
+    "securetoken@system.gserviceaccount.com"
+)
+_CERTS_TTL_S = 3600
+
+_certs_cache: dict | None = None
+_certs_fetched_at: float = 0.0
 
 
-def _get_firebase_app():
-    """firebase_admin app'ini lazy + thread-safe başlat."""
-    global _firebase_app, _init_failed
-    if _firebase_app is not None or _init_failed:
-        return _firebase_app
-    with _lock:
-        if _firebase_app is not None or _init_failed:
-            return _firebase_app
-        try:
-            import firebase_admin
+def _get_certs() -> dict:
+    """Google imza sertifikalarını getir (1 saat cache'li)."""
+    global _certs_cache, _certs_fetched_at
+    now = time.time()
+    if _certs_cache is None or now - _certs_fetched_at > _CERTS_TTL_S:
+        import requests
 
-            settings = get_settings()
-            options = {}
-            if settings.firebase_project_id:
-                options["projectId"] = settings.firebase_project_id
-            try:
-                _firebase_app = firebase_admin.get_app()
-            except ValueError:
-                _firebase_app = firebase_admin.initialize_app(options=options or None)
-        except Exception as e:  # noqa: BLE001
-            _init_failed = True
-            logger.error("firebase_init_failed", error=str(e)[:200])
-    return _firebase_app
+        resp = requests.get(_CERTS_URL, timeout=10)
+        resp.raise_for_status()
+        _certs_cache = resp.json()
+        _certs_fetched_at = now
+        logger.info("firebase_certs_refreshed", keys=len(_certs_cache))
+    return _certs_cache
+
+
+def _verify_token(token: str, project_id: str) -> dict:
+    """Firebase ID token'ı doğrula, claim'leri döndür. Hatalıysa raise eder."""
+    from google.auth import jwt as google_jwt
+
+    claims = google_jwt.decode(token, certs=_get_certs(), audience=project_id)
+    # google_jwt.decode imza + exp + aud kontrol eder; issuer'ı biz doğrularız
+    expected_iss = f"https://securetoken.google.com/{project_id}"
+    if claims.get("iss") != expected_iss:
+        raise ValueError(f"Beklenmeyen issuer: {claims.get('iss')}")
+    if not claims.get("sub"):
+        raise ValueError("Token'da kullanıcı (sub) yok")
+    return claims
 
 
 def require_user(
@@ -70,20 +84,17 @@ def require_user(
         )
     token = authorization[len("Bearer "):].strip()
 
-    app = _get_firebase_app()
-    if app is None:
-        logger.error("auth_misconfigured", reason="firebase_admin init failed")
+    if not settings.firebase_project_id:
+        logger.error("auth_misconfigured", reason="FIREBASE_PROJECT_ID tanımsız")
         raise AuthenticationError("Sunucu yapılandırma hatası")
 
-    from firebase_admin import auth as fb_auth
-
     try:
-        decoded = fb_auth.verify_id_token(token, app=app)
-    except Exception as e:  # noqa: BLE001 — expired/revoked/invalid hepsi 401
+        claims = _verify_token(token, settings.firebase_project_id)
+    except Exception as e:  # noqa: BLE001 — expired/invalid/imza hepsi 401
         client_ip = request.client.host if request.client else "?"
         logger.warning("auth_token_invalid", ip=client_ip, error=str(e)[:120])
         raise AuthenticationError("Geçersiz veya süresi dolmuş oturum") from None
 
-    uid: str | None = decoded.get("uid")
+    uid: str = claims["sub"]
     request.state.uid = uid
     return uid
