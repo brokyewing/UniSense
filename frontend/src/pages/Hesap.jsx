@@ -321,6 +321,76 @@ function NetInput({ field, value, onChange }) {
 }
 
 
+/** DGS: hesaplanan puanlarla geçilebilecek lisans programları */
+function DgsProgramPanel({ scores }) {
+  const [pt, setPt] = useState('SAY')
+  const [bolum, setBolum] = useState('')
+  const [res, setRes] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [err, setErr] = useState('')
+
+  const puan = scores?.[pt] > 100 ? scores[pt] : null
+
+  async function ara() {
+    setLoading(true); setErr('')
+    try {
+      const d = await apiFetch('/api/v1/dgs/programlar', {
+        method: 'POST',
+        body: { puan_turu: pt, puan, bolum, limit: 25 },
+      })
+      setRes(d)
+    } catch (e) { setErr(e.message) } finally { setLoading(false) }
+  }
+
+  return (
+    <div className="card space-y-3">
+      <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+        <GraduationCap size={14} className="text-accent-300" /> Geçebileceğin Lisans Programları
+        <span className="text-[10px] text-slate-500 font-normal">2025 DGS tabanları</span>
+      </h3>
+      <div className="flex gap-2">
+        <select value={pt} onChange={(e) => setPt(e.target.value)}
+          className="input-glass text-sm !w-24">
+          {['SAY', 'EA', 'SÖZ'].map((t) => <option key={t} value={t}>{t}</option>)}
+        </select>
+        <input
+          value={bolum}
+          onChange={(e) => setBolum(e.target.value)}
+          placeholder="Bölüm filtresi (örn: bilgisayar) — boş = hepsi"
+          className="input-glass text-sm flex-1"
+        />
+      </div>
+      <button onClick={ara} disabled={loading}
+        className="btn-primary w-full text-sm disabled:opacity-50">
+        {loading ? <Loader2 size={14} className="animate-spin inline" />
+          : puan ? `${puan.toFixed(1)} ${pt} puanıyla ara` : 'Tüm programları listele'}
+      </button>
+      {err && <div className="text-xs text-rose-400">{err}</div>}
+      {res && (
+        <div className="space-y-2">
+          <div className="text-xs text-slate-400">{res.total} program bulundu</div>
+          <div className="max-h-72 overflow-y-auto space-y-1.5 pr-1">
+            {res.items.map((p) => (
+              <div key={p.department_code} className="rounded-lg bg-black/20 px-3 py-2 text-xs">
+                <div className="text-slate-200">{p.program_adi}</div>
+                <div className="flex gap-3 mt-1 text-[10px]">
+                  <span className="text-slate-500">{p.city || '—'}</span>
+                  <span className="text-amber-300">
+                    Taban: {p.min_puan ? p.min_puan.toFixed(2) : 'geçen yıl boş kaldı'}
+                  </span>
+                  <span className="text-slate-500">Kontenjan: {p.kontenjan ?? '?'}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="text-[10px] text-slate-600">{res.uyari}</div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+
 /** KPSS: puan + bölümle başvurulabilir kadroları listeler (2026/1 dönemi) */
 function KpssKadroPanel({ score }) {
   const { user } = useAuthCtx()
@@ -844,6 +914,9 @@ export default function Hesap() {
 
             {/* KPSS: aktif dönem kadro arama */}
             {tab === 'KPSS' && <KpssKadroPanel score={result.finalScore} />}
+
+            {/* DGS: puanlarla geçilebilecek lisans programları */}
+            {tab === 'DGS' && <DgsProgramPanel scores={result.dgsScores} />}
 
             {/* Yaklaşık olduğunu açıklayan info */}
             <div className="text-[10px] text-slate-500 px-3 py-2 rounded-lg bg-white/5 border border-white/10 flex items-start gap-2">

@@ -227,6 +227,34 @@ class KpssKadroResponse(BaseModel):
     uyari: str = ""
 
 
+# === DGS Program Arama ===
+
+class DgsProgramRequest(BaseModel):
+    puan_turu: str = Field(default="SAY", pattern="^(SAY|EA|SÖZ|SOZ|say|ea|söz|soz)$")
+    puan: float | None = Field(None, ge=0, le=600)
+    bolum: str = Field(default="", max_length=120)
+    il: str | None = Field(None, max_length=40)
+    limit: int = Field(default=30, ge=1, le=100)
+
+
+class DgsProgramItem(BaseModel):
+    department_code: str
+    program_adi: str
+    university_name: str = ""
+    city: str = ""
+    puan_turu: str
+    kontenjan: int | None = None
+    yerlesen: int | None = None
+    min_puan: float | None = None
+    yil: int | None = None
+
+
+class DgsProgramResponse(BaseModel):
+    total: int
+    items: list[DgsProgramItem]
+    uyari: str = ""
+
+
 # === Bölüm Karşılaştırma ===
 
 class CompareRequest(BaseModel):

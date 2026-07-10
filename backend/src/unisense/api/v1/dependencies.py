@@ -34,3 +34,8 @@ def compare_service_dep() -> CompareService:
 def kpss_service_dep():
     from unisense.core.di import get_kpss_service
     return get_kpss_service()
+
+
+def dgs_service_dep():
+    from unisense.core.di import get_dgs_service
+    return get_dgs_service()

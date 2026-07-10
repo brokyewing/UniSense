@@ -81,6 +81,11 @@ jobs:
         run: python scripts/enrich_geo.py
         continue-on-error: true
 
+      - name: Scrape — DGS yerleştirme tabanları (ÖSYM, yıllık)
+        working-directory: backend
+        run: python -m unisense.infrastructure.scrapers.dgs_scraper
+        continue-on-error: true
+
       - name: Build chunks
         working-directory: backend
         run: python -m unisense.cli.build_chunks

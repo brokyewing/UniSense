@@ -11,6 +11,7 @@ from unisense.api.v1.dependencies import (
     ask_service_dep,
     compare_service_dep,
     compass_service_dep,
+    dgs_service_dep,
     kpss_service_dep,
     recommendation_service_dep,
 )
@@ -26,6 +27,8 @@ from unisense.api.v1.schemas import (
     CompassSelectionRequest,
     CompassTaxonomyResponse,
     CompassTextRequest,
+    DgsProgramRequest,
+    DgsProgramResponse,
     DocResponse,
     HealthResponse,
     KpssKadroRequest,
@@ -334,6 +337,24 @@ def kpss_kadrolar(
         limit=body.limit,
     )
     return KpssKadroResponse(**result)
+
+
+@router.post("/dgs/programlar", response_model=DgsProgramResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def dgs_programlar(
+    request: Request,
+    body: DgsProgramRequest,
+    svc=Depends(dgs_service_dep),
+) -> DgsProgramResponse:
+    """DGS puanıyla geçilebilecek lisans programları (ÖSYM yıllık min/max)."""
+    result = svc.program_ara(
+        puan_turu=body.puan_turu,
+        puan=body.puan,
+        bolum=body.bolum,
+        il=body.il,
+        limit=body.limit,
+    )
+    return DgsProgramResponse(**result)
 
 
 @router.post("/programs/compare", response_model=CompareResponse)

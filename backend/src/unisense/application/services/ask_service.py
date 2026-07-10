@@ -346,6 +346,86 @@ def _build_listing_context(intent: dict, rec_service: "RecommendationService") -
     return "\n".join(lines)
 
 
+# === KPSS / DGS sorgu yönlendirmesi ===
+# DİKKAT: tek başına "kadro" YKS bağlamında da geçer ("akademik kadro") —
+# sadece kpss/memur/atanma kelimeleri yönlendirir
+_KPSS_RE = re.compile(r"\bkpss\b|\bmemur(lug|luk|iyet|u|a)?\b|\batan(ma|abilir|(ı|i)r(ı|i)m)", re.I)
+_DGS_RE = re.compile(r"\bdgs\b|dikey\s*ge(ç|c)i(ş|s)", re.I)
+_KPSS_PUAN_RE = re.compile(r"\b(\d{2,3}(?:[.,]\d{1,3})?)\s*(?:kpss\s*)?puan")
+
+
+def _build_kpss_context(query: str) -> str:
+    """KPSS sorusu → aktif dönem kadroları + geçmiş tabanlarla context."""
+    from unisense.core.di import get_kpss_service
+    from unisense.core.text import fold_tr
+
+    qf = fold_tr(query)
+    # Puan (KPSS aralığı 40-105)
+    puan = None
+    m = _KPSS_PUAN_RE.search(qf)
+    if m:
+        v = float(m.group(1).replace(",", "."))
+        if 40 <= v <= 105:
+            puan = v
+    # Bölüm: taksonomi token'ları
+    bolum = ""
+    token_index = _group_token_index()
+    for w in re.findall(r"[a-zçğıöşü]+", fold_tr(query)):
+        if w in token_index:
+            bolum = w
+            break
+    duzey = ("önlisans" if "onlisans" in qf or "on lisans" in qf
+             else "ortaöğretim" if "ortaogretim" in qf or "lise" in qf
+             else "lisans")
+
+    r = get_kpss_service().kadro_ara(bolum=bolum, puan=puan, duzey=duzey, limit=15)
+    lines = ["=== KPSS 2026/1 AKTİF TERCİH DÖNEMİ KADROLARI (tercih: 9-16 Temmuz) ===",
+             f"Filtre: düzey={duzey}, bölüm={bolum or 'tümü'}, puan={puan or '?'}",
+             f"Uyan kadro sayısı: {r['total']} (ilk 15 gösteriliyor)", ""]
+    for it in r["items"]:
+        taban = f"geçen dönem taban {it['gecmis_taban']:.2f}" if it["gecmis_taban"] else "geçmiş taban yok"
+        lines.append(f"• [{it['kadro_kodu']}] {it['unvan']} — {it['kurum']} ({it['il']}) "
+                     f"kontenjan {it['kontenjan']}, {taban}, {it['eslesme']}")
+    lines.append("")
+    lines.append("NOT: B grubu merkezi yerleştirme kadroları. A grubu (uzman yrd/müfettiş) "
+                 "kurum sınavlarıyla alınır, bu listede olmaz. " + r["uyari"])
+    return "\n".join(lines)
+
+
+def _build_dgs_context(query: str) -> str:
+    """DGS sorusu → puana uygun lisans programları context'i."""
+    from unisense.core.di import get_dgs_service
+    from unisense.core.text import fold_tr
+
+    qf = fold_tr(query)
+    puan = None
+    for m in re.finditer(r"\b(\d{3}(?:[.,]\d{1,3})?)\b", qf):
+        v = float(m.group(1).replace(",", "."))
+        if 140 <= v <= 500:
+            puan = v
+            break
+    pt = ("EA" if re.search(r"\bea\b|esit", qf)
+          else "SÖZ" if re.search(r"\bsoz(el)?\b", qf) else "SAY")
+    bolum = ""
+    token_index = _group_token_index()
+    for w in re.findall(r"[a-zçğıöşü]+", fold_tr(query)):
+        if w in token_index:
+            bolum = w
+            break
+
+    r = get_dgs_service().program_ara(puan_turu=pt, puan=puan, bolum=bolum, limit=15)
+    lines = ["=== DGS LİSANS GEÇİŞ PROGRAMLARI (2025 tabanları) ===",
+             f"Filtre: puan türü={pt}, puan={puan or '?'}, bölüm={bolum or 'tümü'}",
+             f"Uyan program sayısı: {r['total']} (ilk 15)", ""]
+    for it in r["items"]:
+        taban = f"taban {it['min_puan']:.2f}" if it["min_puan"] else "geçen yıl boş"
+        lines.append(f"• [{it['department_code']}] {it['program_adi']} ({it['city']}) "
+                     f"— {taban}, kontenjan {it['kontenjan']}")
+    lines.append("")
+    lines.append(r["uyari"])
+    return "\n".join(lines)
+
+
 def _build_recommendation_context(intent: dict, rec_service: "RecommendationService") -> str:
     """Intent → recommendation servisi → kısa context string."""
     # Sıra/puan yoksa bu bir envanter sorusu — kişisel öneri yerine liste dön
@@ -437,8 +517,21 @@ class AskService:
                 total_latency_ms=total_ms,
             )
 
+        # 0b. KPSS / DGS sorguları — kendi yapısal veri kaynaklarına yönlenir
+        # (YKS RAG'i bu soruları cevaplayamaz; kadro/geçiş verisi ayrı)
+        sinav_context = ""
+        try:
+            if _KPSS_RE.search(query.text):
+                sinav_context = _build_kpss_context(query.text)
+                logger.info("kpss_intent_routed")
+            elif _DGS_RE.search(query.text):
+                sinav_context = _build_dgs_context(query.text)
+                logger.info("dgs_intent_routed")
+        except Exception as e:  # noqa: BLE001
+            logger.warning("sinav_context_failed", error=str(e)[:200])
+
         # 1. Intent kontrolü — sıra/puan tabanlı sorgu mu?
-        intent = _extract_intent(query.text)
+        intent = _extract_intent(query.text) if not sinav_context else None
         rec_context = ""
         if intent and self._recommendation is not None:
             try:
@@ -482,8 +575,10 @@ class AskService:
                     "bilgilerle yetinin."
                 )
 
-        # 3. Context'i birleştir — recommendation, sonra trend, sonra RAG
+        # 3. Context'i birleştir — sınav (KPSS/DGS), recommendation, trend, RAG
         parts = []
+        if sinav_context:
+            parts.append(sinav_context)
         if rec_context:
             parts.append(rec_context)
         if trend_context:

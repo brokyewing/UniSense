@@ -158,3 +158,29 @@ class TestKpssService:
 
         r = KpssService().kadro_ara(bolum="hemsirelik", duzey="lisans")
         assert r["total"] >= 1
+
+
+class TestSinavRouting:
+    def test_kpss_regex(self):
+        from unisense.application.services.ask_service import _DGS_RE, _KPSS_RE
+
+        assert _KPSS_RE.search("kpss 85 puanla nereye atanırım")
+        assert _KPSS_RE.search("memur olmak istiyorum")
+        # YKS bağlamındaki "akademik kadro" KPSS'ye GİTMEMELİ
+        assert not _KPSS_RE.search("hacettepe tıp akademik kadrosu nasıl")
+        assert _DGS_RE.search("dgs 280 puanla hangi bölümlere geçerim")
+        assert _DGS_RE.search("dikey geçiş yapmak istiyorum")
+
+    def test_dgs_service(self):
+        from unisense.application.services.dgs_service import DgsService
+
+        r = DgsService().program_ara(puan_turu="SAY", puan=300, bolum="bilgisayar")
+        assert r["total"] > 10
+        # Taban puanı 300'ün üstünde olan gelmemeli
+        assert all((i["min_puan"] or 0) <= 300 for i in r["items"])
+
+    def test_kpss_context_builds(self):
+        from unisense.application.services.ask_service import _build_kpss_context
+
+        ctx = _build_kpss_context("kpss 90 puanla bilgisayar mühendisi nereye atanır")
+        assert "AKTİF TERCİH" in ctx and "kadro" in ctx.lower()
