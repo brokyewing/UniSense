@@ -66,7 +66,7 @@ export default function Profile() {
             Şifre
           </TabBtn>
           <TabBtn active={tab === 'yks'} onClick={() => setTab('yks')} icon={GraduationCap}>
-            YKS Profili
+            Sınav Profilim
           </TabBtn>
         </div>
 
@@ -442,6 +442,8 @@ function YksTab({ user }) {
   const [score, setScore] = useState('')
   const [rank, setRank] = useState('')
   const [kpssScore, setKpssScore] = useState('')  // KPSS GY-GK (Hesap'tan da dolar)
+  const [dgsScore, setDgsScore] = useState('')    // DGS (Hesap'tan da dolar)
+  const [dgsType, setDgsType] = useState('SAY')
   const [cities, setCities] = useState('')
   const [uniType, setUniType] = useState('all')
   const [interests, setInterests] = useState([])
@@ -463,6 +465,8 @@ function YksTab({ user }) {
         if (p.preferredUniType) setUniType(p.preferredUniType)
         if (Array.isArray(p.preferredInterests)) setInterests(p.preferredInterests)
         if (p.kpss?.score != null) setKpssScore(String(p.kpss.score))
+        if (p.dgs?.score != null) setDgsScore(String(p.dgs.score))
+        if (p.dgs?.type) setDgsType(p.dgs.type)
       } catch (e) {
         console.warn(e)
       } finally {
@@ -491,6 +495,7 @@ function YksTab({ user }) {
         preferredUniType: uniType,
         preferredInterests: interests,
         kpss: kpssScore ? { score: parseFloat(kpssScore), updatedAt: Date.now() } : null,
+        dgs: dgsScore ? { score: parseFloat(dgsScore), type: dgsType, updatedAt: Date.now() } : null,
       })
       setMsg({ type: 'success', text: 'YKS profilin kaydedildi. Tercih sayfasında otomatik kullanılacak.' })
     } catch (e) {
@@ -552,6 +557,7 @@ function YksTab({ user }) {
         </div>
       </div>
 
+      {/* YKS */}
       <div className="grid sm:grid-cols-2 gap-3">
         <div>
           <label className="text-xs text-slate-400 mb-1 block">YKS Puanın</label>
@@ -574,19 +580,46 @@ function YksTab({ user }) {
             className="input-glass"
           />
         </div>
-        <div>
-          <label className="text-xs text-slate-400 mb-1 block">
-            KPSS Puanın <span className="text-slate-600">(GY-GK, varsa)</span>
-          </label>
-          <input
-            type="number"
-            step="0.01"
-            min="0" max="120"
-            value={kpssScore}
-            onChange={(e) => setKpssScore(e.target.value)}
-            placeholder="örn: 85.40 — Hesap sayfasından da dolar"
-            className="input-glass"
-          />
+      </div>
+
+      {/* DGS + KPSS — diğer sınav puanları (Hesap sayfasından da dolar) */}
+      <div className="pt-3 mt-1 border-t border-white/5">
+        <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-2">
+          Diğer Sınavlar (varsa)
+        </div>
+        <div className="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs text-slate-400 mb-1 block">DGS Puanın</label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                step="0.01"
+                min="0" max="600"
+                value={dgsScore}
+                onChange={(e) => setDgsScore(e.target.value)}
+                placeholder="örn: 312.40"
+                className="input-glass flex-1"
+              />
+              <select value={dgsType} onChange={(e) => setDgsType(e.target.value)}
+                className="input-glass !w-24">
+                {['SAY', 'EA', 'SÖZ'].map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="text-xs text-slate-400 mb-1 block">
+              KPSS Puanın <span className="text-slate-600">(GY-GK)</span>
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              min="0" max="120"
+              value={kpssScore}
+              onChange={(e) => setKpssScore(e.target.value)}
+              placeholder="örn: 85.40"
+              className="input-glass"
+            />
+          </div>
         </div>
       </div>
 

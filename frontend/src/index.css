@@ -238,8 +238,62 @@
   .light-theme input[type=number],
   .light-theme input[type=email],
   .light-theme input[type=password],
-  .light-theme input[type=text] {
+  .light-theme input[type=text],
+  .light-theme select {
     color: var(--text-primary);
+  }
+
+  /* Select açılır listesi her temada okunur olsun (native option'lar
+     temayı takip etmez — koyu temada beyaz-üstü-beyaz olabiliyordu) */
+  select.input-glass {
+    color: var(--text-primary);
+  }
+  select.input-glass option {
+    background: #ffffff;
+    color: #0f172a;
+  }
+
+  /* KPSS/DGS panellerindeki sabit koyu yardımcılar — light tema uyarlaması
+     ("iç içe renk" görünümünün kaynağı: koyu kutu + açık kart üst üste) */
+  .light-theme .bg-black\/20 {
+    background: rgba(15, 23, 42, 0.06) !important;
+  }
+  .light-theme .border-white\/10 {
+    border-color: rgba(15, 23, 42, 0.15) !important;
+  }
+  .light-theme .hover\:bg-white\/10:hover {
+    background: rgba(15, 23, 42, 0.06) !important;
+  }
+  /* Açık tonlu vurgu metinleri light temada okunmuyor — koyu karşılıkları */
+  .light-theme .text-amber-300 {
+    color: #b45309 !important;   /* amber-700 */
+  }
+  .light-theme .text-emerald-300 {
+    color: #047857 !important;   /* emerald-700 */
+  }
+  .light-theme .text-accent-300,
+  .light-theme .text-accent-400 {
+    color: #7c3aed !important;   /* violet-600 */
+  }
+  .light-theme .text-rose-400 {
+    color: #be123c !important;   /* rose-700 */
+  }
+  .light-theme .bg-accent-500\/20 {
+    background: rgba(124, 58, 237, 0.12) !important;
+  }
+  /* Beyaz-üstü-beyaz kutular ve ayraçlar (bilgi kutuları, bölüm çizgileri) */
+  .light-theme .bg-white\/5 {
+    background: rgba(15, 23, 42, 0.05) !important;
+  }
+  .light-theme .border-white\/5 {
+    border-color: rgba(15, 23, 42, 0.10) !important;
+  }
+  .light-theme .bg-black\/30 {
+    background: rgba(15, 23, 42, 0.08) !important;
+  }
+  /* Light temada fazla soluk kalan yardımcı metin */
+  .light-theme .text-slate-600 {
+    color: #64748b !important;   /* slate-500 */
   }
 
   /* Light mode butonlar — fav/heart vs */

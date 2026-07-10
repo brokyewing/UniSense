@@ -720,6 +720,15 @@ export default function Hesap() {
           score: parseFloat(result.finalScore.toFixed(2)),
           updatedAt: Date.now(),
         }
+      } else if (tab === 'DGS' && result.finalScore > 100 && result.dgsScores) {
+        // En yüksek çıkan türü profile yaz
+        const bestType = ['SAY', 'EA', 'SÖZ'].reduce((a, b) =>
+          (result.dgsScores[a] >= result.dgsScores[b] ? a : b))
+        profilePatch.dgs = {
+          score: parseFloat(result.dgsScores[bestType].toFixed(2)),
+          type: bestType,
+          updatedAt: Date.now(),
+        }
       }
       await updateUserProfile(user.uid, profilePatch)
       setSavedMsg({
