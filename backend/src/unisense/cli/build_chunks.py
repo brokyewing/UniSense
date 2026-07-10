@@ -336,15 +336,32 @@ def main() -> None:
     wiki_chunks = build_wikipedia_chunks(wiki_data) if wiki_data else []
     print(f"   Wikipedia chunks: {len(wiki_chunks)}")
 
-    # Bölüm rehberleri (varsa — scripts/generate_dept_guides.py üretir)
+    # Bölüm rehberleri — iki katman:
+    #   1. İŞKUR/MEB resmi meslek metinleri (iskur_guides.json) — ÖNCELİKLİ
+    #   2. Gemini özeti (dept_guides.json) — İŞKUR'da karşılığı olmayanlar
+    iskur_file = proc / "iskur_guides.json"
     guide_file = proc / "dept_guides.json"
-    guide_chunks = []
+    iskur_chunks, guide_chunks = [], []
+    iskur_names: set[str] = set()
+    if iskur_file.exists():
+        iskur = json.load(open(iskur_file, encoding="utf-8"))
+        iskur_names = {g["name"] for g in iskur}
+        for g in iskur:
+            g["content"] = (f"Meslek: {g.get('meslek', g['name'])}\n\n"
+                            f"{g['content']}")
+        iskur_chunks = build_dept_guide_chunks(iskur)
+        for c in iskur_chunks:
+            c["chunk_id"] = "iskur_" + c["chunk_id"]
+            c["source"] = "İŞKUR Meslek Bilgi Kitapçığı (MEB kariyer portalı)"
+        print(f"   İŞKUR meslek chunks: {len(iskur_chunks)}")
     if guide_file.exists():
-        guides = json.load(open(guide_file, encoding="utf-8"))
+        guides = [g for g in json.load(open(guide_file, encoding="utf-8"))
+                  if g["name"] not in iskur_names]
         guide_chunks = build_dept_guide_chunks(guides)
-        print(f"   Bölüm rehberi chunks: {len(guide_chunks)}")
+        print(f"   Bölüm rehberi (AI) chunks: {len(guide_chunks)}")
 
-    all_chunks = program_chunks + uni_summary_chunks + wiki_chunks + guide_chunks
+    all_chunks = (program_chunks + uni_summary_chunks + wiki_chunks
+                  + iskur_chunks + guide_chunks)
 
     # chunk_index renumber
     for i, c in enumerate(all_chunks):
