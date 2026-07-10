@@ -1,7 +1,7 @@
 /**
- * YKS Hesap Makinesi 2025
+ * YKS Hesap Makinesi 2026
  *
- * ÖSYM 2025 yaklaşık katsayıları (her ders için ayrı ağırlık):
+ * Yaklaşık ÖSYM katsayıları (2026 dönemi, her ders için ayrı ağırlık):
  *
  * TYT (max ~500):
  *   100 + 3.3×Türkçe + 3.4×Sosyal + 3.3×Mat + 3.4×Fen
@@ -14,10 +14,10 @@
  *
  * AYT-SÖZ (max ~560):
  *   100 + 3.0×Edebiyat + 2.8×Tarih-1 + 3.33×Coğrafya-1
- *       + 2.91×Tarih-2 + 2.91×Coğrafya-2 + 2.67×Felsefe + 5.33×Din
+ *       + 2.91×Tarih-2 + 2.91×Coğrafya-2 + 2.67×Felsefe + 4.0×Din
  *
  * YDT-DİL (max ~500):
- *   100 + 5.0×Yabancı Dil
+ *   100 + 3.0×Yabancı Dil (tek formülde)
  *
  * YERLEŞTİRME (lisans):
  *   = 100 + TYT_netleri×(~1.32) + AYT_netleri×(~3.0) + OBP×0.12  (ÖSYM tek formülü)
@@ -47,7 +47,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { getUserProfile, updateUserProfile } from '../firebase'
 import { apiFetch } from '../lib/api'
 
-// === ÖSYM 2025 katsayıları (yaklaşık, ders-bazlı)
+// === Yaklaşık ÖSYM katsayıları (ders-bazlı)
 const TYT_BIAS = 100
 const AYT_BIAS = 100
 const OBP_MULT = 0.12          // ÖSYM yerleştirme puanına eklenen OBP katsayısı
@@ -678,7 +678,7 @@ export default function Hesap() {
             <div className="text-[10px] text-slate-500 px-3 py-2 rounded-lg bg-white/5 border border-white/10 flex items-start gap-2">
               <Info size={12} className="text-amber-400 mt-0.5 shrink-0" />
               <span>
-                Yaklaşık ÖSYM 2025 katsayıları. Gerçek puan ±5-10 puan farkedebilir
+                Yaklaşık ÖSYM katsayıları (2026 dönemi). Gerçek puan ±5-10 puan farkedebilir
                 (norm/standardizasyon nedeniyle).
               </span>
             </div>

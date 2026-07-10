@@ -58,7 +58,7 @@ export default function App() {
             <Logo size={40} rounded="rounded-none" />
             <div className="hidden sm:block">
               <h1 className="font-display font-bold text-lg text-white leading-none">UniSense</h1>
-              <p className="text-[10px] text-slate-400 leading-none mt-1">Tercih Asistanı · 2025</p>
+              <p className="text-[10px] text-slate-400 leading-none mt-1">Tercih Asistanı · 2026</p>
             </div>
           </Link>
 

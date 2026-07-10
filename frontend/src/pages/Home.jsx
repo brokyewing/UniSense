@@ -38,7 +38,7 @@ const FEATURES = [
   },
   {
     icon: TrendingUp,
-    title: '2025 Sıralamalar',
+    title: '2025 Taban Sıralamaları',
     desc: 'En güncel YÖK Atlas verisi: taban puan + başarı sırası.',
     accent: 'from-cyber-cyan to-brand-500',
     to: '/search?q=2025 en yüksek taban puanı',
@@ -137,7 +137,7 @@ export default function Home() {
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-500/10 border border-accent-500/30 text-accent-300 text-xs font-medium mb-6 backdrop-blur-xl"
           >
             <span className="w-2 h-2 rounded-full bg-accent-500 animate-pulse" />
-            🎓 2025 YKS Tercih Dönemi · Canlı veri
+            🎓 2026 YKS Tercih Dönemi · Canlı veri
           </motion.div>
 
           <motion.h1
