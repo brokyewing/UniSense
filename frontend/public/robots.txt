@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /profile
+Disallow: /tercih
+Disallow: /login
+
+Sitemap: https://unisense.com.tr/sitemap.xml
