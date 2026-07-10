@@ -64,6 +64,7 @@ def main() -> None:
         freq[w] += MIN_FREQ
 
     corpus_vocab = {w for w, f in freq.items() if f >= MIN_FREQ and len(w) > 1}
+    corpus_only = set(corpus_vocab)  # genel liste eklenmeden ÖNCEKİ hali
     print(f"   korpus sözlüğü: {len(corpus_vocab):,} kelime")
 
     # Genel Türkçe kelimeler: kullanıcı sorgularındaki eşanlamlılar
@@ -112,6 +113,17 @@ def main() -> None:
         [math.log(total / freq[w]) for w in vocab], dtype=np.float32
     )
     weights /= weights.max()
+
+    # KRİTİK: genel listeden gelen (korpusta olmayan) kelimeler idf'te
+    # "nadir" görünüp maksimum ağırlık alıyordu — "üniversitelerde" gibi
+    # çekimli formlar sorgu vektörünü domine edip alakasız sonuç getiriyordu.
+    # Genel kelimelerin ağırlığı korpus kelimelerinin medyanıyla sınırlanır.
+    corpus_mask = np.array([w in corpus_only for w in vocab])
+    if corpus_mask.any() and (~corpus_mask).any():
+        cap = float(np.median(weights[corpus_mask]))
+        weights[~corpus_mask] = np.minimum(weights[~corpus_mask], cap)
+        print(f"   genel kelime ağırlık tavanı: {cap:.2f} "
+              f"({(~corpus_mask).sum()} kelime sınırlandı)")
 
     # int8 satır quantizasyonu
     scales = np.abs(embs).max(axis=1, keepdims=True) / 127.0 + 1e-12

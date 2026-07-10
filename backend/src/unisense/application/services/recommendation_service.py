@@ -208,14 +208,17 @@ class RecommendationService:
         rankings, departments, uni_lookup = _load_data()
         rank_lookup = {r["department_code"]: r for r in rankings}
 
+        from unisense.core.text import fold_tr
+
         # Şehirler geo.REGIONS'tan Türkçe büyük harfle gelir ("İSTANBUL")
         want_cities = {c.upper() for c in (cities or [])}
-        kw_lower = [_tr_lower(k) for k in (dept_keywords or [])]
+        # fold'lu kıyas: ASCII yazımlı anahtar ("pastacilik") da isabet eder
+        kw_lower = [fold_tr(k) for k in (dept_keywords or [])]
 
         results: list[dict] = []
         total_quota = 0
         for d in departments:
-            if kw_lower and not any(kw in _tr_lower(d.get("name", "")) for kw in kw_lower):
+            if kw_lower and not any(kw in fold_tr(d.get("name", "")) for kw in kw_lower):
                 continue
             if want_cities and d.get("city", "").upper() not in want_cities:
                 continue

@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import re
 import time
+from functools import lru_cache
 from typing import TYPE_CHECKING
 
 from cachetools import TTLCache
@@ -110,6 +111,12 @@ _GEO_PATTERNS = [
     (re.compile(r"\bbo(ğ|g)az\s*manzara"),                                "sea_marmara"),
 ]
 
+# Şehir adından sonra gelebilecek ekler (fold'lu). Serbest önek eşleşmesi
+# TUZAK: "bölüm"→"bolum" BOLU'yu, "karşı"→"karsi" KARS'ı yakalıyordu.
+_CITY_SUFFIX = (r"(?:'?(?:da|de|ta|te|dan|den|tan|ten|daki|deki|taki|teki"
+                r"|ya|ye|yi|yu|nin|nun|un|in|la|le|sinda|sinde))?\b")
+
+
 # 81 il — sorgudan şehir tespiti için (geo.REGIONS'tan düzleştirilmiş)
 def _city_patterns() -> list[tuple["re.Pattern[str]", str]]:
     from unisense.core.text import fold_tr
@@ -118,14 +125,51 @@ def _city_patterns() -> list[tuple["re.Pattern[str]", str]]:
     pats = []
     for cities in REGIONS.values():
         for city in cities:
-            # fold'lu anahtar: "sanliurfa" da "şanlıurfa" da yakalanır
+            # fold'lu anahtar: "sanliurfa" da "şanlıurfa" da yakalanır;
+            # sadece bilinen ekler kabul — "bolum" BOLU değildir
             low = fold_tr(city)
-            # "istanbul", "istanbul'da", "istanbuldaki" — ek almış halleri de yakala
-            pats.append((re.compile(rf"\b{re.escape(low)}"), city))
+            pats.append((re.compile(rf"\b{re.escape(low)}{_CITY_SUFFIX}"), city))
     return pats
 
 
 _CITY_PATTERNS: list[tuple["re.Pattern[str]", str]] | None = None
+
+
+# "X bölümü NEREDE/HANGİ üniversitede var?" kalıpları — bölüm tespit
+# edildiyse şehir/üni olmasa da envanter listesi gerektirir (RAG'e gitmesin;
+# vektör arama bu soruları üniversite-wiki mahallesine savurabiliyor)
+_WHERE_PATTERNS = [
+    re.compile(r"hangi\s+(ü|u)niversite"),
+    re.compile(r"\bnerede\b|\bnerelerde\b|\bhangi\s+(ş|s)ehir"),
+    re.compile(r"\bvar\s*m(ı|i)\b"),
+    re.compile(r"\bbulunan\b|\bbulunuyor\b|\ba(ç|c)an\b"),
+    re.compile(r"\blistele\b|\bt(ü|u)m(ü|u)n(ü|u)\b"),
+]
+
+
+@lru_cache(maxsize=1)
+def _group_token_index() -> dict[str, list[str]]:
+    """Bölüm grubu adlarının ayırt edici token index'i (fold'lu).
+
+    'gastronomi' → ['Gastronomi ve Mutfak Sanatları'] gibi. Çok yaygın
+    token'lar ('muhendisligi' ~80 grupta) index'e alınmaz — yanlış tetikler.
+    """
+    from unisense.application.services.compass_taxonomy import get_taxonomy
+    from unisense.core.text import fold_tr
+
+    tok_to_groups: dict[str, set[str]] = {}
+    for g in get_taxonomy()["departments"]:
+        for t in re.findall(r"[a-zçğıöşü]+", fold_tr(g["name"])):
+            # Jenerik kelimeler sorgularda bölüm kastı olmadan geçer — index dışı
+            # ("bilgi" → "Koç üniversitesi hakkında BİLGİ ver" tuzağı)
+            if len(t) >= 4 and t not in {
+                "bilim", "bilimleri", "yonetimi", "sanatlari", "bilgi",
+                "genel", "temel", "uygulamali", "hizmetleri", "sistemleri",
+                "teknolojisi", "teknolojileri", "tasarimi",
+            }:
+                tok_to_groups.setdefault(t, set()).add(g["name"])
+    # ≤8 gruba işaret eden token'lar ayırt edici sayılır
+    return {t: sorted(gs) for t, gs in tok_to_groups.items() if len(gs) <= 8}
 
 
 # Yaygın bölüm anahtar kelimeleri (kısmi eşleşme için)
@@ -209,6 +253,18 @@ def _extract_intent(query: str) -> dict | None:
         if fold_tr(kw) in qf:
             departments.append(kw)
 
+    # Taksonomi-tabanlı bölüm tespiti: sorgudaki ayırt edici kelimeler
+    # ("gastronomi", "odyoloji"...) 604 grup adına karşı denenir — sabit
+    # keyword listesinin kapsamadığı tüm bölümleri yakalar
+    token_index = _group_token_index()
+    q_words = set(re.findall(r"[a-zçğıöşü]+", qf))
+    for w in q_words:
+        if w in token_index and w not in [fold_tr(k) for k in departments]:
+            departments.append(w)
+
+    # "Nerede / hangi üniversitede / var mı" kalıbı
+    is_where_query = any(p.search(q) or p.search(qf) for p in _WHERE_PATTERNS)
+
     # Üniversite adları (Hacettepe, Boğaziçi... — veri destekli, cache'li)
     universities: list[str] = []
     try:
@@ -217,7 +273,7 @@ def _extract_intent(query: str) -> dict | None:
     except Exception:  # noqa: BLE001 — veri dosyası yoksa (test ortamı) sessiz geç
         pass
 
-    has_listing_target = departments and (cities or universities)
+    has_listing_target = departments and (cities or universities or is_where_query)
     if rank is None and score is None and not geo_flags and not has_listing_target:
         return None
 

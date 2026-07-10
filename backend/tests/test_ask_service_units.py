@@ -54,6 +54,25 @@ class TestListingIntent:
         # Sadece bölüm adı → saf RAG (listeleme tetiklenmez)
         assert _extract_intent("tıp okumak zor mu") is None
 
+    def test_where_query_triggers_listing(self):
+        # "nerede/hangi üniversitede/var mı" + bölüm → şehirsiz listeleme
+        for q in ["gastronomi bölümü hangi üniversitelerde var",
+                  "pastacılık bölümü var mı",
+                  "odyoloji nerede okunur"]:
+            intent = _extract_intent(q)
+            assert intent is not None, q
+            assert intent["departments"], q
+
+    def test_city_suffix_traps(self):
+        # "bölüm"→BOLU, "karşı"→KARS tuzakları tetiklenmemeli
+        intent = _extract_intent("gastronomi bölümü nasıl bir bölüm")
+        assert intent is None  # tanıtım sorusu → RAG'e gitmeli
+        i2 = _extract_intent("tıp bölümüne karşı ilgim var mı bilmiyorum")
+        assert i2 is None or "KARS" not in i2.get("cities", [])
+        # Gerçek şehir ekleri çalışmaya devam etmeli
+        i3 = _extract_intent("boluda tıp var mı")
+        assert i3 is not None and "BOLU" in i3["cities"]
+
     def test_university_detection(self):
         from unisense.application.services.recommendation_service import detect_universities
 
