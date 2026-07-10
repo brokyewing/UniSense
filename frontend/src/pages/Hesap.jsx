@@ -317,6 +317,84 @@ function NetInput({ field, value, onChange }) {
 }
 
 
+/** KPSS: puan + bölümle başvurulabilir kadroları listeler (2026/1 dönemi) */
+function KpssKadroPanel({ score }) {
+  const [bolum, setBolum] = useState('')
+  const [duzey, setDuzey] = useState('lisans')
+  const [res, setRes] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [err, setErr] = useState('')
+
+  async function ara() {
+    setLoading(true); setErr('')
+    try {
+      const d = await apiFetch('/api/v1/kpss/kadrolar', {
+        method: 'POST',
+        body: { bolum, duzey, puan: score > KPSS_BASE ? score : null, limit: 20 },
+      })
+      setRes(d)
+    } catch (e) { setErr(e.message) } finally { setLoading(false) }
+  }
+
+  return (
+    <div className="card space-y-3">
+      <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+        <Building2 size={14} className="text-accent-300" /> 2026/1 Kadro Ara
+        <span className="text-[10px] text-slate-500 font-normal">tercihler 9-16 Temmuz</span>
+      </h3>
+      <div className="text-[10px] text-slate-500 leading-relaxed">
+        <strong className="text-slate-400">B grubu</strong> kadroları: ÖSYM merkezi
+        yerleştirmesi (bu liste). <strong className="text-slate-400">A grubu</strong>
+        (müfettiş/uzman yrd. gibi kariyer meslekleri) kurumların kendi sınavlarıyla
+        alınır, merkezi listede yer almaz.
+      </div>
+      <div className="flex gap-2">
+        <input
+          value={bolum}
+          onChange={(e) => setBolum(e.target.value)}
+          placeholder="Bölümün (örn: bilgisayar mühendisliği)"
+          className="input-glass text-sm flex-1"
+        />
+        <select value={duzey} onChange={(e) => setDuzey(e.target.value)}
+          className="input-glass text-sm !w-32">
+          <option value="lisans">Lisans</option>
+          <option value="önlisans">Önlisans</option>
+          <option value="ortaöğretim">Ortaöğretim</option>
+        </select>
+      </div>
+      <button onClick={ara} disabled={loading || !bolum.trim()}
+        className="btn-primary w-full text-sm disabled:opacity-50">
+        {loading ? <Loader2 size={14} className="animate-spin inline" /> : 'Başvurabileceğim kadroları bul'}
+      </button>
+      {err && <div className="text-xs text-rose-400">{err}</div>}
+      {res && (
+        <div className="space-y-2">
+          <div className="text-xs text-slate-400">
+            {res.total} kadro bulundu {score > KPSS_BASE && `(puanına uygun olanlar)`}
+          </div>
+          <div className="max-h-72 overflow-y-auto space-y-1.5 pr-1">
+            {res.items.map((k) => (
+              <div key={k.kadro_kodu} className="rounded-lg bg-black/20 px-3 py-2 text-xs">
+                <div className="text-slate-200 font-medium">{k.unvan} · {k.il}</div>
+                <div className="text-slate-400 text-[11px]">{k.kurum}</div>
+                <div className="flex gap-3 mt-1 text-[10px]">
+                  <span className="text-slate-500">Kontenjan: {k.kontenjan ?? '?'}</span>
+                  {k.gecmis_taban
+                    ? <span className="text-amber-300">Geçen dönem taban: {k.gecmis_taban.toFixed(2)}</span>
+                    : <span className="text-slate-600">geçmiş taban verisi yok</span>}
+                  <span className="text-accent-300">{k.eslesme}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="text-[10px] text-slate-600">{res.uyari}</div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+
 export default function Hesap() {
   const navigate = useNavigate()
   const { user, isAuthed } = useAuth()
@@ -476,6 +554,12 @@ export default function Hesap() {
       } else if (tab === 'TYT' && result.finalScore > 100) {
         profilePatch.scoreType = 'TYT'
         profilePatch.score = parseFloat(result.finalScore.toFixed(2))
+      } else if (tab === 'KPSS' && result.finalScore > KPSS_BASE) {
+        // KPSS puanı profile ayrı alanda tutulur (YKS scoreType'ı bozmaz)
+        profilePatch.kpss = {
+          score: parseFloat(result.finalScore.toFixed(2)),
+          updatedAt: Date.now(),
+        }
       }
       await updateUserProfile(user.uid, profilePatch)
       setSavedMsg({
@@ -704,11 +788,14 @@ export default function Hesap() {
                 {tab === 'DGS' && aobp > 0 && (
                   <span>AOBP: +{aobp.toFixed(1)}</span>
                 )}
-                {tab !== 'DGS' && obp > 0 && (
+                {tab !== 'DGS' && tab !== 'KPSS' && obp > 0 && (
                   <span>OBP: +{(obp * OBP_MULT).toFixed(1)}</span>
                 )}
               </div>
             </motion.div>
+
+            {/* KPSS: aktif dönem kadro arama */}
+            {tab === 'KPSS' && <KpssKadroPanel score={result.finalScore} />}
 
             {/* Yaklaşık olduğunu açıklayan info */}
             <div className="text-[10px] text-slate-500 px-3 py-2 rounded-lg bg-white/5 border border-white/10 flex items-start gap-2">
@@ -722,7 +809,7 @@ export default function Hesap() {
             {/* Aksiyonlar */}
             <button
               onClick={handleSave}
-              disabled={saving || result.finalScore <= 100}
+              disabled={saving || result.finalScore <= (tab === 'KPSS' ? KPSS_BASE : 100)}
               className="btn-primary w-full inline-flex items-center justify-center gap-2 disabled:opacity-40"
             >
               {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}

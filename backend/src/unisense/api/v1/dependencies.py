@@ -29,3 +29,8 @@ def compass_service_dep() -> CompassService:
 
 def compare_service_dep() -> CompareService:
     return _di_compare()
+
+
+def kpss_service_dep():
+    from unisense.core.di import get_kpss_service
+    return get_kpss_service()

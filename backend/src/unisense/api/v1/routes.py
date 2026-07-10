@@ -11,6 +11,7 @@ from unisense.api.v1.dependencies import (
     ask_service_dep,
     compare_service_dep,
     compass_service_dep,
+    kpss_service_dep,
     recommendation_service_dep,
 )
 from unisense.api.v1.schemas import (
@@ -27,6 +28,8 @@ from unisense.api.v1.schemas import (
     CompassTextRequest,
     DocResponse,
     HealthResponse,
+    KpssKadroRequest,
+    KpssKadroResponse,
     ModelInfo,
     ModelsResponse,
     ProgramLookupRequest,
@@ -309,6 +312,28 @@ def programs_lookup(
     """Tercih listesindeki kodlar için sıra/taban/kontenjan bilgisini batch döner."""
     programs = svc.lookup_programs(body.codes)
     return ProgramLookupResponse(programs=programs)
+
+
+@router.post("/kpss/kadrolar", response_model=KpssKadroResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def kpss_kadrolar(
+    request: Request,
+    body: KpssKadroRequest,
+    svc=Depends(kpss_service_dep),
+) -> KpssKadroResponse:
+    """Aktif KPSS tercih dönemi kadroları — bölüm/puan/il filtresiyle.
+
+    'Bilgisayar mühendisi hangi kadrolara başvurabilir?' → nitelik kodu
+    eşleşmesi + geçmiş dönem taban puanı karşılaştırması.
+    """
+    result = svc.kadro_ara(
+        bolum=body.bolum,
+        puan=body.puan,
+        duzey=body.duzey,
+        il=body.il,
+        limit=body.limit,
+    )
+    return KpssKadroResponse(**result)
 
 
 @router.post("/programs/compare", response_model=CompareResponse)

@@ -56,6 +56,12 @@ def get_compass_service() -> CompassService:
 
 
 @lru_cache(maxsize=1)
+def get_kpss_service():
+    from unisense.application.services.kpss_service import KpssService
+    return KpssService()
+
+
+@lru_cache(maxsize=1)
 def get_compare_service() -> CompareService:
     from unisense.application.services.compare_service import CompareService
     return CompareService()
@@ -65,6 +71,6 @@ def reset_di_cache() -> None:
     for fn in (
         get_vector_store, get_llm_provider, get_retrieval_service,
         get_ask_service, get_recommendation_service, get_compass_service,
-        get_compare_service,
+        get_compare_service, get_kpss_service,
     ):
         fn.cache_clear()

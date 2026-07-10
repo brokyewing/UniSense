@@ -441,6 +441,7 @@ function YksTab({ user }) {
   const [scoreType, setScoreType] = useState('SAY')
   const [score, setScore] = useState('')
   const [rank, setRank] = useState('')
+  const [kpssScore, setKpssScore] = useState('')  // KPSS GY-GK (Hesap'tan da dolar)
   const [cities, setCities] = useState('')
   const [uniType, setUniType] = useState('all')
   const [interests, setInterests] = useState([])
@@ -461,6 +462,7 @@ function YksTab({ user }) {
         if (Array.isArray(p.preferredCities)) setCities(p.preferredCities.join(', '))
         if (p.preferredUniType) setUniType(p.preferredUniType)
         if (Array.isArray(p.preferredInterests)) setInterests(p.preferredInterests)
+        if (p.kpss?.score != null) setKpssScore(String(p.kpss.score))
       } catch (e) {
         console.warn(e)
       } finally {
@@ -488,6 +490,7 @@ function YksTab({ user }) {
           .filter(Boolean),
         preferredUniType: uniType,
         preferredInterests: interests,
+        kpss: kpssScore ? { score: parseFloat(kpssScore), updatedAt: Date.now() } : null,
       })
       setMsg({ type: 'success', text: 'YKS profilin kaydedildi. Tercih sayfasında otomatik kullanılacak.' })
     } catch (e) {
@@ -568,6 +571,20 @@ function YksTab({ user }) {
             value={rank}
             onChange={(e) => setRank(e.target.value)}
             placeholder="örn: 5000"
+            className="input-glass"
+          />
+        </div>
+        <div>
+          <label className="text-xs text-slate-400 mb-1 block">
+            KPSS Puanın <span className="text-slate-600">(GY-GK, varsa)</span>
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            min="0" max="120"
+            value={kpssScore}
+            onChange={(e) => setKpssScore(e.target.value)}
+            placeholder="örn: 85.40 — Hesap sayfasından da dolar"
             className="input-glass"
           />
         </div>

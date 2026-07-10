@@ -141,3 +141,20 @@ class TestCacheKey:
     def test_history_changes_key(self):
         with_history = self._q(history=[ChatTurn(role="user", text="önceki mesaj")])
         assert _make_cache_key(self._q(), "gemini") != _make_cache_key(with_history, "gemini")
+
+
+class TestKpssService:
+    def test_kadro_ara_bolum_filtresi(self):
+        from unisense.application.services.kpss_service import KpssService
+
+        r = KpssService().kadro_ara(bolum="bilgisayar mühendisliği", duzey="lisans")
+        assert r["total"] > 5
+        assert any(i["eslesme"] == "bölüme özel" for i in r["items"])
+        # geçmiş taban eşleşmesi en az bazı kadrolarda olmalı
+        assert any(i["gecmis_taban"] for i in r["items"])
+
+    def test_kadro_ara_ascii(self):
+        from unisense.application.services.kpss_service import KpssService
+
+        r = KpssService().kadro_ara(bolum="hemsirelik", duzey="lisans")
+        assert r["total"] >= 1

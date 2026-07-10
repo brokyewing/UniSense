@@ -197,6 +197,36 @@ class ProgramLookupResponse(BaseModel):
     programs: list[ProgramLookupItem]
 
 
+# === KPSS Kadro Arama ===
+
+class KpssKadroRequest(BaseModel):
+    bolum: str = Field(default="", max_length=120)
+    puan: float | None = Field(None, ge=0, le=120)
+    duzey: str | None = Field(None, pattern="^(lisans|önlisans|ortaöğretim)$")
+    il: str | None = Field(None, max_length=40)
+    limit: int = Field(default=30, ge=1, le=100)
+
+
+class KpssKadroItem(BaseModel):
+    kadro_kodu: str
+    kurum: str
+    unvan: str
+    il: str = ""
+    duzey: str
+    puan_turu: str
+    kontenjan: int | None = None
+    eslesme: str = ""
+    gecmis_taban: float | None = None
+    nitelik_aciklama: str = ""
+
+
+class KpssKadroResponse(BaseModel):
+    donem: str
+    total: int
+    items: list[KpssKadroItem]
+    uyari: str = ""
+
+
 # === Bölüm Karşılaştırma ===
 
 class CompareRequest(BaseModel):
