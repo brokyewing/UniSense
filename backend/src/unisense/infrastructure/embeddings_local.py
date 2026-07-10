@@ -56,19 +56,35 @@ def _load_model():
     table = data["table"]                        # int8 (V, dim)
     scales = data["scales"].astype(np.float32)   # (V,)
     weights = data["weights"].astype(np.float32) # (V,) idf
-    word_to_id = {w: i for i, w in enumerate(data["vocab"].tolist())}
+    vocab = data["vocab"].tolist()
+    word_to_id = {w: i for i, w in enumerate(vocab)}
+    # ASCII-yazım toleransı: "tip" → "tıp" satırına düşsün. Fold çakışmasında
+    # ilk (alfabetik) kelime kazanır — retrieval için kabul edilebilir.
+    from unisense.core.text import fold_tr
+
+    fold_to_id: dict[str, int] = {}
+    for w, i in word_to_id.items():
+        fold_to_id.setdefault(fold_tr(w), i)
     logger.info("static_model_ready", vocab=table.shape[0], dim=table.shape[1])
-    return table, scales, weights, word_to_id
+    return table, scales, weights, word_to_id, fold_to_id
 
 
 def embed_texts_local(texts: list[str]) -> np.ndarray:
     """Metinleri statik tabloyla embed eder (normalize float32)."""
-    table, scales, weights, word_to_id = _load_model()
+    from unisense.core.text import fold_tr
+
+    table, scales, weights, word_to_id, fold_to_id = _load_model()
     dim = table.shape[1]
 
     out = np.zeros((len(texts), dim), dtype=np.float32)
     for i, text in enumerate(texts):
-        ids = [word_to_id[w] for w in _tokenize(text or "") if w in word_to_id]
+        ids = []
+        for w in _tokenize(text or ""):
+            wid = word_to_id.get(w)
+            if wid is None:
+                wid = fold_to_id.get(fold_tr(w))  # ASCII yazım fallback'i
+            if wid is not None:
+                ids.append(wid)
         if not ids:
             continue
         idx = np.array(ids, dtype=np.int64)

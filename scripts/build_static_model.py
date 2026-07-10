@@ -19,12 +19,14 @@ from __future__ import annotations
 import json
 import math
 import re
+import sys
 from collections import Counter
 from pathlib import Path
 
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "backend" / "src"))
 OUT = ROOT / "backend" / "data" / "embeddings" / "static_model.npz"
 CHUNKS = ROOT / "backend" / "data" / "processed" / "chunks.json"
 
@@ -81,8 +83,15 @@ def main() -> None:
     except Exception as e:  # noqa: BLE001
         print(f"   ⚠️ liste alınamadı ({e}) — sadece korpus sözlüğüyle devam")
 
+    # Fold çakışması kuralı: genel listeden gelen kelime, bir KORPUS
+    # kelimesinin ASCII karşılığıysa EKLENMEZ ("tip" ↔ "tıp"). Böylece
+    # kullanıcı ASCII yazınca fold fallback'i doğru (domain) kelimeye düşer;
+    # yoksa "tip" kendi (alakasız) vektörüyle eşleşirdi.
+    from unisense.core.text import fold_tr
+    corpus_folds = {fold_tr(w) for w in corpus_vocab}
+
     for w, f in general[:40_000]:
-        if w not in corpus_vocab:
+        if w not in corpus_vocab and fold_tr(w) not in corpus_folds:
             corpus_vocab.add(w)
             # Genel-frekansı korpus ölçeğine kabaca indirgeyip idf'e kat
             freq[w] = max(MIN_FREQ, f // 1000)

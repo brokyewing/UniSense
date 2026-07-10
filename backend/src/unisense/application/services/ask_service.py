@@ -112,12 +112,14 @@ _GEO_PATTERNS = [
 
 # 81 il — sorgudan şehir tespiti için (geo.REGIONS'tan düzleştirilmiş)
 def _city_patterns() -> list[tuple["re.Pattern[str]", str]]:
+    from unisense.core.text import fold_tr
     from unisense.domain.geo import REGIONS
 
     pats = []
     for cities in REGIONS.values():
         for city in cities:
-            low = _tr_lower(city)
+            # fold'lu anahtar: "sanliurfa" da "şanlıurfa" da yakalanır
+            low = fold_tr(city)
             # "istanbul", "istanbul'da", "istanbuldaki" — ek almış halleri de yakala
             pats.append((re.compile(rf"\b{re.escape(low)}"), city))
     return pats
@@ -186,19 +188,25 @@ def _extract_intent(query: str) -> dict | None:
         if pat.search(q):
             geo_flags.append(label)
 
+    # Şehir + bölüm eşleşmeleri fold'lu yapılır — kullanıcı "istanbul tip"
+    # yazsa da (ASCII) "İstanbul tıp" yazsa da yakalanır
+    from unisense.core.text import fold_tr
+
+    qf = fold_tr(query)
+
     # Şehirler (81 il, ek almış halleriyle)
     global _CITY_PATTERNS
     if _CITY_PATTERNS is None:
         _CITY_PATTERNS = _city_patterns()
     cities: list[str] = []
     for pat, city in _CITY_PATTERNS:
-        if pat.search(q):
+        if pat.search(qf):
             cities.append(city)
 
-    # Bölüm anahtar kelimeleri
+    # Bölüm anahtar kelimeleri (fold'lu kıyas, orijinal kw döner)
     departments: list[str] = []
     for kw in _DEPT_KEYWORDS:
-        if kw in q:
+        if fold_tr(kw) in qf:
             departments.append(kw)
 
     # Üniversite adları (Hacettepe, Boğaziçi... — veri destekli, cache'li)

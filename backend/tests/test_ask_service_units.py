@@ -62,6 +62,29 @@ class TestListingIntent:
         # Şehir adı tek başına üniversiteye bağlanmamalı
         assert detect_universities("istanbul gezilecek yerler") == []
 
+    def test_ascii_typing_tolerance(self):
+        """Mobil klavye ASCII yazımı ("cerrahpasa tip") da çalışmalı."""
+        from unisense.application.services.recommendation_service import detect_universities
+
+        assert detect_universities("cerrahpasa tip siralamasi") != []
+        assert detect_universities("bogazici bilgisayar") != []
+
+        intent = _extract_intent("istanbul tip fakulteleri kac puan")
+        assert intent is not None
+        assert "İSTANBUL" in intent["cities"]
+        assert "tıp" in intent["departments"]
+
+    def test_embed_fold_fallback(self):
+        """ASCII sorgu, Türkçe karakterli sorguyla neredeyse aynı vektörü vermeli."""
+        import numpy as np
+
+        from unisense.infrastructure.embeddings import embed_query
+
+        v1 = embed_query("tıp fakültesi sıralaması")
+        v2 = embed_query("tip fakultesi siralamasi")
+        # Homograf temizliği yapılmış modelde ~1.0; eski modelde de yüksek olmalı
+        assert float(np.dot(v1, v2)) > 0.85
+
     def test_listing_returns_programs(self):
         from unisense.core.di import get_recommendation_service
 

@@ -84,24 +84,44 @@ _CITY_AMBIGUOUS = {
 
 @lru_cache(maxsize=1)
 def _uni_name_index() -> list[tuple[str, str, bool]]:
-    """(arama_anahtarı, uni_code, şehir_adı_mı) listesi — uzun anahtar önce."""
+    """(arama_anahtarı, uni_code, şehir_adı_mı) listesi — uzun anahtar önce.
+
+    Anahtarlar fold'lanır (aksansız): "cerrahpasa" da "cerrahpaşa" da eşleşir.
+    """
+    from unisense.core.text import fold_tr
+
     _, _, uni_lookup = _load_data()
     import re as _re
 
-    index: list[tuple[str, str, bool]] = []
+    # 1. tur: tam anahtarlar (tire → boşluk: "istanbul universitesi-cerrahpasa"
+    # → "istanbul cerrahpasa")
+    keys_by_code: dict[str, str] = {}
     for code, uni in uni_lookup.items():
-        name = _tr_lower(uni.get("name", ""))
+        name = fold_tr(uni.get("name", "")).replace("-", " ")
         # "(ANKARA)", "(KKTC-GAZİMAĞUSA)" gibi şehir eklerini at
         name = _re.sub(r"\(.*?\)", " ", name)
-        for word in ("üniversitesi", "üniversite", "university"):
+        for word in ("universitesi", "universite", "university"):
             name = name.replace(word, " ")
         key = " ".join(name.split()).strip()
-        if len(key) < 3:
-            continue
-        # Kısa adlar ("koç") ve şehir adları yanlış eşleşir — bunlar için
-        # "X üniversitesi / X üni" öbeği zorunlu
+        if len(key) >= 3:
+            keys_by_code[code] = key
+
+    # 2. tur: çok kelimeli adların AYIRT EDİCİ kelimeleri de anahtar olsun
+    # ("istanbul cerrahpasa" → "cerrahpasa"). Sadece TÜM üniversiteler içinde
+    # benzersiz + yeterince uzun kelimeler — "teknik", "anadolu" gibi
+    # çakışanlar/kısalar eklenmez (yanlış eşleşme riski).
+    word_freq: dict[str, int] = {}
+    for key in keys_by_code.values():
+        for w in set(key.split()):
+            word_freq[w] = word_freq.get(w, 0) + 1
+
+    index: list[tuple[str, str, bool]] = []
+    for code, key in keys_by_code.items():
         needs_phrase = key in _CITY_AMBIGUOUS or len(key) <= 4
         index.append((key, code, needs_phrase))
+        for w in key.split():
+            if len(w) >= 6 and word_freq[w] == 1 and w not in _CITY_AMBIGUOUS and w != key:
+                index.append((w, code, False))
     index.sort(key=lambda x: -len(x[0]))
     return index
 
@@ -111,12 +131,17 @@ def detect_universities(query: str) -> list[str]:
 
     "hacettepe tıp kaç puan" → [Hacettepe kodu]. Şehir adlı üniversiteler
     ("İstanbul Üniversitesi") için "X üniversitesi" öbeği aranır.
+    Sorgu ve anahtarlar fold'lu karşılaştırılır (ASCII yazım toleransı).
     """
-    q = _tr_lower(query)
+    from unisense.core.text import fold_tr
+
+    q = fold_tr(query)
     found: list[str] = []
     for key, code, ambiguous in _uni_name_index():
+        if code in found:
+            continue  # aynı üni hem tam adla hem kelimeyle eşleşebilir
         if ambiguous:
-            if f"{key} üniversitesi" in q or f"{key} üni " in q:
+            if f"{key} universitesi" in q or f"{key} uni " in q:
                 found.append(code)
         elif key in q:
             found.append(code)
