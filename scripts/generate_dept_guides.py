@@ -103,12 +103,17 @@ def main() -> None:
                     break
                 text = None
             except Exception as e:  # noqa: BLE001
-                msg = str(e)[:100]
-                if "429" in msg or "quota" in msg.lower():
-                    print(f"   ⏳ kota: key{ki}×{model_name} devre dışı")
-                    dead.add((ki, model_name))
+                msg = str(e)
+                if "429" in msg[:60] or "quota" in msg[:200].lower():
+                    if "PerDay" in msg:
+                        # Günlük kota gerçekten bitti — bu kombo bugünlük ölü
+                        print(f"   ⏳ günlük kota: key{ki}×{model_name} devre dışı")
+                        dead.add((ki, model_name))
+                    else:
+                        # Dakikalık patlama — bekle, kombo YAŞIYOR
+                        time.sleep(20)
                 else:
-                    print(f"   ⚠️ {g['name']}: {msg}")
+                    print(f"   ⚠️ {g['name']}: {msg[:100]}")
         if text:
             guides[g["name"]] = {
                 "name": g["name"],
