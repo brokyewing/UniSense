@@ -71,13 +71,16 @@ class Settings(BaseSettings):
     @field_validator("gemini_api_keys")
     @classmethod
     def _validate_keys(cls, v: str) -> str:
+        # İki geçerli format var:
+        #   AIza... → eski Standard key (Google Eylül 2026'da tamamen kapatıyor!)
+        #   AQ.  ... → yeni Auth key (Haziran 2026'dan beri varsayılan)
         if not v.strip():
             return v
         keys = [k.strip() for k in v.split(",") if k.strip()]
         for k in keys:
-            if not k.startswith("AIza"):
+            if not (k.startswith("AIza") or k.startswith("AQ.")):
                 # Key içeriğini hata mesajına yazma — loglara sızmasın
-                raise ValueError("Invalid Gemini key format (must start with 'AIza')")
+                raise ValueError("Invalid Gemini key format (must start with 'AIza' or 'AQ.')")
         return v
 
     @property

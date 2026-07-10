@@ -267,6 +267,36 @@ def build_wikipedia_chunks(wiki_data: list[dict]) -> list[dict]:
 _uni_name_lookup: dict[str, str] = {}
 
 
+def build_dept_guide_chunks(guides: list[dict]) -> list[dict]:
+    """Bölüm/meslek tanıtım chunk'ları (dept_guides.json'dan).
+
+    "X bölümü ne iş yapar?" sorularına kaynaklı cevap sağlar. Kaynak alanı
+    şeffaf: yapay zeka destekli özet olduğu belirtilir.
+    """
+    chunks = []
+    for g in guides:
+        name = g.get("name", "")
+        content = (g.get("content") or "").strip()
+        if not name or len(content) < 100:
+            continue
+        chunks.append({
+            "chunk_id": f"guide_{name.replace(' ', '_')[:60]}",
+            "content": f"📖 {name} — Bölüm Rehberi\n\n{content}",
+            "chunk_type": "dept_guide",
+            "university_code": "",
+            "department_code": "",
+            "department_group": name,
+            "score_type": "",
+            "year": 2026,
+            "city": "",
+            "heading": f"{name} nedir, mezunları ne iş yapar?",
+            "source": "Bölüm Rehberi (yapay zeka destekli özet)",
+            "source_url": "",
+            "language": "tr",
+        })
+    return chunks
+
+
 def main() -> None:
     # backend/src/unisense/cli/build_chunks.py
     # parents[0]=cli, [1]=unisense, [2]=src, [3]=backend
@@ -306,7 +336,15 @@ def main() -> None:
     wiki_chunks = build_wikipedia_chunks(wiki_data) if wiki_data else []
     print(f"   Wikipedia chunks: {len(wiki_chunks)}")
 
-    all_chunks = program_chunks + uni_summary_chunks + wiki_chunks
+    # Bölüm rehberleri (varsa — scripts/generate_dept_guides.py üretir)
+    guide_file = proc / "dept_guides.json"
+    guide_chunks = []
+    if guide_file.exists():
+        guides = json.load(open(guide_file, encoding="utf-8"))
+        guide_chunks = build_dept_guide_chunks(guides)
+        print(f"   Bölüm rehberi chunks: {len(guide_chunks)}")
+
+    all_chunks = program_chunks + uni_summary_chunks + wiki_chunks + guide_chunks
 
     # chunk_index renumber
     for i, c in enumerate(all_chunks):
