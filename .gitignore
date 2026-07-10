@@ -63,3 +63,7 @@ backend/embed_log*.txt
 backend/infobox_log.txt
 backend/_housing_probe.py
 backend/data/embeddings/
+
+# Kok dizinde yanlislikla olusan test artiklari
+/data/
+_e2e*.txt
