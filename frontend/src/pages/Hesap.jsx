@@ -20,16 +20,16 @@
  *   100 + 5.0×Yabancı Dil
  *
  * YERLEŞTİRME (lisans):
- *   = TYT × 0.4 + AYT × 0.6 + OBP × 0.12
+ *   = 100 + TYT_netleri×(~1.32) + AYT_netleri×(~3.0) + OBP×0.12  (ÖSYM tek formülü)
+ *   TYT'nin %40 ağırlığı küçük katsayılara gömülüdür; tam net + tam OBP = 560
  *
  * OBP (Ortaöğretim Başarı Puanı):
  *   100'lük diploma notu × 5 = OBP (max 500)
  *   Örn: 85 → OBP 425, +51 puan eklenir
  *
- * DGS (önlisans → lisans):
- *   DGS_HAM = 100 + 3.0×Say + 3.0×Söz
- *   AOBP   = (GPA × 25) × 0.5  (4'lük GPA)
- *   DGS_PUAN = DGS_HAM + AOBP
+ * DGS (önlisans → lisans) — üç puan türü, farklı ağırlıklar:
+ *   SAY = 100 + 3.3×Say + 2.2×Söz | EA = 2.75/2.75 | SÖZ = 2.2/3.3 (+AÖBP)
+ *   AOBP = (GPA × 25) × 0.5  (4'lük GPA)
  *
  * NOT: Yaklaşık formüller. Gerçek ÖSYM puanları norm tablosuyla
  * standardize ediliyor — sapma ±5-10 puan olabilir.
@@ -51,15 +51,25 @@ import { apiFetch } from '../lib/api'
 const TYT_BIAS = 100
 const AYT_BIAS = 100
 const OBP_MULT = 0.12          // ÖSYM yerleştirme puanına eklenen OBP katsayısı
-const TYT_W = 0.4              // YERLEŞTİRME = 0.4*TYT + 0.6*AYT
-const AYT_W = 0.6
 
-// TYT ders katsayıları (max 500'e ulaşacak şekilde)
+// TYT ders katsayıları — SADECE TYT puanı için (max 100+400=500)
 const TYT_COEF = {
   tyt_tr:  3.3,   // 40 × 3.3 = 132
   tyt_sos: 3.4,   // 20 × 3.4 = 68
   tyt_mat: 3.3,   // 40 × 3.3 = 132
   tyt_fen: 3.4,   // 20 × 3.4 = 68
+}
+
+// ÖSYM SAY/EA/SÖZ/DİL yerleştirme puanı TEK formüldür:
+//   PUAN = 100 + Σ(TYT netleri × ~1.32) + Σ(AYT netleri × ~3.0) + OBP×0.12
+// TYT'nin %40 ağırlığı bu küçük katsayılara GÖMÜLÜdür (max 160 + 240 = 400).
+// ESKİ HATA: AYT katsayıları tek-formül değerleriyken üstüne bir de
+// 0.4×TYT + 0.6×AYT uygulanıyordu → çifte indirim → tam nette 460 çıkıyordu.
+const TYT_PLACEMENT_COEF = {
+  tyt_tr:  1.32,  // 40 × 1.32 = 52.8
+  tyt_sos: 1.36,  // 20 × 1.36 = 27.2
+  tyt_mat: 1.32,  // 40 × 1.32 = 52.8
+  tyt_fen: 1.36,  // 20 × 1.36 = 27.2   → TYT bloğu max ≈ 160
 }
 // SAY: 40m + 14f + 13k + 13b
 const AYT_SAY_COEF = {
@@ -83,10 +93,18 @@ const AYT_SOZ_COEF = {
   ayt_tar2: 2.91,
   ayt_cog2: 2.91,
   ayt_fel:  2.67,
-  ayt_din:  5.33,
+  ayt_din:  4.0,   // 6 × 4.0 = 24 → AYT bloğu toplam ≈ 240 (5.33 tavanı taşırıyordu)
 }
-const AYT_DIL_COEF = { ayt_dil: 5.0 }  // 80 × 5.0 = 400 + 100 = 500
-const DGS_COEF = { dgs_say: 3.0, dgs_soz: 3.0 }
+const AYT_DIL_COEF = { ayt_dil: 3.0 }  // 80 × 3.0 = 240 (tek formülde TYT 160 + 240 = 400)
+
+// DGS: puan türüne göre ağırlık farklıdır — sayısalcıya SAY testi,
+// sözelciye SÖZ testi daha çok puan getirir (ÖSYM standart puan modeli
+// yaklaşıklaması; kesin değer aday kitlesine göre değişir)
+const DGS_COEF_BY_TYPE = {
+  SAY: { dgs_say: 3.3, dgs_soz: 2.2 },  // max ≈ 100+330 = 430 + AÖBP
+  EA:  { dgs_say: 2.75, dgs_soz: 2.75 },
+  SÖZ: { dgs_say: 2.2, dgs_soz: 3.3 },
+}
 
 // === TYT şablonu (40 Türkçe, 20 Sosyal, 40 Mat, 20 Fen — toplam 120)
 const TYT_FIELDS = [
@@ -179,7 +197,7 @@ function tytHam(nets) {
   return w > 0 ? w + TYT_BIAS : 0
 }
 
-function aytHam(nets, type) {
+function aytWeighted(nets, type) {
   const coefMap =
     type === 'SAY' ? AYT_SAY_COEF
     : type === 'EA' ? AYT_EA_COEF
@@ -187,23 +205,27 @@ function aytHam(nets, type) {
     : type === 'DİL' ? AYT_DIL_COEF
     : null
   if (!coefMap) return 0
-  const w = weightedSum(nets, coefMap)
-  return w > 0 ? w + AYT_BIAS : 0
+  return weightedSum(nets, coefMap)  // max ≈ 240
 }
 
-function dgsHam(nets) {
-  const w = weightedSum(nets, DGS_COEF)
-  return w > 0 ? w + 100 : 0
-}
-
-// === Yerleştirme puanı (TYT %40 + AYT %60 + OBP × 0.12)
-function placementScore(tytH, aytH, obp) {
-  const obpAdd = obp * OBP_MULT
-  if (aytH > 0 && tytH > 0) {
-    return TYT_W * tytH + AYT_W * aytH + obpAdd
+// === DGS puanları — üç tür birden (SAY/EA/SÖZ farklı ağırlıklarla)
+function dgsScores(nets, aobp) {
+  const out = {}
+  for (const [type, coef] of Object.entries(DGS_COEF_BY_TYPE)) {
+    const w = weightedSum(nets, coef)
+    out[type] = w > 0 ? 100 + w + aobp : 0
   }
-  if (tytH > 0) return tytH + obpAdd
-  return 0
+  return out
+}
+
+// === SAY/EA/SÖZ/DİL yerleştirme puanı — ÖSYM tek formülü:
+//   100 + TYT netleri×küçük katsayı (max 160) + AYT netleri (max 240) + OBP×0.12
+//   Tam net + tam OBP = 100 + 400 + 60 = 560 ✓
+function placementScore(nets, type, obp) {
+  const aytW = aytWeighted(nets, type)
+  if (aytW <= 0) return 0
+  const tytW = weightedSum(nets, TYT_PLACEMENT_COEF)
+  return 100 + tytW + aytW + obp * OBP_MULT
 }
 
 
@@ -348,21 +370,23 @@ export default function Hesap() {
       }
     }
     if (tab === 'DGS') {
-      const dgsH = dgsHam(nets)
+      const scores = dgsScores(nets, aobp)  // {SAY, EA, SÖZ} — AÖBP dahil
+      const best = Math.max(scores.SAY, scores.EA, scores['SÖZ'])
       return {
         scoreType: 'DGS',
-        ham: dgsH,
-        finalScore: dgsH + aobp,  // AOBP doğrudan eklenir (× 0.5 zaten içeride)
-        label: 'DGS Yerleştirme Puanı',
+        ham: best > 0 ? best - aobp : 0,
+        dgsScores: scores,
+        finalScore: best,
+        label: 'DGS Puanları (SAY / EA / SÖZ)',
       }
     }
-    // AYT türleri
-    const aytH = aytHam(nets, tab)
+    // SAY/EA/SÖZ/DİL — ÖSYM tek formülü (TYT katkısı katsayılara gömülü)
+    const finalScore = placementScore(nets, tab, obp)
     return {
       scoreType: tab,
-      ham: aytH,
+      ham: finalScore > 0 ? finalScore - obp * OBP_MULT : 0,
       tytHam: tytH,
-      finalScore: placementScore(tytH, aytH, obp),
+      finalScore,
       label: `${tab} Yerleştirme Puanı`,
     }
   }, [nets, obp, aobp, tab])
@@ -617,9 +641,22 @@ export default function Hesap() {
               className="card border-amber-500/40 bg-gradient-to-br from-amber-500/10 to-rose-500/10 text-center py-6"
             >
               <div className="text-xs text-slate-400 uppercase tracking-wider">{result.label}</div>
-              <div className="text-5xl font-display font-bold mt-2 bg-gradient-to-br from-amber-300 to-rose-400 bg-clip-text text-transparent">
-                {result.finalScore > 100 ? result.finalScore.toFixed(2) : '—'}
-              </div>
+              {result.dgsScores ? (
+                <div className="mt-3 grid grid-cols-3 gap-2 px-4">
+                  {['SAY', 'EA', 'SÖZ'].map((t) => (
+                    <div key={t} className="rounded-xl bg-black/20 py-3">
+                      <div className="text-[10px] text-slate-400">{t}</div>
+                      <div className="text-2xl font-display font-bold bg-gradient-to-br from-amber-300 to-rose-400 bg-clip-text text-transparent">
+                        {result.dgsScores[t] > 100 ? result.dgsScores[t].toFixed(1) : '—'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-5xl font-display font-bold mt-2 bg-gradient-to-br from-amber-300 to-rose-400 bg-clip-text text-transparent">
+                  {result.finalScore > 100 ? result.finalScore.toFixed(2) : '—'}
+                </div>
+              )}
               <div className="text-[10px] text-slate-500 mt-2 flex items-center justify-center gap-2">
                 {tab !== 'TYT' && tab !== 'DGS' && result.tytHam > 0 && (
                   <span>TYT ham: {result.tytHam.toFixed(1)}</span>
