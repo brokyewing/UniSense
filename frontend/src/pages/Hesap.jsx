@@ -27,8 +27,8 @@
  *   100'lük diploma notu × 5 = OBP (max 500)
  *   Örn: 85 → OBP 425, +51 puan eklenir
  *
- * DGS (önlisans → lisans) — üç puan türü, farklı ağırlıklar:
- *   SAY = 100 + 3.3×Say + 2.2×Söz | EA = 2.75/2.75 | SÖZ = 2.2/3.3 (+AÖBP)
+ * DGS (önlisans → lisans) — 50 say + 50 söz soru; üç puan türü:
+ *   SAY = 100 + 4.0×Say + 2.6×Söz | EA = 3.3/3.3 | SÖZ = 2.6/4.0 (+AÖBP)
  *   AOBP = (GPA × 25) × 0.5  (4'lük GPA)
  *
  * NOT: Yaklaşık formüller. Gerçek ÖSYM puanları norm tablosuyla
@@ -99,11 +99,12 @@ const AYT_DIL_COEF = { ayt_dil: 3.0 }  // 80 × 3.0 = 240 (tek formülde TYT 160
 
 // DGS: puan türüne göre ağırlık farklıdır — sayısalcıya SAY testi,
 // sözelciye SÖZ testi daha çok puan getirir (ÖSYM standart puan modeli
-// yaklaşıklaması; kesin değer aday kitlesine göre değişir)
+// yaklaşıklaması; kesin değer aday kitlesine göre değişir).
+// 2021+ format: 50 sayısal + 50 sözel soru.
 const DGS_COEF_BY_TYPE = {
-  SAY: { dgs_say: 3.3, dgs_soz: 2.2 },  // max ≈ 100+330 = 430 + AÖBP
-  EA:  { dgs_say: 2.75, dgs_soz: 2.75 },
-  SÖZ: { dgs_say: 2.2, dgs_soz: 3.3 },
+  SAY: { dgs_say: 4.0, dgs_soz: 2.6 },  // 50×4.0 + 50×2.6 = 330 → max ≈ 430 + AÖBP
+  EA:  { dgs_say: 3.3, dgs_soz: 3.3 },
+  SÖZ: { dgs_say: 2.6, dgs_soz: 4.0 },
 }
 
 // === TYT şablonu (40 Türkçe, 20 Sosyal, 40 Mat, 20 Fen — toplam 120)
@@ -140,10 +141,10 @@ const AYT_DIL_FIELDS = [
   { id: 'ayt_dil', label: 'YDT Yabancı Dil', max: 80 },
 ]
 
-// === DGS (önlisans mezunu için lisans geçişi)
+// === DGS (önlisans mezunu için lisans geçişi) — 2021+ format: 50+50 soru
 const DGS_FIELDS = [
-  { id: 'dgs_say', label: 'DGS Sayısal', max: 60 },
-  { id: 'dgs_soz', label: 'DGS Sözel',   max: 60 },
+  { id: 'dgs_say', label: 'DGS Sayısal',          max: 50 },
+  { id: 'dgs_soz', label: 'DGS Sözel (Türkçe)',   max: 50 },
 ]
 
 const TABS = [
