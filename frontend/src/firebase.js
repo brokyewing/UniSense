@@ -356,6 +356,43 @@ export async function removeFromKpssTercih(uid, code) {
   await deleteDoc(doc(db, 'users', uid, 'kpss_tercih', String(code)))
 }
 
+// === DGS TERCIH LISTESI (üçüncü ayrı alan; DGS merkezi yerleştirmede 30 tercih) ===
+
+export const MAX_DGS_TERCIH = 30
+
+export function watchDgsTercih(uid, callback) {
+  if (!db) return () => {}
+  const q = query(
+    collection(db, 'users', uid, 'dgs_tercih'),
+    orderBy('order', 'asc'),
+    limit(MAX_DGS_TERCIH)
+  )
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+  })
+}
+
+export async function addToDgsTercih(uid, prog, order) {
+  if (!db) throw new Error('Firebase yok')
+  const code = String(prog.department_code)
+  await setDoc(doc(db, 'users', uid, 'dgs_tercih', code), {
+    department_code: code,
+    program_adi: prog.program_adi || '',
+    university_name: prog.university_name || '',
+    city: prog.city || '',
+    puan_turu: prog.puan_turu || '',
+    kontenjan: prog.kontenjan ?? null,
+    min_puan: prog.min_puan ?? null,
+    order,
+    addedAt: serverTimestamp(),
+  })
+}
+
+export async function removeFromDgsTercih(uid, code) {
+  if (!db) throw new Error('Firebase yok')
+  await deleteDoc(doc(db, 'users', uid, 'dgs_tercih', String(code)))
+}
+
 // === QUERY HISTORY (basit log) ===
 
 export async function logQuery(uid, queryText, response) {

@@ -48,6 +48,16 @@ service cloud.firestore {
           && strMax('city', 100);
       }
 
+      // DGS tercih listesi (max 30)
+      match /dgs_tercih/{programKodu} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(12)
+          && strMax('program_adi', 400)
+          && strMax('university_name', 300)
+          && strMax('city', 100);
+      }
+
       // KPSS tercih listesi (max 30 — sayı sınırı client'ta, boyut burada)
       match /kpss_tercih/{kadroKodu} {
         allow read, delete: if isOwner(uid);

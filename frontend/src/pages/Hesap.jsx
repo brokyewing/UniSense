@@ -47,6 +47,7 @@ import { useAuth } from '../contexts/AuthContext'
 import {
   getUserProfile, updateUserProfile,
   watchKpssTercih, addToKpssTercih, removeFromKpssTercih, MAX_KPSS_TERCIH,
+  watchDgsTercih, addToDgsTercih, removeFromDgsTercih, MAX_DGS_TERCIH,
 } from '../firebase'
 import { useAuth as useAuthCtx } from '../contexts/AuthContext'
 import { apiFetch } from '../lib/api'
@@ -323,11 +324,36 @@ function NetInput({ field, value, onChange }) {
 
 /** DGS: hesaplanan puanlarla geçilebilecek lisans programları */
 function DgsProgramPanel({ scores }) {
+  const { user } = useAuthCtx()
   const [pt, setPt] = useState('SAY')
   const [bolum, setBolum] = useState('')
   const [res, setRes] = useState(null)
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
+  const [tercihIds, setTercihIds] = useState(new Set())
+  const [toast, setToast] = useState('')
+
+  useEffect(() => {
+    if (!user) return
+    return watchDgsTercih(user.uid, (items) =>
+      setTercihIds(new Set(items.map((i) => String(i.department_code)))))
+  }, [user])
+
+  async function toggleTercih(p) {
+    if (!user) { setToast('Tercihe eklemek için giriş yap'); setTimeout(() => setToast(''), 2500); return }
+    try {
+      if (tercihIds.has(String(p.department_code))) {
+        await removeFromDgsTercih(user.uid, p.department_code)
+      } else {
+        if (tercihIds.size >= MAX_DGS_TERCIH) {
+          setToast(`DGS tercih listesi dolu (max ${MAX_DGS_TERCIH})`); setTimeout(() => setToast(''), 2500); return
+        }
+        await addToDgsTercih(user.uid, { ...p, puan_turu: pt }, tercihIds.size + 1)
+        setToast('✓ DGS tercihine eklendi — Tercihlerim sayfasında')
+        setTimeout(() => setToast(''), 2500)
+      }
+    } catch (e) { setToast(e.message); setTimeout(() => setToast(''), 2500) }
+  }
 
   const puan = scores?.[pt] > 100 ? scores[pt] : null
 
@@ -366,13 +392,28 @@ function DgsProgramPanel({ scores }) {
           : puan ? `${puan.toFixed(1)} ${pt} puanıyla ara` : 'Tüm programları listele'}
       </button>
       {err && <div className="text-xs text-rose-400">{err}</div>}
+      {toast && <div className="text-xs text-accent-300">{toast}</div>}
       {res && (
         <div className="space-y-2">
           <div className="text-xs text-slate-400">{res.total} program bulundu</div>
           <div className="max-h-72 overflow-y-auto space-y-1.5 pr-1">
-            {res.items.map((p) => (
+            {res.items.map((p) => {
+              const inList = tercihIds.has(String(p.department_code))
+              return (
               <div key={p.department_code} className="rounded-lg bg-black/20 px-3 py-2 text-xs">
-                <div className="text-slate-200">{p.program_adi}</div>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="text-slate-200 min-w-0">{p.program_adi}</div>
+                  <button
+                    onClick={() => toggleTercih(p)}
+                    className={`shrink-0 rounded-lg px-2 py-1 text-[10px] border ${
+                      inList
+                        ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10'
+                        : 'border-white/10 text-slate-300 hover:bg-white/10'
+                    }`}
+                  >
+                    {inList ? '✓ Listede' : '+ Tercih'}
+                  </button>
+                </div>
                 <div className="flex gap-3 mt-1 text-[10px]">
                   <span className="text-slate-500">{p.city || '—'}</span>
                   <span className="text-amber-300">
@@ -381,7 +422,8 @@ function DgsProgramPanel({ scores }) {
                   <span className="text-slate-500">Kontenjan: {p.kontenjan ?? '?'}</span>
                 </div>
               </div>
-            ))}
+              )
+            })}
           </div>
           <div className="text-[10px] text-slate-600">{res.uyari}</div>
         </div>

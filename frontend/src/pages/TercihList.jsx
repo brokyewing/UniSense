@@ -30,6 +30,7 @@ import {
   updateTercihNote,
   addToTercih,
   watchKpssTercih, removeFromKpssTercih, MAX_KPSS_TERCIH,
+  watchDgsTercih, removeFromDgsTercih, MAX_DGS_TERCIH,
 } from '../firebase'
 import BackgroundScene from '../components/three/BackgroundScene'
 import { apiFetch } from '../lib/api'
@@ -432,11 +433,75 @@ function KpssTercihPanel({ user }) {
 }
 
 
+/** DGS tercih listesi — üçüncü ayrı alan (max 30) */
+function DgsTercihPanel({ user }) {
+  const [items, setItems] = useState([])
+
+  useEffect(() => {
+    if (!user) return
+    return watchDgsTercih(user.uid, setItems)
+  }, [user])
+
+  function copyAll() {
+    navigator.clipboard?.writeText(items.map((i) => i.department_code).join('\n'))
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <p className="text-sm text-slate-400">
+          {items.length} / {MAX_DGS_TERCIH} program — DGS tercihleri ÖSYM takvimindeki
+          dönemde <a href="https://ais.osym.gov.tr" target="_blank" rel="noreferrer"
+            className="text-accent-300 hover:underline">ais.osym.gov.tr</a>'de yapılır
+        </p>
+        {items.length > 0 && (
+          <button onClick={copyAll} className="btn-ghost text-xs inline-flex items-center gap-1">
+            <Copy size={12} /> Program kodlarını kopyala
+          </button>
+        )}
+      </div>
+      {items.length === 0 ? (
+        <div className="card text-center py-10 text-slate-400 text-sm">
+          DGS tercih listen boş. <br />
+          <span className="text-slate-500 text-xs">
+            Hesap → DGS sekmesinde puanını hesaplayıp "+ Tercih" ile program ekleyebilirsin.
+          </span>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {items.map((p, idx) => (
+            <div key={p.department_code} className="card !py-3 flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-accent-500/20 text-accent-300 text-xs font-bold flex items-center justify-center shrink-0">
+                {idx + 1}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm text-slate-200 font-medium truncate">{p.program_adi}</div>
+                <div className="text-[10px] text-slate-500 flex gap-3 mt-0.5">
+                  <span className="font-mono">{p.department_code}</span>
+                  <span>{p.city || '—'}</span>
+                  <span>{p.puan_turu}</span>
+                  {p.min_puan && <span className="text-amber-300">Taban: {Number(p.min_puan).toFixed(2)}</span>}
+                  <span>Kontenjan: {p.kontenjan ?? '?'}</span>
+                </div>
+              </div>
+              <button onClick={() => removeFromDgsTercih(user.uid, p.department_code)}
+                className="text-slate-500 hover:text-rose-400 text-xs shrink-0">
+                Kaldır
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+
 export default function TercihList() {
   const nav = useNavigate()
   const { user, isAuthed, loading } = useAuth()
   const [items, setItems] = useState([])
-  const [mode, setMode] = useState('YKS')  // YKS | KPSS — ayrı listeler
+  const [mode, setMode] = useState('YKS')  // YKS | DGS | KPSS — ayrı listeler
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [copiedAll, setCopiedAll] = useState(false)
@@ -709,7 +774,7 @@ export default function TercihList() {
             </h1>
             {/* YKS / KPSS ayrı listeler */}
             <div className="flex gap-1 mt-2">
-              {['YKS', 'KPSS'].map((m) => (
+              {['YKS', 'DGS', 'KPSS'].map((m) => (
                 <button key={m} onClick={() => setMode(m)}
                   className={`px-3 py-1 rounded-lg text-xs font-medium border ${
                     mode === m
@@ -783,6 +848,7 @@ export default function TercihList() {
         </div>
 
         {mode === 'KPSS' && <KpssTercihPanel user={user} />}
+        {mode === 'DGS' && <DgsTercihPanel user={user} />}
 
         {mode === 'YKS' && (<>
         {error && (

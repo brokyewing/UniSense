@@ -96,6 +96,12 @@ class TestListingIntent:
     def test_embed_fold_fallback(self):
         """ASCII sorgu, Türkçe karakterli sorguyla neredeyse aynı vektörü vermeli."""
         import numpy as np
+        import pytest
+
+        from unisense.infrastructure.embeddings_local import _model_path
+
+        if not _model_path().exists():
+            pytest.skip("static_model.npz yok (HF dataset'ten indirilir)")
 
         from unisense.infrastructure.embeddings import embed_query
 

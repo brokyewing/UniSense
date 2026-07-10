@@ -32,6 +32,13 @@ jobs:
           pip install -e . --no-deps
           pip install pytest ruff
 
+      - name: Statik embedding modelini indir (HF dataset, public)
+        working-directory: backend
+        run: |
+          mkdir -p data/embeddings
+          curl -fsSL -o data/embeddings/static_model.npz \
+            "https://huggingface.co/datasets/BrokyEwing/unisense-index/resolve/main/static_model.npz"
+
       - name: Lint (ruff)
         working-directory: backend
         run: ruff check src tests
