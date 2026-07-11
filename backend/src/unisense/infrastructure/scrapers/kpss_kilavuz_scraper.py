@@ -324,6 +324,16 @@ def _parse_ozel_kosullar(path: Path) -> dict[str, str]:
         nonlocal code, buf
         if code and buf:
             text = " ".join(buf).strip()
+            # "Bakınız: Başvurma Özel Şartları - X" pointer'ını eyleme dönük yap
+            # (BULGU #6 — asıl yaş/sağlık/güvenlik detayı kılavuzun narrative
+            # bölümünde, koda temiz eşleşmiyor; en azından kullanıcıyı yönlendir)
+            m = re.match(r"Bak[ıi]n[ıi]z:\s*Ba[şs]vurma [ÖO]zel [ŞS]artlar[ıi]\s*[-–]\s*(.+)",
+                         text)
+            if m:
+                text = (f"“{m.group(1).strip()}” için özel başvuru şartları var "
+                        "(yaş, sağlık, güvenlik soruşturması, ehliyet/sertifika "
+                        "olabilir) — kılavuzun “Başvurma Özel Şartları” bölümünden "
+                        "kontrol et.")
             if len(text) > 10:
                 out[code] = text
         code, buf = None, []
