@@ -359,6 +359,16 @@ export async function removeFromKpssTercih(uid, code) {
   await deleteDoc(doc(db, 'users', uid, 'kpss_tercih', String(code)))
 }
 
+/** KPSS/DGS tercih listelerini yeni sıraya göre topluca yeniden numarala. */
+export async function reorderSubcollection(uid, sub, orderedIds) {
+  if (!db || !Array.isArray(orderedIds) || orderedIds.length === 0) return
+  const batch = writeBatch(db)
+  orderedIds.forEach((id, idx) => {
+    batch.update(doc(db, 'users', uid, sub, String(id)), { order: idx + 1 })
+  })
+  await batch.commit()
+}
+
 // === DGS TERCIH LISTESI (üçüncü ayrı alan; DGS merkezi yerleştirmede 30 tercih) ===
 
 export const MAX_DGS_TERCIH = 30
