@@ -31,6 +31,7 @@ import {
   addToTercih,
   watchKpssTercih, removeFromKpssTercih, MAX_KPSS_TERCIH,
   watchDgsTercih, removeFromDgsTercih, MAX_DGS_TERCIH,
+  getUserProfile,
 } from '../firebase'
 import BackgroundScene from '../components/three/BackgroundScene'
 import { apiFetch } from '../lib/api'
@@ -525,6 +526,16 @@ export default function TercihList() {
     if (!user) return
     const unsub = watchTercihList(user.uid, setItems)
     return unsub
+  }, [user])
+
+  // İlk açılış sekmesi: profildeki sınav yolu (KPSS'li kullanıcı KPSS listesini görsün)
+  useEffect(() => {
+    if (!user) return
+    getUserProfile(user.uid).then((p) => {
+      const t = p?.profile?.examTrack
+      if (t === 'DGS' || t === 'KPSS') setMode(t)
+    }).catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
   // Eksik bilgileri (rank/score/quota) backend'den çek + Firestore'a backfill et
