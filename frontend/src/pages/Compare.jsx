@@ -65,16 +65,22 @@ function MiniTrend({ trend }) {
       <svg width={W} height={H} className="block">
         <path d={path} stroke="currentColor" strokeWidth="1.5" fill="none" className="text-accent-400" />
         {points.map((pt, i) => (
-          <circle key={i} cx={pt.x} cy={pt.y} r="2" className="fill-accent-300" />
+          <circle key={i} cx={pt.x} cy={pt.y} r="2.5" className="fill-accent-300">
+            <title>{pt.p.year}: sıra {pt.p.base_rank?.toLocaleString('tr-TR')}</title>
+          </circle>
         ))}
       </svg>
+      {/* Her yıl etiketi görünsün (2023 dahil) — uçlarda değil hepsi */}
       <div className="flex items-center justify-between text-[10px] text-slate-500 mt-1">
-        <span>{pts[0].year}</span>
-        <span className={`inline-flex items-center gap-0.5 ${momentumColor}`}>
-          <MomentumIcon size={10} />
-          {Math.abs(diff).toLocaleString('tr-TR')}
-        </span>
-        <span>{pts[pts.length - 1].year}</span>
+        {points.map((pt, i) => (
+          <span key={i} title={`sıra ${pt.p.base_rank?.toLocaleString('tr-TR')}`}>
+            {pt.p.year}
+          </span>
+        ))}
+      </div>
+      <div className={`flex items-center justify-center gap-0.5 text-[10px] mt-0.5 ${momentumColor}`}>
+        <MomentumIcon size={10} />
+        {Math.abs(diff).toLocaleString('tr-TR')} sıra
       </div>
     </div>
   )
