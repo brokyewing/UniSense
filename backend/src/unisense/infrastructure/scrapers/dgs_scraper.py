@@ -17,6 +17,7 @@ Kullanım: python -m unisense.infrastructure.scrapers.dgs_scraper
 """
 from __future__ import annotations
 
+import bisect
 import json
 import re
 import sys
@@ -125,68 +126,90 @@ TABLO2_KNOWN = ("https://dokuman.osym.gov.tr/pdfdokuman/2025/DGS/TERCIH/"
 _PT_SET = {"SAY", "EA", "SÖZ", "DİL"}
 
 
-def _parse_tablo2(path: Path) -> list[dict]:
-    """Önlisans alanı → geçilebilecek lisans programları (KOORDİNAT bazlı).
+_T2_Y_TOP, _T2_Y_FOOT = 128.0, 740.0
 
-    Tablo iki sütunlu; düz metin akışı sütunları karıştırır. x konumları:
-      ~26 alan kodu | ~53 alan adı | ~286 lisans adı | ~526 kod | ~566 puan türü
+
+def _parse_tablo2(path: Path) -> list[dict]:
+    """Önlisans alanı → geçilebilecek lisans programları.
+
+    Yapı (BULGU #3): her GRUP = solda bir önlisans program ailesi + sağda
+    hepsinin geçebileceği ortak lisans programları (iki bağımsız-uzunlukta
+    paralel liste). Grup sınırı = tablodaki YATAY AYRAÇ ÇİZGİLERİ (get_drawings).
+    Önceki parser 9xxx kodlu önlisans girdilerini 'grup başlığı' sanıp yanlış
+    bölüyor, lisans hedeflerini karıştırıyordu (adalet→Grafik+Hukuk gibi).
+    Kolonlar: kod x<45 | önlisans adı 45–260 | lisans adı 260–500 |
+              lisans kodu 500–555 | puan türü ≥555.
     """
     doc = fitz.open(path)
-    gruplar: list[dict] = []
-    cur: dict | None = None          # aktif alan GRUBU (9xxx başlık)
-    pending_name: str | None = None  # sağ sütun lisans adı
-    pending_code: str | None = None
-    member_open = False              # sol sütunda üye programı adı bekleniyor
+    onl: list[dict] = []   # {gy, code, name}
+    lis: list[dict] = []   # {gy, name, lkod, pt}
+    seps: list[float] = []  # grup ayraç çizgilerinin global-y'si
 
-    def _flush() -> None:
-        nonlocal cur
-        if cur and cur["lisans"]:
-            gruplar.append(cur)
-        cur = None
-
-    for page in doc:
-        # Satırları y-sırasına koy (blok sırası sütun karıştırabiliyor)
-        rows: list[tuple[float, float, str]] = []
-        for block in page.get_text("dict")["blocks"]:
-            for line in block.get("lines", []):
-                txt = " ".join(s["text"] for s in line["spans"]).strip()
-                if txt:
-                    rows.append((line["bbox"][1], line["bbox"][0], txt))
-        rows.sort()
-
-        for _y, x0, txt in rows:
-            if x0 < 45 and re.match(r"^\d{4}$", txt):
-                if txt.startswith("9"):
-                    # Yeni alan GRUBU başlığı
-                    _flush()
-                    cur = {"onlisans_kod": txt, "onlisans_adi": "",
-                           "programlar": [], "lisans": []}
-                    member_open = False
-                elif cur is not None:
-                    # Grubun üye önlisans programı (kendi koduyla)
-                    cur["programlar"].append({"kod": txt, "ad": ""})
-                    member_open = True
+    for pno, page in enumerate(doc):
+        base = pno * 1000.0
+        words = [w for w in page.get_text("words")
+                 if _T2_Y_TOP <= w[1] <= _T2_Y_FOOT]
+        # Grup ayraç çizgileri (başlık altındaki geniş yatay çizgiler)
+        for d in page.get_drawings():
+            for it in d.get("items", []):
+                if (it[0] == "l" and abs(it[1].y - it[2].y) < 1.0
+                        and abs(it[1].x - it[2].x) > 150
+                        and _T2_Y_TOP <= it[1].y <= _T2_Y_FOOT):
+                    seps.append(base + round(it[1].y, 1))
+        # Önlisans (sol): 4-haneli kod çapa, isim eklenir (çok satırlı olabilir)
+        cur: dict | None = None
+        for w in sorted((w for w in words if w[0] < 260), key=lambda w: (w[1], w[0])):
+            x0, y0, txt = w[0], w[1], w[4]
+            if x0 < 45 and re.fullmatch(r"\d{4}", txt):
+                cur = {"gy": base + y0, "code": txt, "name": ""}
+                onl.append(cur)
             elif 45 <= x0 < 260 and cur is not None:
-                if member_open and cur["programlar"]:
-                    m = cur["programlar"][-1]
-                    m["ad"] = f"{m['ad']} {txt}".strip()
-                elif not cur["programlar"]:
-                    cur["onlisans_adi"] = f"{cur['onlisans_adi']} {txt}".strip()
-                else:
-                    # kodsuz devam satırı — son üyeye ekle
-                    m = cur["programlar"][-1]
-                    m["ad"] = f"{m['ad']} {txt}".strip()
-            elif 260 <= x0 < 500 and cur is not None:
-                pending_name = f"{pending_name} {txt}".strip() if pending_name else txt
-            elif 500 <= x0 < 555 and re.match(r"^\d{4}$", txt):
-                pending_code = txt
-            elif x0 >= 555 and txt in _PT_SET and cur is not None:
-                if pending_name and pending_code:
-                    cur["lisans"].append({"ad": pending_name, "kod": pending_code,
-                                          "puan_turu": txt})
-                pending_name = pending_code = None
-    _flush()
-    return gruplar
+                cur["name"] = f"{cur['name']} {txt}".strip()
+        # Lisans (sağ): lkod çapa, isim y-bandı, puan türü aynı satırda
+        lkods = sorted(((w[1], w[4]) for w in words
+                        if 500 <= w[0] < 555 and re.fullmatch(r"\d{4}", w[4])),
+                       key=lambda t: t[0])
+        names = sorted(((w[1], w[0], w[4]) for w in words if 260 <= w[0] < 500),
+                       key=lambda t: (t[0], t[1]))
+        pts = [(w[1], w[4]) for w in words if w[0] >= 555 and w[4] in _PT_SET]
+        for i, (ly, lkod) in enumerate(lkods):
+            lo = ly - 6.0
+            hi = lkods[i + 1][0] - 6.0 if i + 1 < len(lkods) else 1e9
+            nm = " ".join(t[2] for t in names if lo <= t[0] < hi).strip()
+            nm = re.sub(r"\s*\d{1,2}$", "", nm).strip()  # sızan sayfa no'yu at
+            pt = next((p for py, p in pts if abs(py - ly) < 6.0), "")
+            if nm:
+                lis.append({"gy": base + ly, "name": nm, "lkod": lkod, "pt": pt})
+
+    seps = sorted(set(seps))
+
+    def _grp(gy: float) -> int:
+        return bisect.bisect_right(seps, gy)
+
+    groups: dict[int, dict] = {}
+    for entry in sorted(lis, key=lambda e: e["gy"]):
+        g = groups.setdefault(_grp(entry["gy"]),
+                              {"onlisans_kod": "", "onlisans_adi": "",
+                               "programlar": [], "lisans": []})
+        g["lisans"].append({"ad": entry["name"], "kod": entry["lkod"],
+                            "puan_turu": entry["pt"]})
+    for o in sorted(onl, key=lambda e: e["gy"]):
+        if not o["name"]:
+            continue
+        g = groups.setdefault(_grp(o["gy"]),
+                              {"onlisans_kod": "", "onlisans_adi": "",
+                               "programlar": [], "lisans": []})
+        g["programlar"].append({"kod": o["code"], "ad": o["name"]})
+
+    out: list[dict] = []
+    for _, g in sorted(groups.items()):
+        if not (g["lisans"] and g["programlar"]):
+            continue
+        # Temsili grup adı = ilk önlisans programı (arama sonucunda etiket olur)
+        g["onlisans_adi"] = g["programlar"][0]["ad"]
+        g["onlisans_kod"] = g["programlar"][0]["kod"]
+        out.append(g)
+    return out
 
 
 def scrape_tablo2(s: requests.Session) -> None:
