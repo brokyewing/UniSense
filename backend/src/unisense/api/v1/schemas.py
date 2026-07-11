@@ -228,6 +228,7 @@ class KpssKadroItem(BaseModel):
     kontenjan: int | None = None
     eslesme: str = ""
     gecmis_taban: float | None = None
+    ozel_kosullar: list[str] = []
     nitelik_aciklama: str = ""
 
 

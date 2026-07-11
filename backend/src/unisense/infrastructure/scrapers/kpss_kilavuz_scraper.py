@@ -27,6 +27,8 @@ if sys.platform == "win32":
 BACKEND = Path(__file__).resolve().parents[4]
 OUT_KADRO = BACKEND / "data" / "processed" / "kpss_kadrolar.json"
 OUT_NITELIK = BACKEND / "data" / "processed" / "kpss_nitelikler.json"
+OUT_ALANLAR = BACKEND / "data" / "processed" / "kpss_mezuniyet_alanlari.json"
+OUT_KOSULLAR = BACKEND / "data" / "processed" / "kpss_ozel_kosullar.json"
 CACHE = BACKEND / ".cache" / "kpss"
 
 # Varsayılan (bilinen son dönem) — keşif başarısızsa buna düşülür
@@ -65,7 +67,7 @@ def _find_kilavuz_pdfs(s: requests.Session, page_url: str) -> tuple[dict, dict]:
     """Kılavuz sayfasından tablo + nitelik PDF linklerini çıkar."""
     html = s.get(page_url, timeout=60).text
     urls = re.findall(r'href="(https://dokuman\.osym\.gov\.tr/[^"]*\.pdf)"', html, re.I)
-    tablolar, nitelikler = {}, {}
+    tablolar, nitelikler, ekler = {}, {}, {}
     for u in dict.fromkeys(urls):
         fname = u.rsplit("/", 1)[-1].lower()
         m = re.match(r"tablo(\d)_", fname)
@@ -77,7 +79,15 @@ def _find_kilavuz_pdfs(s: requests.Session, page_url: str) -> tuple[dict, dict]:
             nitelikler["önlisans"] = u
         elif "ortaogretim-nitelik" in fname:
             nitelikler["ortaöğretim"] = u
-    return tablolar, nitelikler
+        elif "mezunolunan-lisans" in fname:
+            ekler["mezun_lisans"] = u
+        elif "onlisansprg" in fname:
+            ekler["mezun_önlisans"] = u
+        elif "alandal" in fname:
+            ekler["mezun_ortaöğretim"] = u
+        elif "ozelkosullar" in fname:
+            ekler["ozelkosullar"] = u
+    return tablolar, nitelikler, ekler
 
 # Kadro kodu ilk hanesi → düzey + merkezi yerleştirme puan türü
 _LEVEL_BY_PREFIX = {"1": ("ortaöğretim", "P94"), "2": ("önlisans", "P93"),
@@ -176,28 +186,29 @@ _NITELIK_HEADERS = {"Nitelik", "Kodu", "ÖĞRENİM KOŞULU", "Mezuniyet Alanı K
 
 
 def _parse_nitelik(path: Path, duzey: str) -> dict[str, dict]:
-    """Nitelik sözlüğü: 4 haneli kod → açıklama metni.
+    """Nitelik sözlüğü: kod → açıklama + MEZUNİYET ALAN KODLARI.
 
     Sayfa düzeni: kod → çok satırlı açıklama ("... mezun olmak.") →
-    mezuniyet alanı kodları (4'lü sayı dizileri). KURAL: 4 haneli satır,
-    mevcut açıklama '.' ile bitmişse (veya hiç açıklama yoksa) YENİ koddur;
-    aksi halde açıklama sonundaki alan kodudur (atılır).
+    mezuniyet alanı kodları (4'lü sayı dizileri). Alan kodları bölüm→kadro
+    eşleşmesinin KESİN yolu (ad bazlı arama sadece yedek).
     """
     doc = fitz.open(path)
     out: dict[str, dict] = {}
     code: str | None = None
     buf: list[str] = []
+    alanlar: list[str] = []
 
     def _text() -> str:
         return " ".join(buf).strip()
 
     def _flush() -> None:
-        nonlocal code, buf
+        nonlocal code, buf, alanlar
         if code:
             text = re.sub(r"(\s\d{4})+\s*$", "", _text()).strip()
             if len(text) > 15:
-                out[code] = {"aciklama": text, "duzey": duzey}
-        code, buf = None, []
+                out[code] = {"aciklama": text, "duzey": duzey,
+                             "alan_kodlari": list(dict.fromkeys(alanlar))}
+        code, buf, alanlar = None, [], []
 
     for page in doc:
         for raw in page.get_text().splitlines():
@@ -210,11 +221,78 @@ def _parse_nitelik(path: Path, duzey: str) -> dict[str, dict]:
                 first = line.split()[0]
                 desc_done = _text().endswith((".", ":"))
                 if code is None or (desc_done and re.match(r"^\d{4}$", line)):
+                    # Tek 4 haneli + açıklama bitti → yeni nitelik kodu.
+                    # (Tek satırlık alan kodu da buraya düşebilir; len>15
+                    # filtresi sahte kayıtları eler — alan listesi kısmi kalır,
+                    # ad-bazlı yedek eşleşme telafi eder.)
                     _flush()
                     code = first
-                # aksi halde alan kodları — açıklamaya katılmaz
+                else:
+                    alanlar.extend(line.split())
                 continue
             if code:
+                # Açıklama satırı sonuna gömülü alan kodları olabilir
+                trail = re.search(r"((?:\s\d{4})+)\s*$", " " + line)
+                if trail and _text().endswith((".", ":")):
+                    alanlar.extend(trail.group(1).split())
+                else:
+                    buf.append(line)
+    _flush()
+    return out
+
+
+def _parse_kod_ad(path: Path, duzey: str) -> dict[str, dict]:
+    """Mezuniyet alanları: 4 haneli kod + ad (dönüşümlü satırlar)."""
+    doc = fitz.open(path)
+    out: dict[str, dict] = {}
+    code: str | None = None
+    name_buf: list[str] = []
+
+    def _flush() -> None:
+        nonlocal code, name_buf
+        if code and name_buf:
+            out[code] = {"ad": " ".join(name_buf).strip(), "duzey": duzey}
+        code, name_buf = None, []
+
+    for page in doc:
+        for raw in page.get_text().splitlines():
+            line = raw.strip()
+            if not line or "Mezun Olunan" in line or "Alan" == line:
+                continue
+            if re.match(r"^\d{4}$", line):
+                _flush()
+                code = line
+            elif code:
+                name_buf.append(line)
+    _flush()
+    return out
+
+
+def _parse_ozel_kosullar(path: Path) -> dict[str, str]:
+    """Özel koşullar: kod → koşul metni (yaş, YDS, sertifika vb.)."""
+    doc = fitz.open(path)
+    out: dict[str, str] = {}
+    code: str | None = None
+    buf: list[str] = []
+
+    def _flush() -> None:
+        nonlocal code, buf
+        if code and buf:
+            text = " ".join(buf).strip()
+            if len(text) > 10:
+                out[code] = text
+        code, buf = None, []
+
+    for page in doc:
+        for raw in page.get_text().splitlines():
+            line = raw.strip()
+            if not line or line in {"Kodu", "Nitelik Adı",
+                                    "Nitelik Kodları - Özel Koşullar"}:
+                continue
+            if re.match(r"^\d{4}$", line):
+                _flush()
+                code = line
+            elif code:
                 buf.append(line)
     _flush()
     return out
@@ -227,7 +305,7 @@ def main() -> None:
 
     DONEM, page = _discover_kilavuz(s)
     print(f"📡 Aktif kılavuz: {DONEM} → {page[:80]}")
-    tablo_pdfs, nitelik_pdfs = _find_kilavuz_pdfs(s, page)
+    tablo_pdfs, nitelik_pdfs, ek_pdfs = _find_kilavuz_pdfs(s, page)
     if not tablo_pdfs:
         print("⛔ Kılavuz tabloları bulunamadı (dönem arası olabilir) — çıkılıyor")
         return
@@ -252,6 +330,28 @@ def main() -> None:
     json.dump(nitelikler, open(OUT_NITELIK, "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
     print(f"✅ {len(nitelikler)} nitelik kodu → {OUT_NITELIK}")
+
+    # Mezuniyet alanları (kod → resmi program adı) — kod bazlı eşleşme için
+    alanlar: dict[str, dict] = {}
+    for key, duzey in [("mezun_lisans", "lisans"), ("mezun_önlisans", "önlisans"),
+                       ("mezun_ortaöğretim", "ortaöğretim")]:
+        if key in ek_pdfs:
+            p = _get(s, ek_pdfs[key], f"k{tag}_{key}.pdf")
+            d = _parse_kod_ad(p, duzey)
+            print(f"   {key}: {len(d)} alan")
+            alanlar.update(d)
+    if alanlar:
+        json.dump(alanlar, open(OUT_ALANLAR, "w", encoding="utf-8"),
+                  ensure_ascii=False, indent=1)
+        print(f"✅ {len(alanlar)} mezuniyet alanı → {OUT_ALANLAR}")
+
+    # Özel koşullar (yaş/YDS/sertifika şartları) — kadro uyarıları için
+    if "ozelkosullar" in ek_pdfs:
+        p = _get(s, ek_pdfs["ozelkosullar"], f"k{tag}_ozelkosullar.pdf")
+        kosullar = _parse_ozel_kosullar(p)
+        json.dump(kosullar, open(OUT_KOSULLAR, "w", encoding="utf-8"),
+                  ensure_ascii=False, indent=1)
+        print(f"✅ {len(kosullar)} özel koşul → {OUT_KOSULLAR}")
 
 
 if __name__ == "__main__":
