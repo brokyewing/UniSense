@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { inject } from '@vercel/analytics'
 import App from './App.jsx'
 import Splash from './pages/Splash.jsx'
 import Home from './pages/Home.jsx'
@@ -16,6 +17,8 @@ import Compare from './pages/Compare.jsx'
 import { AuthProvider } from './contexts/AuthContext.jsx'
 import { ThemeProvider } from './contexts/ThemeContext.jsx'
 import './index.css'
+
+inject()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
