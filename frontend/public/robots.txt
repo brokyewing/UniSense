@@ -1,7 +1,9 @@
 User-agent: *
 Allow: /
-Disallow: /profile
+Disallow: /profil
 Disallow: /tercih
+Disallow: /giris
+Disallow: /profile
 Disallow: /login
 
 Sitemap: https://www.unisense.site/sitemap.xml

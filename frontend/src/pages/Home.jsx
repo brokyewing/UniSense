@@ -27,21 +27,21 @@ const FEATURES = [
     title: 'Doğal Dil Sorgu',
     desc: '"İTÜ Bilgisayar Müh taban puanı?" yaz, anında cevap al.',
     accent: 'from-brand-500 to-accent-500',
-    to: '/search',
+    to: '/arama',
   },
   {
     icon: ListChecks,
     title: 'Tercih Önerme',
     desc: 'Puanın ve sıralamana göre güvenli/hedef/üst seviye 30 tercih.',
     accent: 'from-accent-500 to-cyber-pink',
-    to: '/recommend',
+    to: '/oneriler',
   },
   {
     icon: TrendingUp,
     title: '2025 Taban Sıralamaları',
     desc: 'En güncel YÖK Atlas verisi: taban puan + başarı sırası.',
     accent: 'from-cyber-cyan to-brand-500',
-    to: '/search?q=2025 en yüksek taban puanı',
+    to: '/arama?q=2025 en yüksek taban puanı',
   },
 ]
 
@@ -167,11 +167,11 @@ export default function Home() {
             transition={{ duration: 0.7, delay: 0.3 }}
             className="flex justify-center gap-3 flex-wrap"
           >
-            <Link to="/search" className="btn-primary inline-flex items-center gap-2">
+            <Link to="/arama" className="btn-primary inline-flex items-center gap-2">
               <Search size={18} />
               Sorgu Başlat
             </Link>
-            <Link to="/recommend" className="btn-ghost inline-flex items-center gap-2">
+            <Link to="/oneriler" className="btn-ghost inline-flex items-center gap-2">
               <ListChecks size={18} />
               Tercih Önerisi
             </Link>
@@ -212,7 +212,7 @@ export default function Home() {
             {SAMPLE_QUERIES.map((q, i) => (
               <Link
                 key={i}
-                to={`/search?q=${encodeURIComponent(q)}`}
+                to={`/arama?q=${encodeURIComponent(q)}`}
                 className="group px-4 py-3 rounded-xl bg-white/[0.02] hover:bg-accent-500/10 hover:border-accent-500/30 border border-white/5 text-sm text-slate-300 hover:text-white transition-all flex items-center gap-3"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-accent-500/50 group-hover:bg-accent-400 group-hover:scale-150 transition-all" />

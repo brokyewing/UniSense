@@ -1154,7 +1154,7 @@ export default function Hesap() {
 
             {result.finalScore > 100 && isAuthed && (
               <Link
-                to="/recommend"
+                to="/oneriler"
                 className="btn-ghost w-full inline-flex items-center justify-center gap-2 text-sm"
               >
                 <ListChecks size={14} /> Tercih Sayfasına Geç
@@ -1249,7 +1249,7 @@ export default function Hesap() {
 
               <div className="text-center">
                 <Link
-                  to="/recommend"
+                  to="/oneriler"
                   className="btn-ghost inline-flex items-center gap-2 text-sm"
                 >
                   Tüm sonuçları Tercih sayfasında gör <ArrowRight size={12} />

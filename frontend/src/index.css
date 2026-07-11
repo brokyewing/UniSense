@@ -275,8 +275,21 @@
   .light-theme .text-accent-400 {
     color: #7c3aed !important;   /* violet-600 */
   }
+  .light-theme .text-accent-100,
+  .light-theme .text-accent-200 {
+    color: #5b21b6 !important;   /* violet-800 — banner/buton metinleri */
+  }
   .light-theme .text-rose-400 {
     color: #be123c !important;   /* rose-700 */
+  }
+  .light-theme .text-rose-200 {
+    color: #9f1239 !important;   /* rose-800 — boş durum metinleri */
+  }
+  .light-theme .text-cyber-cyan {
+    color: #0e7490 !important;   /* cyan-700 — kontenjan değerleri */
+  }
+  .light-theme .text-sky-300 {
+    color: #0369a1 !important;   /* sky-700 — KPSS eşleşme rozeti */
   }
   .light-theme .bg-accent-500\/20 {
     background: rgba(124, 58, 237, 0.12) !important;

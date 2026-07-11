@@ -84,6 +84,7 @@ class DgsService:
         bolum: str = "",
         il: str | None = None,
         uni_turu: str | None = None,
+        oneri: bool = False,
         limit: int = 30,
     ) -> dict:
         data = _load()
@@ -104,8 +105,9 @@ class DgsService:
             if utf and not fold_tr(r.get("university_type", "")).startswith(utf):
                 continue
             mp = r.get("min_puan")
-            if puan is not None and mp is not None and mp > puan:
-                continue  # taban puanın üstünde — yerleşilemez
+            ust_pay = 10.0 if oneri else 0.0
+            if puan is not None and mp is not None and mp > puan + ust_pay:
+                continue  # ulaşılamaz (öneri modunda +10'a kadar "üst seviye" sayılır)
             items.append({
                 "department_code": r["department_code"],
                 "program_adi": r.get("program_adi", ""),
