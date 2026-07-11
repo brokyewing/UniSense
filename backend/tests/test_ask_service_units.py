@@ -155,7 +155,9 @@ class TestKpssService:
 
         r = KpssService().kadro_ara(bolum="bilgisayar mühendisliği", duzey="lisans")
         assert r["total"] > 5
-        assert any(i["eslesme"] == "bölüme özel" for i in r["items"])
+        assert any(i["eslesme"].startswith("bölüme özel") for i in r["items"])
+        # Kod-bazlı KESİN eşleşme de olmalı (ÖSYM mezuniyet alan kodları)
+        assert any(i["eslesme"] == "bölüme özel ✓" for i in r["items"])
         # geçmiş taban eşleşmesi en az bazı kadrolarda olmalı
         assert any(i["gecmis_taban"] for i in r["items"])
 

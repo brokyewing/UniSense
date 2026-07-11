@@ -1,0 +1,5498 @@
+{
+ "1113": {
+  "ad": "ASTRONOMİ VE ASTROFİZİK",
+  "duzey": "lisans"
+ },
+ "1128": {
+  "ad": "YAZILIM GELİŞTİRME",
+  "duzey": "lisans"
+ },
+ "1134": {
+  "ad": "ERMENİ DİLİ VE KÜLTÜRÜ",
+  "duzey": "lisans"
+ },
+ "1149": {
+  "ad": "TOHUM BİLİMİ VE TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "1155": {
+  "ad": "KLASİK TÜRK MÜZİĞİ",
+  "duzey": "lisans"
+ },
+ "1202": {
+  "ad": "GÖRSEL SANATLAR ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "1223": {
+  "ad": "MÜZİKAL TİYATRO",
+  "duzey": "lisans"
+ },
+ "1238": {
+  "ad": "BİLGİ GÜVENLİĞİ TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "1271": {
+  "ad": "ENGELLİLERDE EGZERSİZ VE SPOR BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "1286": {
+  "ad": "ULUSLARARASI ULAŞTIRMA SİSTEMLERİ",
+  "duzey": "lisans"
+ },
+ "1292": {
+  "ad": "TARIM TİCARETİ VE İŞLETMECİLİĞİ",
+  "duzey": "lisans"
+ },
+ "1306": {
+  "ad": "AYAKKABI TASARIMI VE ÜRETİMİ",
+  "duzey": "lisans"
+ },
+ "1361": {
+  "ad": "UÇAK BAKIM VE ONARIM",
+  "duzey": "lisans"
+ },
+ "1362": {
+  "ad": "İLETİŞİM TASARIMI VE YENİ MEDYA",
+  "duzey": "lisans"
+ },
+ "1365": {
+  "ad": "HAVACILIK ELEKTRONİĞİ",
+  "duzey": "lisans"
+ },
+ "1385": {
+  "ad": "HAT SANATI",
+  "duzey": "lisans"
+ },
+ "1386": {
+  "ad": "HALI, KİLİM VE GELENEKSEL KUMAŞ DESENLERİ",
+  "duzey": "lisans"
+ },
+ "1387": {
+  "ad": "ÇALGI YAPIMI VE ONARIMI",
+  "duzey": "lisans"
+ },
+ "1388": {
+  "ad": "ÇERKEZ DİLİ VE KÜLTÜRÜ",
+  "duzey": "lisans"
+ },
+ "1389": {
+  "ad": "BESTECİLİK",
+  "duzey": "lisans"
+ },
+ "1390": {
+  "ad": "BESTECİLİK VE MÜZİK TEORİSİ",
+  "duzey": "lisans"
+ },
+ "1391": {
+  "ad": "BESTECİLİK VE ORKESTRA ŞEFLİĞİ",
+  "duzey": "lisans"
+ },
+ "1392": {
+  "ad": "ETNOMÜZİKOLOJİ",
+  "duzey": "lisans"
+ },
+ "1394": {
+  "ad": "İBRANİ DİLİ VE KÜLTÜRÜ",
+  "duzey": "lisans"
+ },
+ "1395": {
+  "ad": "ARAPÇA MÜTERCİM VE TERCÜMANLIK",
+  "duzey": "lisans"
+ },
+ "1396": {
+  "ad": "BULGARCA MÜTERCİM VE TERCÜMANLIK",
+  "duzey": "lisans"
+ },
+ "1397": {
+  "ad": "ÇİNCE MÜTERCİM VE TERCÜMANLIK",
+  "duzey": "lisans"
+ },
+ "1398": {
+  "ad": "FARSÇA MÜTERCİM VE TERCÜMANLIK",
+  "duzey": "lisans"
+ },
+ "1399": {
+  "ad": "FRANSIZCA MÜTERCİM VE TERCÜMANLIK",
+  "duzey": "lisans"
+ },
+ "1400": {
+  "ad": "İNGİLİZCE MÜTERCİM VE TERCÜMANLIK",
+  "duzey": "lisans"
+ },
+ "1401": {
+  "ad": "RUSÇA MÜTERCİM VE TERCÜMANLIK",
+  "duzey": "lisans"
+ },
+ "1402": {
+  "ad": "İNGİLİZCE, FRANSIZCA MÜTERCİM VE TERCÜMANLIK",
+  "duzey": "lisans"
+ },
+ "1403": {
+  "ad": "ELEKTRONİK TİCARET VE YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "1404": {
+  "ad": "ÇİNİ TASARIMI VE ONARIMI",
+  "duzey": "lisans"
+ },
+ "1405": {
+  "ad": "ALMANCA MÜTERCİM VE TERCÜMANLIK",
+  "duzey": "lisans"
+ },
+ "1406": {
+  "ad": "FİLM TASARIMI VE YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "1407": {
+  "ad": "POLİMER MALZEME MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "1408": {
+  "ad": "SES SANATLARI TASARIMI",
+  "duzey": "lisans"
+ },
+ "1410": {
+  "ad": "DENİZ BİLİMLERİ VE TEKNOLOJİSİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "1413": {
+  "ad": "SAHNE DEKORU VE KOSTÜMÜ",
+  "duzey": "lisans"
+ },
+ "1414": {
+  "ad": "TEZHİP SANATI",
+  "duzey": "lisans"
+ },
+ "1416": {
+  "ad": "PİYANO, ARP VE GİTAR",
+  "duzey": "lisans"
+ },
+ "1417": {
+  "ad": "UÇAK GÖVDE VE MOTOR BAKIMI",
+  "duzey": "lisans"
+ },
+ "1418": {
+  "ad": "UÇAK ELEKTRİK VE ELEKTRONİĞİ",
+  "duzey": "lisans"
+ },
+ "1420": {
+  "ad": "ÇEVİRİBİLİMİ (İNGİLİZCE)",
+  "duzey": "lisans"
+ },
+ "1421": {
+  "ad": "FİLM TASARIMI VE YÖNETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "1422": {
+  "ad": "FİLM TASARIMI VE YAZARLIĞI",
+  "duzey": "lisans"
+ },
+ "1423": {
+  "ad": "HALKBİLİMİ",
+  "duzey": "lisans"
+ },
+ "1424": {
+  "ad": "DRAMA YAZARLIĞI VE DRAMATURJİ 1",
+  "duzey": "lisans"
+ },
+ "1425": {
+  "ad": "İSLAM İKTİSADI VE FİNANS",
+  "duzey": "lisans"
+ },
+ "1426": {
+  "ad": "ORTEZ VE PROTEZ",
+  "duzey": "lisans"
+ },
+ "1427": {
+  "ad": "HAVA TRAFİK KONTROLÜ",
+  "duzey": "lisans"
+ },
+ "1429": {
+  "ad": "YAPAY ZEKA VE VERİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "1433": {
+  "ad": "UZAY VE UYDU MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "1434": {
+  "ad": "TAKI TASARIMI VE İMALATI",
+  "duzey": "lisans"
+ },
+ "1435": {
+  "ad": "JAPONCA MÜTERCİM VE TERCÜMANLIK",
+  "duzey": "lisans"
+ },
+ "1436": {
+  "ad": "HALI TASARIMI",
+  "duzey": "lisans"
+ },
+ "1438": {
+  "ad": "ENERJİ BİLİMİ VE TEKNOLOJİLERİ",
+  "duzey": "lisans"
+ },
+ "1441": {
+  "ad": "EMLAK VE EMLAK YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "1442": {
+  "ad": "TEZHİP-MİNYATÜR VE EBRU",
+  "duzey": "lisans"
+ },
+ "1450": {
+  "ad": "MÜZİK SANATI",
+  "duzey": "lisans"
+ },
+ "1454": {
+  "ad": "PSİKOLOJİK DANIŞMANLIK VE REHBERLİK ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "1472": {
+  "ad": "ABAZA DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "1473": {
+  "ad": "ÇALGI TEKNOLOJİLERİ",
+  "duzey": "lisans"
+ },
+ "1474": {
+  "ad": "İKLİM BİLİMİ VE METEOROLOJİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "1475": {
+  "ad": "ROBOTİK VE OTONOM SİSTEMLERİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "1476": {
+  "ad": "SİBER GÜVENLİK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "1477": {
+  "ad": "SU ÜRÜNLERİ ENDÜSTRİSİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "1478": {
+  "ad": "VERİ BİLİMİ VE ANALİTİĞİ",
+  "duzey": "lisans"
+ },
+ "1479": {
+  "ad": "YAPAY ZEKA VE MAKİNE ÖĞRENMESİ",
+  "duzey": "lisans"
+ },
+ "3101": {
+  "ad": "AĞAÇ İŞLERİ ENDÜSTRİ MÜHENDİSLİĞİ / AĞAÇ İŞLERİ ENDÜSTRİSİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3102": {
+  "ad": "AİLE EKONOMİSİ VE BESLENME ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3103": {
+  "ad": "AKTÜARYA / AKTÜERYA",
+  "duzey": "lisans"
+ },
+ "3105": {
+  "ad": "ALMANCA ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3106": {
+  "ad": "AMERİKAN KÜLTÜRÜ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3107": {
+  "ad": "ANA OKULU ÖĞRETMENLİĞİ / ANAOKULU ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3108": {
+  "ad": "ANTROPOLOJİ",
+  "duzey": "lisans"
+ },
+ "3109": {
+  "ad": "ARAP DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3110": {
+  "ad": "ARAPÇA ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3111": {
+  "ad": "ARKEOLOJİ",
+  "duzey": "lisans"
+ },
+ "3112": {
+  "ad": "ARKEOLOJİ VE SANAT TARİHİ",
+  "duzey": "lisans"
+ },
+ "3113": {
+  "ad": "ARŞİVCİLİK",
+  "duzey": "lisans"
+ },
+ "3114": {
+  "ad": "ASTRONOMİ VE UZAY BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "3115": {
+  "ad": "AVRUPA BİRLİĞİ İLİŞKİLERİ",
+  "duzey": "lisans"
+ },
+ "3116": {
+  "ad": "BALIKÇILIK TEKNOLOJİSİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3117": {
+  "ad": "BANKACILIK",
+  "duzey": "lisans"
+ },
+ "3118": {
+  "ad": "BANKACILIK FİNANS",
+  "duzey": "lisans"
+ },
+ "3120": {
+  "ad": "BANKACILIK VE SİGORTACILIK",
+  "duzey": "lisans"
+ },
+ "3121": {
+  "ad": "BASIN VE YAYIN / BASIN-YAYIN",
+  "duzey": "lisans"
+ },
+ "3122": {
+  "ad": "BESLENME VE DİYETETİK",
+  "duzey": "lisans"
+ },
+ "3123": {
+  "ad": "BİLGİSAYAR",
+  "duzey": "lisans"
+ },
+ "3124": {
+  "ad": "BİLGİSAYAR MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3125": {
+  "ad": "BİLGİSAYAR ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3126": {
+  "ad": "BİLGİSAYAR SİSTEMLERİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3127": {
+  "ad": "BİLGİSAYAR TEKNOLOJİSİ VE BİLİŞİM SİSTEMLERİ",
+  "duzey": "lisans"
+ },
+ "3128": {
+  "ad": "BİLGİSAYAR VE KONTROL ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3129": {
+  "ad": "BİLGİSAYAR VE ÖĞRETİM TEKNOLOJİLERİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3130": {
+  "ad": "BİLİŞİM SİSTEMLERİ VE TEKNOLOJİLERİ",
+  "duzey": "lisans"
+ },
+ "3132": {
+  "ad": "BİYOKİMYA",
+  "duzey": "lisans"
+ },
+ "3133": {
+  "ad": "BİYOLOJİ 2",
+  "duzey": "lisans"
+ },
+ "3134": {
+  "ad": "BİYOMEDİKAL MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3135": {
+  "ad": "BİYOMÜHENDİSLİK",
+  "duzey": "lisans"
+ },
+ "3136": {
+  "ad": "BULGAR DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3137": {
+  "ad": "BÜRO YÖNETİMİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3138": {
+  "ad": "COĞRAFYA",
+  "duzey": "lisans"
+ },
+ "3139": {
+  "ad": "ÇAĞDAŞ TÜRK LEHÇELERİ VE EDEBİYATLARI",
+  "duzey": "lisans"
+ },
+ "3140": {
+  "ad": "ÇAĞDAŞ YUNAN DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3141": {
+  "ad": "ÇALIŞMA EKONOMİSİ VE ENDÜSTRİ İLİŞKİLERİ",
+  "duzey": "lisans"
+ },
+ "3142": {
+  "ad": "ÇEVRE MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3143": {
+  "ad": "ÇİÇEK, ÖRGÜ, DOKUMA ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3144": {
+  "ad": "ÇİN DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3145": {
+  "ad": "ÇOCUK GELİŞİMİ VE EĞİTİMİ",
+  "duzey": "lisans"
+ },
+ "3147": {
+  "ad": "DEKORATİF SANATLAR ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3148": {
+  "ad": "DENİZ TEKNOLOJİSİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3149": {
+  "ad": "DENİZ ULAŞTIRMA İŞLETME MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3150": {
+  "ad": "DENİZ İŞLETMECİLİĞİ VE YÖNETİCİLİĞİ / DENİZ İŞLETMECİLİĞİ VE YÖNETİMİ / DENİZCİLİK İŞLETMELERİ YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "3151": {
+  "ad": "DERİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3153": {
+  "ad": "DOKÜMANTASYON VE ENFORMASYON",
+  "duzey": "lisans"
+ },
+ "3154": {
+  "ad": "DÖKÜM ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3155": {
+  "ad": "EBELİK",
+  "duzey": "lisans"
+ },
+ "3156": {
+  "ad": "ECZACILIK",
+  "duzey": "lisans"
+ },
+ "3157": {
+  "ad": "EĞİTİM İLETİŞİMİ VE PLANLAMASI",
+  "duzey": "lisans"
+ },
+ "3158": {
+  "ad": "EKONOMETRİ",
+  "duzey": "lisans"
+ },
+ "3159": {
+  "ad": "EKONOMİ",
+  "duzey": "lisans"
+ },
+ "3160": {
+  "ad": "ELEKTRİK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3161": {
+  "ad": "ELEKTRİK ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3162": {
+  "ad": "ELEKTRİK VE ELEKTRONİK MÜHENDİSLİĞİ / ELEKTRİK-ELEKTRONİK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3163": {
+  "ad": "ELEKTRONİK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3164": {
+  "ad": "ELEKTRONİK ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3166": {
+  "ad": "ELEKTRONİK VE HABERLEŞME MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3167": {
+  "ad": "ELEKTRONİK VE HABERLEŞME ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3168": {
+  "ad": "ENDÜSTRİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3169": {
+  "ad": "ENDÜSTRİ ÜRÜNLERİ TASARIMI",
+  "duzey": "lisans"
+ },
+ "3170": {
+  "ad": "ENDÜSTRİYEL TASARIM",
+  "duzey": "lisans"
+ },
+ "3171": {
+  "ad": "ENDÜSTRİYEL TEKNOLOJİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3172": {
+  "ad": "ENERJİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3174": {
+  "ad": "ENFORMATİK / ENFORMATİK (ALMANCA)",
+  "duzey": "lisans"
+ },
+ "3175": {
+  "ad": "ESKİ YUNAN DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3176": {
+  "ad": "ETNOLOJİ",
+  "duzey": "lisans"
+ },
+ "3177": {
+  "ad": "EV EKONOMİSİ",
+  "duzey": "lisans"
+ },
+ "3178": {
+  "ad": "EV YÖNETİMİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3179": {
+  "ad": "FARS DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3180": {
+  "ad": "FELSEFE",
+  "duzey": "lisans"
+ },
+ "3181": {
+  "ad": "FEN BİLGİSİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3182": {
+  "ad": "FİZİK",
+  "duzey": "lisans"
+ },
+ "3183": {
+  "ad": "FİZİK ANTROPOLOJİ",
+  "duzey": "lisans"
+ },
+ "3184": {
+  "ad": "FİZİK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3185": {
+  "ad": "FİZİK TEDAVİ VE REHABİLİTASYON",
+  "duzey": "lisans"
+ },
+ "3186": {
+  "ad": "FRANSIZ DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3187": {
+  "ad": "FRANSIZCA ÖĞRETMENLİĞİ 3",
+  "duzey": "lisans"
+ },
+ "3189": {
+  "ad": "GEMİ İNŞAATI MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3190": {
+  "ad": "GEMİ MAKİNELERİ İŞLETME MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3191": {
+  "ad": "GIDA MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3192": {
+  "ad": "GİYİM ENDÜSTRİSİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3193": {
+  "ad": "GİYİM ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3194": {
+  "ad": "GÖRME ENGELLİLER ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3195": {
+  "ad": "GÜVERTE",
+  "duzey": "lisans"
+ },
+ "3196": {
+  "ad": "HALK BİLİMİ (FOLKLOR) / HALKBİLİMİ (FOLKLOR)",
+  "duzey": "lisans"
+ },
+ "3197": {
+  "ad": "HALKLA İLİŞKİLER",
+  "duzey": "lisans"
+ },
+ "3198": {
+  "ad": "HALKLA İLİŞKİLER VE TANITIM",
+  "duzey": "lisans"
+ },
+ "3199": {
+  "ad": "HAVA ULAŞTIRMA",
+  "duzey": "lisans"
+ },
+ "3200": {
+  "ad": "HAVACILIK ELEKTRİK VE ELEKTRONİĞİ",
+  "duzey": "lisans"
+ },
+ "3201": {
+  "ad": "HAVACILIK VE UZAY MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3202": {
+  "ad": "HAYVANSAL ÜRETİM",
+  "duzey": "lisans"
+ },
+ "3203": {
+  "ad": "HAZIR GİYİM ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3204": {
+  "ad": "HEMŞİRELİK",
+  "duzey": "lisans"
+ },
+ "3205": {
+  "ad": "HEMŞİRELİK VE SAĞLIK HİZMETLERİ",
+  "duzey": "lisans"
+ },
+ "3206": {
+  "ad": "HİDROJEOLOJİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3207": {
+  "ad": "HİNDOLOJİ",
+  "duzey": "lisans"
+ },
+ "3209": {
+  "ad": "HUKUK",
+  "duzey": "lisans"
+ },
+ "3210": {
+  "ad": "HUNGAROLOJİ",
+  "duzey": "lisans"
+ },
+ "3211": {
+  "ad": "İÇ MİMARLIK",
+  "duzey": "lisans"
+ },
+ "3212": {
+  "ad": "İÇ MİMARLIK VE ÇEVRE TASARIMI",
+  "duzey": "lisans"
+ },
+ "3213": {
+  "ad": "İKTİSAT",
+  "duzey": "lisans"
+ },
+ "3215": {
+  "ad": "İLETİŞİM",
+  "duzey": "lisans"
+ },
+ "3216": {
+  "ad": "İLKÖĞRETİM DİN KÜLTÜRÜ VE AHLAK BİLGİSİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3217": {
+  "ad": "İLKÖĞRETİM MATEMATİK ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3218": {
+  "ad": "İNGİLİZ DİL BİLİMİ",
+  "duzey": "lisans"
+ },
+ "3219": {
+  "ad": "İNGİLİZ DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3220": {
+  "ad": "İNGİLİZCE ÖĞRETMENLİĞİ / İNGİLİZCE ÖĞRETMENLİĞİ-ELT",
+  "duzey": "lisans"
+ },
+ "3221": {
+  "ad": "İNŞAAT MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3222": {
+  "ad": "İSPANYOL DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3223": {
+  "ad": "İSTATİSTİK",
+  "duzey": "lisans"
+ },
+ "3224": {
+  "ad": "İSTATİSTİK VE BİLGİSAYAR BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "3225": {
+  "ad": "İŞİTME ENGELLİLER ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3226": {
+  "ad": "İŞLETME / İŞLETMECİLİK",
+  "duzey": "lisans"
+ },
+ "3227": {
+  "ad": "İŞLETME BİLGİ YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "3228": {
+  "ad": "İŞLETME MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3230": {
+  "ad": "İTALYAN DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3231": {
+  "ad": "JAPON DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3232": {
+  "ad": "JAPONCA ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3233": {
+  "ad": "JEODEZİ VE FOTOGRAMETRİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3234": {
+  "ad": "JEOFİZİK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3236": {
+  "ad": "KALIPÇILIK ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3237": {
+  "ad": "KAMU YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "3238": {
+  "ad": "KARA ULAŞTIRMA",
+  "duzey": "lisans"
+ },
+ "3239": {
+  "ad": "KARŞILAŞTIRMALI EDEBİYAT",
+  "duzey": "lisans"
+ },
+ "3240": {
+  "ad": "KİMYA",
+  "duzey": "lisans"
+ },
+ "3242": {
+  "ad": "KLASİK ARKEOLOJİ",
+  "duzey": "lisans"
+ },
+ "3243": {
+  "ad": "KONAKLAMA İŞLETMECİLİĞİ",
+  "duzey": "lisans"
+ },
+ "3244": {
+  "ad": "KONAKLAMA İŞLETMECİLİĞİ ÖĞRETMENLİĞİ 4",
+  "duzey": "lisans"
+ },
+ "3245": {
+  "ad": "KONTROL MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3246": {
+  "ad": "KORE DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3247": {
+  "ad": "KUAFÖRLÜK VE GÜZELLİK BİLGİSİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3248": {
+  "ad": "KÜTÜPHANECİLİK",
+  "duzey": "lisans"
+ },
+ "3249": {
+  "ad": "LATİN DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3250": {
+  "ad": "LEH DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3251": {
+  "ad": "MADEN MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3252": {
+  "ad": "MAKİNE MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3253": {
+  "ad": "MAKİNA RESSAMLIĞI VE KONSTRÜKSİYON ÖĞRETMENLİĞİ / MAKİNE RESMİ VE KONSTRÜKSİYONU ÖĞRETMENLİĞİ / MAKİNE-RESİM VE KONSTRÜKSİYON ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3254": {
+  "ad": "MALİYE",
+  "duzey": "lisans"
+ },
+ "3255": {
+  "ad": "MATBAA ÖĞRETMENLİĞİ / MATBAACILIK ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3256": {
+  "ad": "MATEMATİK VE BİLGİSAYAR BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "3257": {
+  "ad": "MATEMATİK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3258": {
+  "ad": "MATEMATİK VE BİLGİSAYAR / MATEMATİK-BİLGİSAYAR",
+  "duzey": "lisans"
+ },
+ "3259": {
+  "ad": "MEDYA VE İLETİŞİM SİSTEMLERİ",
+  "duzey": "lisans"
+ },
+ "3260": {
+  "ad": "METAL ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3261": {
+  "ad": "METALURJİ VE MALZEME MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3263": {
+  "ad": "MİMARLIK",
+  "duzey": "lisans"
+ },
+ "3264": {
+  "ad": "MOBİLYA VE DEKORASYON ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3265": {
+  "ad": "MODA TASARIMI ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3266": {
+  "ad": "MODA TASARIMI",
+  "duzey": "lisans"
+ },
+ "3267": {
+  "ad": "MOLEKÜLER BİYOLOJİ VE GENETİK",
+  "duzey": "lisans"
+ },
+ "3268": {
+  "ad": "MUHASEBE",
+  "duzey": "lisans"
+ },
+ "3269": {
+  "ad": "MUHASEBE BİLGİ SİSTEMLERİ",
+  "duzey": "lisans"
+ },
+ "3270": {
+  "ad": "MUHASEBE VE FİNANSMAN ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3271": {
+  "ad": "MÜHENDİSLİK VE DOĞA BİLİMLERİ PROGRAMLARI",
+  "duzey": "lisans"
+ },
+ "3272": {
+  "ad": "MÜTERCİM TERCÜMANLIK / MÜTERCİM-TERCÜMANLIK",
+  "duzey": "lisans"
+ },
+ "3273": {
+  "ad": "NAKIŞ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3274": {
+  "ad": "NÜKLEER ENERJİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3275": {
+  "ad": "OKUL ÖNCESİ EĞİTİMİ ÖĞRETMENLİĞİ / OKUL ÖNCESİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3276": {
+  "ad": "ORMAN ENDÜSTRİSİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3278": {
+  "ad": "OTOMOTİV ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3279": {
+  "ad": "PALEOANTROPOLOJİ",
+  "duzey": "lisans"
+ },
+ "3280": {
+  "ad": "PERAKENDE SATIŞ VE MAĞAZACILIK",
+  "duzey": "lisans"
+ },
+ "3281": {
+  "ad": "PETROL VE DOĞALGAZ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3282": {
+  "ad": "PEYZAJ MİMARİSİ VE KENTSEL TASARIM",
+  "duzey": "lisans"
+ },
+ "3283": {
+  "ad": "KENTSEL TASARIM VE PEYZAJ MİMARİSİ / KENTSEL TASARIM VE PEYZAJ MİMARLIĞI",
+  "duzey": "lisans"
+ },
+ "3284": {
+  "ad": "PREHİSTORYA",
+  "duzey": "lisans"
+ },
+ "3285": {
+  "ad": "PROTOHİSTORYA VE ÖNASYA ARKEOLOJİSİ / PROTOHİSTORYA VE ÖN ASYA ARKEOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "3286": {
+  "ad": "PSİKOLOJİ",
+  "duzey": "lisans"
+ },
+ "3287": {
+  "ad": "RADYO, SİNEMA VE TELEVİZYON / RADYO, TELEVİZYON VE SİNEMA / RADYO-TELEVİZYON, SİNEMA",
+  "duzey": "lisans"
+ },
+ "3288": {
+  "ad": "RADYO, TV VE SİNEMA",
+  "duzey": "lisans"
+ },
+ "3289": {
+  "ad": "RADYO-TV-SİNEMA",
+  "duzey": "lisans"
+ },
+ "3290": {
+  "ad": "PSİKOLOJİK DANIŞMA VE REHBERLİK / REHBERLİK VE PSİKOLOJİK DANIŞMANLIK",
+  "duzey": "lisans"
+ },
+ "3291": {
+  "ad": "REKLAMCILIK",
+  "duzey": "lisans"
+ },
+ "3292": {
+  "ad": "REKLAMCILIK VE HALKLA İLİŞKİLER",
+  "duzey": "lisans"
+ },
+ "3293": {
+  "ad": "RUS DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3294": {
+  "ad": "SAĞLIK EĞİTİMİ 5",
+  "duzey": "lisans"
+ },
+ "3295": {
+  "ad": "SAĞLIK İDARESİ",
+  "duzey": "lisans"
+ },
+ "3296": {
+  "ad": "SAĞLIK KURUMLARI İŞLETMECİLİĞİ",
+  "duzey": "lisans"
+ },
+ "3297": {
+  "ad": "SAĞLIK MEMURLUĞU",
+  "duzey": "lisans"
+ },
+ "3298": {
+  "ad": "SAĞLIK KURUMLARI YÖNETİCİLİĞİ",
+  "duzey": "lisans"
+ },
+ "3299": {
+  "ad": "SANAT TARİHİ",
+  "duzey": "lisans"
+ },
+ "3300": {
+  "ad": "SANAT VE SOSYAL BİLİMLER PROGRAMLARI",
+  "duzey": "lisans"
+ },
+ "3301": {
+  "ad": "SERAMİK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3302": {
+  "ad": "SERMAYE PİYASASI",
+  "duzey": "lisans"
+ },
+ "3304": {
+  "ad": "SEYAHAT İŞLETMECİLİĞİ VE TURİZM REHBERLİĞİ",
+  "duzey": "lisans"
+ },
+ "3305": {
+  "ad": "SEYAHAT İŞLETMECİLİĞİ VE TURİZM REHBERLİĞİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3306": {
+  "ad": "SİGORTACILIK",
+  "duzey": "lisans"
+ },
+ "3307": {
+  "ad": "SİNEMA VE TELEVİZYON",
+  "duzey": "lisans"
+ },
+ "3308": {
+  "ad": "SİNEMA-TV",
+  "duzey": "lisans"
+ },
+ "3309": {
+  "ad": "SINIF ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3310": {
+  "ad": "SİNOLOJİ",
+  "duzey": "lisans"
+ },
+ "3311": {
+  "ad": "SİSTEM MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3312": {
+  "ad": "SİVİL HAVA ULAŞTIRMA İŞLETMECİLİĞİ",
+  "duzey": "lisans"
+ },
+ "3313": {
+  "ad": "SİYASET BİLİMİ",
+  "duzey": "lisans"
+ },
+ "3314": {
+  "ad": "SİYASET BİLİMİ VE KAMU YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "3315": {
+  "ad": "SİYASET BİLİMİ VE ULUSLARARASI İLİŞKİLER",
+  "duzey": "lisans"
+ },
+ "3316": {
+  "ad": "SOSYAL ANTROPOLOJİ",
+  "duzey": "lisans"
+ },
+ "3317": {
+  "ad": "SOSYAL BİLGİLER ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3319": {
+  "ad": "SOSYOLOJİ",
+  "duzey": "lisans"
+ },
+ "3320": {
+  "ad": "SU ÜRÜNLERİ",
+  "duzey": "lisans"
+ },
+ "3321": {
+  "ad": "SÜMEROLOJİ",
+  "duzey": "lisans"
+ },
+ "3322": {
+  "ad": "ŞEHİR VE BÖLGE PLANLAMA",
+  "duzey": "lisans"
+ },
+ "3323": {
+  "ad": "TALAŞLI ÜRETİM ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3325": {
+  "ad": "TARIM TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "3326": {
+  "ad": "TASARIM VE KONSTRÜKSİYON ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3327": {
+  "ad": "TEKSTİL DOKUMA VE ÖRGÜ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3328": {
+  "ad": "TEKSTİL MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3329": {
+  "ad": "TEKSTİL ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3330": {
+  "ad": "TEKSTİL TERBİYE ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3331": {
+  "ad": "TELEKOMÜNİKASYON MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3332": {
+  "ad": "TELEVİZYON GAZETECİLİĞİ",
+  "duzey": "lisans"
+ },
+ "3333": {
+  "ad": "TESİSAT ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3334": {
+  "ad": "TIBBİ BİYOLOJİK BİLİMLER",
+  "duzey": "lisans"
+ },
+ "3335": {
+  "ad": "TİYATRO ELEŞTİRMENLİĞİ VE DRAMATURJİ",
+  "duzey": "lisans"
+ },
+ "3336": {
+  "ad": "TURİST REHBERLİĞİ",
+  "duzey": "lisans"
+ },
+ "3337": {
+  "ad": "TURİZM İŞLETMECİLİĞİ",
+  "duzey": "lisans"
+ },
+ "3338": {
+  "ad": "TURİZM İŞLETMECİLİĞİ VE OTELCİLİK / TURİZM İŞLETMECİLİK VE OTELCİLİK",
+  "duzey": "lisans"
+ },
+ "3340": {
+  "ad": "TURİZM VE OTELCİLİK",
+  "duzey": "lisans"
+ },
+ "3341": {
+  "ad": "TURİZM VE REHBERLİK",
+  "duzey": "lisans"
+ },
+ "3342": {
+  "ad": "TÜRK DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3343": {
+  "ad": "TÜRK HALK BİLİMİ / TÜRK HALKBİLİMİ",
+  "duzey": "lisans"
+ },
+ "3344": {
+  "ad": "TÜRKÇE ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3346": {
+  "ad": "UÇAK ELEKTRİK-ELEKTRONİK",
+  "duzey": "lisans"
+ },
+ "3347": {
+  "ad": "UÇAK GÖVDE BAKIM",
+  "duzey": "lisans"
+ },
+ "3348": {
+  "ad": "UÇAK GÖVDE-MOTOR / UÇAK GÖVDE - MOTOR",
+  "duzey": "lisans"
+ },
+ "3349": {
+  "ad": "UÇAK MOTOR BAKIM",
+  "duzey": "lisans"
+ },
+ "3350": {
+  "ad": "UÇAK MÜHENDİSLİĞİ 6",
+  "duzey": "lisans"
+ },
+ "3352": {
+  "ad": "ULUSLARARASI İLİŞKİLER",
+  "duzey": "lisans"
+ },
+ "3353": {
+  "ad": "ULUSLARARASI İLİŞKİLER VE AVRUPA BİRLİĞİ",
+  "duzey": "lisans"
+ },
+ "3354": {
+  "ad": "ULUSLARARASI LOJİSTİK VE TAŞIMACILIK / ULUSLARARASI LOJİSTİK",
+  "duzey": "lisans"
+ },
+ "3355": {
+  "ad": "ULUSLARARASI TİCARET",
+  "duzey": "lisans"
+ },
+ "3356": {
+  "ad": "ULUSLARARASI TİCARET VE İŞLETMECİLİK",
+  "duzey": "lisans"
+ },
+ "3357": {
+  "ad": "URDU DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3358": {
+  "ad": "UZAY MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "3359": {
+  "ad": "YAPI ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3360": {
+  "ad": "YAPI RESSAMLIĞI ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3361": {
+  "ad": "YÖNETİM BİLİŞİM SİSTEMLERİ",
+  "duzey": "lisans"
+ },
+ "3362": {
+  "ad": "YUNAN DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "3363": {
+  "ad": "ZİHİN ENGELLİLER ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3364": {
+  "ad": "BİYOLOJİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3365": {
+  "ad": "COĞRAFYA ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3367": {
+  "ad": "FELSEFE GRUBU ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3368": {
+  "ad": "FİZİK ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3369": {
+  "ad": "KİMYA ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3370": {
+  "ad": "MATEMATİK ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3371": {
+  "ad": "TARİH ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3372": {
+  "ad": "TÜRK DİLİ VE EDEBİYATI ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "3374": {
+  "ad": "TIP",
+  "duzey": "lisans"
+ },
+ "3375": {
+  "ad": "MODA VE TASARIM",
+  "duzey": "lisans"
+ },
+ "3376": {
+  "ad": "YUNANCA",
+  "duzey": "lisans"
+ },
+ "3381": {
+  "ad": "MUHASEBE VE FİNANSMAN",
+  "duzey": "lisans"
+ },
+ "3382": {
+  "ad": "TARIM EKONOMİSİ",
+  "duzey": "lisans"
+ },
+ "3383": {
+  "ad": "TARIM MAKİNELERİ",
+  "duzey": "lisans"
+ },
+ "3384": {
+  "ad": "TARIMSAL YAPILAR VE SULAMA",
+  "duzey": "lisans"
+ },
+ "3385": {
+  "ad": "TARLA BİTKİLERİ",
+  "duzey": "lisans"
+ },
+ "3386": {
+  "ad": "TOPRAK",
+  "duzey": "lisans"
+ },
+ "4101": {
+  "ad": "ÇALIŞMA EKONOMİSİ VE ENDÜSTRİ İLİŞKİLERİ (AÇIKÖĞRETİM)",
+  "duzey": "lisans"
+ },
+ "4102": {
+  "ad": "İKTİSAT (AÇIKÖĞRETİM)",
+  "duzey": "lisans"
+ },
+ "4103": {
+  "ad": "İNGİLİZCE ÖĞRETMENLİĞİ (AÇIKÖĞRETİM)",
+  "duzey": "lisans"
+ },
+ "4104": {
+  "ad": "İŞLETME (AÇIKÖĞRETİM)",
+  "duzey": "lisans"
+ },
+ "4105": {
+  "ad": "KAMU YÖNETİMİ (AÇIKÖĞRETİM)",
+  "duzey": "lisans"
+ },
+ "4106": {
+  "ad": "MALİYE (AÇIKÖĞRETİM)",
+  "duzey": "lisans"
+ },
+ "4107": {
+  "ad": "OKUL ÖNCESİ ÖĞRETMENLİĞİ(AÇIKÖĞRETİM)",
+  "duzey": "lisans"
+ },
+ "4203": {
+  "ad": "AĞAÇ İŞLERİ ENDÜSTRİSİ",
+  "duzey": "lisans"
+ },
+ "4204": {
+  "ad": "ALMAN DİLİ",
+  "duzey": "lisans"
+ },
+ "4208": {
+  "ad": "ARNAVUTÇA",
+  "duzey": "lisans"
+ },
+ "4209": {
+  "ad": "ASFALTİT VE PETROL-GAZ ÜRETİMİNİN FİZİKİ SÜREÇLERİ",
+  "duzey": "lisans"
+ },
+ "4211": {
+  "ad": "AZERBAYCAN DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "4212": {
+  "ad": "BAHÇE VE TARLA BİTKİLERİ",
+  "duzey": "lisans"
+ },
+ "4215": {
+  "ad": "BATI DİLLERİ",
+  "duzey": "lisans"
+ },
+ "4216": {
+  "ad": "BİLGİ İŞLEMİ",
+  "duzey": "lisans"
+ },
+ "4220": {
+  "ad": "BİLGİSAYAR SİSTEMLERİ VE AĞLARI",
+  "duzey": "lisans"
+ },
+ "4222": {
+  "ad": "BİLGİSAYAR UYGULAMALI EKONOMİ",
+  "duzey": "lisans"
+ },
+ "4226": {
+  "ad": "BİYOLOJİ-EKOLOJİ, ÇEVRE KORUMA",
+  "duzey": "lisans"
+ },
+ "4227": {
+  "ad": "BİYOLOJİ-ZİRAİ BİLİMLER",
+  "duzey": "lisans"
+ },
+ "4228": {
+  "ad": "BOŞNAKÇA",
+  "duzey": "lisans"
+ },
+ "4229": {
+  "ad": "BÖLGE BİLİM",
+  "duzey": "lisans"
+ },
+ "4230": {
+  "ad": "BULGAR FİLOLOJİSİ 7",
+  "duzey": "lisans"
+ },
+ "4232": {
+  "ad": "CEVHER HAZIRLAMA MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "4233": {
+  "ad": "ÇEVRE KORUMA TESİSATI VE DONANIMI",
+  "duzey": "lisans"
+ },
+ "4235": {
+  "ad": "ÇOCUK GELİŞİMİ",
+  "duzey": "lisans"
+ },
+ "4237": {
+  "ad": "DENİZ VE LİMAN İŞLETME",
+  "duzey": "lisans"
+ },
+ "4238": {
+  "ad": "DENİZCİLİK İŞLETMELERİ YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "4239": {
+  "ad": "DENİZDE PETROL VE GAZ ÜRETİM ARAÇLARI",
+  "duzey": "lisans"
+ },
+ "4240": {
+  "ad": "DİL AĞIRLIKLI PROGRAMLAR",
+  "duzey": "lisans"
+ },
+ "4241": {
+  "ad": "DİL BİLGİSİ",
+  "duzey": "lisans"
+ },
+ "4242": {
+  "ad": "DİL BİLGİSİ",
+  "duzey": "lisans"
+ },
+ "4243": {
+  "ad": "DOĞU DİLLERİ",
+  "duzey": "lisans"
+ },
+ "4244": {
+  "ad": "DÜNYA DİNLERİ",
+  "duzey": "lisans"
+ },
+ "4246": {
+  "ad": "EDEBİYAT",
+  "duzey": "lisans"
+ },
+ "4248": {
+  "ad": "ELEKTRİK GÜÇ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "4249": {
+  "ad": "ELEKTRİK GÜÇ MÜHENDİSLİĞİ VE DONANIMI",
+  "duzey": "lisans"
+ },
+ "4250": {
+  "ad": "ELEKTRİK GÜÇ ÜRETİMİ VE ELEKTRİK DONANIMI",
+  "duzey": "lisans"
+ },
+ "4251": {
+  "ad": "ELEKTRİK VE MALZEME DONANIMI",
+  "duzey": "lisans"
+ },
+ "4252": {
+  "ad": "ELEKTRONİK",
+  "duzey": "lisans"
+ },
+ "4253": {
+  "ad": "ELEKTRONİK VE TELEKOMÜNİKASYON",
+  "duzey": "lisans"
+ },
+ "4254": {
+  "ad": "ENDÜSTRİ YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "4255": {
+  "ad": "ENDÜSTRİ YÖNETİMİ VE MÜHENDİSLİK",
+  "duzey": "lisans"
+ },
+ "4257": {
+  "ad": "ENFORMASYON SİSTEMLERİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "4258": {
+  "ad": "EŞİT AĞIRLIKLI PROGRAMLAR",
+  "duzey": "lisans"
+ },
+ "4260": {
+  "ad": "FİLOLOJİ",
+  "duzey": "lisans"
+ },
+ "4261": {
+  "ad": "FİNANS-SİGORTA",
+  "duzey": "lisans"
+ },
+ "4262": {
+  "ad": "FİZİK VE ASTRONOMİ",
+  "duzey": "lisans"
+ },
+ "4264": {
+  "ad": "FRANSIZ DİLİ",
+  "duzey": "lisans"
+ },
+ "4265": {
+  "ad": "GASTRONOMİ",
+  "duzey": "lisans"
+ },
+ "4268": {
+  "ad": "GEMİ İNŞAATI VE DENİZCİLİK TEKNOLOJİLERİ",
+  "duzey": "lisans"
+ },
+ "4270": {
+  "ad": "GENEL TARİH",
+  "duzey": "lisans"
+ },
+ "4271": {
+  "ad": "GIDA TEKNOLOJİLERİ / GIDA TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "4272": {
+  "ad": "GÖRSEL SANATLAR VE İLETİŞİM TASARIMI",
+  "duzey": "lisans"
+ },
+ "4274": {
+  "ad": "GÜRCÜ DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "4276": {
+  "ad": "HABERLEŞME DONANIMI VE TEKNOLOJİLERİ",
+  "duzey": "lisans"
+ },
+ "4277": {
+  "ad": "HABERLEŞME MÜHENDİSLİĞİ VE TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "4288": {
+  "ad": "İNGİLİZ DİLİ",
+  "duzey": "lisans"
+ },
+ "4290": {
+  "ad": "İNGİLİZ DİLİ VE KARŞILAŞTIRMALI EDEBİYAT",
+  "duzey": "lisans"
+ },
+ "4294": {
+  "ad": "İŞLETME EKONOMİSİ",
+  "duzey": "lisans"
+ },
+ "4295": {
+  "ad": "İŞLETME YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "4297": {
+  "ad": "JEODEZİ",
+  "duzey": "lisans"
+ },
+ "4298": {
+  "ad": "JEODEZİ VE HARİTACILIK",
+  "duzey": "lisans"
+ },
+ "4299": {
+  "ad": "JEOLOJİ",
+  "duzey": "lisans"
+ },
+ "4301": {
+  "ad": "KAZAK DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "4302": {
+  "ad": "KAZAKİSTAN TARİHİ",
+  "duzey": "lisans"
+ },
+ "4303": {
+  "ad": "KENTSEL TASARIM VE PEYZAJ MİMARLIĞI",
+  "duzey": "lisans"
+ },
+ "4304": {
+  "ad": "KIRGIZ DİLİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "4305": {
+  "ad": "KIRGIZ DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "4306": {
+  "ad": "KİMYA VE PROSES MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "4307": {
+  "ad": "KİMYA/BİYOLOJİ KİMYA",
+  "duzey": "lisans"
+ },
+ "4308": {
+  "ad": "KLİNİK VETERİNERLİK VE ECZACILIK",
+  "duzey": "lisans"
+ },
+ "4309": {
+  "ad": "KÜTÜPHANECİLİK VE BİLGİ ÇALIŞMALARI",
+  "duzey": "lisans"
+ },
+ "4310": {
+  "ad": "LENGUSTİK TERCÜME TEORİSİ VE PRATİĞİ 8",
+  "duzey": "lisans"
+ },
+ "4313": {
+  "ad": "MAKİNE ÜRETİMİ TEKNİK VE TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "4314": {
+  "ad": "MAKİNE VE İMALAT MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "4315": {
+  "ad": "MAKİNE VE ÜRETİM MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "4316": {
+  "ad": "MAKİNE YAPIM TEKNİĞİ VE TEKNOLOJİLERİ",
+  "duzey": "lisans"
+ },
+ "4317": {
+  "ad": "MAKİNE YAPIMI MÜHENDİSLİĞİ VE TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "4322": {
+  "ad": "MUHASEBE VE MALİYE",
+  "duzey": "lisans"
+ },
+ "4325": {
+  "ad": "OTEL İŞLETMECİLİĞİ",
+  "duzey": "lisans"
+ },
+ "4326": {
+  "ad": "OTOMASYON ENFORMASYON VE KONTROL DONANIMI",
+  "duzey": "lisans"
+ },
+ "4327": {
+  "ad": "OTOMASYON ENFORMASYON VE KONTROL TEKNİKLERİ",
+  "duzey": "lisans"
+ },
+ "4328": {
+  "ad": "OTOMASYON, BİLGİ VE KONTROL MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "4329": {
+  "ad": "OTOMOBİL MÜHENDİSLİĞİ VE TEKNOLOJİLERİ",
+  "duzey": "lisans"
+ },
+ "4330": {
+  "ad": "ÖZBEK DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "4333": {
+  "ad": "PETROL TEKNOLOJİSİ VE PETROKİMYA",
+  "duzey": "lisans"
+ },
+ "4334": {
+  "ad": "PETROL VE DOĞALGAZ JEOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "4335": {
+  "ad": "PETROL VE GAZ KUYULARININ AÇILMASI",
+  "duzey": "lisans"
+ },
+ "4336": {
+  "ad": "PETROL VE GAZ ÜRETİM MAKİNELERİ VE TEÇHİZATI",
+  "duzey": "lisans"
+ },
+ "4337": {
+  "ad": "PETROL-GAZ BORU HATLARININ VE DEPOLARININ PROJELENDİRİLMESİ, İNŞAASI VE İŞLETİLMESİ",
+  "duzey": "lisans"
+ },
+ "4338": {
+  "ad": "PETROL-GAZ YATAKLARININ İŞLETİLMESİ VE KULLANIMI",
+  "duzey": "lisans"
+ },
+ "4341": {
+  "ad": "RUS FİLOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "4342": {
+  "ad": "RUSÇA ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "4345": {
+  "ad": "SANAT TARİHİ VE MÜZECİLİK",
+  "duzey": "lisans"
+ },
+ "4346": {
+  "ad": "SANAT TARİHİ VE TEORİSİ",
+  "duzey": "lisans"
+ },
+ "4347": {
+  "ad": "SANAYİ EKONOMİSİ",
+  "duzey": "lisans"
+ },
+ "4348": {
+  "ad": "SAYISAL PROGRAMLAR",
+  "duzey": "lisans"
+ },
+ "4350": {
+  "ad": "SERAMİK VE CAM TASARIMI",
+  "duzey": "lisans"
+ },
+ "4353": {
+  "ad": "SOSYAL VE SİYASAL BİLİMLER",
+  "duzey": "lisans"
+ },
+ "4354": {
+  "ad": "SÖZEL PROGRAMLAR",
+  "duzey": "lisans"
+ },
+ "4356": {
+  "ad": "ŞARAP ÜRETİM TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "4357": {
+  "ad": "ŞEHİR MÜHENDİSLİĞİ, ŞEHİR GELİŞTİRME VE YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "4359": {
+  "ad": "TAKI TEKNOLOJİSİ VE TASARIMI",
+  "duzey": "lisans"
+ },
+ "4362": {
+  "ad": "TEKSTİL TEKNİĞİ VE TEKNOLOJİLERİ",
+  "duzey": "lisans"
+ },
+ "4363": {
+  "ad": "TEKSTİL VE MODA TASARIMI",
+  "duzey": "lisans"
+ },
+ "4365": {
+  "ad": "TERMİK VE NÜKLEER GÜÇ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "4367": {
+  "ad": "TİCARET EKONOMİSİ",
+  "duzey": "lisans"
+ },
+ "4368": {
+  "ad": "TİCARET, TURİZM VE HİZMETLER EKONOMİSİ",
+  "duzey": "lisans"
+ },
+ "4370": {
+  "ad": "TOPRAK BİLİMİ VE TARIM KİMYASI",
+  "duzey": "lisans"
+ },
+ "4371": {
+  "ad": "TURİZM",
+  "duzey": "lisans"
+ },
+ "4372": {
+  "ad": "TURİZM REHBERLİĞİ",
+  "duzey": "lisans"
+ },
+ "4373": {
+  "ad": "TURİZM VE HİZMETLER",
+  "duzey": "lisans"
+ },
+ "4375": {
+  "ad": "TÜRK DİLLERİ FİLOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "4376": {
+  "ad": "TÜRK DÜNYASI TÜRK DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "4377": {
+  "ad": "TÜRKOLOJİ",
+  "duzey": "lisans"
+ },
+ "4381": {
+  "ad": "UKRAYNA DİLİ",
+  "duzey": "lisans"
+ },
+ "4382": {
+  "ad": "ULAŞIM MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "4383": {
+  "ad": "ULAŞIM TEKNİĞİ VE TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "4384": {
+  "ad": "ULAŞIM VE ULAŞIM YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "4386": {
+  "ad": "ULUSLARARASI EKONOMİ",
+  "duzey": "lisans"
+ },
+ "4387": {
+  "ad": "ULUSLARARASI EKONOMİK İLİŞKİLER",
+  "duzey": "lisans"
+ },
+ "4388": {
+  "ad": "ULUSLARARASI GİRİŞİMCİLİK",
+  "duzey": "lisans"
+ },
+ "4389": {
+  "ad": "ULUSLARARASI İLİŞKİLER VE AVRUPA ÇALIŞMALARI 9",
+  "duzey": "lisans"
+ },
+ "4390": {
+  "ad": "ULUSLARARASI İŞLETME",
+  "duzey": "lisans"
+ },
+ "4391": {
+  "ad": "ULUSLARARASI İŞLETME YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "4393": {
+  "ad": "ULUSLARARASI TİCARET VE LOJİSTİK YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "4395": {
+  "ad": "UYGULAMALI MATEMATİK",
+  "duzey": "lisans"
+ },
+ "4402": {
+  "ad": "YAPI/İNŞAAT EKONOMİSİ",
+  "duzey": "lisans"
+ },
+ "4405": {
+  "ad": "YAYGIN DİN ÖĞRETİMİ VE UYGULAMALARI",
+  "duzey": "lisans"
+ },
+ "4408": {
+  "ad": "ZİRAAT",
+  "duzey": "lisans"
+ },
+ "5101": {
+  "ad": "AİLE BİLİMLERİ VE TÜKETİCİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "5102": {
+  "ad": "AKTÜERYA BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "5103": {
+  "ad": "BİLİŞİM SİSTEMLERİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "5104": {
+  "ad": "BİYOMEDİKAL CİHAZ TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "5105": {
+  "ad": "EKONOMİ VE FİNANS",
+  "duzey": "lisans"
+ },
+ "5106": {
+  "ad": "EKONOMİ-YÖNETİM BİLİMLERİ PROGRAMLARI",
+  "duzey": "lisans"
+ },
+ "5107": {
+  "ad": "FİNANS MATEMATİĞİ",
+  "duzey": "lisans"
+ },
+ "5108": {
+  "ad": "GASTRONOMİ VE MUTFAK SANATLARI",
+  "duzey": "lisans"
+ },
+ "5109": {
+  "ad": "GÖRSEL İLETİŞİM TASARIMI",
+  "duzey": "lisans"
+ },
+ "5110": {
+  "ad": "HALK BİLİM / HALKBİLİM",
+  "duzey": "lisans"
+ },
+ "5111": {
+  "ad": "HALKLA İLİŞKİLER VE REKLAMCILIK",
+  "duzey": "lisans"
+ },
+ "5112": {
+  "ad": "HAVACILIK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "5113": {
+  "ad": "İLETİŞİM TASARIMI",
+  "duzey": "lisans"
+ },
+ "5114": {
+  "ad": "İMALAT MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "5115": {
+  "ad": "KİMYA-BİYOLOJİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "5116": {
+  "ad": "KÜRESEL VE ULUSLARARASI İLİŞKİLER / KÜRESEL SİYASET VE ULUSLARARASI İLİŞKİLER",
+  "duzey": "lisans"
+ },
+ "5117": {
+  "ad": "MAKİNE ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "5118": {
+  "ad": "MALZEME BİLİMİ VE MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "5119": {
+  "ad": "MEKATRONİK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "5120": {
+  "ad": "MEKATRONİK ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "5121": {
+  "ad": "MOLEKÜLER BİYOLOJİ",
+  "duzey": "lisans"
+ },
+ "5122": {
+  "ad": "MUHASEBE - FİNANSMAN (AÇIKÖĞRETİM)",
+  "duzey": "lisans"
+ },
+ "5123": {
+  "ad": "MUHASEBE VE FİNANSAL YÖNETİM / MUHASEBE VE FİNANS YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "5124": {
+  "ad": "MÜZİK TEKNOLOJİLERİ / MÜZİK TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "5125": {
+  "ad": "PAZARLAMA (AÇIKÖĞRETİM)",
+  "duzey": "lisans"
+ },
+ "5126": {
+  "ad": "RADYO-TV-SİNEMA VE GÖRSEL SANATLAR",
+  "duzey": "lisans"
+ },
+ "5127": {
+  "ad": "SİGORTACILIK VE RİSK YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "5128": {
+  "ad": "TEZHİP",
+  "duzey": "lisans"
+ },
+ "5129": {
+  "ad": "TURİZMDE BÜRO YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "5130": {
+  "ad": "ULAŞTIRMA VE LOJİSTİK",
+  "duzey": "lisans"
+ },
+ "5131": {
+  "ad": "ULUSLARARASI TİCARET VE FİNANSMAN",
+  "duzey": "lisans"
+ },
+ "5132": {
+  "ad": "ÜRETİM MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "5133": {
+  "ad": "ÜSTÜN ZEKALILAR ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "5134": {
+  "ad": "YAZILIM MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "5135": {
+  "ad": "ZİRAAT MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "5136": {
+  "ad": "UÇAK GÖVDE-MOTOR BAKIM / UÇAK GÖVDE - MOTOR BAKIM",
+  "duzey": "lisans"
+ },
+ "5137": {
+  "ad": "BİLGİSAYAR BİLİMİ VE MÜHENDİSLİĞİ / BİLGİSAYAR BİLİMLERİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "5138": {
+  "ad": "BİYOLOJİ BİLİMLERİ VE BİYOMÜHENDİSLİK",
+  "duzey": "lisans"
+ },
+ "5139": {
+  "ad": "MİKROELEKTRONİK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "5140": {
+  "ad": "ÜRETİM SİSTEMLERİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "5141": {
+  "ad": "KÜLTÜREL ETÜDLER / KÜLTÜREL ETÜTLER",
+  "duzey": "lisans"
+ },
+ "5142": {
+  "ad": "TOPLUMSAL VE SİYASAL BİLİMLER",
+  "duzey": "lisans"
+ },
+ "5143": {
+  "ad": "YÖNETİM BİLİMLERİ / YÖNETİM BİLİMLERİ PROGRAMLARI 10",
+  "duzey": "lisans"
+ },
+ "5144": {
+  "ad": "MODEL ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "6074": {
+  "ad": "ZİRAİ EKONOMİ",
+  "duzey": "lisans"
+ },
+ "6075": {
+  "ad": "ESKİÇAĞ TARİHİ",
+  "duzey": "lisans"
+ },
+ "6077": {
+  "ad": "MALİYE-İSTATİSTİK",
+  "duzey": "lisans"
+ },
+ "6078": {
+  "ad": "BİLGİ İŞLEM ENFORMASYON",
+  "duzey": "lisans"
+ },
+ "6080": {
+  "ad": "TÜRK DİLİ",
+  "duzey": "lisans"
+ },
+ "6081": {
+  "ad": "İKTİSADİ VE TİCARİ İLİMLER",
+  "duzey": "lisans"
+ },
+ "6082": {
+  "ad": "İNGİLİZCE ÇİNCE ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "6083": {
+  "ad": "SİYASET VE İDARE",
+  "duzey": "lisans"
+ },
+ "6084": {
+  "ad": "ENDÜSTRİ",
+  "duzey": "lisans"
+ },
+ "6085": {
+  "ad": "KÜLTÜR TEKNİK VE MAKİNE",
+  "duzey": "lisans"
+ },
+ "6088": {
+  "ad": "POPÜLER MÜZİK ŞARKICILIĞI",
+  "duzey": "lisans"
+ },
+ "6089": {
+  "ad": "BİLGİ YÖNETİMİ VE İSTİHBARAT",
+  "duzey": "lisans"
+ },
+ "6090": {
+  "ad": "SOSYAL",
+  "duzey": "lisans"
+ },
+ "6091": {
+  "ad": "FİZİK-KİMYA-BİYOLOJİ",
+  "duzey": "lisans"
+ },
+ "6093": {
+  "ad": "SAVUNMA YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "6094": {
+  "ad": "TIBBİ LABORATUVAR",
+  "duzey": "lisans"
+ },
+ "6095": {
+  "ad": "SANAYİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "6098": {
+  "ad": "FEN VE TABİAT BİLGİSİ",
+  "duzey": "lisans"
+ },
+ "6104": {
+  "ad": "SINIF ÖĞRETMENLİĞİ - -",
+  "duzey": "ortaöğretim"
+ },
+ "6108": {
+  "ad": "ELEKTRONİK VE HABERLEŞME",
+  "duzey": "lisans"
+ },
+ "6109": {
+  "ad": "JEOLOJİ MÜHENDİSLİĞİ - MADEN",
+  "duzey": "lisans"
+ },
+ "6119": {
+  "ad": "BANKACILIK VE FİNANS / BANKACILIK VE FİNANSMAN",
+  "duzey": "lisans"
+ },
+ "6131": {
+  "ad": "BİTKİSEL ÜRETİM",
+  "duzey": "lisans"
+ },
+ "6146": {
+  "ad": "ÇOCUK GELİŞİMİ VE EĞİTİMİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "6152": {
+  "ad": "DİL BİLİMİ / DİLBİLİM",
+  "duzey": "lisans"
+ },
+ "6165": {
+  "ad": "ELEKTRONİK VE BİLGİSAYAR ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "6173": {
+  "ad": "ENFORMASYON TEKNOLOJİLERİ",
+  "duzey": "lisans"
+ },
+ "6188": {
+  "ad": "GAZETECİLİK",
+  "duzey": "lisans"
+ },
+ "6208": {
+  "ad": "SAĞLIK HİZMETLERİ 3 SAĞLIK BAKIM TEKNİSYENLİĞİ",
+  "duzey": "ortaöğretim"
+ },
+ "6214": {
+  "ad": "İLAHİYAT",
+  "duzey": "lisans"
+ },
+ "6229": {
+  "ad": "İŞLETME-EKONOMİ / İŞLETME-İKTİSAT",
+  "duzey": "lisans"
+ },
+ "6235": {
+  "ad": "JEOLOJİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "6241": {
+  "ad": "KİMYA MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "6256": {
+  "ad": "MATEMATİK",
+  "duzey": "lisans"
+ },
+ "6262": {
+  "ad": "METEOROLOJİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "6277": {
+  "ad": "ORMAN MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "6283": {
+  "ad": "PEYZAJ MİMARLIĞI",
+  "duzey": "lisans"
+ },
+ "6298": {
+  "ad": "SAĞLIK YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "6303": {
+  "ad": "FEN BİLİMLERİ - -",
+  "duzey": "ortaöğretim"
+ },
+ "6318": {
+  "ad": "SOSYAL HİZMETLER / SOSYAL HİZMET",
+  "duzey": "lisans"
+ },
+ "6324": {
+  "ad": "GELENEKSEL VE ÇAĞDAŞ GÖRSEL SANATLAR - DALI YOK",
+  "duzey": "ortaöğretim"
+ },
+ "6339": {
+  "ad": "TURİZM VE OTEL İŞLETMECİLİĞİ",
+  "duzey": "lisans"
+ },
+ "6345": {
+  "ad": "TÜTÜN EKSPERLERİ / TÜTÜN EKSPERLİĞİ",
+  "duzey": "lisans"
+ },
+ "6351": {
+  "ad": "ULUSLARARASI FİNANS",
+  "duzey": "lisans"
+ },
+ "6366": {
+  "ad": "DİŞ HEKİMLİĞİ",
+  "duzey": "lisans"
+ },
+ "6373": {
+  "ad": "VETERİNER",
+  "duzey": "lisans"
+ },
+ "7101": {
+  "ad": "ANTRENÖRLÜK EĞİTİMİ",
+  "duzey": "lisans"
+ },
+ "7102": {
+  "ad": "BEDEN EĞİTİMİ VE SPOR ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "7103": {
+  "ad": "REKREASYON",
+  "duzey": "lisans"
+ },
+ "7104": {
+  "ad": "SPOR YÖNETİCİLİĞİ 11",
+  "duzey": "lisans"
+ },
+ "7105": {
+  "ad": "BALE",
+  "duzey": "lisans"
+ },
+ "7106": {
+  "ad": "BALE DANSÇILIĞI",
+  "duzey": "lisans"
+ },
+ "7107": {
+  "ad": "BANDO ŞEFLİĞİ",
+  "duzey": "lisans"
+ },
+ "7108": {
+  "ad": "FOLKLOR VE ETNOMÜZİKOLOJİ",
+  "duzey": "lisans"
+ },
+ "7109": {
+  "ad": "GİTAR",
+  "duzey": "lisans"
+ },
+ "7111": {
+  "ad": "KOMPOSİZYON VE ORKESTRA ŞEFLİĞİ / KOMPOZİSYON VE ORKESTRA ŞEFLİĞİ",
+  "duzey": "lisans"
+ },
+ "7112": {
+  "ad": "KOREOLOJİ",
+  "duzey": "lisans"
+ },
+ "7113": {
+  "ad": "KORO",
+  "duzey": "lisans"
+ },
+ "7114": {
+  "ad": "MODERN DANS",
+  "duzey": "lisans"
+ },
+ "7115": {
+  "ad": "MÜZİKOLOJİ / GENEL MÜZİKOLOJİ",
+  "duzey": "lisans"
+ },
+ "7116": {
+  "ad": "NEFESLİ ÇALGILAR",
+  "duzey": "lisans"
+ },
+ "7117": {
+  "ad": "NEFESLİ ÇALGILAR VE VURMA ÇALGILAR / NEFESLİ VE VURMA ÇALGILAR",
+  "duzey": "lisans"
+ },
+ "7118": {
+  "ad": "OPERA",
+  "duzey": "lisans"
+ },
+ "7119": {
+  "ad": "OYUNCULUK",
+  "duzey": "lisans"
+ },
+ "7120": {
+  "ad": "PİYANO",
+  "duzey": "lisans"
+ },
+ "7121": {
+  "ad": "PİYANO ONARIMI VE YAPIMI / PİYANO YAPIMI VE ONARIMI",
+  "duzey": "lisans"
+ },
+ "7122": {
+  "ad": "PİYANO ARP / PİYANO VE HARP",
+  "duzey": "lisans"
+ },
+ "7123": {
+  "ad": "ŞAN",
+  "duzey": "lisans"
+ },
+ "7124": {
+  "ad": "ŞAN OPERA / ŞAN VE OPERA / ŞAN-OPERA",
+  "duzey": "lisans"
+ },
+ "7126": {
+  "ad": "TİYATRO",
+  "duzey": "lisans"
+ },
+ "7127": {
+  "ad": "TİYATRO (OYUNCULUK)",
+  "duzey": "lisans"
+ },
+ "7128": {
+  "ad": "TÜRK HALK OYUNLARI",
+  "duzey": "lisans"
+ },
+ "7129": {
+  "ad": "TÜRK MUSİKİSİ TEMEL BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "7130": {
+  "ad": "TÜRK MÜZİĞİ",
+  "duzey": "lisans"
+ },
+ "7131": {
+  "ad": "TÜRK SANAT MÜZİĞİ",
+  "duzey": "lisans"
+ },
+ "7132": {
+  "ad": "TÜRK SANAT MÜZİĞİ SES EĞİTİMİ",
+  "duzey": "lisans"
+ },
+ "7133": {
+  "ad": "TÜRK SANAT MÜZİĞİ TEMEL BİLİMLER",
+  "duzey": "lisans"
+ },
+ "7134": {
+  "ad": "YAYLI ÇALGILAR",
+  "duzey": "lisans"
+ },
+ "7135": {
+  "ad": "YAYLI ÇALGILAR YAPIMI",
+  "duzey": "lisans"
+ },
+ "7136": {
+  "ad": "ÇALGI YAPIM / ENSTRÜMAN YAPIM",
+  "duzey": "lisans"
+ },
+ "7141": {
+  "ad": "TAŞINABİLİR KÜLTÜR VARLIKLARINI KORUMA VE ONARIM",
+  "duzey": "lisans"
+ },
+ "7143": {
+  "ad": "MÜZİK ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "7144": {
+  "ad": "RESİM İŞ ÖĞRETMENLİĞİ / RESİM-İŞ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "7145": {
+  "ad": "GRAFİK SANATLAR / GRAFİK SANATLARI",
+  "duzey": "lisans"
+ },
+ "7146": {
+  "ad": "SERAMİK SANATLAR / SERAMİK SANATLARI",
+  "duzey": "lisans"
+ },
+ "7148": {
+  "ad": "MÜZİK",
+  "duzey": "lisans"
+ },
+ "7150": {
+  "ad": "BASKI SANATLARI",
+  "duzey": "lisans"
+ },
+ "7151": {
+  "ad": "CİLT",
+  "duzey": "lisans"
+ },
+ "7152": {
+  "ad": "ÇİZGİ FİLM (ANİMASYON) / ÇİZGİ FİLM - ANİMASYON",
+  "duzey": "lisans"
+ },
+ "7153": {
+  "ad": "DRAMATİK YAZARLIK-DRAMATURJİ / DRAMATURJİ-DRAMATİK YAZARLIK",
+  "duzey": "lisans"
+ },
+ "7154": {
+  "ad": "ENDÜSTRİ TASARIMI",
+  "duzey": "lisans"
+ },
+ "7156": {
+  "ad": "ESKİ ÇİNİ ONARIMI / ESKİ ÇİNİ ONARIMLARI",
+  "duzey": "lisans"
+ },
+ "7157": {
+  "ad": "ESKİ YAZI (HAT)",
+  "duzey": "lisans"
+ },
+ "7158": {
+  "ad": "FOTOĞRAF",
+  "duzey": "lisans"
+ },
+ "7159": {
+  "ad": "GELENEKSEL TÜRK EL SANATLARI",
+  "duzey": "lisans"
+ },
+ "7160": {
+  "ad": "GRAFİK",
+  "duzey": "lisans"
+ },
+ "7161": {
+  "ad": "GRAFİK TASARIM",
+  "duzey": "lisans"
+ },
+ "7162": {
+  "ad": "GRAFİK TASARIMI",
+  "duzey": "lisans"
+ },
+ "7163": {
+  "ad": "HALI, KİLİM VE ESKİ KUMAŞ DESENLERİ / HALI-KİLİM VE ESKİ KUMAŞ DESENLERİ",
+  "duzey": "lisans"
+ },
+ "7164": {
+  "ad": "HEYKEL",
+  "duzey": "lisans"
+ },
+ "7165": {
+  "ad": "İÇ MİMARİ VE ÇEVRE TASARIMI 12",
+  "duzey": "lisans"
+ },
+ "7168": {
+  "ad": "İLETİŞİM VE TASARIM",
+  "duzey": "lisans"
+ },
+ "7169": {
+  "ad": "MODA VE TEKSTİL TASARIM / MODA VE TEKSTİL TASARIMI / TEKSTİL VE MODA TASARIMI",
+  "duzey": "lisans"
+ },
+ "7171": {
+  "ad": "MÜZİK BİLİMLERİ / MÜZİK BİLİMLER",
+  "duzey": "lisans"
+ },
+ "7173": {
+  "ad": "PLASTİK SANATLAR (RESİM - HEYKEL VE TAKI TASARIMI, SERAMİK) / PLASTİK SANATLAR (RESİM, HEYKEL,SERAMİK VE TAKI TASARIMI)",
+  "duzey": "lisans"
+ },
+ "7175": {
+  "ad": "SAHNE DEKORLARI VE KOSTÜMÜ",
+  "duzey": "lisans"
+ },
+ "7176": {
+  "ad": "SAHNE TASARIMI",
+  "duzey": "lisans"
+ },
+ "7177": {
+  "ad": "SANAT (TASARIM) YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "7179": {
+  "ad": "SERAMİK VE CAM / SERAMİK VE CAM TASARIMI",
+  "duzey": "lisans"
+ },
+ "7180": {
+  "ad": "TEKSTİL",
+  "duzey": "lisans"
+ },
+ "7181": {
+  "ad": "TEKSTİL TASARIMI",
+  "duzey": "lisans"
+ },
+ "7182": {
+  "ad": "TEZHİP (SÜSLEME)",
+  "duzey": "lisans"
+ },
+ "7184": {
+  "ad": "TİYATRO (DEKOR VE KOSTÜM)",
+  "duzey": "lisans"
+ },
+ "7188": {
+  "ad": "RESİM",
+  "duzey": "lisans"
+ },
+ "7189": {
+  "ad": "SERAMİK",
+  "duzey": "lisans"
+ },
+ "7190": {
+  "ad": "GÖRSEL İLETİŞİM SANATI",
+  "duzey": "lisans"
+ },
+ "7191": {
+  "ad": "GÖRSEL SANATLAR VE GÖRSEL İLETİŞİM TASARIMI",
+  "duzey": "lisans"
+ },
+ "7192": {
+  "ad": "SAHNE VE GÖSTERİ SANATLARI YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "7194": {
+  "ad": "TÜRK MUSİKİSİ",
+  "duzey": "lisans"
+ },
+ "7195": {
+  "ad": "GELENEKSEL TÜRK EL SANATLARI ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "7196": {
+  "ad": "GRAFİK ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "7197": {
+  "ad": "MESLEKİ RESİM ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "7198": {
+  "ad": "SERAMİK ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "7205": {
+  "ad": "MÜZİK (PİYANO, YAYLI ÇALGILAR, NEFESLİ ÇALGILAR VE VURMA ÇALGILAR, KORO, TEORİ- KOMPOSİZYON, RİTMİK MÜZİK)",
+  "duzey": "lisans"
+ },
+ "7208": {
+  "ad": "BİLEŞİK SANATLAR / BİRLEŞİK SANATLAR",
+  "duzey": "lisans"
+ },
+ "7209": {
+  "ad": "DANS",
+  "duzey": "lisans"
+ },
+ "7210": {
+  "ad": "DUYSAL (SES) SANATLARI TASARIMI / DUYSAL SANATLARI TASARIMI",
+  "duzey": "lisans"
+ },
+ "7211": {
+  "ad": "FOTOĞRAF VE VİDEO",
+  "duzey": "lisans"
+ },
+ "7212": {
+  "ad": "İLETİŞİM TASARIMI (MULTİMEDİA)",
+  "duzey": "lisans"
+ },
+ "7213": {
+  "ad": "MÜZİK TOPLULUKLARI",
+  "duzey": "lisans"
+ },
+ "7214": {
+  "ad": "SANAT YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "7215": {
+  "ad": "HAVA TRAFİK KONTROL",
+  "duzey": "lisans"
+ },
+ "7216": {
+  "ad": "PİLOTAJ",
+  "duzey": "lisans"
+ },
+ "7219": {
+  "ad": "SPOR BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "7221": {
+  "ad": "KOMPOZİSYON / KOMPOSİZYON",
+  "duzey": "lisans"
+ },
+ "7223": {
+  "ad": "SES EĞİTİMİ",
+  "duzey": "lisans"
+ },
+ "7224": {
+  "ad": "TEMEL BİLİMLER",
+  "duzey": "lisans"
+ },
+ "8120": {
+  "ad": "AİLE VE TÜKETİCİ BİLİMLERİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8121": {
+  "ad": "ALMAN DİLİ VE KÜLTÜRÜ",
+  "duzey": "lisans"
+ },
+ "8122": {
+  "ad": "BASIM VE YAYIMCILIK",
+  "duzey": "lisans"
+ },
+ "8123": {
+  "ad": "BEDEN EĞİTİMİ VE SPOR YÜKSEKOKULU",
+  "duzey": "lisans"
+ },
+ "8124": {
+  "ad": "BESİN TEKNOLOJİSİ VE ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8125": {
+  "ad": "BİLGİSAYAR TEKNOLOJİSİ BÖLÜMÜ",
+  "duzey": "lisans"
+ },
+ "8126": {
+  "ad": "ÇOCUK GELİŞİMİ VE OKUL ÖNCESİ ÖĞRETMENLİĞİ / ÇOÇUK GELİŞİMİ VE OKUL ÖNCESİ EĞİTİMİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8127": {
+  "ad": "DEKORATİF ÜRÜNLER ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8128": {
+  "ad": "EĞİTİMDE PSİKOLOJİK HİZMETLER",
+  "duzey": "lisans"
+ },
+ "8129": {
+  "ad": "ESKİ ÇAĞ DİLLERİ VE KÜLTÜRLERİ / ESKİÇAĞ DİLLERİ VE KÜLTÜRLERİ",
+  "duzey": "lisans"
+ },
+ "8130": {
+  "ad": "EV-İŞ VE EV EKONOMİSİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8131": {
+  "ad": "FRANSIZ DİLİ VE KÜLTÜRÜ 13",
+  "duzey": "lisans"
+ },
+ "8132": {
+  "ad": "İLETİŞİM SANATLARI",
+  "duzey": "lisans"
+ },
+ "8133": {
+  "ad": "İŞ VE TEKNİK EĞİTİM ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8134": {
+  "ad": "İŞLETME ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8135": {
+  "ad": "ÖZEL EĞİTİM",
+  "duzey": "lisans"
+ },
+ "8136": {
+  "ad": "ÖZEL EĞİTİM ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8137": {
+  "ad": "RESİM ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8138": {
+  "ad": "ROMEN DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "8139": {
+  "ad": "TRİKOTAJ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8140": {
+  "ad": "UYGULAMALI RESİM ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8141": {
+  "ad": "KONTROL VE BİLGİSAYAR MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "8142": {
+  "ad": "TURİZMDE BİLGİSAYAR TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "8143": {
+  "ad": "BİLGİSAYAR BİLİMİ / BİLGİSAYAR BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "8144": {
+  "ad": "BİLGİ VE BELGE YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "8145": {
+  "ad": "AĞAÇ İŞLERİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8146": {
+  "ad": "ARP",
+  "duzey": "lisans"
+ },
+ "8147": {
+  "ad": "BAHÇE BİTKİLERİ",
+  "duzey": "lisans"
+ },
+ "8148": {
+  "ad": "BASIN VE YAYIMCILIK",
+  "duzey": "lisans"
+ },
+ "8149": {
+  "ad": "BASKI ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8150": {
+  "ad": "BATI AVRUPA İŞ İDARESİ VE İKTİSAT",
+  "duzey": "lisans"
+ },
+ "8151": {
+  "ad": "BİLGİSAYAR SİSTEMLERİ VE TEKNOLOJİLERİ",
+  "duzey": "lisans"
+ },
+ "8152": {
+  "ad": "BİLGİSAYAR TEKNOLOJİSİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8153": {
+  "ad": "BİLGİSAYAR TEKNOLOJİSİ VE BÜRO YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "8154": {
+  "ad": "BİLGİSAYAR VE ENFORMASYON SİSTEMLERİ",
+  "duzey": "lisans"
+ },
+ "8155": {
+  "ad": "BİLGİSAYAR VE ENFORMATİK / BİLGİSAYAR-ENFORMATİK",
+  "duzey": "lisans"
+ },
+ "8156": {
+  "ad": "BİLGİSAYAR VE ENFORMATİK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "8157": {
+  "ad": "BİLİM TARİHİ",
+  "duzey": "lisans"
+ },
+ "8158": {
+  "ad": "BİTKİ KORUMA",
+  "duzey": "lisans"
+ },
+ "8159": {
+  "ad": "BOYA-APRE ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8160": {
+  "ad": "CAM",
+  "duzey": "lisans"
+ },
+ "8161": {
+  "ad": "ÇOCUK GELİŞİMİ VE EV YÖNETİMİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8162": {
+  "ad": "ÇOCUK SAĞLIĞI VE EĞİTİMİ",
+  "duzey": "lisans"
+ },
+ "8163": {
+  "ad": "DEKORATİF EŞYALAR VE ÇİÇEK ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8164": {
+  "ad": "DENİZ BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "8165": {
+  "ad": "DENİZ BİLİMLERİ VE TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "8166": {
+  "ad": "DERİ TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "8167": {
+  "ad": "DERİ VE LİF TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "8168": {
+  "ad": "DEVLET KONSERVATUVARI",
+  "duzey": "lisans"
+ },
+ "8169": {
+  "ad": "DEVLET TÜRK MUSİKİSİ KONSERVATUARI / DEVLET TÜRK MUSİKİSİ KONSERVATUVARI",
+  "duzey": "lisans"
+ },
+ "8170": {
+  "ad": "DOKUMA ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8171": {
+  "ad": "DOKUMA VE ÖRGÜ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8172": {
+  "ad": "DÖKÜM İŞLERİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8173": {
+  "ad": "EĞİTİM BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "8174": {
+  "ad": "EĞİTİM PROGRAMLARI VE ÖĞRETİM",
+  "duzey": "lisans"
+ },
+ "8175": {
+  "ad": "EĞİTİM YÖNETİCİLİĞİ VE DENETİCİLİĞİ",
+  "duzey": "lisans"
+ },
+ "8176": {
+  "ad": "EĞİTİM YÖNETİMİ VE PLANLAMASI",
+  "duzey": "lisans"
+ },
+ "8177": {
+  "ad": "EĞİTİMDE ÖLÇME VE DEĞERLENDİRME / EĞİTİMDE ÖLÇME-DEĞERLENDİRME",
+  "duzey": "lisans"
+ },
+ "8178": {
+  "ad": "MÜTERCİM-TERCÜMANLIK (ALMANCA)",
+  "duzey": "lisans"
+ },
+ "8179": {
+  "ad": "EL SANATLARI ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8180": {
+  "ad": "ELEKTRİK İŞLERİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8181": {
+  "ad": "ELEKTRONİK İŞLERİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8182": {
+  "ad": "ENERJİ MÜHENDİSLİĞİ 14",
+  "duzey": "lisans"
+ },
+ "8183": {
+  "ad": "YAYLI SAZLAR",
+  "duzey": "lisans"
+ },
+ "8184": {
+  "ad": "MÜTERCİM-TERCÜMANLIK (FRANSIZCA)",
+  "duzey": "lisans"
+ },
+ "8185": {
+  "ad": "ESKİ KUMAŞ DESENLERİ",
+  "duzey": "lisans"
+ },
+ "8186": {
+  "ad": "ESKİ YAZI",
+  "duzey": "lisans"
+ },
+ "8187": {
+  "ad": "EV İDARESİ VE AİLE EKONOMİSİ",
+  "duzey": "lisans"
+ },
+ "8188": {
+  "ad": "EV-İŞ EĞİTİMİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8189": {
+  "ad": "FAGOT",
+  "duzey": "lisans"
+ },
+ "8190": {
+  "ad": "FLÜT",
+  "duzey": "lisans"
+ },
+ "8191": {
+  "ad": "GAZETECİLİK VE HALKLA İLİŞKİLER",
+  "duzey": "lisans"
+ },
+ "8192": {
+  "ad": "GEMİ MAKİNALARI / GEMİ MAKİNELERİ",
+  "duzey": "lisans"
+ },
+ "8193": {
+  "ad": "GEMİ MAKİNELERİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "8194": {
+  "ad": "GEMOLOJİ",
+  "duzey": "lisans"
+ },
+ "8195": {
+  "ad": "GENETİK VE BİYOMÜHENDİSLİK",
+  "duzey": "lisans"
+ },
+ "8196": {
+  "ad": "GIDA BİLİMİ VE TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "8197": {
+  "ad": "GİYİM ENDÜSTRİSİ VE GİYİM ÖĞRETMENLİĞİ / GİYİM ENDÜSTRİSİ VE GİYİM SANATLARI ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8198": {
+  "ad": "HABERLEŞME TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "8199": {
+  "ad": "KOMPOSİZYON VE MÜZİK TEORİSİ / KOMPOZİSYON VE MÜZİK TEORİSİ",
+  "duzey": "lisans"
+ },
+ "8200": {
+  "ad": "HALK EĞİTİMİ",
+  "duzey": "lisans"
+ },
+ "8201": {
+  "ad": "HAVA KONTROLÖRÜ",
+  "duzey": "lisans"
+ },
+ "8202": {
+  "ad": "ÇEVİRİBİLİM (İNGİLİZCE) / ÇEVİRİBİLİM",
+  "duzey": "lisans"
+ },
+ "8203": {
+  "ad": "HAZIR GİYİM TEKNOLOJİSİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8204": {
+  "ad": "HOLLANDA DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "8205": {
+  "ad": "İÇ MİMARİ",
+  "duzey": "lisans"
+ },
+ "8206": {
+  "ad": "İPLİKÇİLİK ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8207": {
+  "ad": "İŞ İDARESİ",
+  "duzey": "lisans"
+ },
+ "8208": {
+  "ad": "İŞ İDARESİ VE İKTİSAT",
+  "duzey": "lisans"
+ },
+ "8209": {
+  "ad": "İŞ YÖNETİMİ VE TİCARET EĞİTİMİ ÖĞRETMENLİĞİ / İŞ YÖNETİMİ VE TİCARET ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8210": {
+  "ad": "İŞLETME ENFORMATİĞİ",
+  "duzey": "lisans"
+ },
+ "8211": {
+  "ad": "İŞLETME, MUHASEBE VE TİCARET ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8212": {
+  "ad": "KAYNAK ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8213": {
+  "ad": "KEMAN",
+  "duzey": "lisans"
+ },
+ "8214": {
+  "ad": "KLARNET",
+  "duzey": "lisans"
+ },
+ "8215": {
+  "ad": "KONAKLAMA VE TURİZM İŞLETMECİLİĞİ",
+  "duzey": "lisans"
+ },
+ "8216": {
+  "ad": "KONTRABAS",
+  "duzey": "lisans"
+ },
+ "8217": {
+  "ad": "KORNO",
+  "duzey": "lisans"
+ },
+ "8218": {
+  "ad": "KUAFÖRLÜK ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8219": {
+  "ad": "KUYUMCULUK",
+  "duzey": "lisans"
+ },
+ "8220": {
+  "ad": "KÜLTÜR BİTKİLERİ ÜRETİMİ VE PAZARLAMASI",
+  "duzey": "lisans"
+ },
+ "8221": {
+  "ad": "KÜLTÜR TEKNİK",
+  "duzey": "lisans"
+ },
+ "8222": {
+  "ad": "LOJİSTİK YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "8223": {
+  "ad": "MAKİNE",
+  "duzey": "lisans"
+ },
+ "8224": {
+  "ad": "MAKİNA RESSAMLIĞI ÖĞRETMENLİĞİ / MAKİNE RESSAMLIĞI ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8225": {
+  "ad": "MALİYE-MUHASEBE",
+  "duzey": "lisans"
+ },
+ "8226": {
+  "ad": "MALZEME",
+  "duzey": "lisans"
+ },
+ "8227": {
+  "ad": "MALZEME MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "8228": {
+  "ad": "MATEMATİK VE İNFORMATİK / MATEMATİK-İNFORMATİK",
+  "duzey": "lisans"
+ },
+ "8229": {
+  "ad": "MATEMATİK VE İSTATİSTİK",
+  "duzey": "lisans"
+ },
+ "8230": {
+  "ad": "MATEMATİK-BİLGİSAYAR PROGRAMCILIĞI",
+  "duzey": "lisans"
+ },
+ "8231": {
+  "ad": "METAL İŞLERİ ÖĞRETMENLİĞİ 15",
+  "duzey": "lisans"
+ },
+ "8232": {
+  "ad": "METALURJİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "8233": {
+  "ad": "MOTOR ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8234": {
+  "ad": "MUHASEBE-İŞLETME ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8235": {
+  "ad": "MÜHENDİSLİK BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "8236": {
+  "ad": "MÜZİK TEORİSİ",
+  "duzey": "lisans"
+ },
+ "8237": {
+  "ad": "NEFESLİ SAZLAR",
+  "duzey": "lisans"
+ },
+ "8238": {
+  "ad": "OBUA",
+  "duzey": "lisans"
+ },
+ "8239": {
+  "ad": "BÜRO YÖNETİMİ VE SEKRETERLİK",
+  "duzey": "lisans"
+ },
+ "8240": {
+  "ad": "OPERA, KORO VE POPÜLER MÜZİK ŞARKICILIĞI",
+  "duzey": "lisans"
+ },
+ "8241": {
+  "ad": "PETROL MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "8242": {
+  "ad": "MÜTERCİM-TERCÜMANLIK (İNG-FRA-TÜRKÇE)",
+  "duzey": "lisans"
+ },
+ "8243": {
+  "ad": "PLASTİK SANATLAR",
+  "duzey": "lisans"
+ },
+ "8244": {
+  "ad": "MEDYA VE İLETİŞİM",
+  "duzey": "lisans"
+ },
+ "8245": {
+  "ad": "PLASTİK SANATLAR (RESİM-HEYKEL SERAMİK) / PLASTİK SANATLAR (RESİM-HEYKEL VE SERAMİK)",
+  "duzey": "lisans"
+ },
+ "8246": {
+  "ad": "SİNEMA-TV FOTOĞRAF / SİNEMA-TV-FOTOĞRAF",
+  "duzey": "lisans"
+ },
+ "8247": {
+  "ad": "RADYO VE TELEVİZYON / RADYO-TV",
+  "duzey": "lisans"
+ },
+ "8248": {
+  "ad": "REHBERLİK",
+  "duzey": "lisans"
+ },
+ "8249": {
+  "ad": "REKLAM TASARIMI VE İLETİŞİMİ",
+  "duzey": "lisans"
+ },
+ "8250": {
+  "ad": "RESİM-İŞ EĞİTİMİ",
+  "duzey": "lisans"
+ },
+ "8251": {
+  "ad": "RESTORASYON",
+  "duzey": "lisans"
+ },
+ "8252": {
+  "ad": "SAHNE VE GÖRÜNTÜ SANATLARI",
+  "duzey": "lisans"
+ },
+ "8253": {
+  "ad": "SANAT TASARIMI / SANAT VE TASARIM",
+  "duzey": "lisans"
+ },
+ "8254": {
+  "ad": "SIHHİ TESİSAT ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8255": {
+  "ad": "SLAV DİLLERİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "8256": {
+  "ad": "SPOR BİLİMLERİ VE TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "8257": {
+  "ad": "SÜSLEME VE DEKORATİF SANATLAR / SÜSLEME VE DEKORATİF SANATLARI",
+  "duzey": "lisans"
+ },
+ "8258": {
+  "ad": "SÜT TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "8259": {
+  "ad": "ŞEFLİK",
+  "duzey": "lisans"
+ },
+ "8260": {
+  "ad": "TAKI TASARIMI",
+  "duzey": "lisans"
+ },
+ "8261": {
+  "ad": "TARIM İŞLETMECİLİĞİ",
+  "duzey": "lisans"
+ },
+ "8262": {
+  "ad": "TARIM ÜRÜNLERİ TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "8263": {
+  "ad": "TARIMSAL MEKANİZASYON",
+  "duzey": "lisans"
+ },
+ "8264": {
+  "ad": "TEKNOLOJİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8265": {
+  "ad": "TEKSTİL GELİŞTİRME VE PAZARLAMA",
+  "duzey": "lisans"
+ },
+ "8266": {
+  "ad": "TESVİYE ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8267": {
+  "ad": "TİCARET - İŞ EĞİTİMİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8268": {
+  "ad": "TROMBON",
+  "duzey": "lisans"
+ },
+ "8269": {
+  "ad": "TROMPET",
+  "duzey": "lisans"
+ },
+ "8270": {
+  "ad": "TURİZM İŞLETMECİLİĞİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8271": {
+  "ad": "TURİZM İŞLETMECİLİĞİ VE OTELCİLİK ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8272": {
+  "ad": "TURİZM ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8273": {
+  "ad": "TÜRK HALK MÜZİĞİ",
+  "duzey": "lisans"
+ },
+ "8274": {
+  "ad": "UÇAK TEÇHİZAT BAKIM",
+  "duzey": "lisans"
+ },
+ "8275": {
+  "ad": "ULUSLARARASI İŞLETMECİLİK",
+  "duzey": "lisans"
+ },
+ "8276": {
+  "ad": "URDU DİLİ VE PAKİSTAN ARAŞTIRMALARI",
+  "duzey": "lisans"
+ },
+ "8277": {
+  "ad": "UYGULAMALI MATEMATİK VE BİLGİSAYAR",
+  "duzey": "lisans"
+ },
+ "8278": {
+  "ad": "UYGULAMALI SANATLAR ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8279": {
+  "ad": "UZAY BİLİMLERİ VE TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "8280": {
+  "ad": "ÜFLEME VE VURMA ÇALGILAR / ÜFLEMELİ VE VURMALI ÇALGILAR / ÜFLEME VE VURMALI ÇALGILAR 16",
+  "duzey": "lisans"
+ },
+ "8281": {
+  "ad": "VİYOLA",
+  "duzey": "lisans"
+ },
+ "8282": {
+  "ad": "VİYOLENSEL / VİYOLONSEL",
+  "duzey": "lisans"
+ },
+ "8283": {
+  "ad": "VURMA SAZLAR",
+  "duzey": "lisans"
+ },
+ "8284": {
+  "ad": "YAPI İŞLERİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8285": {
+  "ad": "YAPI TASARIMI ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8286": {
+  "ad": "NEFESLİ ÇALGILAR VE VURMA SAZLAR",
+  "duzey": "lisans"
+ },
+ "8287": {
+  "ad": "YER TEÇHİZAT BAKIM",
+  "duzey": "lisans"
+ },
+ "8288": {
+  "ad": "YİYECEK İÇECEK İŞLETMECİLİĞİ / YİYECEK VE İÇECEK İŞLETMECİLİĞİ",
+  "duzey": "lisans"
+ },
+ "8289": {
+  "ad": "ZOOTEKNİ / ZOOTEKNİK",
+  "duzey": "lisans"
+ },
+ "8290": {
+  "ad": "MÜTERCİM-TERCÜMANLIK (İNGİLİZCE)",
+  "duzey": "lisans"
+ },
+ "8291": {
+  "ad": "MÜZİK (PİYANO, YAYLI ÇALGILAR, NEFESLİ ÇALGILAR VE VURMA ÇALGILAR,ŞAN, TEORİ- KOMPOSİZYON)",
+  "duzey": "lisans"
+ },
+ "8292": {
+  "ad": "SİNEMA",
+  "duzey": "lisans"
+ },
+ "8293": {
+  "ad": "İNGİLİZ DİLİ VE KÜLTÜRÜ",
+  "duzey": "lisans"
+ },
+ "8294": {
+  "ad": "GÜVERTE (DKK)",
+  "duzey": "lisans"
+ },
+ "8295": {
+  "ad": "MAKİNA (DKK)",
+  "duzey": "lisans"
+ },
+ "8296": {
+  "ad": "YÖNETİM VE ORGANİZASYON",
+  "duzey": "lisans"
+ },
+ "8297": {
+  "ad": "ADALET YÜKSEKOKULU (B) (EKSTERN)",
+  "duzey": "lisans"
+ },
+ "8298": {
+  "ad": "RESİM-HEYKEL (PLASTİK SANATLAR)",
+  "duzey": "lisans"
+ },
+ "8299": {
+  "ad": "RİTMİK MÜZİK",
+  "duzey": "lisans"
+ },
+ "8300": {
+  "ad": "SOSYAL HİZMETLER",
+  "duzey": "lisans"
+ },
+ "8301": {
+  "ad": "TAKI TASARIMI (PLASTİK SANATLAR)",
+  "duzey": "lisans"
+ },
+ "8302": {
+  "ad": "TEORİ-KOMPOZİSYON( MÜZİK)",
+  "duzey": "lisans"
+ },
+ "8303": {
+  "ad": "TÜRK MUSİKİSİ TEMEL BİLİMLER",
+  "duzey": "lisans"
+ },
+ "8304": {
+  "ad": "ALMAN DİL BİLİMİ",
+  "duzey": "lisans"
+ },
+ "8305": {
+  "ad": "AMERİKAN DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "8306": {
+  "ad": "ASTRONOMİ",
+  "duzey": "lisans"
+ },
+ "8307": {
+  "ad": "BEDEN EĞİTİMİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8308": {
+  "ad": "BİLGİ TEKNOLOJİLERİ",
+  "duzey": "lisans"
+ },
+ "8309": {
+  "ad": "BİLGİSAYAR DONANIMI VE TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "8310": {
+  "ad": "BİLGİSAYAR VE ÖĞRETİM TEKNOLOJİLERİ ÖĞRETİMİ",
+  "duzey": "lisans"
+ },
+ "8311": {
+  "ad": "CEBİR VE SAYILAR TEORİSİ",
+  "duzey": "lisans"
+ },
+ "8312": {
+  "ad": "ÇALIŞMA EKONOMİSİ",
+  "duzey": "lisans"
+ },
+ "8313": {
+  "ad": "ÇEVRE BİLİMLERİ VE YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "8314": {
+  "ad": "ÇEVREBİLİM",
+  "duzey": "lisans"
+ },
+ "8315": {
+  "ad": "DİN KÜLTÜRÜ VE AHLAK BİLGİSİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8316": {
+  "ad": "EKOLOJİ",
+  "duzey": "lisans"
+ },
+ "8318": {
+  "ad": "ENDÜSTRİ SİSTEMLERİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "8319": {
+  "ad": "ENERJİ SİSTEMLERİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "8320": {
+  "ad": "GELENEKSEL EL SANATLARI",
+  "duzey": "lisans"
+ },
+ "8321": {
+  "ad": "GELENEKSEL TÜRK SANATLARI",
+  "duzey": "lisans"
+ },
+ "8322": {
+  "ad": "GEMİ İNŞAAT VE GEMİ MAKİNELERİ MÜHENDİSLİĞİ / GEMİ İNŞAATI VE GEMİ MAKİNELERİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "8323": {
+  "ad": "HABERLEŞME MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "8324": {
+  "ad": "HARİTA MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "8325": {
+  "ad": "HAVACILIK",
+  "duzey": "lisans"
+ },
+ "8326": {
+  "ad": "HİDROJEOLOJİ",
+  "duzey": "lisans"
+ },
+ "8327": {
+  "ad": "İLETİŞİM BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "8328": {
+  "ad": "İNSAN KAYNAKLARI YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "8329": {
+  "ad": "KİMYA TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "8330": {
+  "ad": "KÜLTÜR YÖNETİMİ 17",
+  "duzey": "lisans"
+ },
+ "8332": {
+  "ad": "OKUL ÖNCESİ EĞİTİMİ",
+  "duzey": "lisans"
+ },
+ "8333": {
+  "ad": "OTOMOTİV MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "8334": {
+  "ad": "PAZARLAMA",
+  "duzey": "lisans"
+ },
+ "8335": {
+  "ad": "SAHNE SANATLARI",
+  "duzey": "lisans"
+ },
+ "8336": {
+  "ad": "SANAT TARİHİ VE TEOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "8337": {
+  "ad": "SU ÜRÜNLERİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "8338": {
+  "ad": "TİCARİ BİLİMLER",
+  "duzey": "lisans"
+ },
+ "8339": {
+  "ad": "UÇAK ELEKTRİK ELEKTRONİK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "8340": {
+  "ad": "YAPI TASARIMI",
+  "duzey": "lisans"
+ },
+ "8341": {
+  "ad": "AİLE VE TÜKETİCİ BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "8342": {
+  "ad": "ACİL YARDIM VE AFET YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "8343": {
+  "ad": "AZERBAYCAN TÜRKÇESİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "8344": {
+  "ad": "FİZYOTERAPİ VE REHABİLİTASYON",
+  "duzey": "lisans"
+ },
+ "8345": {
+  "ad": "FOTOĞRAF VE GRAFİK SANATLAR",
+  "duzey": "lisans"
+ },
+ "8346": {
+  "ad": "GÜRCÜ DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "8347": {
+  "ad": "KONTROL ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8348": {
+  "ad": "ORKESTRA ŞEFLİĞİ",
+  "duzey": "lisans"
+ },
+ "8349": {
+  "ad": "PAZARLAMA ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8350": {
+  "ad": "TELEKOMÜNİKASYON ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8351": {
+  "ad": "TELEVİZYON HABERCİLİĞİ VE PROGRAMCILIĞI",
+  "duzey": "lisans"
+ },
+ "8352": {
+  "ad": "TURİZM ANİMASYONU",
+  "duzey": "lisans"
+ },
+ "8353": {
+  "ad": "GÖRÜNTÜ SANATLARI",
+  "duzey": "lisans"
+ },
+ "8354": {
+  "ad": "EĞİTİM PROGRAMLARI ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "8888": {
+  "ad": "ULUSLARARASI LOJİSTİK VE TAŞIMACILIK",
+  "duzey": "lisans"
+ },
+ "9001": {
+  "ad": "SAĞLIK BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "9007": {
+  "ad": "DİĞER",
+  "duzey": "lisans"
+ },
+ "9009": {
+  "ad": "DİĞER - - 10",
+  "duzey": "ortaöğretim"
+ },
+ "9034": {
+  "ad": "GEOMATİK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9044": {
+  "ad": "BAHÇE BİTKİLERİ",
+  "duzey": "lisans"
+ },
+ "9045": {
+  "ad": "TARLA BİTKİLERİ",
+  "duzey": "lisans"
+ },
+ "9046": {
+  "ad": "TARIM MAKİNELERİ",
+  "duzey": "lisans"
+ },
+ "9047": {
+  "ad": "TARIMSAL YAPILAR VE SULAMA",
+  "duzey": "lisans"
+ },
+ "9048": {
+  "ad": "TOPRAK BİLİMİ VE BİTKİ BESLEME",
+  "duzey": "lisans"
+ },
+ "9049": {
+  "ad": "ZOOTEKNİ",
+  "duzey": "lisans"
+ },
+ "9050": {
+  "ad": "SÜT TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "9093": {
+  "ad": "HARİTA MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9094": {
+  "ad": "SPOR BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "9095": {
+  "ad": "GEMİ MAKİNELERİ",
+  "duzey": "lisans"
+ },
+ "9106": {
+  "ad": "TARIMSAL BİYOTEKNOLOJİ",
+  "duzey": "lisans"
+ },
+ "9108": {
+  "ad": "ULUSLARARASI İŞLETMECİLİK VE TİCARET",
+  "duzey": "lisans"
+ },
+ "9110": {
+  "ad": "ULUSLARARASI LOJİSTİK YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9111": {
+  "ad": "SERMAYE PİYASASI DENETİM DERECELENDİRME / SERMAYE PİYASASI DENETİM VE DERECELENDİRME",
+  "duzey": "lisans"
+ },
+ "9113": {
+  "ad": "EKONOMİ POLİTİK VE TOPLUM FELSEFESİ",
+  "duzey": "lisans"
+ },
+ "9114": {
+  "ad": "BİYOSİSTEM MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9115": {
+  "ad": "MUHASEBE VE DENETİM",
+  "duzey": "lisans"
+ },
+ "9116": {
+  "ad": "OTEL YÖNETİCİLİĞİ",
+  "duzey": "lisans"
+ },
+ "9117": {
+  "ad": "HIRVAT DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "9118": {
+  "ad": "GÜMRÜK İŞLETME",
+  "duzey": "lisans"
+ },
+ "9119": {
+  "ad": "BİYOSİSTEM MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9120": {
+  "ad": "POLİMER MÜHENDİSLİĞİ 18",
+  "duzey": "lisans"
+ },
+ "9121": {
+  "ad": "SOSYAL PROGRAMLAR",
+  "duzey": "lisans"
+ },
+ "9122": {
+  "ad": "FEN PROGRAMLARI",
+  "duzey": "lisans"
+ },
+ "9123": {
+  "ad": "ULUSLARARASI, İKTİSAT, İŞLETME PROGRAMLARI",
+  "duzey": "lisans"
+ },
+ "9124": {
+  "ad": "MÜHENDİSLİK PROGRAMLARI",
+  "duzey": "lisans"
+ },
+ "9125": {
+  "ad": "RUS DİLİ",
+  "duzey": "lisans"
+ },
+ "9126": {
+  "ad": "FELSEFE (AÇIKÖĞRETİM)",
+  "duzey": "lisans"
+ },
+ "9127": {
+  "ad": "SOSYOLOJİ (AÇIKÖĞRETİM)",
+  "duzey": "lisans"
+ },
+ "9128": {
+  "ad": "TÜRK DİLİ VE EDEBİYATI (AÇIKÖĞRETİM)",
+  "duzey": "lisans"
+ },
+ "9129": {
+  "ad": "DENİZ ULAŞTIRMA İŞLETME MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9131": {
+  "ad": "ULUSLARARASI İŞLETMECİLİK VE TİCARET",
+  "duzey": "lisans"
+ },
+ "9136": {
+  "ad": "GÖRSEL İLETİŞİM TASARIMI",
+  "duzey": "lisans"
+ },
+ "9138": {
+  "ad": "GELENEKSEL ÇALGILAR",
+  "duzey": "lisans"
+ },
+ "9139": {
+  "ad": "EDEBİYAT PROGRAMLARI",
+  "duzey": "lisans"
+ },
+ "9140": {
+  "ad": "İKTİSADİ PROGRAMLAR",
+  "duzey": "lisans"
+ },
+ "9141": {
+  "ad": "KÜLTÜR VARLIKLARINI KORUMA VE ONARIM",
+  "duzey": "lisans"
+ },
+ "9142": {
+  "ad": "YENİ MEDYA",
+  "duzey": "lisans"
+ },
+ "9143": {
+  "ad": "ÖZEL EĞİTİM ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9144": {
+  "ad": "GAYRİMENKUL VE VARLIK DEĞERLENDİRME / GAYRİMENKUL VE VARLIK DEĞERLEME",
+  "duzey": "lisans"
+ },
+ "9150": {
+  "ad": "BİLGİSAYAR VE ÖĞRETİM TEKNOLOJİLERİ EĞİTİMİ",
+  "duzey": "lisans"
+ },
+ "9151": {
+  "ad": "GERONTOLOJİ",
+  "duzey": "lisans"
+ },
+ "9152": {
+  "ad": "AKSESUAR TASARIMI",
+  "duzey": "lisans"
+ },
+ "9153": {
+  "ad": "MUTFAK SANATLARI VE YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9154": {
+  "ad": "FİLM TASARIM VE YAZARLIK",
+  "duzey": "lisans"
+ },
+ "9155": {
+  "ad": "TÜRK HALK MÜZİĞİ ÇALGI EĞİTİMİ",
+  "duzey": "lisans"
+ },
+ "9156": {
+  "ad": "KURGU-SES VE GÖRÜNTÜ YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9157": {
+  "ad": "VURMA ÇALGILAR / VURMALI ÇALGILAR",
+  "duzey": "lisans"
+ },
+ "9158": {
+  "ad": "KONTROBAS",
+  "duzey": "lisans"
+ },
+ "9159": {
+  "ad": "FİLM TASARIM VE YÖNETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9160": {
+  "ad": "GRAFİK SANATLAR VE GRAFİK TASARIM",
+  "duzey": "lisans"
+ },
+ "9161": {
+  "ad": "PİYANO-ARP-GİTAR / PİYANO, ARP, GİTAR",
+  "duzey": "lisans"
+ },
+ "9162": {
+  "ad": "GÖRSEL SANATLAR",
+  "duzey": "lisans"
+ },
+ "9163": {
+  "ad": "DRAMA VE OYUNCULUK",
+  "duzey": "lisans"
+ },
+ "9164": {
+  "ad": "MÜZİKOLOJİ VE KOMPOZİSYON",
+  "duzey": "lisans"
+ },
+ "9165": {
+  "ad": "FİLM TASARIMI",
+  "duzey": "lisans"
+ },
+ "9166": {
+  "ad": "ORKESTRA VE KORO ŞEFLİĞİ",
+  "duzey": "lisans"
+ },
+ "9167": {
+  "ad": "OPERA VE KONSER ŞARKICILIĞI",
+  "duzey": "lisans"
+ },
+ "9168": {
+  "ad": "CANLANDIRMA FİLMİ TASARIM VE YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9169": {
+  "ad": "ÇALGI",
+  "duzey": "lisans"
+ },
+ "9170": {
+  "ad": "MODA GİYİM TASARIMI",
+  "duzey": "lisans"
+ },
+ "9171": {
+  "ad": "PİYANO-GİTAR",
+  "duzey": "lisans"
+ },
+ "9172": {
+  "ad": "REKREASYON YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9173": {
+  "ad": "TÜRK HALK MÜZİĞİ SES EĞİTİMİ",
+  "duzey": "lisans"
+ },
+ "9174": {
+  "ad": "DRAMATİK YAZARLIK",
+  "duzey": "lisans"
+ },
+ "9175": {
+  "ad": "SANAT VE TASARIM YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9176": {
+  "ad": "SPOR YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9177": {
+  "ad": "TEKSTİL TASARIM",
+  "duzey": "lisans"
+ },
+ "9185": {
+  "ad": "GEMİ VE DENİZ TEKNOLOJİSİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9187": {
+  "ad": "MÜTERCİM-TERCÜMANLIK (BATI DİLLERİ)",
+  "duzey": "lisans"
+ },
+ "9188": {
+  "ad": "MÜTERCİM-TERCÜMANLIK (DOĞU DİLLERİ)",
+  "duzey": "lisans"
+ },
+ "9189": {
+  "ad": "İNSAN VE TOPLUM BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "9190": {
+  "ad": "BAHÇE BİTKİLERİ ÜRETİMİ VE PAZARLAMASI 19",
+  "duzey": "lisans"
+ },
+ "9191": {
+  "ad": "CAZ",
+  "duzey": "lisans"
+ },
+ "9192": {
+  "ad": "KİMYA VE SÜREÇ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9193": {
+  "ad": "ERMENİ DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "9194": {
+  "ad": "İBRANİ DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "9195": {
+  "ad": "MEDYA VE GÖRSEL SANATLAR",
+  "duzey": "lisans"
+ },
+ "9197": {
+  "ad": "BALIKÇILIK TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "9202": {
+  "ad": "TURİZM REHBERLİĞİ VE SEYAHAT İŞLETMECİLİĞİ / SEYAHAT İŞLETMECİLİĞİ VE TURİZM REHBERLİĞİ",
+  "duzey": "lisans"
+ },
+ "9203": {
+  "ad": "AŞÇILIK",
+  "duzey": "lisans"
+ },
+ "9204": {
+  "ad": "ÇİNİ",
+  "duzey": "lisans"
+ },
+ "9205": {
+  "ad": "METALURJİ VE MALZEME MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9206": {
+  "ad": "EL SANATLARI TASARIMI VE ÜRETİMİ",
+  "duzey": "lisans"
+ },
+ "9207": {
+  "ad": "TEKSTİL TASARIMI VE ÜRETİMİ",
+  "duzey": "lisans"
+ },
+ "9208": {
+  "ad": "SAÇ VE GÜZELLİK UYGULAMALARI",
+  "duzey": "lisans"
+ },
+ "9209": {
+  "ad": "SERAMİK TASARIMI",
+  "duzey": "lisans"
+ },
+ "9210": {
+  "ad": "YAT TASARIMI",
+  "duzey": "lisans"
+ },
+ "9215": {
+  "ad": "KLASİK BALE",
+  "duzey": "lisans"
+ },
+ "9216": {
+  "ad": "CAM VE SERAMİK TASARIMI",
+  "duzey": "lisans"
+ },
+ "9217": {
+  "ad": "İDARİ BİLİMLER",
+  "duzey": "lisans"
+ },
+ "9218": {
+  "ad": "ULUSLARARASI TİCARET VE PAZARLAMA",
+  "duzey": "lisans"
+ },
+ "9219": {
+  "ad": "TASARIM",
+  "duzey": "lisans"
+ },
+ "9220": {
+  "ad": "MEDYA VE UYGULAMALI GÖRSEL SANATLAR",
+  "duzey": "lisans"
+ },
+ "9221": {
+  "ad": "EKONOMİ VE İDARİ BİLİMLER / EKONOMİ VE İDARİ BİLİMLER PROGRAMLARI",
+  "duzey": "lisans"
+ },
+ "9222": {
+  "ad": "MÜTERCİM-TERCÜMANLIK (ÇİNCE)",
+  "duzey": "lisans"
+ },
+ "9223": {
+  "ad": "MÜTERCİM-TERCÜMANLIK (RUSÇA)",
+  "duzey": "lisans"
+ },
+ "9224": {
+  "ad": "MÜTERCİM-TERCÜMANLIK (ARAPÇA)",
+  "duzey": "lisans"
+ },
+ "9225": {
+  "ad": "ERGOTERAPİ",
+  "duzey": "lisans"
+ },
+ "9226": {
+  "ad": "KİMYA MÜHENDİSLİĞİ VE UYGULAMALI KİMYA",
+  "duzey": "lisans"
+ },
+ "9231": {
+  "ad": "GÖRSEL İLETİŞİM",
+  "duzey": "lisans"
+ },
+ "9233": {
+  "ad": "SAKSAFON",
+  "duzey": "lisans"
+ },
+ "9234": {
+  "ad": "TUBA",
+  "duzey": "lisans"
+ },
+ "9235": {
+  "ad": "TEORİ",
+  "duzey": "lisans"
+ },
+ "9236": {
+  "ad": "MÜTERCİM-TERCÜMANLIK (TÜRKÇE-ALMANCA-İNGİLİZCE)",
+  "duzey": "lisans"
+ },
+ "9259": {
+  "ad": "GEMİ VE YAT TASARIMI",
+  "duzey": "lisans"
+ },
+ "9260": {
+  "ad": "KONTROL VE OTOMASYON MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9262": {
+  "ad": "FİNANS VE MUHASEBE",
+  "duzey": "lisans"
+ },
+ "9263": {
+  "ad": "FİZİK TIP VE REHABİLİTASYON",
+  "duzey": "lisans"
+ },
+ "9264": {
+  "ad": "OKUL ÖNCESİ TALİM VE TERBİYE",
+  "duzey": "lisans"
+ },
+ "9265": {
+  "ad": "ENGELLİLERDE EGZERSİZ VE SPOR EĞİTİMİ",
+  "duzey": "lisans"
+ },
+ "9266": {
+  "ad": "BİYOTEKNOLOJİ",
+  "duzey": "lisans"
+ },
+ "9267": {
+  "ad": "ODYOLOJİ",
+  "duzey": "lisans"
+ },
+ "9268": {
+  "ad": "RAYLI SİSTEMLER MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9269": {
+  "ad": "BİTKİSEL ÜRETİM VE TEKNOLOJİLERİ",
+  "duzey": "lisans"
+ },
+ "9270": {
+  "ad": "İSLAMİ İLİMLER",
+  "duzey": "lisans"
+ },
+ "9271": {
+  "ad": "ULUSLARARASI İSLAM VE DİNİ BİLİMLER FAKÜLTESİ / İSLAM VE DİN BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "9273": {
+  "ad": "GENETİK VE BİYOİNFORMATİK",
+  "duzey": "lisans"
+ },
+ "9274": {
+  "ad": "GELENEKSEL TÜRK MÜZİĞİ",
+  "duzey": "lisans"
+ },
+ "9275": {
+  "ad": "GİRİŞİMCİLİK",
+  "duzey": "lisans"
+ },
+ "9280": {
+  "ad": "ÇEVİRİBİLİM (ALMANCA)",
+  "duzey": "lisans"
+ },
+ "9281": {
+  "ad": "İLETİŞİM TASARIMI VE YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9282": {
+  "ad": "ULUSLARARASI TİCARET VE FİNANS 20",
+  "duzey": "lisans"
+ },
+ "9283": {
+  "ad": "MÜCEVHERAT MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9286": {
+  "ad": "TEKNOLOJİ VE BİLGİ YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9287": {
+  "ad": "KÜRT DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "9288": {
+  "ad": "TAPU VE KADASTRO / TAPU KADASTRO",
+  "duzey": "lisans"
+ },
+ "9289": {
+  "ad": "MÜTERCİM-TERCÜMANLIK (FARSÇA)",
+  "duzey": "lisans"
+ },
+ "9290": {
+  "ad": "MÜTERCİM VE KONFERANS TERCÜMANLIĞI (İNGİLİZCE-FRANSIZCA/İSPANYOLCA-FRANSIZCA)",
+  "duzey": "lisans"
+ },
+ "9292": {
+  "ad": "SANAT VE KÜLTÜR YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9293": {
+  "ad": "PREHİSTORİK ARKEOLOJİ",
+  "duzey": "lisans"
+ },
+ "9294": {
+  "ad": "BİYOMÜHENDİSLİK VE GENETİK",
+  "duzey": "lisans"
+ },
+ "9297": {
+  "ad": "BÖLGE BİLİM (ALMANYA-ALMAN DİLİ)",
+  "duzey": "lisans"
+ },
+ "9298": {
+  "ad": "BÖLGE BİLİM (AMERİKA-İNGİLİZ DİLİ)",
+  "duzey": "lisans"
+ },
+ "9299": {
+  "ad": "BÖLGE BİLİM (AZERBAYCAN)",
+  "duzey": "lisans"
+ },
+ "9300": {
+  "ad": "BÖLGE BİLİM (FRANSA-FRANSIZ DİLİ)",
+  "duzey": "lisans"
+ },
+ "9301": {
+  "ad": "BÖLGE BİLİM (İNGİLTERE-İNGİLİZ DİLİ)",
+  "duzey": "lisans"
+ },
+ "9302": {
+  "ad": "BÖLGE BİLİM (İSKANDİNAVYA)",
+  "duzey": "lisans"
+ },
+ "9303": {
+  "ad": "BÖLGE BİLİM (İSRAİL VE YAKIN DOĞU)",
+  "duzey": "lisans"
+ },
+ "9304": {
+  "ad": "MALZEME VE SERAMİK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9305": {
+  "ad": "MALZEME BİLİMİ VE NANOTEKNOLOJİ MÜHENDİSLİĞİ / MALZEME BİLİMİ VE NANO MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9307": {
+  "ad": "OSMANLI DÖNEMİ KARŞILAŞTIRMALI MÜZİK",
+  "duzey": "lisans"
+ },
+ "9308": {
+  "ad": "İŞLETME-MUHASEBE VE DENETİM",
+  "duzey": "lisans"
+ },
+ "9309": {
+  "ad": "SİNEMA VE DİJİTAL MEDYA",
+  "duzey": "lisans"
+ },
+ "9310": {
+  "ad": "GIDA İŞLEME MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9311": {
+  "ad": "RUS DİLİ VE ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9312": {
+  "ad": "PSİKOLOJİK DANIŞMANLIK VE REHBERLİK",
+  "duzey": "lisans"
+ },
+ "9313": {
+  "ad": "YABAN HAYATI EKOLOJİSİ VE YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9314": {
+  "ad": "SERAMİK VE CAM",
+  "duzey": "lisans"
+ },
+ "9316": {
+  "ad": "PİLOT EĞİTİMİ",
+  "duzey": "lisans"
+ },
+ "9318": {
+  "ad": "İNSAN KAYNAKLARI",
+  "duzey": "lisans"
+ },
+ "9319": {
+  "ad": "İKTİSADİ VE İDARİ BİLİMLER PROGRAMLARI",
+  "duzey": "lisans"
+ },
+ "9320": {
+  "ad": "ÖĞRETMENLİK PROGRAMLARI",
+  "duzey": "lisans"
+ },
+ "9321": {
+  "ad": "ENDÜSTRİ VE SİSTEM MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9323": {
+  "ad": "ENDÜSTRİYEL TASARIM MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9324": {
+  "ad": "İŞ SAĞLIĞI VE GÜVENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9326": {
+  "ad": "TARİH ÖNCESİ ARKEOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "9329": {
+  "ad": "ŞARAP ÜRETİM TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "9332": {
+  "ad": "DİL VE KONUŞMA TERAPİSİ",
+  "duzey": "lisans"
+ },
+ "9333": {
+  "ad": "ORGANİK TARIM İŞLETMECİLİĞİ",
+  "duzey": "lisans"
+ },
+ "9335": {
+  "ad": "ZAZA DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "9343": {
+  "ad": "BİLGİSAYAR VE YAZILIM MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9344": {
+  "ad": "EL SANATLARI",
+  "duzey": "lisans"
+ },
+ "9345": {
+  "ad": "HAVACILIK İŞLETMECİLİĞİ",
+  "duzey": "lisans"
+ },
+ "9346": {
+  "ad": "ARNAVUT DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "9347": {
+  "ad": "BOŞNAK DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "9349": {
+  "ad": "BİYOTEKNOLOJİ VE MOLEKÜLER BİYOLOJİ",
+  "duzey": "lisans"
+ },
+ "9350": {
+  "ad": "SANAT ESERLERİ KONSERVASYONU VE RESTORASYONU",
+  "duzey": "lisans"
+ },
+ "9351": {
+  "ad": "TARIMSAL GENETİK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9353": {
+  "ad": "ULUSLARARASI FİNANS VE BANKACILIK",
+  "duzey": "lisans"
+ },
+ "9354": {
+  "ad": "RESİM-BASKI SANATLARI",
+  "duzey": "lisans"
+ },
+ "9355": {
+  "ad": "TÜRK DİN MUSİKİSİ",
+  "duzey": "lisans"
+ },
+ "9356": {
+  "ad": "ANİMASYON 21",
+  "duzey": "lisans"
+ },
+ "9357": {
+  "ad": "ULAŞTIRMA MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9358": {
+  "ad": "SERMAYE PİYASALARI VE PORTFÖY YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9359": {
+  "ad": "FİNANSAL EKONOMETRİ",
+  "duzey": "lisans"
+ },
+ "9360": {
+  "ad": "SİGORTACILIK VE SOSYAL GÜVENLİK",
+  "duzey": "lisans"
+ },
+ "9361": {
+  "ad": "RUS VE İNGİLİZ DİLLERİ VE EDEBİYATLARI / RUS VE İNGİLİZ DİLLERİ VE EDEBİYATLARI (ÖĞRETMENLİK)",
+  "duzey": "lisans"
+ },
+ "9362": {
+  "ad": "MATEMATİK VE BİLGİSAYAR (ÖĞRETMENLİK)",
+  "duzey": "lisans"
+ },
+ "9363": {
+  "ad": "İNGİLİZ DİLİ VE AMERİKAN KÜLLTÜRÜ",
+  "duzey": "lisans"
+ },
+ "9364": {
+  "ad": "BİLİŞİM TEKNOLOJİLERİ",
+  "duzey": "lisans"
+ },
+ "9365": {
+  "ad": "GRAFİK RESİMLEME VE BASKI",
+  "duzey": "lisans"
+ },
+ "9366": {
+  "ad": "KUYUMCULUK VE MÜCEVHER TASARIMI",
+  "duzey": "lisans"
+ },
+ "9368": {
+  "ad": "PEYZAJ MİMARLIĞI VE KENTSEL TASARIM",
+  "duzey": "lisans"
+ },
+ "9369": {
+  "ad": "TIP MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9370": {
+  "ad": "SİVİL HAVA İŞLETMECİLİĞİ",
+  "duzey": "lisans"
+ },
+ "9371": {
+  "ad": "FİNANS VE BANKACILIK",
+  "duzey": "lisans"
+ },
+ "9372": {
+  "ad": "İSLAM BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "9374": {
+  "ad": "MEKATRONİK SİSTEMLER MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9375": {
+  "ad": "RUS DİLİ VE EDEBİYATI ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9376": {
+  "ad": "LOJİSTİK",
+  "duzey": "lisans"
+ },
+ "9377": {
+  "ad": "BASIM VE YAYIN ÜRETİM TEKNOLOJİLERİ",
+  "duzey": "lisans"
+ },
+ "9378": {
+  "ad": "ULUSLARARASI TİCARET, LOJİSTİK VE İŞLETMECİLİK",
+  "duzey": "lisans"
+ },
+ "9379": {
+  "ad": "OPTİK VE AKUSTİK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9380": {
+  "ad": "AKTÜERYA VE RİSK YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9381": {
+  "ad": "ÇOCUK SAĞLIĞI VE GELİŞİMİ",
+  "duzey": "lisans"
+ },
+ "9382": {
+  "ad": "BİYOENFORMATİK VE GENETİK",
+  "duzey": "lisans"
+ },
+ "9383": {
+  "ad": "ÇERKEZ DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "9384": {
+  "ad": "SÜS BİTKİLERİ",
+  "duzey": "lisans"
+ },
+ "9385": {
+  "ad": "DRAMA",
+  "duzey": "lisans"
+ },
+ "9386": {
+  "ad": "GÜVENLİK BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "9387": {
+  "ad": "LOJİSTİK VE TAŞIMACILIK",
+  "duzey": "lisans"
+ },
+ "9388": {
+  "ad": "UYGULAMALI GÜZEL SANATLAR",
+  "duzey": "lisans"
+ },
+ "9389": {
+  "ad": "NANOTEKNOLOJİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9390": {
+  "ad": "MADEN VE CEVHER HAZIRLAMA MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9391": {
+  "ad": "BASIM TEKNOLOJİLERİ",
+  "duzey": "lisans"
+ },
+ "9394": {
+  "ad": "MÜTERCİM-TERCÜMANLIK (BULGARCA)",
+  "duzey": "lisans"
+ },
+ "9396": {
+  "ad": "GELENEKSEL TÜRK MÜZİKLERİ",
+  "duzey": "lisans"
+ },
+ "9397": {
+  "ad": "MÜZECİLİK",
+  "duzey": "lisans"
+ },
+ "9398": {
+  "ad": "UÇAK VE UZAY MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9400": {
+  "ad": "ULUSLARARASI PERAKENDE YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9401": {
+  "ad": "PERFÜZYON",
+  "duzey": "lisans"
+ },
+ "9402": {
+  "ad": "ENERJİ YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9403": {
+  "ad": "SOSYAL ÇALIŞMALAR",
+  "duzey": "lisans"
+ },
+ "9404": {
+  "ad": "ENERJİ SİSTEMLERİ PROGRAMLARI",
+  "duzey": "lisans"
+ },
+ "9405": {
+  "ad": "AZERBAYCAN DİLİ VE EDEBİYATI ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9406": {
+  "ad": "BASIM YAYIN VE REDAKTE",
+  "duzey": "lisans"
+ },
+ "9407": {
+  "ad": "NEFES ALETLERİ",
+  "duzey": "lisans"
+ },
+ "9408": {
+  "ad": "GAZETECİLİK VE KİTLE İLETİŞİMİ",
+  "duzey": "lisans"
+ },
+ "9409": {
+  "ad": "SİYASAL BİLİMLER",
+  "duzey": "lisans"
+ },
+ "9410": {
+  "ad": "DİNİ İLİMLER",
+  "duzey": "lisans"
+ },
+ "9411": {
+  "ad": "ÜRETİM SİSTEMLERİ MÜHENDİSLİĞİ PROGRAMLARI",
+  "duzey": "lisans"
+ },
+ "9412": {
+  "ad": "İNGİLİZ VE RUS DİLLERİ VE EDEBİYATLARI (ÖĞRETMENLİK) 22",
+  "duzey": "lisans"
+ },
+ "9413": {
+  "ad": "ORTEZ-PROTEZ",
+  "duzey": "lisans"
+ },
+ "9414": {
+  "ad": "YENİ MEDYA VE GAZETECİLİK",
+  "duzey": "lisans"
+ },
+ "9415": {
+  "ad": "ULAŞTIRMA VE LOJİSTİK YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9416": {
+  "ad": "ADLİ BİLİŞİM MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9417": {
+  "ad": "BİLGİSAYAR VE HESAPLAMA TEKNOLOJİLERİ",
+  "duzey": "lisans"
+ },
+ "9418": {
+  "ad": "DİZAYN RESSAMLIĞI",
+  "duzey": "lisans"
+ },
+ "9419": {
+  "ad": "SAĞLIK KURUMLARI YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9420": {
+  "ad": "TEKSTİL VE DERİ MODA TASARIMI",
+  "duzey": "lisans"
+ },
+ "9421": {
+  "ad": "RUS DİLİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9422": {
+  "ad": "TIBBİ BİLİŞİM",
+  "duzey": "lisans"
+ },
+ "9423": {
+  "ad": "TARIM MAKİNELERİ VE TEKNOLOJİLERİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9424": {
+  "ad": "BİYOLOJİK BİLİMLER",
+  "duzey": "lisans"
+ },
+ "9425": {
+  "ad": "GÜMRÜK İŞLETMECİLİĞİ",
+  "duzey": "lisans"
+ },
+ "9426": {
+  "ad": "YEREL YÖNETİMLER",
+  "duzey": "lisans"
+ },
+ "9427": {
+  "ad": "YÖNETİM BİLİMİ VE BİLİŞİM SİSTEMLERİ",
+  "duzey": "lisans"
+ },
+ "9428": {
+  "ad": "HAVACILIK YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9429": {
+  "ad": "KANATLI HAYVAN YETİŞTİRİCİLİĞİ",
+  "duzey": "lisans"
+ },
+ "9430": {
+  "ad": "ENERJİ VE MALZEME MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9431": {
+  "ad": "LİF VE POLİMER MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9432": {
+  "ad": "DİJİTAL OYUN TASARIMI",
+  "duzey": "lisans"
+ },
+ "9433": {
+  "ad": "RESTORASYON VE KONSERVASYON",
+  "duzey": "lisans"
+ },
+ "9434": {
+  "ad": "TÜRK İSLAM ARKEOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "9436": {
+  "ad": "MOBİLYA ÜRETİMİ VE İÇ MEKAN TASARIMI",
+  "duzey": "lisans"
+ },
+ "9441": {
+  "ad": "MAKİNE VE MALZEME MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9442": {
+  "ad": "İLETİŞİM TASARIMI VE MEDYA",
+  "duzey": "lisans"
+ },
+ "9443": {
+  "ad": "ETNOMÜZİKOLOJİ VE FOLKLOR",
+  "duzey": "lisans"
+ },
+ "9444": {
+  "ad": "TURİZM VE OTEL YÖNETİCİLİĞİ",
+  "duzey": "lisans"
+ },
+ "9446": {
+  "ad": "MAKİNE MODEL ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9447": {
+  "ad": "ENGELLİLERDE BEDEN EĞİTİMİ VE SPOR ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9448": {
+  "ad": "POLONYA DİLİ VE KÜLTÜRÜ",
+  "duzey": "lisans"
+ },
+ "9450": {
+  "ad": "ENDÜSTRİ MÜHENDİSLİĞİ PROGRAMLARI",
+  "duzey": "lisans"
+ },
+ "9453": {
+  "ad": "ÖZBEK DİLİ VE EDEBİYATI ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9454": {
+  "ad": "HALI KİLİM VE ESKİ TÜRK KUMAŞLARI",
+  "duzey": "lisans"
+ },
+ "9455": {
+  "ad": "HAYVANSAL ÜRETİM VE TEKNOLOJİLERİ",
+  "duzey": "lisans"
+ },
+ "9458": {
+  "ad": "İSLAM EKONOMİSİ VE FİNANS",
+  "duzey": "lisans"
+ },
+ "9459": {
+  "ad": "GAYRİMENKUL GELİŞTİRME VE YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9460": {
+  "ad": "KÜLTÜR VE İLETİŞİM BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "9461": {
+  "ad": "TARIM VE DOĞA BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "9462": {
+  "ad": "YENİ MEDYA VE İLETİŞİM SİSTEMLERİ",
+  "duzey": "lisans"
+ },
+ "9463": {
+  "ad": "İŞLETME EKONOMİSİ VE FİNANS",
+  "duzey": "lisans"
+ },
+ "9465": {
+  "ad": "ELEKTRONİK TİCARET VE TEKNOLOJİ",
+  "duzey": "lisans"
+ },
+ "9466": {
+  "ad": "ANİMASYON VE OYUN TASARIMI",
+  "duzey": "lisans"
+ },
+ "9467": {
+  "ad": "SOSYAL HİZMETLER",
+  "duzey": "lisans"
+ },
+ "9468": {
+  "ad": "MALZEME BİLİMİ VE TEKNOLOJİLERİ",
+  "duzey": "lisans"
+ },
+ "9469": {
+  "ad": "SÜRYANİ DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "9470": {
+  "ad": "GÖRSEL SANATLAR VE MEDYA",
+  "duzey": "lisans"
+ },
+ "9471": {
+  "ad": "YENİ MEDYA VE İLETİŞİM",
+  "duzey": "lisans"
+ },
+ "9472": {
+  "ad": "AZERBAYCAN DİLİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9481": {
+  "ad": "NANOBİLİM VE NANOTEKNOLOJİ",
+  "duzey": "lisans"
+ },
+ "9484": {
+  "ad": "ENDÜSTRİYEL ELEKTRONİK TEKNOLOJİSİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9485": {
+  "ad": "TESVİYE 23",
+  "duzey": "lisans"
+ },
+ "9486": {
+  "ad": "EKONOMETRİ VE PLANLAMA",
+  "duzey": "lisans"
+ },
+ "9487": {
+  "ad": "SİYASİ İLİMLER",
+  "duzey": "lisans"
+ },
+ "9488": {
+  "ad": "ALTYAPI",
+  "duzey": "lisans"
+ },
+ "9489": {
+  "ad": "MOBİLYA İÇ MİMARİ",
+  "duzey": "lisans"
+ },
+ "9492": {
+  "ad": "ENERJİ",
+  "duzey": "lisans"
+ },
+ "9497": {
+  "ad": "NEFESLİ SAZLAR YAPIM ONARIM",
+  "duzey": "lisans"
+ },
+ "9498": {
+  "ad": "YAYLI SAZLAR YAPIM ONARIM",
+  "duzey": "lisans"
+ },
+ "9499": {
+  "ad": "NOTA YAZIM BASIM DİLİ",
+  "duzey": "lisans"
+ },
+ "9501": {
+  "ad": "BESLENME BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "9502": {
+  "ad": "MÜTERCİM TERCÜMANLIK (ALMANCA/FRANSIZCA)",
+  "duzey": "lisans"
+ },
+ "9503": {
+  "ad": "BİLİŞİM VE İLETİŞİM",
+  "duzey": "lisans"
+ },
+ "9504": {
+  "ad": "EL DOKUMALARI VE ÖRGÜLERİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9505": {
+  "ad": "BESLENME",
+  "duzey": "lisans"
+ },
+ "9506": {
+  "ad": "ULUSLARARASI İLİŞKİLER VE DENİZ GÜVENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9507": {
+  "ad": "PERFORMANS",
+  "duzey": "lisans"
+ },
+ "9508": {
+  "ad": "GEMİ İNŞAATI VE GEMİ MAKİNELERİ",
+  "duzey": "lisans"
+ },
+ "9509": {
+  "ad": "İLKÖĞRETİM SOSYAL BİLGİLER ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9510": {
+  "ad": "EL VE MAKİNE NAKIŞLARI ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9511": {
+  "ad": "MÜTERCİM TERCÜMANLIK (İNGİLİZCE-FRANSIZCA)",
+  "duzey": "lisans"
+ },
+ "9512": {
+  "ad": "METALURJİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9513": {
+  "ad": "YAKIN ÇAĞ TARİHİ",
+  "duzey": "lisans"
+ },
+ "9514": {
+  "ad": "TÜTÜN TEKNOLOJİSİ MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9515": {
+  "ad": "JEODEZİ VE FOTOGRAMETRİ",
+  "duzey": "lisans"
+ },
+ "9516": {
+  "ad": "AĞAÇ İŞLERİ",
+  "duzey": "lisans"
+ },
+ "9517": {
+  "ad": "METAL İŞLERİ",
+  "duzey": "lisans"
+ },
+ "9518": {
+  "ad": "ÇİNİ TASARIMI",
+  "duzey": "lisans"
+ },
+ "9519": {
+  "ad": "KALIPÇILIK",
+  "duzey": "lisans"
+ },
+ "9520": {
+  "ad": "ORTAÇAĞ TARİHİ",
+  "duzey": "lisans"
+ },
+ "9523": {
+  "ad": "SU BİLİMLERİ VE MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9524": {
+  "ad": "İLETİŞİM VE TOPLUMSAL DÖNÜŞÜM",
+  "duzey": "lisans"
+ },
+ "9525": {
+  "ad": "ADLİ BİLİMLER",
+  "duzey": "lisans"
+ },
+ "9526": {
+  "ad": "SİGORTACILIK VE AKTÜERYA",
+  "duzey": "lisans"
+ },
+ "9530": {
+  "ad": "MAKİNE RESSAMLIĞI",
+  "duzey": "lisans"
+ },
+ "9531": {
+  "ad": "GENETİK VE YAŞAM BİLİMLERİ PROGRAMLARI",
+  "duzey": "lisans"
+ },
+ "9532": {
+  "ad": "MIZRAPLI ÇALGILAR",
+  "duzey": "lisans"
+ },
+ "9533": {
+  "ad": "UKRAYNA DİLİ VE EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "9534": {
+  "ad": "SİVİL HAVACILIK İŞLETMECİLİĞİ",
+  "duzey": "lisans"
+ },
+ "9535": {
+  "ad": "MATEMATİK BİRLİ ÖĞRETMENLİK",
+  "duzey": "lisans"
+ },
+ "9536": {
+  "ad": "AĞAÇ İŞLERİ ENDÜSTRİSİ ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9538": {
+  "ad": "ARAP FARS DİLİ EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "9539": {
+  "ad": "DÜNYA TARİHİ",
+  "duzey": "lisans"
+ },
+ "9540": {
+  "ad": "KİMYA-BİYOLOJİ",
+  "duzey": "lisans"
+ },
+ "9541": {
+  "ad": "HAYVANSAL ÜRETİM VE YÖNETİM",
+  "duzey": "lisans"
+ },
+ "9542": {
+  "ad": "FİZİKİ COĞRAFYA VE JEOLOJİ",
+  "duzey": "lisans"
+ },
+ "9543": {
+  "ad": "YÖNETİCİLİK",
+  "duzey": "lisans"
+ },
+ "9545": {
+  "ad": "ALT YAPI EĞİTİMİ",
+  "duzey": "lisans"
+ },
+ "9546": {
+  "ad": "EĞİTİM YÖNETİMİ, TEFTİŞİ VE PLANLAMASI",
+  "duzey": "lisans"
+ },
+ "9547": {
+  "ad": "İNGİLİZCE-ALMANCA",
+  "duzey": "lisans"
+ },
+ "9548": {
+  "ad": "BAHÇE KORUMA",
+  "duzey": "lisans"
+ },
+ "9549": {
+  "ad": "HALICILIK VE KİLİMCİLİK",
+  "duzey": "lisans"
+ },
+ "9550": {
+  "ad": "İNGİLİZCE-TÜRKÇE ÖĞRETMENLİĞİ 24",
+  "duzey": "lisans"
+ },
+ "9551": {
+  "ad": "MOLEKÜLER BİYOLOJİ, GENETİK VE BİYOMÜHENDİSLİK",
+  "duzey": "lisans"
+ },
+ "9552": {
+  "ad": "İŞLETME-MALİYE",
+  "duzey": "lisans"
+ },
+ "9555": {
+  "ad": "BESİN TEKNOLOJİSİ",
+  "duzey": "lisans"
+ },
+ "9557": {
+  "ad": "MÜZİK PERFORMANSLARI",
+  "duzey": "lisans"
+ },
+ "9560": {
+  "ad": "FİZİK KİMYA ÖĞRETMENLİĞİ",
+  "duzey": "lisans"
+ },
+ "9562": {
+  "ad": "KUYUMCULUK VE MÜCEVHERAT TASARIMI",
+  "duzey": "lisans"
+ },
+ "9565": {
+  "ad": "KİMYA YÜKSEK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9567": {
+  "ad": "PLASTİK SANATLAR VE RESİM",
+  "duzey": "lisans"
+ },
+ "9568": {
+  "ad": "SİGORTACILIK VE AKTÜERYA BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "9569": {
+  "ad": "MOLEKÜLER BİYOTEKNOLOJİ",
+  "duzey": "lisans"
+ },
+ "9570": {
+  "ad": "YER BİLİMLERİ MÜHENDİSLİĞİ PROGRAMLARI",
+  "duzey": "lisans"
+ },
+ "9571": {
+  "ad": "ÇALGI EĞİTİMİ",
+  "duzey": "lisans"
+ },
+ "9572": {
+  "ad": "JEODEZİ VE HARİTACILIK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9573": {
+  "ad": "ZİRAAT MÜHENDİSLİĞİ PROGRAMLARI",
+  "duzey": "lisans"
+ },
+ "9574": {
+  "ad": "ELEKTRONİK TİCARET VE TEKNOLOJİ YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9576": {
+  "ad": "GÜVENLİK YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9577": {
+  "ad": "MÜZİK YORUMCULUĞU",
+  "duzey": "lisans"
+ },
+ "9580": {
+  "ad": "SAĞLIK KURULUŞLARI YÖNETİCİLİĞİ",
+  "duzey": "lisans"
+ },
+ "9584": {
+  "ad": "YÖNETİM BİLİMLERİ VE LİDERLİK",
+  "duzey": "lisans"
+ },
+ "9585": {
+  "ad": "MÜTERCİM-TERCÜMANLIK (TÜRKİYE TÜRKÇESİ-İNGİLİZCE)",
+  "duzey": "lisans"
+ },
+ "9586": {
+  "ad": "ULUSLARARASI VE HALKLA İLİŞKİLER",
+  "duzey": "lisans"
+ },
+ "9587": {
+  "ad": "RESİM-BASKI",
+  "duzey": "lisans"
+ },
+ "9588": {
+  "ad": "MALİ İKTİSAT",
+  "duzey": "lisans"
+ },
+ "9591": {
+  "ad": "KARA HARP OKULU",
+  "duzey": "lisans"
+ },
+ "9592": {
+  "ad": "OŞİNOGRAFİ",
+  "duzey": "lisans"
+ },
+ "9593": {
+  "ad": "FİZİK - MATEMATİK",
+  "duzey": "lisans"
+ },
+ "9595": {
+  "ad": "FOTONİK",
+  "duzey": "lisans"
+ },
+ "9596": {
+  "ad": "POLİTİKA VE EKONOMİ",
+  "duzey": "lisans"
+ },
+ "9599": {
+  "ad": "YAPAY ZEKA MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9766": {
+  "ad": "ELEKTRİK EĞİTİMİ",
+  "duzey": "lisans"
+ },
+ "9767": {
+  "ad": "GENEL ZİRAİ BİLGİLER",
+  "duzey": "lisans"
+ },
+ "9768": {
+  "ad": "FİZİK YÜKSEK MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9769": {
+  "ad": "MODEL",
+  "duzey": "lisans"
+ },
+ "9770": {
+  "ad": "MALİYE VE EKONOMİ",
+  "duzey": "lisans"
+ },
+ "9771": {
+  "ad": "TEMEL SANAT BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "9772": {
+  "ad": "İŞLETME-İSTATİSTİK",
+  "duzey": "lisans"
+ },
+ "9773": {
+  "ad": "TÜRK MEMLEKETLER TARİHİ",
+  "duzey": "lisans"
+ },
+ "9774": {
+  "ad": "SOSYAL POLİTİKA",
+  "duzey": "lisans"
+ },
+ "9775": {
+  "ad": "GENEL TÜRK TARİHİ",
+  "duzey": "lisans"
+ },
+ "9776": {
+  "ad": "ESKİ TÜRK EDEBİYATI",
+  "duzey": "lisans"
+ },
+ "9777": {
+  "ad": "ÜST YAPI EĞİTİMİ",
+  "duzey": "lisans"
+ },
+ "9779": {
+  "ad": "İÇ MİMARLIK VE ENDÜSTRİ TASARIMI",
+  "duzey": "lisans"
+ },
+ "9780": {
+  "ad": "BEŞERİ VE EKONOMİK COĞRAFYA",
+  "duzey": "lisans"
+ },
+ "9781": {
+  "ad": "YENİ ÇAĞ TARİHİ",
+  "duzey": "lisans"
+ },
+ "9782": {
+  "ad": "DİN BİLİMLERİ",
+  "duzey": "lisans"
+ },
+ "9783": {
+  "ad": "ZAYIF AKIM",
+  "duzey": "lisans"
+ },
+ "9784": {
+  "ad": "UÇAK",
+  "duzey": "lisans"
+ },
+ "9785": {
+  "ad": "SOSYAL SİYASET VE MALİYE",
+  "duzey": "lisans"
+ },
+ "9786": {
+  "ad": "HARİTA VE KADASTRO MÜHENDİSLİĞİ",
+  "duzey": "lisans"
+ },
+ "9787": {
+  "ad": "EKONOMİ-MALİYE-İŞLETME",
+  "duzey": "lisans"
+ },
+ "9788": {
+  "ad": "İLKÖĞRETİM ÖĞRETMENLİĞİ 25",
+  "duzey": "lisans"
+ },
+ "9789": {
+  "ad": "İNŞAAT",
+  "duzey": "lisans"
+ },
+ "9790": {
+  "ad": "İŞLETME MUHASEBE",
+  "duzey": "lisans"
+ },
+ "9791": {
+  "ad": "ULUSLARARASI ÇALIŞMALAR",
+  "duzey": "lisans"
+ },
+ "9792": {
+  "ad": "HAYVAN YETİŞTİRME",
+  "duzey": "lisans"
+ },
+ "9793": {
+  "ad": "MADEN",
+  "duzey": "lisans"
+ },
+ "9794": {
+  "ad": "ELEKTRİK",
+  "duzey": "lisans"
+ },
+ "9795": {
+  "ad": "YÖNETİM",
+  "duzey": "lisans"
+ },
+ "9796": {
+  "ad": "GÜVENLİK STRATEJİLERİ",
+  "duzey": "lisans"
+ },
+ "9797": {
+  "ad": "ÜRETİM",
+  "duzey": "lisans"
+ },
+ "9798": {
+  "ad": "İNGİLİZCE",
+  "duzey": "lisans"
+ },
+ "9966": {
+  "ad": "DENİZ İŞLETMECİLİĞİ VE YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9977": {
+  "ad": "MUHASEBE VE FİNANS YÖNETİMİ",
+  "duzey": "lisans"
+ },
+ "9988": {
+  "ad": "BANKACILIK VE FİNANS",
+  "duzey": "lisans"
+ },
+ "9999": {
+  "ad": "İLAHİYAT LİSANS TAMAMLAMA (İLİTAM) PROGRAMI 26",
+  "duzey": "lisans"
+ },
+ "6201": {
+  "ad": "ACİL SAĞLIK HİZMETLERİ 101 ACİL TIP TEKNİSYENLİĞİ",
+  "duzey": "ortaöğretim"
+ },
+ "6001": {
+  "ad": "ADALET 1 ZABIT KATİPLİĞİ",
+  "duzey": "ortaöğretim"
+ },
+ "6002": {
+  "ad": "AHŞAP TEKNOLOJİSİ 1 MOBİLYA İMALATI",
+  "duzey": "ortaöğretim"
+ },
+ "6003": {
+  "ad": "AİLE VE TÜKETİCİ HİZMETLERİ 2 TÜKETİCİ HİZMETLERİ",
+  "duzey": "ortaöğretim"
+ },
+ "6202": {
+  "ad": "ANESTEZİ VE REANİMASYON 101 ANESTEZİ TEKNİSYENLİĞİ",
+  "duzey": "ortaöğretim"
+ },
+ "6105": {
+  "ad": "ASTSUBAY HAZIRLAMA - -",
+  "duzey": "ortaöğretim"
+ },
+ "6004": {
+  "ad": "AYAKKABI VE SARACİYE TEKNOLOJİSİ 6 SARACİYE TASARIMI VE ÜRETİMİ",
+  "duzey": "ortaöğretim"
+ },
+ "6005": {
+  "ad": "BAHÇECİLİK 101 SÜS BİTKİLERİ",
+  "duzey": "ortaöğretim"
+ },
+ "6006": {
+  "ad": "BİLİŞİM TEKNOLOJİLERİ 6 YAZILIM GELİŞTİRME",
+  "duzey": "ortaöğretim"
+ },
+ "6007": {
+  "ad": "BİYOMEDİKAL CİHAZ TEKNOLOJİLERİ 2 YAŞAM DESTEK VE TEDAVİ CİHAZLARI",
+  "duzey": "ortaöğretim"
+ },
+ "6008": {
+  "ad": "BÜRO YÖNETİMİ 1 YÖNETİCİ SEKRETERLİĞİ",
+  "duzey": "ortaöğretim"
+ },
+ "6332": {
+  "ad": "BÜRO YÖNETİMİ VE YÖNETİCİ ASİSTANLIĞI 3 HUKUK SEKRETERLİĞİ",
+  "duzey": "ortaöğretim"
+ },
+ "6203": {
+  "ad": "ÇEVRE SAĞLIĞI 101 ÇEVRE SAĞLIĞI TEKNİSYENLİĞİ",
+  "duzey": "ortaöğretim"
+ },
+ "6009": {
+  "ad": "ÇOCUK GELİŞİMİ VE EĞİTİMİ 2 ÖZEL EĞİTİM",
+  "duzey": "ortaöğretim"
+ },
+ "6010": {
+  "ad": "DENİZCİLİK 12 GEMİ MAKİNELERİ İŞLETME",
+  "duzey": "ortaöğretim"
+ },
+ "6301": {
+  "ad": "DİL VE EDEBİYAT - -",
+  "duzey": "ortaöğretim"
+ },
+ "6204": {
+  "ad": "DİŞ PROTEZ 101 DİŞ PROTEZ TEKNİSYENLİĞİ",
+  "duzey": "ortaöğretim"
+ },
+ "6302": {
+  "ad": "EDEBİYAT - -",
+  "duzey": "ortaöğretim"
+ },
+ "6011": {
+  "ad": "EĞLENCE HİZMETLERİ 2 ÇOCUK ANİMATÖRLÜĞÜ",
+  "duzey": "ortaöğretim"
+ },
+ "6012": {
+  "ad": "EL SANATLARI TEKNOLOJİSİ 3 SANAYİ NAKIŞI",
+  "duzey": "ortaöğretim"
+ },
+ "6013": {
+  "ad": "ELEKTRİK-ELEKTRONİK TEKNOLOJİSİ 11 YÜKSEK GERİLİM SİSTEMLERİ",
+  "duzey": "ortaöğretim"
+ },
+ "6014": {
+  "ad": "ENDÜSTRİYEL OTOMASYON TEKNOLOJİLERİ 2 MEKATRONİK",
+  "duzey": "ortaöğretim"
+ },
+ "6312": {
+  "ad": "FEN VE SOSYAL BİLİMLER PROGRAMI - DALI YOK",
+  "duzey": "ortaöğretim"
+ },
+ "6015": {
+  "ad": "GAZETECİLİK 1 YAZILI BASIN MUHABİRLİĞİ",
+  "duzey": "ortaöğretim"
+ },
+ "6087": {
+  "ad": "GELENEKSEL TÜRK SANATLARI 1 GELENEKSEL TÜRK SANATLARI",
+  "duzey": "ortaöğretim"
+ },
+ "6016": {
+  "ad": "GEMİ YAPIMI 7 YAT İNŞA/YAT İNŞAA",
+  "duzey": "ortaöğretim"
+ },
+ "6304": {
+  "ad": "GENEL KÜLTÜR - -",
+  "duzey": "ortaöğretim"
+ },
+ "6017": {
+  "ad": "GIDA TEKNOLOJİSİ 5 ZEYTİN İŞLEME",
+  "duzey": "ortaöğretim"
+ },
+ "6018": {
+  "ad": "GİYİM ÜRETİM TEKNOLOJİSİ 102 TEKSTİL KONFEKSİYON",
+  "duzey": "ortaöğretim"
+ },
+ "6086": {
+  "ad": "GÖRSEL SANATLAR - DALI YOK",
+  "duzey": "ortaöğretim"
+ },
+ "6019": {
+  "ad": "GRAFİK VE FOTOĞRAF 101 GRAFİK / GRAFİK SANATLAR",
+  "duzey": "ortaöğretim"
+ },
+ "6330": {
+  "ad": "GÜZELLİK HİZMETLERİ 1 GÜZELLİK HİZMETLERİ",
+  "duzey": "ortaöğretim"
+ },
+ "6020": {
+  "ad": "GÜZELLİK VE SAÇ BAKIM HİZMETLERİ 3 VÜCUT BAKIM VE MASAJ",
+  "duzey": "ortaöğretim"
+ },
+ "6060": {
+  "ad": "HAFIZLIK PROJESİ - DALI YOK",
+  "duzey": "ortaöğretim"
+ },
+ "6073": {
+  "ad": "HALKLA İLİŞKİLER 1 HALKLA İLİŞKİLER",
+  "duzey": "ortaöğretim"
+ },
+ "6021": {
+  "ad": "HALKLA İLİŞKİLER VE ORGANİZASYON HİZMETLERİ 5 ORGANİZASYON SORUMLUSU",
+  "duzey": "ortaöğretim"
+ },
+ "6022": {
+  "ad": "HARİTA-TAPU-KADASTRO 2 TAPUCULUK",
+  "duzey": "ortaöğretim"
+ },
+ "6023": {
+  "ad": "HASTA VE YAŞLI HİZMETLERİ 2 YAŞLI BAKIMI",
+  "duzey": "ortaöğretim"
+ },
+ "6099": {
+  "ad": "HAVACILIK VE UZAY TEKNOLOJİSİ 1 TASARIM VE İMALAT",
+  "duzey": "ortaöğretim"
+ },
+ "6024": {
+  "ad": "HAYVAN SAĞLIĞI 1 VETERİNER SAĞLIK",
+  "duzey": "ortaöğretim"
+ },
+ "6025": {
+  "ad": "HAYVAN YETİŞTİRİCİLİĞİ 2 KANATLI HAYVAN YETİŞTİRİCİLİĞİ",
+  "duzey": "ortaöğretim"
+ },
+ "6058": {
+  "ad": "HAYVAN YETİŞTİRİCİLİĞİ VE SAĞLIĞI 2 VETERİNER SAĞLIK",
+  "duzey": "ortaöğretim"
+ },
+ "6205": {
+  "ad": "HEMŞİRELİK-EBELİK-SAĞLIK MEMURLUĞU 103 SAĞLIK MEMURLUĞU",
+  "duzey": "ortaöğretim"
+ },
+ "6026": {
+  "ad": "İMAM HATİP - -",
+  "duzey": "ortaöğretim"
+ },
+ "6027": {
+  "ad": "İNŞAAT TEKNOLOJİSİ 12 YAPI ZEMİN VE BETON LABORATUARCILIĞI",
+  "duzey": "ortaöğretim"
+ },
+ "6028": {
+  "ad": "İTFAİYECİLİK VE YANGIN GÜVENLİĞİ 1 İTFAİYECİLİK VE YANGIN GÜVENLİĞİ 4 Alan Kod Alan Adı Dal Kod Dal Adı",
+  "duzey": "ortaöğretim"
+ },
+ "6029": {
+  "ad": "KİMYA TEKNOLOJİSİ 14 TEMİZLİK, KOZMETİK VE PARFÜMERİ ÜRÜNLERİ ÜRETİMİ",
+  "duzey": "ortaöğretim"
+ },
+ "6322": {
+  "ad": "KLASİK SANATLAR VE MUSİKİ PROJESİ - DALI YOK",
+  "duzey": "ortaöğretim"
+ },
+ "6030": {
+  "ad": "KONAKLAMA VE SEYAHAT HİZMETLERİ 101 TURİZM / OTELCİLİK VE TURİZM",
+  "duzey": "ortaöğretim"
+ },
+ "6031": {
+  "ad": "KUYUMCULUK TEKNOLOJİSİ 4 VİTRİN KUYUMCULUĞU",
+  "duzey": "ortaöğretim"
+ },
+ "6032": {
+  "ad": "LABORATUVAR HİZMETLERİ 3 GIDA, TARIM VE HAYVAN SAĞLIĞI LABORATUVARI",
+  "duzey": "ortaöğretim"
+ },
+ "6314": {
+  "ad": "MADEN TEKNOLOJİSİ 1 MADENCİLİK",
+  "duzey": "ortaöğretim"
+ },
+ "6033": {
+  "ad": "MAKİNE TEKNOLOJİSİ 10 TIBBİ CİHAZ ÜRETİMİ",
+  "duzey": "ortaöğretim"
+ },
+ "6329": {
+  "ad": "MAKİNE VE TASARIM TEKNOLOJİSİ 7 TIBBİ CİHAZ ÜRETİMİ",
+  "duzey": "ortaöğretim"
+ },
+ "6034": {
+  "ad": "MATBAA TEKNOLOJİSİ 4 TİFDRUK BASKI",
+  "duzey": "ortaöğretim"
+ },
+ "6305": {
+  "ad": "MATEMATİK - -",
+  "duzey": "ortaöğretim"
+ },
+ "6035": {
+  "ad": "METAL TEKNOLOJİSİ 10 SAC İŞLERİ",
+  "duzey": "ortaöğretim"
+ },
+ "6036": {
+  "ad": "METALÜRJİ TEKNOLOJİSİ 3 İZABE VE HADDECİLİK",
+  "duzey": "ortaöğretim"
+ },
+ "6037": {
+  "ad": "METEOROLOJİ 1 HAVA GÖZLEM VE TAHMİNİ",
+  "duzey": "ortaöğretim"
+ },
+ "6100": {
+  "ad": "MİKROMEKANİK 1 MİKROMEKANİK VE SAATÇİLİK",
+  "duzey": "ortaöğretim"
+ },
+ "6038": {
+  "ad": "MOBİLYA VE İÇ MEKAN TASARIMI 7 OTO DÖŞEMECİLİĞİ",
+  "duzey": "ortaöğretim"
+ },
+ "6319": {
+  "ad": "MODA TASARIM TEKNOLOJİLERİ 16 TERZİLİK",
+  "duzey": "ortaöğretim"
+ },
+ "6039": {
+  "ad": "MOTORLU ARAÇLAR TEKNOLOJİSİ 5 TARIM MAKİNELERİ",
+  "duzey": "ortaöğretim"
+ },
+ "6040": {
+  "ad": "MUHASEBE VE FİNANSMAN 5 MUHASEBE",
+  "duzey": "ortaöğretim"
+ },
+ "6326": {
+  "ad": "MUSİKİ - DALI YOK",
+  "duzey": "ortaöğretim"
+ },
+ "6063": {
+  "ad": "MÜZİK - DALI YOK",
+  "duzey": "ortaöğretim"
+ },
+ "6041": {
+  "ad": "MÜZİK ALETLERİ YAPIMI 4 YAYLI ENSTRÜMAN YAPIMI",
+  "duzey": "ortaöğretim"
+ },
+ "6206": {
+  "ad": "ORTOPEDİK PROTEZ VE ORTEZ 101 ORTOPEDİK PROTEZ VE ORTEZ TEKNİSYENLİĞİ",
+  "duzey": "ortaöğretim"
+ },
+ "6103": {
+  "ad": "ÖĞRETMEN OKULU (KÖY ENSTİTÜSÜ DAHİL) - -",
+  "duzey": "ortaöğretim"
+ },
+ "6042": {
+  "ad": "PAZARLAMA VE PERAKENDE 101 TİCARET / A-B GRUBU (TİCARET LİSESİ)",
+  "duzey": "ortaöğretim"
+ },
+ "6333": {
+  "ad": "PLASTİK SANATLAR 1 PLASTİK SANATLAR",
+  "duzey": "ortaöğretim"
+ },
+ "6043": {
+  "ad": "PLASTİK TEKNOLOJİSİ 3 PLASTİK TEKNOLOJİSİ",
+  "duzey": "ortaöğretim"
+ },
+ "6207": {
+  "ad": "RADYOLOJİ 101 RADYOLOJİ TEKNİSYENLİĞİ",
+  "duzey": "ortaöğretim"
+ },
+ "6044": {
+  "ad": "RADYO-TELEVİZYON 2 TEKNİK YAPIM-YAYIN",
+  "duzey": "ortaöğretim"
+ },
+ "6045": {
+  "ad": "RAYLI SİSTEMLER TEKNOLOJİSİ 5 RAYLI SİSTEMLER MEKATRONİK",
+  "duzey": "ortaöğretim"
+ },
+ "6331": {
+  "ad": "SADECE MEP UYGULANAN DALLAR 23 VİTRİN KUYUMCULUĞU",
+  "duzey": "ortaöğretim"
+ },
+ "6106": {
+  "ad": "SAĞLIK ASTSUBAY HAZIRLAMA - - 7 Alan Kod Alan Adı Dal Kod Dal Adı",
+  "duzey": "ortaöğretim"
+ },
+ "6209": {
+  "ad": "SAĞLIK HİZMETLERİ SEKRETERLİĞİ 101 TIBBİ SEKRETERLİK",
+  "duzey": "ortaöğretim"
+ },
+ "6306": {
+  "ad": "SANAT (GENEL LİSE) - -",
+  "duzey": "ortaöğretim"
+ },
+ "6046": {
+  "ad": "SANAT (KONSERVATUVAR-GÜZEL SANATLAR LİSESİ) 110 YAYLI ÇALGILAR ANASANAT",
+  "duzey": "ortaöğretim"
+ },
+ "6047": {
+  "ad": "SANAT VE TASARIM 2 PLASTİK SANATLAR",
+  "duzey": "ortaöğretim"
+ },
+ "6048": {
+  "ad": "SERAMİK VE CAM TEKNOLOJİSİ 14 CAM",
+  "duzey": "ortaöğretim"
+ },
+ "6102": {
+  "ad": "SİBER GÜVENLİK 1 SİBER GÜVENLİK",
+  "duzey": "ortaöğretim"
+ },
+ "6313": {
+  "ad": "SİVİL HAVACILIK 1 YER HİZMETLERİ",
+  "duzey": "ortaöğretim"
+ },
+ "6307": {
+  "ad": "SOSYAL BİLİMLER - -",
+  "duzey": "ortaöğretim"
+ },
+ "6308": {
+  "ad": "SOSYAL BİLİMLER VE EDEBİYAT - -",
+  "duzey": "ortaöğretim"
+ },
+ "6309": {
+  "ad": "SPOR (GENEL LİSE) - -",
+  "duzey": "ortaöğretim"
+ },
+ "6049": {
+  "ad": "SPOR (GÜZEL SANATLAR VE SPOR LİSELERİ) 1 SPOR TESİSİ İŞLETMECİLİĞİ",
+  "duzey": "ortaöğretim"
+ },
+ "6328": {
+  "ad": "SPOR (ANADOLU İMAM HATİP LİSELERİ) - DALI YOK",
+  "duzey": "ortaöğretim"
+ },
+ "6059": {
+  "ad": "TARIM 19 ÇİÇEKÇİLİK VE SÜS BİTKİLERİ",
+  "duzey": "ortaöğretim"
+ },
+ "6050": {
+  "ad": "TARIM TEKNOLOJİLERİ 101 ZİRAAT / TARIM / TARIM TEKNOLOJİSİ",
+  "duzey": "ortaöğretim"
+ },
+ "6051": {
+  "ad": "TASARIM TEKNOLOJİLERİ 1 ENDÜSTRİYEL ÜRÜNLER TASARIMI",
+  "duzey": "ortaöğretim"
+ },
+ "6052": {
+  "ad": "TEKSTİL TEKNOLOJİSİ 11 YÜN İPLİKÇİLİĞİ",
+  "duzey": "ortaöğretim"
+ },
+ "6053": {
+  "ad": "TESİSAT TEKNOLOJİSİ VE İKLİMLENDİRME 7 YAPI TESİSAT SİSTEMLERİ",
+  "duzey": "ortaöğretim"
+ },
+ "6210": {
+  "ad": "TIBBİ LABORATUVAR 101 TIBBİ LABORATUVAR TEKNİSYENLİĞİ",
+  "duzey": "ortaöğretim"
+ },
+ "6321": {
+  "ad": "TÜRK SANAT MÜZİĞİ - DALI YOK",
+  "duzey": "ortaöğretim"
+ },
+ "6323": {
+  "ad": "TÜRK HALK MÜZİĞİ - DALI YOK",
+  "duzey": "ortaöğretim"
+ },
+ "6310": {
+  "ad": "TÜRKÇE MATEMATİK - -",
+  "duzey": "ortaöğretim"
+ },
+ "6054": {
+  "ad": "UÇAK BAKIM 3 HAVA ARACI MONTAJ",
+  "duzey": "ortaöğretim"
+ },
+ "6055": {
+  "ad": "ULAŞTIRMA HİZMETLERİ 2 SİVİL HAVACILIK",
+  "duzey": "ortaöğretim"
+ },
+ "6311": {
+  "ad": "YABANCI DİL - -",
+  "duzey": "ortaöğretim"
+ },
+ "6056": {
+  "ad": "YENİLENEBİLİR ENERJİ TEKNOLOJİLERİ 3 YENİLENEBİLİR ENERJİ TEKNOLOJİLERİ",
+  "duzey": "ortaöğretim"
+ },
+ "6057": {
+  "ad": "YİYECEK İÇECEK HİZMETLERİ 9 YİYECEK İÇECEK HİZMETLERİ",
+  "duzey": "ortaöğretim"
+ },
+ "6071": {
+  "ad": "KONAKLAMA HİZMETLERİ 1 KONAKLAMA HİZMETLERİ",
+  "duzey": "ortaöğretim"
+ },
+ "6072": {
+  "ad": "TESİSAT TEKNOLOJİSİ - DALI YOK",
+  "duzey": "ortaöğretim"
+ },
+ "9008": {
+  "ad": "ALAN AYRIMI OLMAYANLAR - -",
+  "duzey": "ortaöğretim"
+ }
+}

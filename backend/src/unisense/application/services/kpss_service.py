@@ -45,6 +45,28 @@ def _load() -> tuple[list[dict], dict[str, dict], list[dict]]:
     return kadrolar, nitelikler, placements
 
 
+@lru_cache(maxsize=1)
+def _load_ek() -> tuple[dict, dict]:
+    """Mezuniyet alanları (kod→ad) + özel koşullar (kod→metin)."""
+    proc = Path(get_settings().project_root) / "data" / "processed"
+
+    def _j(name):
+        p = proc / name
+        return json.load(open(p, encoding="utf-8")) if p.exists() else {}
+
+    return _j("kpss_mezuniyet_alanlari.json"), _j("kpss_ozel_kosullar.json")
+
+
+def _bolum_alan_kodlari(bolum: str, duzey: str | None) -> set[str]:
+    """Bölüm adı → resmi mezuniyet alan kodları (kod-bazlı eşleşme anahtarı)."""
+    alanlar, _ = _load_ek()
+    b = fold_tr(bolum.strip())
+    if not b:
+        return set()
+    return {kod for kod, a in alanlar.items()
+            if (not duzey or a["duzey"] == duzey) and b in fold_tr(a["ad"])}
+
+
 # Kılavuzda kurum adının sonuna yapışan statü ifadeleri (taban eşleşmesi için temizlenir)
 _STATU_SUFFIXES = (
     "kit sozlesmeli personel", "idari hizmet sozlesmeli personel",
@@ -71,21 +93,31 @@ def _taban_index() -> dict[str, list[dict]]:
     return idx
 
 
-def _matching_nitelik_codes(bolum: str, duzey: str | None) -> tuple[set[str], set[str]]:
-    """Bölüm adına uyan nitelik kodları + jenerik (herkese açık) kodlar."""
+def _matching_nitelik_codes(bolum: str, duzey: str | None) -> tuple[set[str], set[str], set[str]]:
+    """Bölüme uyan nitelikler: (kod-bazlı KESİN, ad-bazlı, jenerik).
+
+    Kod-bazlı: bölümün resmi mezuniyet alan kodu, niteliğin alan_kodlari
+    listesinde geçiyorsa — ÖSYM'nin kendi eşleşmesi, yanlış pozitif üretmez.
+    Ad-bazlı: açıklama metninde bölüm adı geçenler (kodsuz nitelikler için yedek).
+    """
     _, nitelikler, _ = _load()
     b = fold_tr(bolum.strip())
-    ozel: set[str] = set()
+    alan_kodlari = _bolum_alan_kodlari(bolum, duzey)
+    kesin: set[str] = set()
+    adli: set[str] = set()
     generic: set[str] = set()
     for kod, n in nitelikler.items():
         if duzey and n["duzey"] != duzey:
             continue
+        if alan_kodlari and alan_kodlari & set(n.get("alan_kodlari") or []):
+            kesin.add(kod)
+            continue
         a = fold_tr(n["aciklama"])
         if b and b in a:
-            ozel.add(kod)
+            adli.add(kod)
         elif any(h in a for h in _GENERIC_HINTS):
             generic.add(kod)
-    return ozel, generic
+    return kesin, adli, generic
 
 
 class KpssService:
@@ -99,10 +131,11 @@ class KpssService:
         limit: int = 30,
     ) -> dict:
         kadrolar, nitelikler, _ = _load()
+        _, kosullar = _load_ek()
         taban_idx = _taban_index()
 
-        ozel, generic = (_matching_nitelik_codes(bolum, duzey)
-                         if bolum else (set(), set()))
+        kesin, adli, generic = (_matching_nitelik_codes(bolum, duzey)
+                                if bolum else (set(), set(), set()))
 
         items: list[dict] = []
         for k in kadrolar:
@@ -112,13 +145,20 @@ class KpssService:
                 continue
             kcodes = set(k.get("nitelikler", []))
             if bolum:
-                hit_ozel = kcodes & ozel
-                hit_gen = kcodes & generic
-                if not hit_ozel and not hit_gen:
+                if kcodes & kesin:
+                    match_type = "bölüme özel ✓"      # ÖSYM kod eşleşmesi
+                elif kcodes & adli:
+                    match_type = "bölüme özel"
+                elif kcodes & generic:
+                    match_type = "tüm mezunlara açık"
+                else:
                     continue
-                match_type = "bölüme özel" if hit_ozel else "tüm mezunlara açık"
             else:
                 match_type = ""
+
+            # Özel koşullar (yaş/YDS/sertifika...) — kullanıcı bilmeden
+            # başvurup elenmesin
+            ozel_kosullar = [kosullar[c] for c in kcodes if c in kosullar]
 
             # Geçmiş taban (aynı kurum+unvan+il)
             key = _kurum_key(k["kurum"], k["unvan"], k.get("il", ""))
@@ -138,10 +178,11 @@ class KpssService:
                 "kontenjan": k.get("kontenjan"),
                 "eslesme": match_type,
                 "gecmis_taban": son_taban,
+                "ozel_kosullar": ozel_kosullar[:3],
                 "nitelik_aciklama": next(
                     (nitelikler[c]["aciklama"][:160]
-                     for c in k.get("nitelikler", []) if c in (ozel or kcodes)
-                     and c in nitelikler), ""),
+                     for c in k.get("nitelikler", [])
+                     if c in ((kesin | adli) or kcodes) and c in nitelikler), ""),
             })
 
         # Geçmiş tabanı bilinenler önce, taban artan (ulaşılabilirlik)

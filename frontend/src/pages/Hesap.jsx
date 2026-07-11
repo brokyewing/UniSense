@@ -609,13 +609,20 @@ function KpssKadroPanel({ score }) {
                     {inList ? '✓ Listede' : '+ Tercih'}
                   </button>
                 </div>
-                <div className="flex gap-3 mt-1 text-[10px]">
+                <div className="flex gap-3 mt-1 text-[10px] flex-wrap">
                   <span className="text-slate-500">Kontenjan: {k.kontenjan ?? '?'}</span>
                   {k.gecmis_taban
                     ? <span className="text-amber-300">Geçen dönem taban: {k.gecmis_taban.toFixed(2)}</span>
                     : <span className="text-slate-600">geçmiş taban verisi yok</span>}
                   <span className="text-accent-300">{k.eslesme}</span>
                 </div>
+                {k.ozel_kosullar?.length > 0 && (
+                  <div className="mt-1 text-[10px] text-rose-400"
+                    title={k.ozel_kosullar.join(' • ')}>
+                    ⚠️ Özel koşul: {k.ozel_kosullar[0].slice(0, 90)}
+                    {k.ozel_kosullar.length > 1 && ` (+${k.ozel_kosullar.length - 1})`}
+                  </div>
+                )}
               </div>
               )
             })}

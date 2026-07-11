@@ -396,11 +396,15 @@ def _build_kpss_context(query: str, user_context: dict | None = None) -> str:
              f"Uyan kadro sayısı: {r['total']} (ilk 15 gösteriliyor)", ""]
     for it in r["items"]:
         taban = f"geçen dönem taban {it['gecmis_taban']:.2f}" if it["gecmis_taban"] else "geçmiş taban yok"
+        kosul = " ⚠ ÖZEL KOŞUL VAR" if it.get("ozel_kosullar") else ""
         lines.append(f"• [{it['kadro_kodu']}] {it['unvan']} — {it['kurum']} ({it['il']}) "
-                     f"kontenjan {it['kontenjan']}, {taban}, {it['eslesme']}")
+                     f"kontenjan {it['kontenjan']}, {taban}, {it['eslesme']}{kosul}")
     lines.append("")
     lines.append("NOT: B grubu merkezi yerleştirme kadroları. A grubu (uzman yrd/müfettiş) "
-                 "kurum sınavlarıyla alınır, bu listede olmaz. " + r["uyari"])
+                 "kurum sınavlarıyla, ÖĞRETMEN atamaları ise KPSS-ÖABT ile MEB üzerinden "
+                 "yapılır — ikisi de bu listede OLMAZ; kullanıcı öğretmenlik soruyorsa bunu "
+                 "açıkça belirt. ⚠ işaretli kadroların yaş/YDS/sertifika gibi özel koşulları "
+                 "var — kılavuzdan kontrol edilmeli. " + r["uyari"])
     return "\n".join(lines)
 
 
