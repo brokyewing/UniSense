@@ -154,6 +154,10 @@ async function ensureUserDoc(user, examTrack) {
         preferredCities: [],
       },
     })
+  } else if (examTrack) {
+    // Kayıt ekranında yol seçip Google ile giren kullanıcının hesabı zaten
+    // varsa seçim kaybolmasın — sadece examTrack'i güncelle
+    await setDoc(ref, { profile: { examTrack } }, { merge: true })
   }
 }
 

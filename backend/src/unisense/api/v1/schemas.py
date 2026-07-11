@@ -246,6 +246,7 @@ class DgsProgramRequest(BaseModel):
     puan: float | None = Field(None, ge=0, le=600)
     bolum: str = Field(default="", max_length=120)
     il: str | None = Field(None, max_length=40)
+    uni_turu: str | None = Field(None, max_length=20)  # Devlet | Vakıf | all
     limit: int = Field(default=30, ge=1, le=100)
 
 

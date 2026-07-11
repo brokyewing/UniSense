@@ -83,12 +83,15 @@ class DgsService:
         puan: float | None = None,
         bolum: str = "",
         il: str | None = None,
+        uni_turu: str | None = None,
         limit: int = 30,
     ) -> dict:
         data = _load()
         pt = "SÖZ" if fold_tr(puan_turu) == "soz" else puan_turu.upper()
         bf = fold_tr(bolum) if bolum else ""
         ilf = fold_tr(il) if il else ""
+        # Prefix eşleşme: "Vakıf" → VAKIF + VAKIF MYO; "all"/boş → filtre yok
+        utf = fold_tr(uni_turu) if uni_turu and fold_tr(uni_turu) != "all" else ""
 
         items = []
         for r in data:
@@ -97,6 +100,8 @@ class DgsService:
             if bf and bf not in fold_tr(r.get("program_adi", "")):
                 continue
             if ilf and ilf != fold_tr(r.get("city", "")):
+                continue
+            if utf and not fold_tr(r.get("university_type", "")).startswith(utf):
                 continue
             mp = r.get("min_puan")
             if puan is not None and mp is not None and mp > puan:
