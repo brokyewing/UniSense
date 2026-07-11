@@ -26,9 +26,15 @@ logger = get_logger(__name__)
 _response_cache: TTLCache[str, str] = TTLCache(maxsize=512, ttl=3600)
 
 
-def _make_cache_key(query: Query, model_pref: str) -> str:
-    """Sorgu + top_k + history + model tercihinden deterministic anahtar üret."""
+def _make_cache_key(query: Query, model_pref: str, user_context: dict | None = None) -> str:
+    """Sorgu + top_k + history + model (+ profil puanları) → deterministic anahtar.
+
+    user_context KPSS/DGS cevabını kişiselleştirir — anahtara girmezse bir
+    kullanıcının puanına göre üretilen cevap başkasına servis edilir.
+    """
     parts = [query.text.strip(), model_pref, str(getattr(query, "top_k", ""))]
+    if user_context:
+        parts.append(str(sorted(user_context.items())))
     if query.history:
         for t in query.history[-8:]:  # son 8 mesaj
             parts.append(f"{t.role}:{t.text.strip()}")
@@ -354,14 +360,15 @@ _DGS_RE = re.compile(r"\bdgs\b|dikey\s*ge(ç|c)i(ş|s)", re.I)
 _KPSS_PUAN_RE = re.compile(r"\b(\d{2,3}(?:[.,]\d{1,3})?)\s*(?:kpss\s*)?puan")
 
 
-def _build_kpss_context(query: str) -> str:
+def _build_kpss_context(query: str, user_context: dict | None = None) -> str:
     """KPSS sorusu → aktif dönem kadroları + geçmiş tabanlarla context."""
     from unisense.core.di import get_kpss_service
     from unisense.core.text import fold_tr
 
+    uc = user_context or {}
     qf = fold_tr(query)
-    # Puan (KPSS aralığı 40-105)
-    puan = None
+    # Puan: önce sorgudan, yoksa profilden (KPSS aralığı 40-105)
+    puan = uc.get("kpss_puan")
     m = _KPSS_PUAN_RE.search(qf)
     if m:
         v = float(m.group(1).replace(",", "."))
@@ -376,7 +383,7 @@ def _build_kpss_context(query: str) -> str:
             break
     duzey = ("önlisans" if "onlisans" in qf or "on lisans" in qf
              else "ortaöğretim" if "ortaogretim" in qf or "lise" in qf
-             else "lisans")
+             else uc.get("kpss_duzey") or "lisans")
 
     r = get_kpss_service().kadro_ara(bolum=bolum, puan=puan, duzey=duzey, limit=15)
     lines = ["=== KPSS 2026/1 AKTİF TERCİH DÖNEMİ KADROLARI (tercih: 9-16 Temmuz) ===",
@@ -392,20 +399,23 @@ def _build_kpss_context(query: str) -> str:
     return "\n".join(lines)
 
 
-def _build_dgs_context(query: str) -> str:
+def _build_dgs_context(query: str, user_context: dict | None = None) -> str:
     """DGS sorusu → puana uygun lisans programları context'i."""
     from unisense.core.di import get_dgs_service
     from unisense.core.text import fold_tr
 
+    uc = user_context or {}
     qf = fold_tr(query)
-    puan = None
+    puan = uc.get("dgs_puan")
     for m in re.finditer(r"\b(\d{3}(?:[.,]\d{1,3})?)\b", qf):
         v = float(m.group(1).replace(",", "."))
         if 140 <= v <= 500:
             puan = v
             break
     pt = ("EA" if re.search(r"\bea\b|esit", qf)
-          else "SÖZ" if re.search(r"\bsoz(el)?\b", qf) else "SAY")
+          else "SÖZ" if re.search(r"\bsoz(el)?\b", qf)
+          else "SAY" if re.search(r"\bsay(isal)?\b", qf)
+          else uc.get("dgs_turu") or "SAY")
     bolum = ""
     token_index = _group_token_index()
     for w in re.findall(r"[a-zçğıöşü]+", fold_tr(query)):
@@ -497,12 +507,12 @@ class AskService:
         self._llm = llm
         self._recommendation = recommendation
 
-    def execute(self, query: Query) -> Answer:
+    def execute(self, query: Query, user_context: dict | None = None) -> Answer:
         start = time.perf_counter()
 
         # 0. Cache check — aynı sorgu+history+model son 1 saat içinde cevaplanmış mı?
         model_pref = getattr(query, "model_preference", None) or "gemini"
-        cache_key = _make_cache_key(query, model_pref)
+        cache_key = _make_cache_key(query, model_pref, user_context)
         cached_text = _response_cache.get(cache_key)
         if cached_text is not None:
             # Cache'de cevap var — retrieval yine yap (frontend kaynak chunk'larını bekliyor),
@@ -522,10 +532,10 @@ class AskService:
         sinav_context = ""
         try:
             if _KPSS_RE.search(query.text):
-                sinav_context = _build_kpss_context(query.text)
+                sinav_context = _build_kpss_context(query.text, user_context)
                 logger.info("kpss_intent_routed")
             elif _DGS_RE.search(query.text):
-                sinav_context = _build_dgs_context(query.text)
+                sinav_context = _build_dgs_context(query.text, user_context)
                 logger.info("dgs_intent_routed")
         except Exception as e:  # noqa: BLE001
             logger.warning("sinav_context_failed", error=str(e)[:200])

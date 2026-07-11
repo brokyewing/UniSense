@@ -27,6 +27,8 @@ from unisense.api.v1.schemas import (
     CompassSelectionRequest,
     CompassTaxonomyResponse,
     CompassTextRequest,
+    DgsGecisRequest,
+    DgsGecisResponse,
     DgsProgramRequest,
     DgsProgramResponse,
     DocResponse,
@@ -132,7 +134,10 @@ def ask(
         history=history,
         model_preference=body.model_preference,
     )
-    answer = svc.execute(domain_query)
+    answer = svc.execute(
+        domain_query,
+        user_context=body.user_context.model_dump(exclude_none=True) if body.user_context else None,
+    )
 
     # Program chunk'larındaki dept/uni isimlerini ve sıra/taban bilgilerini lookup ile doldur
     # — frontend'in "+ Pusulaya Ekle" / "+ Tercihe Ekle" butonları için gerekli.
@@ -337,6 +342,17 @@ def kpss_kadrolar(
         limit=body.limit,
     )
     return KpssKadroResponse(**result)
+
+
+@router.post("/dgs/gecis", response_model=DgsGecisResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def dgs_gecis(
+    request: Request,
+    body: DgsGecisRequest,
+    svc=Depends(dgs_service_dep),
+) -> DgsGecisResponse:
+    """Önlisans bölümü → geçilebilecek lisans bölümleri (ÖSYM DGS Tablo-2)."""
+    return DgsGecisResponse(**svc.gecis_ara(body.onlisans))
 
 
 @router.post("/dgs/programlar", response_model=DgsProgramResponse)

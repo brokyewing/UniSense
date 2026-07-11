@@ -332,6 +332,36 @@ function DgsProgramPanel({ scores }) {
   const [err, setErr] = useState('')
   const [tercihIds, setTercihIds] = useState(new Set())
   const [toast, setToast] = useState('')
+  // Önlisans → lisans geçiş yolları (ÖSYM Tablo-2)
+  const [onlisans, setOnlisans] = useState('')
+  const [onlisansListe, setOnlisansListe] = useState([])
+  const [gecis, setGecis] = useState(null)
+  const [gecisLoading, setGecisLoading] = useState(false)
+
+  useEffect(() => {
+    // Autocomplete için önlisans program adları (bir kez)
+    apiFetch('/api/v1/dgs/gecis', { method: 'POST', body: { onlisans: '' } })
+      .then((d) => setOnlisansListe(d.programlar || []))
+      .catch(() => {})
+  }, [])
+
+  async function gecisAra() {
+    if (!onlisans.trim()) return
+    setGecisLoading(true)
+    try {
+      const d = await apiFetch('/api/v1/dgs/gecis', {
+        method: 'POST', body: { onlisans },
+      })
+      setGecis(d.gruplar || [])
+    } catch (e) { setErr(e.message) } finally { setGecisLoading(false) }
+  }
+
+  function lisansSec(ad) {
+    // Hedef bölüme tıkla → program aramasını o bölümle çalıştır
+    setBolum(ad)
+    setGecis(null)
+    setTimeout(() => araWith(ad), 0)
+  }
 
   useEffect(() => {
     if (!user) return
@@ -357,16 +387,17 @@ function DgsProgramPanel({ scores }) {
 
   const puan = scores?.[pt] > 100 ? scores[pt] : null
 
-  async function ara() {
+  async function araWith(bolumAdi) {
     setLoading(true); setErr('')
     try {
       const d = await apiFetch('/api/v1/dgs/programlar', {
         method: 'POST',
-        body: { puan_turu: pt, puan, bolum, limit: 25 },
+        body: { puan_turu: pt, puan, bolum: bolumAdi, limit: 25 },
       })
       setRes(d)
     } catch (e) { setErr(e.message) } finally { setLoading(false) }
   }
+  const ara = () => araWith(bolum)
 
   return (
     <div className="card space-y-3">
@@ -374,6 +405,48 @@ function DgsProgramPanel({ scores }) {
         <GraduationCap size={14} className="text-accent-300" /> Geçebileceğin Lisans Programları
         <span className="text-[10px] text-slate-500 font-normal">2025 DGS tabanları</span>
       </h3>
+
+      {/* Adım 1: Önlisans bölümünden geçiş yolları (ÖSYM Tablo-2) */}
+      <div className="rounded-xl bg-white/5 border border-white/5 p-3 space-y-2">
+        <div className="text-xs text-slate-300 font-medium">
+          Önlisans bölümünü yaz → geçebileceğin lisans bölümlerini gör
+        </div>
+        <div className="flex gap-2">
+          <input
+            value={onlisans}
+            onChange={(e) => setOnlisans(e.target.value)}
+            list="onlisans-programlar"
+            placeholder="örn: Bilgisayar Programcılığı"
+            className="input-glass text-sm flex-1 !py-2"
+          />
+          <datalist id="onlisans-programlar">
+            {onlisansListe.map((a) => <option key={a} value={a} />)}
+          </datalist>
+          <button onClick={gecisAra} disabled={gecisLoading || !onlisans.trim()}
+            className="btn-ghost text-xs disabled:opacity-50">
+            {gecisLoading ? <Loader2 size={12} className="animate-spin" /> : 'Geçiş yolları'}
+          </button>
+        </div>
+        {gecis && gecis.length === 0 && (
+          <div className="text-[11px] text-slate-500">Eşleşen alan bulunamadı — farklı yazımla dene</div>
+        )}
+        {gecis && gecis.map((g) => (
+          <div key={g.alan} className="space-y-1.5">
+            <div className="text-[10px] text-slate-500">{g.alan}</div>
+            <div className="flex flex-wrap gap-1.5">
+              {g.lisans.map((l) => (
+                <button key={l.kod} onClick={() => lisansSec(l.ad)}
+                  title={`${l.ad} programlarını tabanlarıyla listele`}
+                  className="rounded-lg px-2 py-1 text-[11px] border border-accent-500/30 text-accent-300 hover:bg-accent-500/10">
+                  {l.ad} <span className="text-slate-500">· {l.puan_turu}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Adım 2: bölüm + puanla program arama */}
       <div className="flex gap-2">
         <select value={pt} onChange={(e) => setPt(e.target.value)}
           className="input-glass text-sm !w-24">

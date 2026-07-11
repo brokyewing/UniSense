@@ -13,6 +13,7 @@ import {
   createSession, addSessionMessage, watchSessionMessages,
   updateSessionTitle, MAX_SESSIONS_PER_USER,
   addToTercih, watchTercihList,
+  getUserProfile,
 } from '../firebase'
 import { apiFetch } from '../lib/api'
 
@@ -273,6 +274,26 @@ export default function Search() {
   const [tercihToast, setTercihToast] = useState(null)
   const endRef = useRef(null)
   const { user, isAuthed } = useAuth()
+  const [examCtx, setExamCtx] = useState(null)  // profildeki KPSS/DGS puanları
+
+  // Profildeki sınav puanları — "kpss ile nereye atanırım" tarzı sorularda
+  // puan yazmaya gerek kalmaz, backend profildekini kullanır
+  useEffect(() => {
+    if (!user) { setExamCtx(null); return }
+    getUserProfile(user.uid).then((p) => {
+      const prof = p?.profile || {}
+      const ctx = {}
+      if (prof.kpss?.score) {
+        ctx.kpss_puan = prof.kpss.score
+        if (prof.kpss.duzey) ctx.kpss_duzey = prof.kpss.duzey
+      }
+      if (prof.dgs?.score) {
+        ctx.dgs_puan = prof.dgs.score
+        if (prof.dgs.type) ctx.dgs_turu = prof.dgs.type
+      }
+      setExamCtx(Object.keys(ctx).length ? ctx : null)
+    }).catch(() => {})
+  }, [user])
 
   // Tercih listesini canlı izle (Search chunk'larında "✓ Listemde" rozeti için)
   useEffect(() => {
@@ -496,6 +517,7 @@ export default function Search() {
           query: text,
           top_k: 12,
           history: recentHistory,
+          ...(examCtx ? { user_context: examCtx } : {}),
         },
       })
 
