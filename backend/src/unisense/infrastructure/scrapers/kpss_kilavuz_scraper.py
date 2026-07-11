@@ -164,13 +164,34 @@ def _parse_tablo(path: Path) -> list[dict]:
             up = line.upper()
             if up in _TESKILAT:
                 continue
+            # İl unvan ile AYNI satırda olabilir: "BİLGİSAYAR İŞLETMENİ ANKARA"
+            # (BULGU #5 — 10 kadro bu yüzden düşüyordu). Satır sonu şehirse böl:
+            # önek unvan/kurum, şehir tek başına aşağıdaki bloğa devredilir.
+            if not cur["il"] and " " in line:
+                prefix, last = line.rsplit(" ", 1)
+                if last.upper() in cities and prefix.upper() not in _TESKILAT:
+                    text_buf.append(prefix)
+                    line, up = last, last.upper()
             if up in cities or up == "TÜM İLÇELER":
                 if not cur["il"] and up in cities:
                     cur["il"] = up
-                    # il görülünce: buffer'ın son satırı unvan, öncesi kurum
+                    # il görülünce: buffer'ın son satırı unvan, öncesi kurum.
+                    # Çok satırlı unvan (BULGU #7): parantez dengesi kurulana veya
+                    # kurum sonu bağlaçla (VE/İLE/BAKIM) bitmeyene kadar önceki
+                    # satırları unvana kat — "ONARIM MEMURU)" / "GÜVENLİK GÖREVLİSİ"
+                    # gibi kırpılmaları önler.
                     if text_buf:
-                        cur["unvan"] = text_buf[-1]
-                        cur["kurum"] = " ".join(text_buf[:-1]).strip()
+                        j = len(text_buf) - 1
+                        unvan = text_buf[j]
+                        while j > 0 and (
+                            unvan.count("(") != unvan.count(")")
+                            or text_buf[j - 1].rstrip().rsplit(" ", 1)[-1].upper()
+                            in {"VE", "İLE", "BAKIM"}
+                        ):
+                            j -= 1
+                            unvan = text_buf[j] + " " + unvan
+                        cur["unvan"] = unvan
+                        cur["kurum"] = " ".join(text_buf[:j]).strip()
                 elif cur["il"]:
                     cur["ilce"] = line
                 continue
