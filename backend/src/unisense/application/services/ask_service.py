@@ -361,8 +361,72 @@ _KPSS_RE = re.compile(r"\bkpss\b|\bmemur(lug|luk|iyet|u|a)?\b|\batan(ma|abilir|(
 _GENERIC_PLACEMENT_RE = re.compile(
     r"nereye\s+(girebilir|yerle(ş|s))|hangi\s+(b(ö|o)l(ü|u)m|program|kadro)|"
     r"\byerle(ş|s)(ebilir|irim|me)\b|puan(ı|i)mla", re.I)
-_DGS_RE = re.compile(r"\bdgs\b|dikey\s*ge(ç|c)i(ş|s)", re.I)
+_DGS_RE = re.compile(
+    r"\bdgs\b|dikey\s*ge(ç|c)i(ş|s)|"
+    # önlisans mezununun "hangi lisansa geçerim" tipi soruları (BULGU #10)
+    r"(ö|o)n\s*lisans.*(lisans|ge(ç|c))|lisansa\s+ge(ç|c)", re.I)
 _KPSS_PUAN_RE = re.compile(r"\b(\d{2,3}(?:[.,]\d{1,3})?)\s*(?:kpss\s*)?puan")
+
+# KPSS/DGS bölüm çıkarımında tier-3'te elenecek sorgu kelimeleri (fold'lu).
+# kadro_ara/program_ara ham kelimeyi substring eşlediği için anlamlı meslek
+# kelimesini seçip gerisini atmak yeterli.
+_BOLUM_STOPWORDS = frozenset({
+    "kpss", "dgs", "puan", "puanla", "puani", "puanim", "puanimla",
+    "kadro", "kadrosu", "kadrolar", "kadrolari", "kadroya", "kadrolara",
+    "memur", "memurluk", "memuriyet", "atama", "atanabilir", "atanma",
+    "hangi", "nasil", "neler", "nedir", "olabilir", "olabilirmiyim",
+    "basvur", "basvuru", "basvurabilir", "basvurabilirim", "basvurabilirmiyim",
+    "mezun", "mezunu", "mezunuyum", "mezunum", "bolum", "bolumu", "bolumunden",
+    "gecebilir", "gecebilirmiyim", "gecis", "lisans", "onlisans", "ortaogretim",
+    "program", "programlar", "programa", "tercih", "olur", "yapabilir",
+    "calisabilir", "var", "yok", "gibi", "icin", "ile", "benim", "bana",
+    "sonra", "once", "simdi", "yerlesebilir", "yerlesirmiyim", "istiyorum",
+})
+
+
+def _detect_city_in_query(qf: str) -> str | None:
+    """Fold'lu sorgudan il tespiti (81 il, ekli haller). qf zaten fold_tr'li."""
+    global _CITY_PATTERNS
+    if _CITY_PATTERNS is None:
+        _CITY_PATTERNS = _city_patterns()
+    for pat, city in _CITY_PATTERNS:
+        if pat.search(qf):
+            return city
+    return None
+
+
+def _detect_bolum_in_query(query: str) -> str:
+    """KPSS/DGS sorgusundan bölüm/meslek adı çıkar (BULGU #8/#13).
+
+    kadro_ara/program_ara fold'lu substring + nitelik alan-kodu eşleştirdiği
+    için ham bölüm ifadesi yeterli. Öncelik sırası:
+      1) çok-kelimeli DEPT_KEYWORD ('bilgisayar mühendis', 'hemşirelik')
+      2) taksonomi token'ı ('gastronomi', 'odyoloji')
+      3) anlamlı tek kelime (stopword/şehir değil) → 'hemşire', 'tekniker', 'harita'
+    """
+    from unisense.core.text import fold_tr
+
+    qf = fold_tr(query)
+    # 1) en uzun DEPT_KEYWORD eşleşmesi (çok-kelimeli yüksek isabet)
+    best = ""
+    for kw in _DEPT_KEYWORDS:
+        if fold_tr(kw) in qf and len(kw) > len(best):
+            best = kw
+    if best:
+        return best
+    # 2) taksonomi token'ı
+    token_index = _group_token_index()
+    words = re.findall(r"[a-zçğıöşü]+", qf)
+    for w in words:
+        if w in token_index:
+            return w
+    # 3) anlamlı tek kelime (şehir ve stopword'leri çıkar)
+    city = _detect_city_in_query(qf)
+    city_fold = fold_tr(city) if city else ""
+    for w in words:
+        if len(w) >= 4 and w not in _BOLUM_STOPWORDS and w != city_fold:
+            return w
+    return ""
 
 
 def _build_kpss_context(query: str, user_context: dict | None = None) -> str:
@@ -379,21 +443,29 @@ def _build_kpss_context(query: str, user_context: dict | None = None) -> str:
         v = float(m.group(1).replace(",", "."))
         if 40 <= v <= 105:
             puan = v
-    # Bölüm: taksonomi token'ları
-    bolum = ""
-    token_index = _group_token_index()
-    for w in re.findall(r"[a-zçğıöşü]+", fold_tr(query)):
-        if w in token_index:
-            bolum = w
-            break
+    # Bölüm + şehir: ortak tespit (BULGU #13/#14 — token index tek başına
+    # "bilgisayar/hemşire" gibi meslekleri kaçırıyordu)
+    bolum = _detect_bolum_in_query(query)
+    il = _detect_city_in_query(qf)
     duzey = ("önlisans" if "onlisans" in qf or "on lisans" in qf
              else "ortaöğretim" if "ortaogretim" in qf or "lise" in qf
              else uc.get("kpss_duzey") or "lisans")
 
-    r = get_kpss_service().kadro_ara(bolum=bolum, puan=puan, duzey=duzey, limit=15)
-    lines = ["=== KPSS 2026/1 AKTİF TERCİH DÖNEMİ KADROLARI (tercih: 9-16 Temmuz) ===",
-             f"Filtre: düzey={duzey}, bölüm={bolum or 'tümü'}, puan={puan or '?'}",
+    r = get_kpss_service().kadro_ara(bolum=bolum, puan=puan, duzey=duzey, il=il, limit=15)
+    # Dönem veriden okunur; tercih tarihi/"aktif" iddiası HARDCODE EDİLMEZ
+    # (BULGU #15 — pencere kapanınca bayatlıyordu). Tarihi LLM'e söylemeyiz.
+    donem = r.get("donem", "2026/1")
+    lines = [f"=== KPSS {donem} MERKEZİ YERLEŞTİRME (B GRUBU) KADROLARI ===",
+             f"Filtre: düzey={duzey}, bölüm={bolum or 'tümü'}, "
+             f"il={il or 'tümü'}, puan={puan or '?'}",
              f"Uyan kadro sayısı: {r['total']} (ilk 15 gösteriliyor)", ""]
+    # Öğretmenlik niyeti (BULGU #21): aşağıdaki B grubu kadrolar öğretmenlik
+    # DEĞİL — LLM'i baştan uyar ki 'matematik' filtresini yanlış yorumlamasın
+    if re.search(r"(ö|o)(ğ|g)retmen", qf):
+        lines.insert(1, "⚠ DİKKAT: Öğretmenlik ataması sorulmuş olabilir. Öğretmen "
+                        "atamaları KPSS-ÖABT ile MEB üzerinden yapılır ve AŞAĞIDAKİ "
+                        "listede YER ALMAZ. Aşağıdakiler ilgili alandan mezunların "
+                        "başvurabileceği B grubu memur kadrolarıdır (öğretmenlik değil).")
     for it in r["items"]:
         taban = f"geçen dönem taban {it['gecmis_taban']:.2f}" if it["gecmis_taban"] else "geçmiş taban yok"
         kosul = " ⚠ ÖZEL KOŞUL VAR" if it.get("ozel_kosullar") else ""
@@ -425,16 +497,14 @@ def _build_dgs_context(query: str, user_context: dict | None = None) -> str:
           else "SÖZ" if re.search(r"\bsoz(el)?\b", qf)
           else "SAY" if re.search(r"\bsay(isal)?\b", qf)
           else uc.get("dgs_turu") or "SAY")
-    bolum = ""
-    token_index = _group_token_index()
-    for w in re.findall(r"[a-zçğıöşü]+", fold_tr(query)):
-        if w in token_index:
-            bolum = w
-            break
+    # Bölüm + şehir: KPSS ile aynı ortak tespit (BULGU #8/#14)
+    bolum = _detect_bolum_in_query(query)
+    il = _detect_city_in_query(qf)
 
-    r = get_dgs_service().program_ara(puan_turu=pt, puan=puan, bolum=bolum, limit=15)
+    r = get_dgs_service().program_ara(puan_turu=pt, puan=puan, bolum=bolum, il=il, limit=15)
     lines = ["=== DGS LİSANS GEÇİŞ PROGRAMLARI (2025 tabanları) ===",
-             f"Filtre: puan türü={pt}, puan={puan or '?'}, bölüm={bolum or 'tümü'}",
+             f"Filtre: puan türü={pt}, puan={puan or '?'}, "
+             f"bölüm={bolum or 'tümü'}, il={il or 'tümü'}",
              f"Uyan program sayısı: {r['total']} (ilk 15)", ""]
     for it in r["items"]:
         taban = f"taban {it['min_puan']:.2f}" if it["min_puan"] else "geçen yıl boş"

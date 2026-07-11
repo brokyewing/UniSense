@@ -36,6 +36,7 @@ import {
 } from '../firebase'
 import BackgroundScene from '../components/three/BackgroundScene'
 import { apiFetch } from '../lib/api'
+import { yksLevel, dgsLevel, kpssLevel, YKS_SAFE_RATIO } from '../lib/riskLevels'
 
 /** ÖSYM kodu rozeti — tıklayınca kopyalar */
 function CodeChip({ code }) {
@@ -370,6 +371,11 @@ function AnalizPanel({ mode, items, profile }) {
   const uyarilar = []
   let guvenli = 0, hedef = 0, riskli = 0, verisiz = 0
 
+  // Seviye → analiz etiketi (eşikler lib/riskLevels'tan; etiket ekrana özgü)
+  const YKS_ETIKET = { safe: 'güvenli', target: 'hedef', reach: 'riskli' }
+  const PUAN_ETIKET = { safe: 'yüksek şans', target: 'sınırda', reach: 'riskli' }
+  const say = (lvl) => { if (lvl === 'safe') guvenli++; else if (lvl === 'target') hedef++; else if (lvl === 'reach') riskli++ }
+
   if (mode === 'YKS') {
     const rank = profile?.rank
     if (!rank) {
@@ -377,12 +383,10 @@ function AnalizPanel({ mode, items, profile }) {
     }
     items.forEach((it, idx) => {
       const taban = it.last_year_base_rank
-      let durum = 'veri yok'
-      if (taban && rank) {
-        if (taban >= rank * 1.2) { durum = 'güvenli'; guvenli++ }
-        else if (taban >= rank * 0.85) { durum = 'hedef'; hedef++ }
-        else { durum = 'riskli'; riskli++ }
-      } else if (!taban) verisiz++
+      const lvl = yksLevel(rank, taban)
+      let durum = lvl ? YKS_ETIKET[lvl] : 'veri yok'
+      if (lvl) say(lvl)
+      else if (!taban) verisiz++
       rows.push({ ad: it.department_name || it.id, alt: it.university_name, durum, sira: idx + 1 })
     })
     // Sıra tutarlılığı: üstteki tercih alttakinden belirgin KOLAYSA uyar
@@ -394,19 +398,17 @@ function AnalizPanel({ mode, items, profile }) {
       }
     }
     if (rank && guvenli === 0 && items.length > 0) {
-      uyarilar.push('Listende GÜVENLİ tercih yok — açıkta kalma riskine karşı sıralamanın 1.2 katı ve üzeri tabanlı birkaç program ekle.')
+      uyarilar.push(`Listende GÜVENLİ tercih yok — açıkta kalma riskine karşı sıralamanın ${YKS_SAFE_RATIO} katı ve üzeri tabanlı birkaç program ekle.`)
     }
   } else if (mode === 'KPSS') {
     const puan = profile?.kpss?.score
     if (!puan) uyarilar.push("Profilinde KPSS puanın yok — Hesap → KPSS'den hesaplayıp kaydet.")
     items.forEach((it, idx) => {
       const taban = it.gecmis_taban
-      let durum = 'geçmiş veri yok'
-      if (taban && puan) {
-        if (puan >= taban + 2) { durum = 'yüksek şans'; guvenli++ }
-        else if (puan >= taban - 1) { durum = 'sınırda'; hedef++ }
-        else { durum = 'riskli'; riskli++ }
-      } else if (!taban) verisiz++
+      const lvl = (taban != null && puan) ? kpssLevel(puan, taban) : null
+      let durum = lvl ? PUAN_ETIKET[lvl] : 'geçmiş veri yok'
+      if (lvl) say(lvl)
+      else if (!taban) verisiz++
       rows.push({ ad: `${it.unvan} · ${it.il}`, alt: it.kurum, durum, sira: idx + 1 })
     })
     if (items.length > 0) {
@@ -423,9 +425,9 @@ function AnalizPanel({ mode, items, profile }) {
         durum = `puan türü farklı (${it.puan_turu})`
         verisiz++
       } else if (taban && puan) {
-        if (puan >= taban + 5) { durum = 'yüksek şans'; guvenli++ }
-        else if (puan >= taban - 2) { durum = 'sınırda'; hedef++ }
-        else { durum = 'riskli'; riskli++ }
+        const lvl = dgsLevel(puan, taban)
+        durum = PUAN_ETIKET[lvl]
+        say(lvl)
       } else if (taban && !puan) durum = 'veri yok'
       rows.push({ ad: it.program_adi, alt: it.city, durum, sira: idx + 1 })
     })

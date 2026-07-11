@@ -15,6 +15,7 @@ import {
   watchKpssTercih, addToKpssTercih, removeFromKpssTercih, MAX_KPSS_TERCIH,
 } from '../firebase'
 import { apiFetch } from '../lib/api'
+import { dgsLevel, kpssLevel } from '../lib/riskLevels'
 
 const SCORE_TYPES = [
   { v: 'SAY', label: 'Sayısal', color: 'from-blue-500 to-cyan-400' },
@@ -392,15 +393,11 @@ function DgsOneriPanel({ user, profile }) {
     }
   }
 
-  // Kategoriler: taban ↔ puan farkı; tabanı olmayanlar (geçen yıl boş) ayrı grupta
+  // Kategoriler: paylaşılan eşikler (lib/riskLevels) — Tercih Listem ile aynı
   const groups = { safe: [], target: [], reach: [], bos: [] }
   if (res) {
     for (const it of res.items) {
-      if (it.min_puan == null) { groups.bos.push(it); continue }
-      const diff = res.puan - it.min_puan
-      if (diff >= 10) groups.safe.push(it)
-      else if (diff >= 0) groups.target.push(it)
-      else groups.reach.push(it)
+      groups[dgsLevel(res.puan, it.min_puan)].push(it)
     }
   }
   const hicYok = res && res.items.length === 0
@@ -629,15 +626,11 @@ function KpssOneriPanel({ user, profile }) {
     }
   }
 
-  // Kategoriler: geçmiş taban ↔ puan farkı; taban bilinmeyenler ayrı grupta
+  // Kategoriler: paylaşılan eşikler (lib/riskLevels) — Tercih Listem ile aynı
   const groups = { safe: [], target: [], reach: [], bilinmez: [] }
   if (res) {
     for (const k of res.items) {
-      if (k.gecmis_taban == null) { groups.bilinmez.push(k); continue }
-      const diff = res.puan - k.gecmis_taban
-      if (diff >= 3) groups.safe.push(k)
-      else if (diff >= -1) groups.target.push(k)
-      else groups.reach.push(k)
+      groups[kpssLevel(res.puan, k.gecmis_taban)].push(k)
     }
   }
   const hicYok = res && res.items.length === 0
