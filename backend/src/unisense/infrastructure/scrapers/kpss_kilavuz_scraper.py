@@ -185,59 +185,83 @@ def _parse_tablo(path: Path) -> list[dict]:
 _NITELIK_HEADERS = {"Nitelik", "Kodu", "ÖĞRENİM KOŞULU", "Mezuniyet Alanı Kodları"}
 
 
+# Nitelik tablosu kolon sınırları (ÖSYM 2026/1 sayfa düzeni, x koordinatı pt):
+#   Nitelik Kodu ≈ 30 | ÖĞRENİM KOŞULU (açıklama) ≈ 56–270 | Alan Kodları ≥ 275
+_NITELIK_KOD_X_MAX = 50.0    # x < bu → nitelik kodu kolonu (sol kenar)
+_NITELIK_ALAN_X_MIN = 275.0  # x ≥ bu → Mezuniyet Alanı Kodları grid'i
+
+
 def _parse_nitelik(path: Path, duzey: str) -> dict[str, dict]:
     """Nitelik sözlüğü: kod → açıklama + MEZUNİYET ALAN KODLARI.
 
-    Sayfa düzeni: kod → çok satırlı açıklama ("... mezun olmak.") →
-    mezuniyet alanı kodları (4'lü sayı dizileri). Alan kodları bölüm→kadro
-    eşleşmesinin KESİN yolu (ad bazlı arama sadece yedek).
+    KOORDİNAT-BAZLI (BULGU #1): önceki satır-bazlı parser get_text() ile
+    kolonları düzlüyordu; açıklama "." ile bitince sonraki tek 4-haneli ALAN
+    kodunu 'yeni nitelik kodu' sanıp kayma yapıyordu → 55 kod düşüyordu.
+    Artık her nitelik bir y-satır bandı: kod (x<50) çapa, açıklama (50≤x<275)
+    ve alan kodları (x≥275) o banda göre atanır — kolonlar asla karışmaz.
     """
     doc = fitz.open(path)
+    pages_words = [page.get_text("words") for page in doc]
+
+    # Alan grid'inin en sol kolonu PDF'e göre değişir (lisans~274, önlisans~303,
+    # ort~406). 4-haneli kodlar grid'de düzenli kolonlara hizalanır (her satır
+    # aynı x) → sık tekrar eden (≥5) en soldaki x kolonu. Açıklamadaki nadir
+    # 4-haneli sayı (ör. "2547 sayılı kanun") bir kolona hizalanmadığı için elenir.
+    from collections import Counter
+    x_counts: Counter = Counter()
+    for words in pages_words:
+        for w in words:
+            if re.fullmatch(r"\d{4}", w[4]) and w[0] >= 250.0:
+                x_counts[round(w[0])] += 1
+    grid_cols = [x for x, c in x_counts.items() if c >= 5]
+    alan_x_min = (min(grid_cols) - 5.0) if grid_cols else _NITELIK_ALAN_X_MIN
+
+    # code -> {"desc": [(y,x,text)], "alan": [(y,x,code)]}
+    entries: dict[str, dict[str, list]] = {}
+
+    for words in pages_words:
+        # Bu sayfadaki nitelik kodu çapaları (sol kolon, 4-hane), y'ye göre sıralı
+        anchors = sorted(
+            ((w[1], w[4]) for w in words
+             if w[0] < _NITELIK_KOD_X_MAX and re.fullmatch(r"\d{4}", w[4])),
+            key=lambda t: t[0],
+        )
+        if not anchors:
+            continue
+        anchor_ys = [a[0] for a in anchors]
+        anchor_codes = [a[1] for a in anchors]
+
+        def _owner(y: float, _ys=anchor_ys, _codes=anchor_codes) -> str:
+            # Çapa i, [y_i - 8, y_{i+1} - 8) bandına sahip. Açıklamanın ilk
+            # satırı kod baseline'ından ~6pt yukarıda başladığı için -8 kaydırma.
+            for i in range(len(_ys) - 1):
+                if y < _ys[i + 1] - 8.0:
+                    return _codes[i]
+            return _codes[-1]
+
+        for w in words:
+            x0, y0, txt = w[0], w[1], w[4]
+            if x0 < _NITELIK_KOD_X_MAX and re.fullmatch(r"\d{4}", txt):
+                continue  # çapa kodunun kendisi
+            if y0 < anchor_ys[0] - 8.0:
+                continue  # ilk koddan yukarısı = sayfa başlığı/kolon numaraları
+            code = _owner(y0)
+            e = entries.setdefault(code, {"desc": [], "alan": []})
+            if x0 >= alan_x_min and re.fullmatch(r"\d{4}", txt):
+                e["alan"].append((y0, x0, txt))
+            elif _NITELIK_KOD_X_MAX <= x0 < alan_x_min:
+                e["desc"].append((y0, x0, txt))
+
     out: dict[str, dict] = {}
-    code: str | None = None
-    buf: list[str] = []
-    alanlar: list[str] = []
-
-    def _text() -> str:
-        return " ".join(buf).strip()
-
-    def _flush() -> None:
-        nonlocal code, buf, alanlar
-        if code:
-            text = re.sub(r"(\s\d{4})+\s*$", "", _text()).strip()
-            if len(text) > 15:
-                out[code] = {"aciklama": text, "duzey": duzey,
-                             "alan_kodlari": list(dict.fromkeys(alanlar))}
-        code, buf, alanlar = None, [], []
-
-    for page in doc:
-        for raw in page.get_text().splitlines():
-            line = raw.strip()
-            if (not line or line in _NITELIK_HEADERS
-                    or re.match(r"^\d{1,2}(\s+\d{1,2})*$", line)   # sütun no'ları
-                    or "ARANAN NİTELİKLER" in line.upper()):
-                continue
-            if re.match(r"^\d{4}(\s+\d{4})*$", line):
-                first = line.split()[0]
-                desc_done = _text().endswith((".", ":"))
-                if code is None or (desc_done and re.match(r"^\d{4}$", line)):
-                    # Tek 4 haneli + açıklama bitti → yeni nitelik kodu.
-                    # (Tek satırlık alan kodu da buraya düşebilir; len>15
-                    # filtresi sahte kayıtları eler — alan listesi kısmi kalır,
-                    # ad-bazlı yedek eşleşme telafi eder.)
-                    _flush()
-                    code = first
-                else:
-                    alanlar.extend(line.split())
-                continue
-            if code:
-                # Açıklama satırı sonuna gömülü alan kodları olabilir
-                trail = re.search(r"((?:\s\d{4})+)\s*$", " " + line)
-                if trail and _text().endswith((".", ":")):
-                    alanlar.extend(trail.group(1).split())
-                else:
-                    buf.append(line)
-    _flush()
+    for code, e in entries.items():
+        desc_sorted = sorted(e["desc"], key=lambda t: (round(t[0] / 3), t[1]))
+        text = " ".join(t[2] for t in desc_sorted).strip()
+        if len(text) < 10 or text in _NITELIK_HEADERS:
+            continue
+        alan_sorted = sorted(e["alan"], key=lambda t: (round(t[0] / 3), t[1]))
+        alanlar = [t[2] for t in alan_sorted]
+        out[code] = {"aciklama": text, "duzey": duzey,
+                     "alan_kodlari": list(dict.fromkeys(alanlar))}
     return out
 
 
