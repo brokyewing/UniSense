@@ -39,7 +39,43 @@ def _load() -> list[dict]:
     return data
 
 
+@lru_cache(maxsize=1)
+def _load_gecis() -> list[dict]:
+    p = Path(get_settings().project_root) / "data" / "processed" / "dgs_gecis.json"
+    return json.load(open(p, encoding="utf-8")) if p.exists() else []
+
+
 class DgsService:
+    def gecis_ara(self, onlisans: str = "", limit: int = 5) -> dict:
+        """Önlisans bölümü → geçilebilecek lisans bölümleri (ÖSYM Tablo-2).
+
+        Boş sorgu → tüm önlisans program adları (autocomplete için).
+        """
+        gruplar = _load_gecis()
+        if not onlisans.strip():
+            adlar = sorted({p["ad"] for g in gruplar for p in g["programlar"] if p["ad"]})
+            return {"programlar": adlar, "gruplar": []}
+
+        q = fold_tr(onlisans)
+        hits = []
+        for g in gruplar:
+            uyeler = [p["ad"] for p in g["programlar"]]
+            skor = 0
+            if q in fold_tr(g["onlisans_adi"]):
+                skor = 2
+            eslesen = [u for u in uyeler if q in fold_tr(u)]
+            if eslesen:
+                skor = max(skor, 3 if any(fold_tr(u) == q for u in eslesen) else 2)
+            if skor:
+                hits.append((skor, {
+                    "alan": g["onlisans_adi"],
+                    "eslesen_programlar": eslesen[:6] or uyeler[:6],
+                    "lisans": g["lisans"],
+                }))
+        hits.sort(key=lambda x: -x[0])
+        return {"programlar": [], "gruplar": [h[1] for h in hits[:limit]]}
+
+
     def program_ara(
         self,
         *,

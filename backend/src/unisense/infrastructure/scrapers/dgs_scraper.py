@@ -118,9 +118,97 @@ def _parse(path: Path, year: int) -> list[dict]:
     return records
 
 
+# === Tablo-2: Önlisans mezuniyet alanı → geçilebilecek lisans programları ===
+OUT_GECIS = BACKEND / "data" / "processed" / "dgs_gecis.json"
+TABLO2_KNOWN = ("https://dokuman.osym.gov.tr/pdfdokuman/2025/DGS/TERCIH/"
+                "tablo2_dgtd28082025.pdf")
+_PT_SET = {"SAY", "EA", "SÖZ", "DİL"}
+
+
+def _parse_tablo2(path: Path) -> list[dict]:
+    """Önlisans alanı → geçilebilecek lisans programları (KOORDİNAT bazlı).
+
+    Tablo iki sütunlu; düz metin akışı sütunları karıştırır. x konumları:
+      ~26 alan kodu | ~53 alan adı | ~286 lisans adı | ~526 kod | ~566 puan türü
+    """
+    doc = fitz.open(path)
+    gruplar: list[dict] = []
+    cur: dict | None = None          # aktif alan GRUBU (9xxx başlık)
+    pending_name: str | None = None  # sağ sütun lisans adı
+    pending_code: str | None = None
+    member_open = False              # sol sütunda üye programı adı bekleniyor
+
+    def _flush() -> None:
+        nonlocal cur
+        if cur and cur["lisans"]:
+            gruplar.append(cur)
+        cur = None
+
+    for page in doc:
+        # Satırları y-sırasına koy (blok sırası sütun karıştırabiliyor)
+        rows: list[tuple[float, float, str]] = []
+        for block in page.get_text("dict")["blocks"]:
+            for line in block.get("lines", []):
+                txt = " ".join(s["text"] for s in line["spans"]).strip()
+                if txt:
+                    rows.append((line["bbox"][1], line["bbox"][0], txt))
+        rows.sort()
+
+        for _y, x0, txt in rows:
+            if x0 < 45 and re.match(r"^\d{4}$", txt):
+                if txt.startswith("9"):
+                    # Yeni alan GRUBU başlığı
+                    _flush()
+                    cur = {"onlisans_kod": txt, "onlisans_adi": "",
+                           "programlar": [], "lisans": []}
+                    member_open = False
+                elif cur is not None:
+                    # Grubun üye önlisans programı (kendi koduyla)
+                    cur["programlar"].append({"kod": txt, "ad": ""})
+                    member_open = True
+            elif 45 <= x0 < 260 and cur is not None:
+                if member_open and cur["programlar"]:
+                    m = cur["programlar"][-1]
+                    m["ad"] = f"{m['ad']} {txt}".strip()
+                elif not cur["programlar"]:
+                    cur["onlisans_adi"] = f"{cur['onlisans_adi']} {txt}".strip()
+                else:
+                    # kodsuz devam satırı — son üyeye ekle
+                    m = cur["programlar"][-1]
+                    m["ad"] = f"{m['ad']} {txt}".strip()
+            elif 260 <= x0 < 500 and cur is not None:
+                pending_name = f"{pending_name} {txt}".strip() if pending_name else txt
+            elif 500 <= x0 < 555 and re.match(r"^\d{4}$", txt):
+                pending_code = txt
+            elif x0 >= 555 and txt in _PT_SET and cur is not None:
+                if pending_name and pending_code:
+                    cur["lisans"].append({"ad": pending_name, "kod": pending_code,
+                                          "puan_turu": txt})
+                pending_name = pending_code = None
+    _flush()
+    return gruplar
+
+
+def scrape_tablo2(s: requests.Session) -> None:
+    p = CACHE / "tablo2_2025.pdf"
+    if not p.exists() or p.stat().st_size < 10_000:
+        data = s.get(TABLO2_KNOWN, timeout=180).content
+        if data[:4] != b"%PDF":
+            print("⛔ Tablo-2 PDF gelmedi — geçiş eşleşmesi atlandı")
+            return
+        p.write_bytes(data)
+    alanlar = _parse_tablo2(p)
+    n_lisans = sum(len(a["lisans"]) for a in alanlar)
+    json.dump(alanlar, open(OUT_GECIS, "w", encoding="utf-8"),
+              ensure_ascii=False, indent=1)
+    print(f"✅ {len(alanlar)} önlisans alanı → {n_lisans} lisans eşleşmesi → {OUT_GECIS}")
+
+
 def main() -> None:
     CACHE.mkdir(parents=True, exist_ok=True)
     s = _session()
+
+    scrape_tablo2(s)
 
     year, page_url = _discover(s)
     print(f"📡 DGS {year} → {page_url[:80]}")

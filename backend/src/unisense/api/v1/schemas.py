@@ -11,6 +11,14 @@ class ChatTurn(BaseModel):
     text: str = Field(..., max_length=4000)
 
 
+class UserExamContext(BaseModel):
+    """Profilden gelen sınav puanları — KPSS/DGS sorularında otomatik kullanılır."""
+    kpss_puan: float | None = Field(None, ge=0, le=120)
+    kpss_duzey: str | None = Field(None, pattern="^(lisans|önlisans|ortaöğretim)$")
+    dgs_puan: float | None = Field(None, ge=0, le=600)
+    dgs_turu: str | None = Field(None, pattern="^(SAY|EA|SÖZ)$")
+
+
 class AskRequest(BaseModel):
     query: str = Field(..., min_length=1, max_length=500)
     top_k: int = Field(default=12, ge=1, le=30)
@@ -18,6 +26,8 @@ class AskRequest(BaseModel):
     history: list[ChatTurn] = Field(default_factory=list, max_length=10)
     # LLM seçimi: şu an sadece "gemini" — ileride yeni model gelirse genişletilir
     model_preference: str = Field(default="gemini")
+    # Girişli kullanıcının profil sınav puanları (opsiyonel)
+    user_context: UserExamContext | None = None
 
 
 class ModelInfo(BaseModel):
@@ -253,6 +263,21 @@ class DgsProgramResponse(BaseModel):
     total: int
     items: list[DgsProgramItem]
     uyari: str = ""
+
+
+class DgsGecisRequest(BaseModel):
+    onlisans: str = Field(default="", max_length=120)
+
+
+class DgsGecisGrup(BaseModel):
+    alan: str
+    eslesen_programlar: list[str] = []
+    lisans: list[dict] = []
+
+
+class DgsGecisResponse(BaseModel):
+    programlar: list[str] = []
+    gruplar: list[DgsGecisGrup] = []
 
 
 # === Bölüm Karşılaştırma ===
