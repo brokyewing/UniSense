@@ -4,4 +4,4 @@ Disallow: /profile
 Disallow: /tercih
 Disallow: /login
 
-Sitemap: https://unisense.com.tr/sitemap.xml
+Sitemap: https://www.unisense.site/sitemap.xml
