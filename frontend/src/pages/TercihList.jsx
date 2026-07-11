@@ -715,7 +715,7 @@ export default function TercihList() {
   )
 
   useEffect(() => {
-    if (!loading && !isAuthed) nav('/login')
+    if (!loading && !isAuthed) nav('/giris')
   }, [loading, isAuthed, nav])
 
   useEffect(() => {
@@ -1043,7 +1043,7 @@ export default function TercihList() {
             )}
             {items.length >= 2 && (
               <Link
-                to={`/compare?d=${items.slice(0, 5).map((i) => i.department_code).filter(Boolean).join(',')}`}
+                to={`/karsilastir?d=${items.slice(0, 5).map((i) => i.department_code).filter(Boolean).join(',')}`}
                 title="İlk 5 tercihini yan yana karşılaştır"
                 className="btn-ghost inline-flex items-center gap-2 text-sm"
               >
@@ -1090,7 +1090,7 @@ export default function TercihList() {
               <Link to="/pusula" className="btn-primary inline-flex items-center gap-2">
                 <Compass size={16} /> Pusulaya Git
               </Link>
-              <Link to="/recommend" className="btn-ghost inline-flex items-center gap-2">
+              <Link to="/oneriler" className="btn-ghost inline-flex items-center gap-2">
                 <ListChecks size={16} /> Tercih Sayfası
               </Link>
             </div>

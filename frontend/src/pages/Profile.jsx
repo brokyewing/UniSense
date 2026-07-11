@@ -32,7 +32,7 @@ export default function Profile() {
   const [tab, setTab] = useState('account') // account | password | yks
 
   useEffect(() => {
-    if (!loading && !isAuthed) nav('/login')
+    if (!loading && !isAuthed) nav('/giris')
   }, [loading, isAuthed, nav])
 
   if (!isAuthed || !user) return null

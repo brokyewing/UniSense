@@ -47,7 +47,7 @@ export default function App() {
   async function handleLogout() {
     await logout()
     setMenuOpen(false)
-    nav('/home')
+    nav('/anasayfa')
   }
 
   return (
@@ -63,10 +63,10 @@ export default function App() {
           </Link>
 
           <nav className="flex items-center gap-1">
-            {navItem('/home', 'Ana Sayfa', HomeIcon)}
-            {navItem('/search', 'Sorgu', Search)}
+            {navItem('/anasayfa', 'Ana Sayfa', HomeIcon)}
+            {navItem('/arama', 'Sorgu', Search)}
             {navItem('/pusula', 'Pusula', Compass)}
-            {navItem('/recommend', 'Tercih', ListChecks)}
+            {navItem('/oneriler', 'Tercih', ListChecks)}
             {navItem('/hesap', 'Hesap', Calculator)}
           </nav>
 
@@ -115,7 +115,7 @@ export default function App() {
                       <ListChecks size={14} /> Tercih Listem
                     </Link>
                     <Link
-                      to="/profile"
+                      to="/profil"
                       onClick={() => setMenuOpen(false)}
                       className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/5 hover:text-white transition"
                     >
@@ -134,7 +134,7 @@ export default function App() {
             </div>
           ) : (
             <Link
-              to="/login"
+              to="/giris"
               className="flex items-center gap-2 px-3 py-1.5 rounded-xl glass glass-hover text-sm text-slate-200"
             >
               <LogIn size={14} />
@@ -162,7 +162,7 @@ export default function App() {
             </a>
           </span>
           <span className="text-slate-700">•</span>
-          <Link to="/privacy" className="text-slate-400 hover:text-accent-300 transition">
+          <Link to="/gizlilik" className="text-slate-400 hover:text-accent-300 transition">
             KVKK / Gizlilik
           </Link>
         </div>

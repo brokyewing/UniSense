@@ -1,14 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Loader2, ListChecks, Target, ShieldCheck, Mountain,
   TrendingUp, Building2, MapPin, UserCog, Sparkles,
   Compass, X, ArrowRight, Check, Plus,
+  GraduationCap, Briefcase, AlertTriangle,
 } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import { useAuth } from '../contexts/AuthContext'
-import { getUserProfile, addToTercih, removeFromTercih, watchTercihList } from '../firebase'
+import {
+  getUserProfile, addToTercih, removeFromTercih, watchTercihList,
+  watchDgsTercih, addToDgsTercih, removeFromDgsTercih, MAX_DGS_TERCIH,
+  watchKpssTercih, addToKpssTercih, removeFromKpssTercih, MAX_KPSS_TERCIH,
+} from '../firebase'
 import { apiFetch } from '../lib/api'
 
 const SCORE_TYPES = [
@@ -190,12 +195,11 @@ function ItemCard({ item, isInTercih, onAdd, onRemove, busyCode }) {
   )
 }
 
-// === Pusula yapılmamışsa engel ekran ===
+// === Pusula yapılmamışsa engel ekran (YKS modunda; sahne üst bileşenden gelir) ===
 function PusulaGate() {
   const navigate = useNavigate()
   return (
     <>
-      <BackgroundScene />
       <div className="max-w-2xl mx-auto">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -233,7 +237,7 @@ function PusulaGate() {
               Pusulaya Git
               <ArrowRight size={16} />
             </button>
-            <Link to="/search" className="btn-ghost px-6 py-3">
+            <Link to="/arama" className="btn-ghost px-6 py-3">
               Yine de aramak istiyorum →
             </Link>
           </div>
@@ -263,6 +267,546 @@ function PusulaGate() {
 }
 
 
+// === Ortak: kategori grubu başlığı + kart ızgarası ===
+function CategoryGroup({ cat, items, renderItem }) {
+  if (!items || items.length === 0) return null
+  return (
+    <div className="card">
+      <div className="flex items-center gap-3 mb-4">
+        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${cat.color} flex items-center justify-center shadow-lg`}>
+          <cat.icon size={18} className="text-white" />
+        </div>
+        <div>
+          <h3 className="font-display font-semibold text-lg text-white">
+            {cat.label} <span className="text-slate-500 text-sm">({items.length})</span>
+          </h3>
+          <p className="text-xs text-slate-400">{cat.desc}</p>
+        </div>
+      </div>
+      <div className="grid md:grid-cols-2 gap-3">
+        {items.map((it, i) => renderItem(it, i))}
+      </div>
+    </div>
+  )
+}
+
+function TercihToggleButton({ inList, busy, onToggle }) {
+  return inList ? (
+    <button
+      onClick={onToggle}
+      disabled={busy}
+      title="Tercih listesinden çıkar"
+      className="text-xs px-2.5 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-rose-500/20 text-emerald-300 hover:text-rose-200 border border-emerald-500/30 hover:border-rose-500/40 transition inline-flex items-center gap-1 disabled:opacity-40"
+    >
+      {busy ? <Loader2 size={11} className="animate-spin" /> : <Check size={12} />}
+      Listemde
+    </button>
+  ) : (
+    <button
+      onClick={onToggle}
+      disabled={busy}
+      className="text-xs px-2.5 py-1.5 rounded-lg bg-accent-500/20 hover:bg-accent-500/40 text-accent-200 hover:text-white border border-accent-500/30 transition inline-flex items-center gap-1 disabled:opacity-40"
+    >
+      {busy ? <Loader2 size={11} className="animate-spin" /> : <Plus size={12} />}
+      Tercihe Ekle
+    </button>
+  )
+}
+
+// === DGS önerileri: puan + puan türüne göre lisans programları ===
+function DgsOneriPanel({ user, profile }) {
+  const [puan, setPuan] = useState('')
+  const [pt, setPt] = useState('SAY')
+  const [bolum, setBolum] = useState('')
+  const [il, setIl] = useState('')
+  const [uniType, setUniType] = useState('all')
+  const [res, setRes] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [tercihIds, setTercihIds] = useState(new Set())
+  const [busyCode, setBusyCode] = useState(null)
+
+  // Profil varsayılanları (async yüklenir)
+  useEffect(() => {
+    if (!profile) return
+    if (profile.dgs?.score != null) setPuan(String(profile.dgs.score))
+    if (profile.dgs?.type) setPt(profile.dgs.type)
+    if (profile.preferredUniType) setUniType(profile.preferredUniType)
+  }, [profile])
+
+  useEffect(() => {
+    if (!user) { setTercihIds(new Set()); return }
+    return watchDgsTercih(user.uid, (items) =>
+      setTercihIds(new Set(items.map((i) => String(i.department_code)))))
+  }, [user])
+
+  async function onSubmit(e) {
+    e.preventDefault()
+    const p = parseFloat(puan)
+    if (!p || p < 100 || p > 600) {
+      setError('Geçerli bir DGS puanı gir (100–600) — Hesap sayfasından net girerek hesaplayabilirsin')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      const d = await apiFetch('/api/v1/dgs/programlar', {
+        method: 'POST',
+        body: {
+          puan_turu: pt,
+          puan: p,
+          bolum,
+          il: il.trim() || null,
+          uni_turu: uniType === 'all' ? null : uniType,
+          oneri: true, // tabanı puanın 10 puana kadar üstündekiler de gelsin (üst seviye)
+          limit: 100,
+        },
+      })
+      setRes({ ...d, puan: p })
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function toggleTercih(item) {
+    if (!user) { setError('Tercih listesine eklemek için giriş yap'); return }
+    const code = String(item.department_code)
+    setBusyCode(code)
+    setError('')
+    try {
+      if (tercihIds.has(code)) {
+        await removeFromDgsTercih(user.uid, code)
+      } else {
+        if (tercihIds.size >= MAX_DGS_TERCIH) {
+          setError(`DGS tercih listesi dolu (max ${MAX_DGS_TERCIH}) — önce birkaç tane çıkar`)
+          return
+        }
+        await addToDgsTercih(user.uid, { ...item, puan_turu: pt }, tercihIds.size + 1)
+      }
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setBusyCode(null)
+    }
+  }
+
+  // Kategoriler: taban ↔ puan farkı; tabanı olmayanlar (geçen yıl boş) ayrı grupta
+  const groups = { safe: [], target: [], reach: [], bos: [] }
+  if (res) {
+    for (const it of res.items) {
+      if (it.min_puan == null) { groups.bos.push(it); continue }
+      const diff = res.puan - it.min_puan
+      if (diff >= 10) groups.safe.push(it)
+      else if (diff >= 0) groups.target.push(it)
+      else groups.reach.push(it)
+    }
+  }
+  const hicYok = res && res.items.length === 0
+
+  const BOS_CAT = {
+    key: 'bos',
+    label: 'Geçen Yıl Boş Kalanlar',
+    icon: GraduationCap,
+    color: 'from-slate-500 to-slate-700',
+    desc: 'Taban oluşmadı — yerleşme şansı yüksek ama kontenjan ve koşulları kontrol et',
+  }
+
+  const renderCard = (p) => {
+    const code = String(p.department_code)
+    return (
+      <motion.div key={code} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+        className="card glass-hover p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-white text-sm">{p.program_adi}</h4>
+            <div className="flex items-center gap-2 mt-1 text-xs text-slate-400 flex-wrap">
+              <span className="flex items-center gap-1"><Building2 size={11} /> {p.university_name}</span>
+              {p.city && <span className="flex items-center gap-1"><MapPin size={11} /> {p.city}</span>}
+            </div>
+          </div>
+        </div>
+        <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-4 text-xs flex-wrap">
+          <div>
+            <div className="text-slate-500">Taban ({p.yil || 2025})</div>
+            <div className="font-mono text-accent-300">
+              {p.min_puan != null ? p.min_puan.toFixed(2) : 'boş kaldı'}
+            </div>
+          </div>
+          <div>
+            <div className="text-slate-500">Kontenjan</div>
+            <div className="font-mono text-cyber-cyan">{p.kontenjan ?? '?'}</div>
+          </div>
+          <div className="ml-auto">
+            <TercihToggleButton
+              inList={tercihIds.has(code)}
+              busy={busyCode === code}
+              onToggle={() => toggleTercih(p)}
+            />
+          </div>
+        </div>
+      </motion.div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {user && profile?.dgs?.score != null && (
+        <div className="card border-accent-500/30 bg-accent-500/10 flex items-center gap-3 text-sm">
+          <Sparkles size={14} className="text-accent-300 shrink-0" />
+          <div className="flex-1 text-accent-100">DGS puanın <strong>profilden geldi</strong>.</div>
+          <Link to="/profil" className="text-xs px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-accent-200 transition shrink-0">
+            <UserCog size={12} className="inline mr-1" />Düzenle
+          </Link>
+        </div>
+      )}
+
+      <form onSubmit={onSubmit} className="card space-y-4">
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">DGS Puanın</label>
+            <input type="number" step="0.01" value={puan} onChange={(e) => setPuan(e.target.value)}
+              placeholder="örn: 285.40" className="input-glass" />
+          </div>
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">Puan Türü</label>
+            <div className="grid grid-cols-3 gap-2">
+              {['SAY', 'EA', 'SÖZ'].map((t) => (
+                <button key={t} type="button" onClick={() => setPt(t)}
+                  className={`px-3 py-2.5 rounded-xl text-sm font-semibold transition ${
+                    pt === t ? 'bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg'
+                             : 'glass glass-hover text-slate-300'
+                  }`}>
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">Bölüm filtresi <span className="text-slate-500">(opsiyonel)</span></label>
+            <input value={bolum} onChange={(e) => setBolum(e.target.value)}
+              placeholder="örn: bilgisayar — boş = hepsi" className="input-glass" />
+          </div>
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">Şehir <span className="text-slate-500">(opsiyonel)</span></label>
+            <input value={il} onChange={(e) => setIl(e.target.value)}
+              placeholder="örn: İstanbul" className="input-glass" />
+          </div>
+        </div>
+        <div>
+          <label className="text-sm text-slate-300 mb-2 block">Üniversite Tipi</label>
+          <div className="flex gap-2">
+            {[['all', 'Hepsi'], ['Devlet', 'Devlet'], ['Vakıf', 'Vakıf (Özel)']].map(([v, l]) => (
+              <button key={v} type="button" onClick={() => setUniType(v)}
+                className={`px-3 py-2 rounded-xl text-sm transition ${
+                  uniType === v ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg'
+                                : 'glass glass-hover text-slate-300'
+                }`}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {error && (
+          <div className="text-sm text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-3">
+            ⚠️ {error}
+          </div>
+        )}
+
+        <button type="submit" disabled={loading}
+          className="btn-primary w-full inline-flex items-center justify-center gap-2 disabled:opacity-50">
+          {loading ? (<><Loader2 size={18} className="animate-spin" /> Programlar bulunuyor…</>)
+                   : (<><GraduationCap size={18} /> DGS Puanımla Tercih Öner</>)}
+        </button>
+      </form>
+
+      {res && (
+        <div className="space-y-4">
+          {user && (
+            <div className="flex items-center justify-between gap-3 px-1 text-xs">
+              <span className="text-slate-400">
+                DGS Tercih Listende:{' '}
+                <strong className={tercihIds.size >= MAX_DGS_TERCIH ? 'text-rose-400' : 'text-emerald-400'}>
+                  {tercihIds.size}/{MAX_DGS_TERCIH}
+                </strong>
+              </span>
+              <Link to="/tercih" className="text-accent-300 hover:text-accent-200 transition flex items-center gap-1">
+                Tercih Listemi Gör <ArrowRight size={11} />
+              </Link>
+            </div>
+          )}
+          {error && (
+            <div className="text-sm text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-3">
+              ⚠️ {error}
+            </div>
+          )}
+          {hicYok && (
+            <div className="card border-rose-500/30 bg-rose-500/10 text-center py-8">
+              <div className="text-rose-200 font-medium mb-2">Bu filtrelerle uygun program bulunamadı</div>
+              <div className="text-sm text-rose-200/70">Bölüm/şehir filtresini kaldırmayı veya üniversite tipini genişletmeyi dene.</div>
+            </div>
+          )}
+          {CATEGORIES.map((cat) => (
+            <CategoryGroup key={cat.key} cat={cat} items={groups[cat.key]} renderItem={renderCard} />
+          ))}
+          <CategoryGroup cat={BOS_CAT} items={groups.bos} renderItem={renderCard} />
+          {res.uyari && <div className="text-[11px] text-slate-500 px-1">{res.uyari}</div>}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// === KPSS önerileri: puan + düzey + mezuniyete göre kadrolar ===
+function KpssOneriPanel({ user, profile }) {
+  const [puan, setPuan] = useState('')
+  const [duzey, setDuzey] = useState('lisans')
+  const [bolum, setBolum] = useState('')
+  const [il, setIl] = useState('')
+  const [res, setRes] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [tercihIds, setTercihIds] = useState(new Set())
+  const [busyCode, setBusyCode] = useState(null)
+
+  useEffect(() => {
+    if (!profile) return
+    if (profile.kpss?.score != null) setPuan(String(profile.kpss.score))
+    if (profile.kpss?.duzey) setDuzey(profile.kpss.duzey)
+  }, [profile])
+
+  useEffect(() => {
+    if (!user) { setTercihIds(new Set()); return }
+    return watchKpssTercih(user.uid, (items) =>
+      setTercihIds(new Set(items.map((i) => String(i.kadro_kodu)))))
+  }, [user])
+
+  async function onSubmit(e) {
+    e.preventDefault()
+    const p = parseFloat(puan)
+    if (!p || p < 40 || p > 120) {
+      setError('Geçerli bir KPSS GY-GK puanı gir (40–120) — Hesap sayfasından hesaplayabilirsin')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      const d = await apiFetch('/api/v1/kpss/kadrolar', {
+        method: 'POST',
+        body: { bolum, duzey, il: il.trim() || null, puan: p, limit: 100 },
+      })
+      setRes({ ...d, puan: p })
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function toggleTercih(k) {
+    if (!user) { setError('Tercih listesine eklemek için giriş yap'); return }
+    const code = String(k.kadro_kodu)
+    setBusyCode(code)
+    setError('')
+    try {
+      if (tercihIds.has(code)) {
+        await removeFromKpssTercih(user.uid, code)
+      } else {
+        if (tercihIds.size >= MAX_KPSS_TERCIH) {
+          setError(`KPSS tercih listesi dolu (max ${MAX_KPSS_TERCIH}) — önce birkaç tane çıkar`)
+          return
+        }
+        await addToKpssTercih(user.uid, k, tercihIds.size + 1)
+      }
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setBusyCode(null)
+    }
+  }
+
+  // Kategoriler: geçmiş taban ↔ puan farkı; taban bilinmeyenler ayrı grupta
+  const groups = { safe: [], target: [], reach: [], bilinmez: [] }
+  if (res) {
+    for (const k of res.items) {
+      if (k.gecmis_taban == null) { groups.bilinmez.push(k); continue }
+      const diff = res.puan - k.gecmis_taban
+      if (diff >= 3) groups.safe.push(k)
+      else if (diff >= -1) groups.target.push(k)
+      else groups.reach.push(k)
+    }
+  }
+  const hicYok = res && res.items.length === 0
+
+  const eslesmeBadge = (e) => {
+    if (!e) return null
+    const cls = e.includes('✓')
+      ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+      : e === 'bölüme özel'
+        ? 'bg-sky-500/15 text-sky-300 border-sky-500/30'
+        : 'bg-white/5 text-slate-400 border-white/10'
+    return <span className={`text-[10px] px-2 py-0.5 rounded-full border ${cls}`}>{e}</span>
+  }
+
+  const renderCard = (k) => {
+    const code = String(k.kadro_kodu)
+    return (
+      <motion.div key={code} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+        className="card glass-hover p-4">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-white text-sm">{k.unvan}</h4>
+            <div className="text-xs text-slate-400 mt-1">{k.kurum}</div>
+            <div className="flex items-center gap-2 mt-1.5 text-[11px] text-slate-500 flex-wrap">
+              {k.il && <span className="flex items-center gap-1"><MapPin size={10} /> {k.il}</span>}
+              <span>{k.duzey}</span>
+              <span className="font-mono">{k.puan_turu}</span>
+              {eslesmeBadge(k.eslesme)}
+            </div>
+          </div>
+        </div>
+        {k.ozel_kosullar?.length > 0 && (
+          <div className="mt-2 space-y-1">
+            {k.ozel_kosullar.map((o, i) => (
+              <div key={i} className="text-[10px] text-amber-300 flex items-start gap-1">
+                <AlertTriangle size={10} className="shrink-0 mt-0.5" /> {o}
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-4 text-xs flex-wrap">
+          <div>
+            <div className="text-slate-500">Geçmiş taban</div>
+            <div className="font-mono text-accent-300">
+              {k.gecmis_taban != null ? k.gecmis_taban.toFixed(2) : 'bilinmiyor'}
+            </div>
+          </div>
+          <div>
+            <div className="text-slate-500">Kontenjan</div>
+            <div className="font-mono text-cyber-cyan">{k.kontenjan ?? '?'}</div>
+          </div>
+          <div className="ml-auto">
+            <TercihToggleButton
+              inList={tercihIds.has(code)}
+              busy={busyCode === code}
+              onToggle={() => toggleTercih(k)}
+            />
+          </div>
+        </div>
+      </motion.div>
+    )
+  }
+
+  const BILINMEZ_CAT = {
+    key: 'bilinmez',
+    label: 'Taban Bilinmiyor',
+    icon: Briefcase,
+    color: 'from-slate-500 to-slate-700',
+    desc: 'Geçmiş dönem yerleştirme verisi eşleşmedi — nitelikleri kontrol ederek değerlendir',
+  }
+
+  return (
+    <div className="space-y-6">
+      {user && profile?.kpss?.score != null && (
+        <div className="card border-accent-500/30 bg-accent-500/10 flex items-center gap-3 text-sm">
+          <Sparkles size={14} className="text-accent-300 shrink-0" />
+          <div className="flex-1 text-accent-100">KPSS puanın ve düzeyin <strong>profilden geldi</strong>.</div>
+          <Link to="/profil" className="text-xs px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-accent-200 transition shrink-0">
+            <UserCog size={12} className="inline mr-1" />Düzenle
+          </Link>
+        </div>
+      )}
+
+      <form onSubmit={onSubmit} className="card space-y-4">
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">KPSS Puanın (GY-GK)</label>
+            <input type="number" step="0.01" value={puan} onChange={(e) => setPuan(e.target.value)}
+              placeholder="örn: 82.35" className="input-glass" />
+          </div>
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">Düzey</label>
+            <div className="grid grid-cols-3 gap-2">
+              {['lisans', 'önlisans', 'ortaöğretim'].map((d) => (
+                <button key={d} type="button" onClick={() => setDuzey(d)}
+                  className={`px-2 py-2.5 rounded-xl text-xs font-semibold transition ${
+                    duzey === d ? 'bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg'
+                                : 'glass glass-hover text-slate-300'
+                  }`}>
+                  {d}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">Mezun olduğun bölüm <span className="text-slate-500">(nitelik eşleşmesi için)</span></label>
+            <input value={bolum} onChange={(e) => setBolum(e.target.value)}
+              placeholder="örn: Bilgisayar Mühendisliği" className="input-glass" />
+          </div>
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">Şehir <span className="text-slate-500">(opsiyonel)</span></label>
+            <input value={il} onChange={(e) => setIl(e.target.value)}
+              placeholder="örn: Ankara" className="input-glass" />
+          </div>
+        </div>
+
+        {error && (
+          <div className="text-sm text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-3">
+            ⚠️ {error}
+          </div>
+        )}
+
+        <button type="submit" disabled={loading}
+          className="btn-primary w-full inline-flex items-center justify-center gap-2 disabled:opacity-50">
+          {loading ? (<><Loader2 size={18} className="animate-spin" /> Kadrolar bulunuyor…</>)
+                   : (<><Briefcase size={18} /> KPSS Puanımla Kadro Öner</>)}
+        </button>
+      </form>
+
+      {res && (
+        <div className="space-y-4">
+          {user && (
+            <div className="flex items-center justify-between gap-3 px-1 text-xs">
+              <span className="text-slate-400">
+                KPSS Tercih Listende:{' '}
+                <strong className={tercihIds.size >= MAX_KPSS_TERCIH ? 'text-rose-400' : 'text-emerald-400'}>
+                  {tercihIds.size}/{MAX_KPSS_TERCIH}
+                </strong>
+              </span>
+              <Link to="/tercih" className="text-accent-300 hover:text-accent-200 transition flex items-center gap-1">
+                Tercih Listemi Gör <ArrowRight size={11} />
+              </Link>
+            </div>
+          )}
+          {error && (
+            <div className="text-sm text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-3">
+              ⚠️ {error}
+            </div>
+          )}
+          {hicYok && (
+            <div className="card border-rose-500/30 bg-rose-500/10 text-center py-8">
+              <div className="text-rose-200 font-medium mb-2">Bu filtrelerle uygun kadro bulunamadı</div>
+              <div className="text-sm text-rose-200/70">Bölüm adını farklı yazmayı veya şehir filtresini kaldırmayı dene.</div>
+            </div>
+          )}
+          {CATEGORIES.map((cat) => (
+            <CategoryGroup key={cat.key} cat={cat} items={groups[cat.key]} renderItem={renderCard} />
+          ))}
+          <CategoryGroup cat={BILINMEZ_CAT} items={groups.bilinmez} renderItem={renderCard} />
+          {res.uyari && <div className="text-[11px] text-slate-500 px-1">{res.uyari}</div>}
+        </div>
+      )}
+    </div>
+  )
+}
+
+
 export default function Recommend() {
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -279,6 +823,9 @@ export default function Recommend() {
   const [busyCode, setBusyCode] = useState(null)
   const [tercihError, setTercihError] = useState('')
   const [uniType, setUniType] = useState('all')  // 'all' | 'Devlet' | 'Vakıf'
+  const [mode, setMode] = useState('YKS')        // YKS | DGS | KPSS — profilden açılır
+  const [profile, setProfile] = useState(null)
+  const userPickedMode = useRef(false)           // kullanıcı elle sekme seçtiyse profil ezmesin
 
   // Pusula sonucunu sessionStorage'tan oku
   useEffect(() => {
@@ -355,6 +902,11 @@ export default function Recommend() {
         if (cancelled) return
         const p = data?.profile
         if (p) {
+          setProfile(p)
+          // Sınav yoluna göre varsayılan sekme (KPSS'li kullanıcı KPSS önerisi görsün)
+          if (!userPickedMode.current && (p.examTrack === 'DGS' || p.examTrack === 'KPSS')) {
+            setMode(p.examTrack)
+          }
           let filled = false
           if (p.scoreType) {
             setScoreType(p.scoreType)
@@ -436,16 +988,26 @@ export default function Recommend() {
     }
   }
 
-  // Pusula yapılmamışsa engel ekranı göster
-  if (!pusulaState?.names?.length) {
-    return <PusulaGate />
-  }
+  // YKS modunda pusula yapılmamışsa engel ekranı (DGS/KPSS pusula istemez)
+  const yksGated = !pusulaState?.names?.length
 
   const modeLabel =
-    pusulaState.mode === 'interests' ? 'İlgilerine göre'
-    : pusulaState.mode === 'text' ? 'Yazdığın metne göre'
-    : pusulaState.mode === 'axes' ? '5 sorulu testin sonucuna göre'
+    pusulaState?.mode === 'interests' ? 'İlgilerine göre'
+    : pusulaState?.mode === 'text' ? 'Yazdığın metne göre'
+    : pusulaState?.mode === 'axes' ? '5 sorulu testin sonucuna göre'
     : 'Pusula sonucu'
+
+  const SUBTITLES = {
+    YKS: <>Puanına uygun <strong className="text-emerald-400">güvenli</strong>,{' '}
+      <strong className="text-amber-400">hedef</strong> ve{' '}
+      <strong className="text-rose-400">üst seviye</strong> üniversite tercihleri.</>,
+    DGS: <>DGS puanınla geçebileceğin lisans programları —{' '}
+      <strong className="text-emerald-400">güvenli</strong>,{' '}
+      <strong className="text-amber-400">hedef</strong> ve{' '}
+      <strong className="text-rose-400">üst seviye</strong>.</>,
+    KPSS: <>KPSS puanına ve mezuniyetine göre başvurabileceğin{' '}
+      <strong className="text-accent-300">2026/1 kadroları</strong>.</>,
+  }
 
   return (
     <>
@@ -461,16 +1023,30 @@ export default function Recommend() {
           >
             Tercih <span className="gradient-text">Asistanın</span>
           </motion.h1>
-          <p className="text-slate-400 max-w-xl mx-auto">
-            Pusula'dan seçtiğin <strong className="text-emerald-300">{pusulaState.names.length} bölüm</strong>
-            {uniType === 'Devlet' && <> içinde <strong className="text-emerald-400">sadece devlet</strong></>}
-            {uniType === 'Vakıf'  && <> içinde <strong className="text-rose-400">sadece vakıf</strong></>}
-            {uniType === 'all'    && <> içinde <strong className="text-slate-300">tüm üniversitelerden</strong></>},
-            puanına uygun <strong className="text-emerald-400">güvenli</strong>,{' '}
-            <strong className="text-amber-400">hedef</strong> ve{' '}
-            <strong className="text-rose-400">üst seviye</strong> tercihler.
-          </p>
+          <p className="text-slate-400 max-w-xl mx-auto">{SUBTITLES[mode]}</p>
         </div>
+
+        {/* Sınav yolu sekmeleri */}
+        <div className="flex justify-center gap-2">
+          {['YKS', 'DGS', 'KPSS'].map((m) => (
+            <button
+              key={m}
+              onClick={() => { userPickedMode.current = true; setMode(m) }}
+              className={`px-5 py-2 rounded-xl text-sm font-semibold transition ${
+                mode === m
+                  ? 'bg-gradient-to-br from-brand-500 to-accent-500 text-white shadow-lg'
+                  : 'glass glass-hover text-slate-300'
+              }`}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+
+        {mode === 'DGS' && <DgsOneriPanel user={user} profile={profile} />}
+        {mode === 'KPSS' && <KpssOneriPanel user={user} profile={profile} />}
+        {mode === 'YKS' && yksGated && <PusulaGate />}
+        {mode === 'YKS' && !yksGated && (<>
 
         {/* Pusula sonucu — bölüm chip'leri */}
         <motion.div
@@ -538,7 +1114,7 @@ export default function Recommend() {
                 Puan/sıra bilgilerin <strong>profilden geldi</strong>.
               </div>
               <Link
-                to="/profile"
+                to="/profil"
                 className="text-xs px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-accent-200 transition flex items-center gap-1 shrink-0"
               >
                 <UserCog size={12} /> Düzenle
@@ -555,7 +1131,7 @@ export default function Recommend() {
                 Puan/sıra bilgini profiline kaydedersen bir dahaki sefere otomatik dolar.
               </div>
               <Link
-                to="/profile"
+                to="/profil"
                 className="text-xs px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition shrink-0"
               >
                 Profile Git →
@@ -744,6 +1320,7 @@ export default function Recommend() {
             </motion.div>
           )}
         </AnimatePresence>
+        </>)}
       </div>
     </>
   )

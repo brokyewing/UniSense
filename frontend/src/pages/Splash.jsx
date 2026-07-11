@@ -93,7 +93,7 @@ export default function Splash() {
           className="flex flex-col sm:flex-row gap-3 items-center"
         >
           <button
-            onClick={() => nav('/home')}
+            onClick={() => nav('/anasayfa')}
             className="btn-primary text-lg px-8 py-4 group flex items-center gap-2"
           >
             Başla
@@ -103,7 +103,7 @@ export default function Splash() {
             />
           </button>
           <button
-            onClick={() => nav('/search')}
+            onClick={() => nav('/arama')}
             className="btn-ghost text-lg px-8 py-4"
           >
             Direkt Sor →

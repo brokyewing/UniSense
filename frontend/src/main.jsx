@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import App from './App.jsx'
 import Splash from './pages/Splash.jsx'
 import Home from './pages/Home.jsx'
@@ -17,6 +17,22 @@ import { AuthProvider } from './contexts/AuthContext.jsx'
 import { ThemeProvider } from './contexts/ThemeContext.jsx'
 import './index.css'
 
+// Eski (İngilizce) adresler → yeni Türkçe adresler; query/hash korunur
+const LEGACY_ROUTES = [
+  ['/home', '/anasayfa'],
+  ['/search', '/arama'],
+  ['/recommend', '/oneriler'],
+  ['/login', '/giris'],
+  ['/profile', '/profil'],
+  ['/privacy', '/gizlilik'],
+  ['/compare', '/karsilastir'],
+]
+
+function LegacyRedirect({ to }) {
+  const loc = useLocation()
+  return <Navigate to={{ pathname: to, search: loc.search, hash: loc.hash }} replace />
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ThemeProvider>
@@ -25,16 +41,19 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Routes>
             <Route element={<App />}>
               <Route index element={<Splash />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/recommend" element={<Recommend />} />
-              <Route path="/login" element={<Login />} />
+              <Route path="/anasayfa" element={<Home />} />
+              <Route path="/arama" element={<Search />} />
+              <Route path="/oneriler" element={<Recommend />} />
+              <Route path="/giris" element={<Login />} />
               <Route path="/tercih" element={<TercihList />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/profil" element={<Profile />} />
               <Route path="/pusula" element={<Pusula />} />
               <Route path="/hesap" element={<Hesap />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/compare" element={<Compare />} />
+              <Route path="/gizlilik" element={<Privacy />} />
+              <Route path="/karsilastir" element={<Compare />} />
+              {LEGACY_ROUTES.map(([from, to]) => (
+                <Route key={from} path={from} element={<LegacyRedirect to={to} />} />
+              ))}
             </Route>
           </Routes>
         </BrowserRouter>

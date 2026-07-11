@@ -327,7 +327,7 @@ export default function Privacy() {
           className="text-center py-6"
         >
           <Link
-            to="/home"
+            to="/anasayfa"
             className="text-sm text-slate-400 hover:text-accent-300 transition inline-flex items-center gap-2"
           >
             ← Ana sayfaya dön

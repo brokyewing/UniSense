@@ -369,6 +369,7 @@ def dgs_programlar(
         bolum=body.bolum,
         il=body.il,
         uni_turu=body.uni_turu,
+        oneri=body.oneri,
         limit=body.limit,
     )
     return DgsProgramResponse(**result)

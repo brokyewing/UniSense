@@ -342,7 +342,7 @@ function TextMode() {
   function ask() {
     const t = text.trim()
     if (t.length < 3) return
-    navigate(`/search?q=${encodeURIComponent(t)}`)
+    navigate(`/arama?q=${encodeURIComponent(t)}`)
   }
 
   return (
@@ -606,7 +606,7 @@ function ResultMatch({ match, index, onRemove }) {
           {match.program_count} program
         </span>
         <Link
-          to={`/search?q=${encodeURIComponent(match.name)}`}
+          to={`/arama?q=${encodeURIComponent(match.name)}`}
           className="text-xs px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-accent-500/20 hover:text-accent-200 text-slate-300 transition flex items-center gap-1"
         >
           Detay <ChevronRight size={12} />
@@ -633,7 +633,7 @@ function ResultsSection({ result, onClear, onRemoveMatch }) {
     } catch (e) {
       console.warn('sessionStorage yazılamadı', e)
     }
-    navigate('/recommend')
+    navigate('/oneriler')
   }
 
   const modeLabel =
