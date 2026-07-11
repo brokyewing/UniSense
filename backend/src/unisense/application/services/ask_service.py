@@ -356,6 +356,11 @@ def _build_listing_context(intent: dict, rec_service: "RecommendationService") -
 # DİKKAT: tek başına "kadro" YKS bağlamında da geçer ("akademik kadro") —
 # sadece kpss/memur/atanma kelimeleri yönlendirir
 _KPSS_RE = re.compile(r"\bkpss\b|\bmemur(lug|luk|iyet|u|a)?\b|\batan(ma|abilir|(ı|i)r(ı|i)m)", re.I)
+# Sınav adı geçmeyen genel yerleştirme soruları — kullanıcının profil
+# yolu (exam_track) DGS/KPSS ise o kanala yönlendirilir
+_GENERIC_PLACEMENT_RE = re.compile(
+    r"nereye\s+(girebilir|yerle(ş|s))|hangi\s+(b(ö|o)l(ü|u)m|program|kadro)|"
+    r"\byerle(ş|s)(ebilir|irim|me)\b|puan(ı|i)mla", re.I)
 _DGS_RE = re.compile(r"\bdgs\b|dikey\s*ge(ç|c)i(ş|s)", re.I)
 _KPSS_PUAN_RE = re.compile(r"\b(\d{2,3}(?:[.,]\d{1,3})?)\s*(?:kpss\s*)?puan")
 
@@ -530,6 +535,7 @@ class AskService:
         # 0b. KPSS / DGS sorguları — kendi yapısal veri kaynaklarına yönlenir
         # (YKS RAG'i bu soruları cevaplayamaz; kadro/geçiş verisi ayrı)
         sinav_context = ""
+        uc_track = (user_context or {}).get("exam_track")
         try:
             if _KPSS_RE.search(query.text):
                 sinav_context = _build_kpss_context(query.text, user_context)
@@ -537,6 +543,13 @@ class AskService:
             elif _DGS_RE.search(query.text):
                 sinav_context = _build_dgs_context(query.text, user_context)
                 logger.info("dgs_intent_routed")
+            elif uc_track == "KPSS" and _GENERIC_PLACEMENT_RE.search(query.text):
+                # Sınav adı yazılmamış ama kullanıcının yolu KPSS
+                sinav_context = _build_kpss_context(query.text, user_context)
+                logger.info("kpss_intent_routed", via="exam_track")
+            elif uc_track == "DGS" and _GENERIC_PLACEMENT_RE.search(query.text):
+                sinav_context = _build_dgs_context(query.text, user_context)
+                logger.info("dgs_intent_routed", via="exam_track")
         except Exception as e:  # noqa: BLE001
             logger.warning("sinav_context_failed", error=str(e)[:200])
 

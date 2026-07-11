@@ -283,6 +283,7 @@ export default function Search() {
     getUserProfile(user.uid).then((p) => {
       const prof = p?.profile || {}
       const ctx = {}
+      if (prof.examTrack) ctx.exam_track = prof.examTrack
       if (prof.kpss?.score) {
         ctx.kpss_puan = prof.kpss.score
         if (prof.kpss.duzey) ctx.kpss_duzey = prof.kpss.duzey

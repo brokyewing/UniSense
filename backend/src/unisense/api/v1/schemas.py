@@ -13,6 +13,7 @@ class ChatTurn(BaseModel):
 
 class UserExamContext(BaseModel):
     """Profilden gelen sınav puanları — KPSS/DGS sorularında otomatik kullanılır."""
+    exam_track: str | None = Field(None, pattern="^(YKS|DGS|KPSS)$")
     kpss_puan: float | None = Field(None, ge=0, le=120)
     kpss_duzey: str | None = Field(None, pattern="^(lisans|önlisans|ortaöğretim)$")
     dgs_puan: float | None = Field(None, ge=0, le=600)
