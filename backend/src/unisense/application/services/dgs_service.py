@@ -7,6 +7,7 @@ doğrudan iliştirilir. "DGS 280 puanla hangi lisans programlarına geçerim?"
 from __future__ import annotations
 
 import json
+import re
 from functools import lru_cache
 from pathlib import Path
 
@@ -28,6 +29,26 @@ def _load() -> list[dict]:
 
     _, departments, uni_lookup = _load_data()
     dept_lookup = {d["code"]: d for d in departments}
+
+    # Kod eşleşmeyen kayıtlar için üni adı → (tür, şehir) yedeği (BULGU #9):
+    # dgs_rankings'in %16.7'si (1216 kayıt) departments.json koduna oturmuyordu,
+    # city/university_type boş kalıp il ve vakıf/devlet filtrelerinden düşüyordu.
+    uni_by_name: dict[str, tuple[str, str]] = {}
+    for u in uni_lookup.values():
+        nm = fold_tr(u.get("name", ""))
+        if nm:
+            uni_by_name[nm] = (u.get("type", ""), u.get("city", ""))
+
+    def _match_uni(name: str) -> tuple[str, str]:
+        f = fold_tr(name)
+        if f in uni_by_name:
+            return uni_by_name[f]
+        for nm, val in uni_by_name.items():
+            if f and (f.startswith(nm) or nm.startswith(f)):
+                return val
+        return ("", "")
+
+    filled = 0
     for r in data:
         d = dept_lookup.get(r["department_code"])
         if d:
@@ -35,7 +56,21 @@ def _load() -> list[dict]:
             uni = uni_lookup.get(d.get("university_code", ""), {})
             r["university_name"] = uni.get("name", "")
             r["university_type"] = uni.get("type", "")
-    logger.info("dgs_data_loaded", kayit=len(data))
+            continue
+        # Yedek: program_adi = "ÜNİVERSİTE ADI (ŞEHİR)/Fakülte/Bölüm..."
+        pa = r.get("program_adi", "")
+        uni_part = pa.split("/", 1)[0]
+        m = re.search(r"\(([^)]+)\)", uni_part)
+        uni_name = re.sub(r"\s*\([^)]*\)", "", uni_part).strip()
+        utype, ucity = _match_uni(uni_name)
+        # Şehir: parantez içinden (kendi metninden — en güvenli); yoksa üni eşleşmesi
+        city = m.group(1).split("-")[-1].strip() if m else ucity
+        r["university_name"] = r.get("university_name") or uni_name
+        r["university_type"] = r.get("university_type") or utype
+        r["city"] = r.get("city") or city
+        if city or utype:
+            filled += 1
+    logger.info("dgs_data_loaded", kayit=len(data), yedek_dolduruldu=filled)
     return data
 
 
