@@ -323,10 +323,11 @@ function NetInput({ field, value, onChange }) {
 
 
 /** DGS: hesaplanan puanlarla geçilebilecek lisans programları */
-function DgsProgramPanel({ scores }) {
+function DgsProgramPanel({ scores, uniPref }) {
   const { user } = useAuthCtx()
   const [pt, setPt] = useState('SAY')
   const [bolum, setBolum] = useState('')
+  const [uniType, setUniType] = useState('all') // all | Devlet | Vakıf
   const [res, setRes] = useState(null)
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
@@ -344,6 +345,11 @@ function DgsProgramPanel({ scores }) {
       .then((d) => setOnlisansListe(d.programlar || []))
       .catch(() => {})
   }, [])
+
+  // Profildeki üni türü tercihi (async yüklenir) → varsayılan filtre
+  useEffect(() => {
+    if (uniPref) setUniType(uniPref)
+  }, [uniPref])
 
   async function gecisAra() {
     if (!onlisans.trim()) return
@@ -392,7 +398,11 @@ function DgsProgramPanel({ scores }) {
     try {
       const d = await apiFetch('/api/v1/dgs/programlar', {
         method: 'POST',
-        body: { puan_turu: pt, puan, bolum: bolumAdi, limit: 25 },
+        body: {
+          puan_turu: pt, puan, bolum: bolumAdi,
+          uni_turu: uniType === 'all' ? null : uniType,
+          limit: 25,
+        },
       })
       setRes(d)
     } catch (e) { setErr(e.message) } finally { setLoading(false) }
@@ -458,6 +468,22 @@ function DgsProgramPanel({ scores }) {
           placeholder="Bölüm filtresi (örn: bilgisayar) — boş = hepsi"
           className="input-glass text-sm flex-1"
         />
+      </div>
+      <div className="flex items-center gap-1.5">
+        <span className="text-[10px] text-slate-500">Üni türü:</span>
+        {[['all', 'Tümü'], ['Devlet', 'Devlet'], ['Vakıf', 'Vakıf']].map(([v, l]) => (
+          <button
+            key={v}
+            onClick={() => setUniType(v)}
+            className={`rounded-lg px-2.5 py-1 text-[10px] border transition ${
+              uniType === v
+                ? 'border-accent-500/60 bg-accent-500/15 text-accent-200'
+                : 'border-white/10 text-slate-400 hover:bg-white/10'
+            }`}
+          >
+            {l}
+          </button>
+        ))}
       </div>
       <button onClick={ara} disabled={loading}
         className="btn-primary w-full text-sm disabled:opacity-50">
@@ -647,6 +673,7 @@ export default function Hesap() {
   const [simResults, setSimResults] = useState(null)
   const [simLoading, setSimLoading] = useState(false)
   const [simError, setSimError] = useState('')
+  const [uniPref, setUniPref] = useState('all') // all | Devlet | Vakıf — profilden dolar
 
   // YKS için OBP (250-500), DGS için AOBP (0-50 puan)
   const obp = diploma100ToObp(diploma100)   // YKS yerleştirmesinde × 0.12 ile eklenir
@@ -673,6 +700,7 @@ export default function Hesap() {
         if (calc?.lastTab) setTab(calc.lastTab)
         else if (p?.profile?.examTrack === 'DGS') setTab('DGS')
         else if (p?.profile?.examTrack === 'KPSS') setTab('KPSS')
+        if (p?.profile?.preferredUniType) setUniPref(p.profile.preferredUniType)
       } catch {}
     })()
     return () => { cancelled = true }
@@ -757,7 +785,8 @@ export default function Hesap() {
           score: parseFloat(result.finalScore.toFixed(2)),
           rank: null,
           preferred_departments: [],
-          preferred_uni_types: [],
+          // Profildeki üni türü tercihi (üstteki Tümü/Devlet/Vakıf seçiminden)
+          preferred_uni_types: uniPref === 'all' ? [] : [uniPref],
         },
       })
       setSimResults(data)
@@ -1049,7 +1078,7 @@ export default function Hesap() {
             {tab === 'KPSS' && <KpssKadroPanel score={result.finalScore} />}
 
             {/* DGS: puanlarla geçilebilecek lisans programları */}
-            {tab === 'DGS' && <DgsProgramPanel scores={result.dgsScores} />}
+            {tab === 'DGS' && <DgsProgramPanel scores={result.dgsScores} uniPref={uniPref} />}
 
             {/* Yaklaşık olduğunu açıklayan info */}
             <div className="text-[10px] text-slate-500 px-3 py-2 rounded-lg bg-white/5 border border-white/10 flex items-start gap-2">
@@ -1085,6 +1114,24 @@ export default function Hesap() {
             )}
 
             {/* Simulasyon butonu — bu puanla yazılabilecek programları çek */}
+            {result.finalScore > 100 && ['SAY', 'EA', 'SÖZ', 'DİL', 'TYT'].includes(tab) && (
+              <div className="flex items-center justify-center gap-1.5">
+                <span className="text-[10px] text-slate-500">Üni türü:</span>
+                {[['all', 'Tümü'], ['Devlet', 'Devlet'], ['Vakıf', 'Vakıf']].map(([v, l]) => (
+                  <button
+                    key={v}
+                    onClick={() => setUniPref(v)}
+                    className={`rounded-lg px-2.5 py-1 text-[10px] border transition ${
+                      uniPref === v
+                        ? 'border-accent-500/60 bg-accent-500/15 text-accent-200'
+                        : 'border-white/10 text-slate-400 hover:bg-white/10'
+                    }`}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            )}
             {result.finalScore > 100 && (
               <button
                 onClick={runSimulation}
