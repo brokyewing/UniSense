@@ -52,9 +52,9 @@ services:
         value: "20"
       - key: RATE_LIMIT_DEFAULT
         value: "60"
-      # DİKKAT: gerçek Vercel domaini TİRELİ (uni-sense); özel domain de eklendi
+      # Özel domain: unisense.site (birincil: www). Vercel adresi geçiş için duruyor
       - key: CORS_ALLOWED_ORIGINS
-        value: https://unisense.com.tr,https://www.unisense.com.tr,https://uni-sense.vercel.app,https://unisense.vercel.app
+        value: https://www.unisense.site,https://unisense.site,https://uni-sense.vercel.app
       # Hassas / ortama özgü — Render UI'de elle gir:
       - key: GEMINI_API_KEYS
         sync: false
