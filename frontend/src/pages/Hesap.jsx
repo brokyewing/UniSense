@@ -885,11 +885,16 @@ export default function Hesap() {
             animate={{ opacity: 1, y: 0 }}
             className="text-3xl md:text-4xl font-display font-bold text-white mb-2"
           >
-            YKS <span className="gradient-text">Hesap Makinesi</span> 2025
+            {tab === 'KPSS' ? 'KPSS' : tab === 'DGS' ? 'DGS' : 'YKS'}{' '}
+            <span className="gradient-text">Hesap Makinesi</span> 2026
           </motion.h1>
           <p className="text-sm text-slate-400 max-w-xl mx-auto">
-            Netlerini yaz, yaklaşık <strong className="text-amber-300">YKS yerleştirme puanını</strong> öğren.
-            Kaydedersen Tercih sayfasında otomatik dolar.
+            Netlerini yaz, yaklaşık{' '}
+            <strong className="text-amber-300">
+              {tab === 'KPSS' ? 'KPSS GY-GK puanını'
+                : tab === 'DGS' ? 'DGS yerleştirme puanını'
+                : 'YKS yerleştirme puanını'}
+            </strong> öğren. Kaydedersen Tercih sayfasında otomatik dolar.
           </p>
         </div>
 

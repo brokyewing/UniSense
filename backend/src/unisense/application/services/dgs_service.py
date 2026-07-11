@@ -120,9 +120,20 @@ class DgsService:
                 "yil": r.get("yil"),
             })
 
-        # Tabanı puana en yakın (en "değerli" ulaşılabilir) programlar önce;
-        # tabanı olmayanlar (geçen yıl boş kalanlar) sona
-        items.sort(key=lambda x: (x["min_puan"] is None, -(x["min_puan"] or 0)))
+        if oneri and puan is not None:
+            # Öneri modu (BULGU #4): limit, üst-seviye programları alıp
+            # güvenli/hedef'i kesmesin. Sıralama: (1) ULAŞILABİLİR (taban≤puan)
+            # programlar önce → tabanı yüksek "değerli" olan başta; (2) üst-seviye
+            # (taban puan+10'a kadar) sonra; (3) geçen yıl boş kalanlar en sonda.
+            def _oneri_key(x):
+                mp = x["min_puan"]
+                if mp is None:
+                    return (2, 0.0)
+                return (0 if mp <= puan else 1, -mp)
+            items.sort(key=_oneri_key)
+        else:
+            # Normal arama: tabanı puana en yakın (en "değerli" ulaşılabilir) önce
+            items.sort(key=lambda x: (x["min_puan"] is None, -(x["min_puan"] or 0)))
         return {
             "total": len(items),
             "items": items[:limit],
