@@ -441,6 +441,7 @@ function YksTab({ user }) {
   const [scoreType, setScoreType] = useState('SAY')
   const [score, setScore] = useState('')
   const [rank, setRank] = useState('')
+  const [examTrack, setExamTrack] = useState('YKS')  // ana sınav yolu
   const [kpssScore, setKpssScore] = useState('')  // KPSS GY-GK (Hesap'tan da dolar)
   const [kpssDuzey, setKpssDuzey] = useState('lisans')
   const [dgsScore, setDgsScore] = useState('')    // DGS (Hesap'tan da dolar)
@@ -459,6 +460,7 @@ function YksTab({ user }) {
         const data = await getUserProfile(user.uid)
         if (cancelled) return
         const p = data?.profile || {}
+        if (p.examTrack) setExamTrack(p.examTrack)
         if (p.scoreType) setScoreType(p.scoreType)
         if (p.score != null) setScore(String(p.score))
         if (p.rank != null) setRank(String(p.rank))
@@ -487,6 +489,7 @@ function YksTab({ user }) {
     setMsg(null)
     try {
       await updateUserProfile(user.uid, {
+        examTrack,
         scoreType,
         score: score ? parseFloat(score) : null,
         rank: rank ? parseInt(rank, 10) : null,
@@ -558,6 +561,32 @@ function YksTab({ user }) {
               </button>
             )
           })}
+        </div>
+      </div>
+
+      {/* Ana sınav yolu — sorgular ve varsayılan ekranlar buna göre kişiselleşir */}
+      <div>
+        <div className="text-xs text-slate-400 mb-1.5">Hangi sınava hazırlanıyorsun?</div>
+        <div className="grid grid-cols-3 gap-2 max-w-sm">
+          {[
+            { id: 'YKS', desc: 'Lise → Üni' },
+            { id: 'DGS', desc: 'Önlisans → Lisans' },
+            { id: 'KPSS', desc: 'Memurluk' },
+          ].map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setExamTrack(t.id)}
+              className={`rounded-xl px-2 py-2 border text-center transition ${
+                examTrack === t.id
+                  ? 'border-accent-500/60 bg-accent-500/15 text-accent-200'
+                  : 'border-white/10 text-slate-300 hover:bg-white/10'
+              }`}
+            >
+              <div className="text-sm font-semibold">{t.id}</div>
+              <div className="text-[10px] text-slate-500">{t.desc}</div>
+            </button>
+          ))}
         </div>
       </div>
 

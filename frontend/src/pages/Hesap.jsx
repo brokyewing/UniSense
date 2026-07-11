@@ -664,6 +664,8 @@ export default function Hesap() {
           if (conv > 0 && conv <= 100) setDiploma100(conv.toFixed(0))
         }
         if (calc?.lastTab) setTab(calc.lastTab)
+        else if (p?.profile?.examTrack === 'DGS') setTab('DGS')
+        else if (p?.profile?.examTrack === 'KPSS') setTab('KPSS')
       } catch {}
     })()
     return () => { cancelled = true }

@@ -99,10 +99,10 @@ export const PRESET_AVATARS = [
 
 // === AUTH HELPERS ===
 
-export async function loginWithGoogle() {
+export async function loginWithGoogle(examTrack) {
   if (!auth || !googleProvider) throw new Error('Firebase yok')
   const result = await signInWithPopup(auth, googleProvider)
-  await ensureUserDoc(result.user)
+  await ensureUserDoc(result.user, examTrack)
   return result.user
 }
 
@@ -113,13 +113,13 @@ export async function loginWithEmail(email, password) {
   return result.user
 }
 
-export async function registerWithEmail(email, password, displayName) {
+export async function registerWithEmail(email, password, displayName, examTrack) {
   if (!auth) throw new Error('Firebase yok')
   const result = await createUserWithEmailAndPassword(auth, email, password)
   if (displayName) {
     await updateProfile(result.user, { displayName })
   }
-  await ensureUserDoc(result.user)
+  await ensureUserDoc(result.user, examTrack)
   return result.user
 }
 
@@ -133,7 +133,7 @@ export function watchAuth(callback) {
   return onAuthStateChanged(auth, callback)
 }
 
-async function ensureUserDoc(user) {
+async function ensureUserDoc(user, examTrack) {
   if (!db) return
   const ref = doc(db, 'users', user.uid)
   const snap = await getDoc(ref)
@@ -145,6 +145,9 @@ async function ensureUserDoc(user) {
       photoURL: user.photoURL || '',
       createdAt: serverTimestamp(),
       profile: {
+        // Kayıtta seçilen sınav yolu — sorgu yönlendirmesini kolaylaştırır,
+        // profilden değiştirilebilir
+        examTrack: examTrack || 'YKS',
         scoreType: null,
         score: null,
         rank: null,

@@ -13,6 +13,7 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const [track, setTrack] = useState('YKS') // YKS | DGS | KPSS — kayıtta seçilir
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -24,7 +25,7 @@ export default function Login() {
       if (mode === 'login') {
         await loginWithEmail(email, password)
       } else {
-        await register(email, password, name)
+        await register(email, password, name, track)
       }
       nav('/home')
     } catch (e) {
@@ -38,7 +39,8 @@ export default function Login() {
     setLoading(true)
     setError('')
     try {
-      await loginWithGoogle()
+      // Kayıt modundayken seçilen sınav yolu Google ile ilk girişte de uygulanır
+      await loginWithGoogle(mode === 'register' ? track : undefined)
       nav('/home')
     } catch (e) {
       setError(parseError(e))
@@ -46,6 +48,12 @@ export default function Login() {
       setLoading(false)
     }
   }
+
+  const TRACKS = [
+    { id: 'YKS',  label: 'YKS',  desc: 'Lise → Üniversite' },
+    { id: 'DGS',  label: 'DGS',  desc: 'Önlisans → Lisans' },
+    { id: 'KPSS', label: 'KPSS', desc: 'Memurluk' },
+  ]
 
   return (
     <>
@@ -68,6 +76,33 @@ export default function Login() {
                 : 'UniSense\'e katıl, tercihlerini sakla'}
             </p>
           </div>
+
+          {/* Kayıtta sınav yolu seçimi — sorgular buna göre kişiselleşir */}
+          {mode === 'register' && (
+            <div className="space-y-1.5">
+              <div className="text-xs text-slate-400">Hangi sınava hazırlanıyorsun?</div>
+              <div className="grid grid-cols-3 gap-2">
+                {TRACKS.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setTrack(t.id)}
+                    className={`rounded-xl px-2 py-2.5 border text-center transition ${
+                      track === t.id
+                        ? 'border-accent-500/60 bg-accent-500/15 text-accent-200'
+                        : 'border-white/10 text-slate-300 hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="text-sm font-semibold">{t.label}</div>
+                    <div className="text-[10px] text-slate-500">{t.desc}</div>
+                  </button>
+                ))}
+              </div>
+              <div className="text-[10px] text-slate-500">
+                Sonradan Profil → Sınav Profilim'den değiştirebilirsin
+              </div>
+            </div>
+          )}
 
           {/* Google butonu */}
           <button

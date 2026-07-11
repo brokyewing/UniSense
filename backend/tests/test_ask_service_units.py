@@ -190,3 +190,15 @@ class TestSinavRouting:
 
         ctx = _build_kpss_context("kpss 90 puanla bilgisayar mühendisi nereye atanır")
         assert "AKTİF TERCİH" in ctx and "kadro" in ctx.lower()
+
+    def test_exam_track_generic_routing(self):
+        """Sınav adı yazılmadan 'puanımla nereye yerleşirim' → profil yolu."""
+        from unisense.application.services.ask_service import (
+            _DGS_RE,
+            _GENERIC_PLACEMENT_RE,
+            _KPSS_RE,
+        )
+
+        q = "puanımla nereye yerleşebilirim"
+        assert _GENERIC_PLACEMENT_RE.search(q)
+        assert not _KPSS_RE.search(q) and not _DGS_RE.search(q)
