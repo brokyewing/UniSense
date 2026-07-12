@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import {
   Search, ListChecks, Home as HomeIcon,
-  LogIn, LogOut, User, ChevronDown, Compass, Calculator, BookOpen,
+  LogIn, LogOut, User, ChevronDown, Compass, Calculator, BookOpen, CalendarDays,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from './contexts/AuthContext'
@@ -21,6 +21,7 @@ const ROUTE_SEO = {
   '/pusula': { title: 'İlgi Pusulası — Sana Uygun Bölümü Bul | UniSense', description: 'Ne okuyacağına karar veremiyor musun? İlgi alanlarından yapay zekâ ile sana uygun üniversite bölümlerini keşfet.' },
   '/karsilastir': { title: 'Program Karşılaştırma — Taban, Trend, Kadro | UniSense', description: 'Üniversite programlarını yan yana karşılaştır: taban puan, 3 yıllık sıralama trendi, akademik kadro, ücret ve akreditasyon.' },
   '/bolum': { title: 'Bölüm Rehberi — Üniversite Bölümleri Tanıtımı | UniSense', description: 'Üniversite bölümleri ne iş yapar, hangi dersleri okur, mezunları nerede çalışır? Tanıtımlar + güncel taban puanları.' },
+  '/takvim': { title: '2026 Sınav Takvimi — YKS, LGS, DGS, KPSS, ALES, TUS | UniSense', description: '2026 YKS, LGS, DGS, KPSS, ALES, TUS, DUS ve AGS sınav, sonuç ve tercih tarihleri — kaç gün kaldığıyla tek sayfada.' },
   '/gizlilik': { title: 'Gizlilik ve KVKK | UniSense', description: 'UniSense gizlilik politikası ve KVKK aydınlatma metni.' },
   '/tercih': { title: 'Tercih Listem | UniSense', noindex: true },
   '/profil': { title: 'Sınav Profilim | UniSense', noindex: true },
@@ -98,6 +99,7 @@ export default function App() {
             {navItem('/anasayfa', 'Ana Sayfa', HomeIcon)}
             {navItem('/arama', 'Sorgu', Search)}
             {navItem('/bolum', 'Bölümler', BookOpen)}
+            {navItem('/takvim', 'Takvim', CalendarDays)}
             {navItem('/pusula', 'Pusula', Compass)}
             {navItem('/oneriler', 'Tercih', ListChecks)}
             {navItem('/hesap', 'Hesap', Calculator)}

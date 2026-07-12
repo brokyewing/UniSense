@@ -74,6 +74,12 @@ def get_guide_service():
 
 
 @lru_cache(maxsize=1)
+def get_news_service():
+    from unisense.application.services.news_service import NewsService
+    return NewsService()
+
+
+@lru_cache(maxsize=1)
 def get_compare_service() -> CompareService:
     from unisense.application.services.compare_service import CompareService
     return CompareService()
