@@ -191,7 +191,30 @@ class KpssService:
         return {
             "donem": "2026/1",
             "total": len(items),
+            "toplam_kontenjan": sum((it.get("kontenjan") or 0) for it in items),
             "items": items[:limit],
             "uyari": ("Taban puanlar GEÇMİŞ dönem yerleştirmelerinden (2025) — "
                       "2026/1 tabanları yerleştirme sonrası belli olur."),
+        }
+
+    def donem_ozeti(self) -> dict:
+        """Aktif dönemin genel istatistiği: toplam kadro + kontenjan, düzey kırılımı.
+
+        'Toplam kaç kontenjan / kaç kişilik açıldı' gibi istatistik soruları
+        için — tekil kadro örnekleri değil, bütünün özeti gerekir (BULGU).
+        """
+        kadrolar, _, _ = _load()
+        donem = kadrolar[0].get("donem", "2026/1") if kadrolar else "2026/1"
+        duzeyler: dict[str, dict] = {}
+        for k in kadrolar:
+            d = duzeyler.setdefault(k.get("duzey", "?"), {"kadro": 0, "kontenjan": 0})
+            d["kadro"] += 1
+            d["kontenjan"] += k.get("kontenjan") or 0
+        return {
+            "donem": donem,
+            "toplam_kadro": len(kadrolar),
+            "toplam_kontenjan": sum((k.get("kontenjan") or 0) for k in kadrolar),
+            "kurum_sayisi": len({k.get("kurum", "") for k in kadrolar}),
+            "il_sayisi": len({k.get("il", "") for k in kadrolar if k.get("il")}),
+            "duzeyler": duzeyler,
         }
