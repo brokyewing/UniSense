@@ -1,0 +1,91 @@
+name: RAG Index Sync
+
+# Bölüm rehberleri / chunk kaynakları değişince RAG index'ini (ChromaDB)
+# yeniden üretip HF dataset'e yükler. Production boot'ta bu index'i indirir
+# (fetch_index), dolayısıyla index güncellenmeden yeni rehberler chat'e YANSIMAZ.
+#
+# Tetikleme:
+#   - Otomatik: dept_guides.json veya diğer chunk kaynakları main'e push'lanınca
+#   - Manuel:  GitHub Actions → "RAG Index Sync" → Run workflow
+#
+# ÖN KOŞUL: repo Settings → Secrets → Actions → HF_TOKEN (write yetkili) eklenmeli.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/data/processed/dept_guides.json'
+      - 'backend/data/processed/departments.json'
+      - 'backend/data/processed/rankings.json'
+      - 'backend/data/processed/wikipedia_*.json'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: index-sync
+  cancel-in-progress: true
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install backend
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Fetch static embedding model (HF, public)
+        working-directory: backend
+        run: |
+          mkdir -p data/embeddings
+          curl -fsSL -o data/embeddings/static_model.npz \
+            "https://huggingface.co/datasets/BrokyEwing/unisense-index/resolve/main/static_model.npz"
+
+      - name: Build chunks
+        working-directory: backend
+        env:
+          USE_TF: '0'
+        run: python -m unisense.cli.build_chunks
+
+      - name: Embed → ChromaDB
+        working-directory: backend
+        env:
+          USE_TF: '0'
+        run: python -m unisense.cli.embed
+
+      - name: Commit refreshed chunks.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backend/data/processed/chunks.json
+          if git diff --staged --quiet; then
+            echo "chunks.json değişmedi"
+          else
+            git commit -m "chore(index): chunks.json yeniden üretildi ($(date -u +%Y-%m-%d))"
+            git push
+          fi
+
+      - name: Upload index → HF dataset
+        if: ${{ env.HF_TOKEN != '' }}
+        working-directory: backend
+        run: python scripts/upload_index_hf.py BrokyEwing/unisense-index
+
+      - name: Trigger Render redeploy (fetch_index yeni index'i çeker)
+        if: ${{ env.RENDER_DEPLOY_HOOK != '' }}
+        run: curl -fsSL -X POST "$RENDER_DEPLOY_HOOK"
