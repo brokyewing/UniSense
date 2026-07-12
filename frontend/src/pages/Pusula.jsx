@@ -69,13 +69,24 @@ function CardsMode({ onResult }) {
   const [savedToProfile, setSavedToProfile] = useState(false)
   const [examTrack, setExamTrack] = useState('YKS')  // profil sınav yolu
 
-  // İlgi taksonomisini yükle + login user'ın profile'ından önceki ilgileri al
+  // İlgi taksonomisini yükle + login user'ın profile'ından önceki ilgileri al.
+  // Taksonomi nadiren değişir → sessionStorage'dan ANINDA göster, arka planda tazele.
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
     setError('')
 
-    // Paralel: taksonomi + (varsa) kullanıcı profili
+    let cached = null
+    try {
+      const raw = sessionStorage.getItem('compass_interests')
+      if (raw) cached = JSON.parse(raw)
+    } catch { /* cache yok/bozuk */ }
+    if (cached?.categories?.length) {
+      setTaxonomy(cached)
+      setLoading(false)
+    } else {
+      setLoading(true)
+    }
+
     const taxoPromise = apiFetch('/api/v1/compass/interests')
     const profilePromise = user
       ? getUserProfile(user.uid).catch(() => null)
@@ -84,9 +95,12 @@ function CardsMode({ onResult }) {
     Promise.all([taxoPromise, profilePromise])
       .then(([data, profileData]) => {
         if (cancelled) return
-        if (!data?.categories?.length) throw new Error('İlgi listesi boş döndü')
-        setTaxonomy(data)
-        // Önceki ilgileri profilden yükle
+        if (data?.categories?.length) {
+          setTaxonomy(data)
+          try { sessionStorage.setItem('compass_interests', JSON.stringify(data)) } catch { /* kota */ }
+        } else if (!cached) {
+          throw new Error('İlgi listesi boş döndü')
+        }
         const prev = profileData?.profile?.preferredInterests
         if (Array.isArray(prev) && prev.length > 0) {
           setSelected(new Set(prev))
@@ -95,7 +109,7 @@ function CardsMode({ onResult }) {
         if (profileData?.profile?.examTrack) setExamTrack(profileData.profile.examTrack)
       })
       .catch((e) => {
-        if (cancelled) return
+        if (cancelled || cached) return  // cache varsa arka plan hatasını yut
         console.error('[Pusula interests fetch]', e)
         setError(e.message || String(e))
       })
@@ -315,7 +329,7 @@ function CardsMode({ onResult }) {
                           ? 'bg-gradient-to-br from-brand-500/30 to-accent-500/30 border-accent-400/50 text-white shadow-lg shadow-accent-500/20'
                           : disabled
                           ? 'border-white/5 bg-white/[0.02] text-slate-500 cursor-not-allowed'
-                          : 'glass glass-hover border-white/10 text-slate-300 hover:border-accent-500/40 hover:text-accent-200'
+                          : 'bg-white/5 hover:bg-white/10 border-white/10 text-slate-300 hover:border-accent-500/40 hover:text-accent-200'
                       }`}
                     >
                       {isSelected && <Check size={11} className="opacity-80" />}
