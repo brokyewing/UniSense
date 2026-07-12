@@ -14,6 +14,7 @@ from unisense.api.v1.dependencies import (
     dgs_service_dep,
     guide_service_dep,
     kpss_service_dep,
+    news_service_dep,
     recommendation_service_dep,
 )
 from unisense.api.v1.schemas import (
@@ -32,6 +33,7 @@ from unisense.api.v1.schemas import (
     DgsGecisResponse,
     DgsProgramRequest,
     DgsProgramResponse,
+    ExamCalendarResponse,
     GuideDetailResponse,
     GuideListResponse,
     DocResponse,
@@ -409,6 +411,16 @@ def bolum_detay(
         from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Bölüm rehberi bulunamadı")
     return GuideDetailResponse(**detail)
+
+
+@router.get("/takvim", response_model=ExamCalendarResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def sinav_takvimi(
+    request: Request,
+    svc=Depends(news_service_dep),
+) -> ExamCalendarResponse:
+    """Yaklaşan sınav etkinlikleri (kalan gün hesaplı) — haber akışı/takvim."""
+    return ExamCalendarResponse(**svc.takvim())
 
 
 @router.post("/programs/compare", response_model=CompareResponse)

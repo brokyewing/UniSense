@@ -44,3 +44,8 @@ def dgs_service_dep():
 def guide_service_dep():
     from unisense.core.di import get_guide_service
     return get_guide_service()
+
+
+def news_service_dep():
+    from unisense.core.di import get_news_service
+    return get_news_service()

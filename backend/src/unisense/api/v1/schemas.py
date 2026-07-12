@@ -416,3 +416,26 @@ class GuideDetailResponse(BaseModel):
     summary: str = ""
     content: str = ""
     programs: list[GuideProgram]
+
+
+# === Haber / Sınav Takvimi ===
+
+class ExamEvent(BaseModel):
+    id: str = ""
+    sinav: str = ""
+    tam_ad: str = ""
+    tur: str = ""          # sinav | sonuc | tercih | yerlestirme | basvuru
+    tarih: str = ""        # ISO
+    aciklama: str = ""
+    kaynak: str = ""
+    tahmini: bool = False
+    kalan_gun: int = 0
+
+
+class ExamCalendarResponse(BaseModel):
+    guncelleme: str = ""
+    not_: str = Field(default="", alias="not")
+    yaklasan: list[ExamEvent]
+    gecmis: list[ExamEvent] = []
+
+    model_config = {"populate_by_name": True}

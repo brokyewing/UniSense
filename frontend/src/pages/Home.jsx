@@ -1,10 +1,47 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   Search, ListChecks, Database, Sparkles, GraduationCap,
-  TrendingUp, Building2, BookOpen, MapPin, Zap, Compass,
+  TrendingUp, Building2, BookOpen, MapPin, Zap, Compass, CalendarDays, ArrowRight,
 } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
+import { apiFetch } from '../lib/api'
+
+// Yaklaşan sınavlar widget'ı — /takvim'den ilk 3 etkinlik
+function UpcomingExams() {
+  const [items, setItems] = useState(null)
+  useEffect(() => {
+    apiFetch('/api/v1/takvim').then((d) => setItems(d.yaklasan?.slice(0, 3) || [])).catch(() => setItems([]))
+  }, [])
+  if (!items || items.length === 0) return null
+  const TUR = { sinav: 'Sınav', sonuc: 'Sonuç', tercih: 'Tercih', yerlestirme: 'Yerleştirme' }
+  return (
+    <Link to="/takvim" className="card glass-hover block group">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="font-display font-semibold text-lg text-white flex items-center gap-2">
+          <CalendarDays size={18} className="text-accent-300" /> Yaklaşan Sınavlar
+        </h2>
+        <span className="text-xs text-accent-300 inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+          Tüm takvim <ArrowRight size={12} />
+        </span>
+      </div>
+      <div className="grid sm:grid-cols-3 gap-2">
+        {items.map((e) => (
+          <div key={e.id} className="rounded-xl bg-white/5 border border-white/10 px-3 py-2">
+            <div className="flex items-baseline justify-between">
+              <span className="font-display font-bold text-white">{e.sinav}</span>
+              <span className={`text-xs font-semibold ${e.kalan_gun <= 7 ? 'text-rose-300' : 'text-amber-300'}`}>
+                {e.kalan_gun === 0 ? 'Bugün' : `${e.kalan_gun} gün`}
+              </span>
+            </div>
+            <div className="text-[11px] text-slate-400">{TUR[e.tur] || e.tur}</div>
+          </div>
+        ))}
+      </div>
+    </Link>
+  )
+}
 
 const STATS = [
   { value: '227', label: 'Üniversite', icon: Building2, color: 'from-brand-500 to-cyber-cyan' },
@@ -183,6 +220,11 @@ export default function Home() {
           {STATS.map((s, i) => (
             <StatCard key={i} stat={s} index={i} />
           ))}
+        </section>
+
+        {/* Yaklaşan sınavlar */}
+        <section>
+          <UpcomingExams />
         </section>
 
         {/* Özellikler */}
