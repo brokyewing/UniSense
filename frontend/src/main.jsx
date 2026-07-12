@@ -13,6 +13,8 @@ import Pusula from './pages/Pusula.jsx'
 import Hesap from './pages/Hesap.jsx'
 import Privacy from './pages/Privacy.jsx'
 import Compare from './pages/Compare.jsx'
+import BolumKatalog from './pages/BolumKatalog.jsx'
+import BolumDetay from './pages/BolumDetay.jsx'
 import { AuthProvider } from './contexts/AuthContext.jsx'
 import { ThemeProvider } from './contexts/ThemeContext.jsx'
 import './index.css'
@@ -51,6 +53,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/hesap" element={<Hesap />} />
               <Route path="/gizlilik" element={<Privacy />} />
               <Route path="/karsilastir" element={<Compare />} />
+              <Route path="/bolum" element={<BolumKatalog />} />
+              <Route path="/bolum/:slug" element={<BolumDetay />} />
               {LEGACY_ROUTES.map(([from, to]) => (
                 <Route key={from} path={from} element={<LegacyRedirect to={to} />} />
               ))}

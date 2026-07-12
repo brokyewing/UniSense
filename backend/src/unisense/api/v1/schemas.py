@@ -378,3 +378,41 @@ class CompassAxesRequest(BaseModel):
     research: float = Field(..., ge=1, le=5)
     field: float = Field(..., ge=1, le=5)
     top_k: int = Field(default=15, ge=3, le=30)
+
+
+# === Bölüm Rehberi (gezilebilir /bolum katalog + detay) ===
+
+class GuideListItem(BaseModel):
+    slug: str
+    name: str
+    category: str = ""
+    program_count: int = 0
+    summary: str = ""
+
+
+class GuideListResponse(BaseModel):
+    total: int
+    items: list[GuideListItem]
+
+
+class GuideProgram(BaseModel):
+    department_code: str
+    university_name: str = ""
+    university_type: str = ""
+    city: str = ""
+    score_type: str = ""
+    base_score: float | None = None
+    base_rank: int | None = None
+    quota: int | None = None
+    scholarship: str = ""
+    education_language: str = ""
+
+
+class GuideDetailResponse(BaseModel):
+    slug: str
+    name: str
+    category: str = ""
+    program_count: int = 0
+    summary: str = ""
+    content: str = ""
+    programs: list[GuideProgram]

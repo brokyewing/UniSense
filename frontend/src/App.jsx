@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import {
   Search, ListChecks, Home as HomeIcon,
-  LogIn, LogOut, User, ChevronDown, Compass, Calculator,
+  LogIn, LogOut, User, ChevronDown, Compass, Calculator, BookOpen,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from './contexts/AuthContext'
@@ -20,6 +20,7 @@ const ROUTE_SEO = {
   '/hesap': { title: 'Puan Hesaplama — YKS · DGS · KPSS Net Hesap | UniSense', description: 'Netlerini gir, yaklaşık YKS, DGS veya KPSS yerleştirme puanını anında hesapla; bu puanla hangi programları yazabileceğini gör.' },
   '/pusula': { title: 'İlgi Pusulası — Sana Uygun Bölümü Bul | UniSense', description: 'Ne okuyacağına karar veremiyor musun? İlgi alanlarından yapay zekâ ile sana uygun üniversite bölümlerini keşfet.' },
   '/karsilastir': { title: 'Program Karşılaştırma — Taban, Trend, Kadro | UniSense', description: 'Üniversite programlarını yan yana karşılaştır: taban puan, 3 yıllık sıralama trendi, akademik kadro, ücret ve akreditasyon.' },
+  '/bolum': { title: 'Bölüm Rehberi — Üniversite Bölümleri Tanıtımı | UniSense', description: 'Üniversite bölümleri ne iş yapar, hangi dersleri okur, mezunları nerede çalışır? Tanıtımlar + güncel taban puanları.' },
   '/gizlilik': { title: 'Gizlilik ve KVKK | UniSense', description: 'UniSense gizlilik politikası ve KVKK aydınlatma metni.' },
   '/tercih': { title: 'Tercih Listem | UniSense', noindex: true },
   '/profil': { title: 'Sınav Profilim | UniSense', noindex: true },
@@ -32,8 +33,11 @@ export default function App() {
   const { user, isAuthed, logout } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
 
+  // /bolum* sayfaları kendi <Seo>'sunu basar (dinamik başlık) — App burada basmaz,
+  // yoksa parent effect child'ı ezip yanlış başlık kalır.
+  const ownsSeo = loc.pathname.startsWith('/bolum')
   const seo = ROUTE_SEO[loc.pathname] || ROUTE_SEO['/anasayfa']
-  const seoEl = (
+  const seoEl = ownsSeo ? null : (
     <Seo
       title={seo.title}
       description={seo.description}
@@ -93,6 +97,7 @@ export default function App() {
           <nav className="flex items-center gap-1">
             {navItem('/anasayfa', 'Ana Sayfa', HomeIcon)}
             {navItem('/arama', 'Sorgu', Search)}
+            {navItem('/bolum', 'Bölümler', BookOpen)}
             {navItem('/pusula', 'Pusula', Compass)}
             {navItem('/oneriler', 'Tercih', ListChecks)}
             {navItem('/hesap', 'Hesap', Calculator)}

@@ -12,6 +12,7 @@ from unisense.api.v1.dependencies import (
     compare_service_dep,
     compass_service_dep,
     dgs_service_dep,
+    guide_service_dep,
     kpss_service_dep,
     recommendation_service_dep,
 )
@@ -31,6 +32,8 @@ from unisense.api.v1.schemas import (
     DgsGecisResponse,
     DgsProgramRequest,
     DgsProgramResponse,
+    GuideDetailResponse,
+    GuideListResponse,
     DocResponse,
     HealthResponse,
     KpssKadroRequest,
@@ -378,6 +381,34 @@ def dgs_programlar(
         limit=body.limit,
     )
     return DgsProgramResponse(**result)
+
+
+# === Bölüm Rehberi (gezilebilir /bolum) ===
+
+@router.get("/bolumler", response_model=GuideListResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def bolum_katalog(
+    request: Request,
+    svc=Depends(guide_service_dep),
+) -> GuideListResponse:
+    """Bölüm rehberi kataloğu — tanıtımı olan tüm bölümler (SEO + gezinme)."""
+    items = svc.list_guides()
+    return GuideListResponse(total=len(items), items=items)
+
+
+@router.get("/bolum/{slug}", response_model=GuideDetailResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def bolum_detay(
+    request: Request,
+    slug: str,
+    svc=Depends(guide_service_dep),
+) -> GuideDetailResponse:
+    """Tek bölüm: tanıtım içeriği + o bölümü veren tüm üniversitelerin canlı tabanı."""
+    detail = svc.get_guide(slug)
+    if detail is None:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Bölüm rehberi bulunamadı")
+    return GuideDetailResponse(**detail)
 
 
 @router.post("/programs/compare", response_model=CompareResponse)
