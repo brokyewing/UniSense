@@ -38,6 +38,24 @@ import BackgroundScene from '../components/three/BackgroundScene'
 import { apiFetch } from '../lib/api'
 import { yksLevel, dgsLevel, kpssLevel, YKS_SAFE_RATIO } from '../lib/riskLevels'
 
+/** Tercih listesini .txt olarak indir (YKS/DGS/KPSS ortak). */
+function downloadTxt(fileBase, baslik, lines, codes) {
+  const kodListe = codes
+    .map((c, idx) => `${(idx + 1).toString().padStart(2, '0')}: ${c}`)
+    .join('\n')
+  const text =
+    `${baslik}\n${'='.repeat(50)}\n\n` +
+    `${lines.join('\n\n')}\n\n` +
+    `${'-'.repeat(50)}\nÖSYM TERCİH KODLARI (sırasıyla):\n${kodListe}\n\n` +
+    `${new Date().toLocaleDateString('tr-TR')}\n`
+  const url = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }))
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${fileBase}-${new Date().toISOString().split('T')[0]}.txt`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 /** ÖSYM kodu rozeti — tıklayınca kopyalar */
 function CodeChip({ code }) {
   const [copied, setCopied] = useState(false)
@@ -513,6 +531,18 @@ function KpssTercihPanel({ user, profile }) {
     navigator.clipboard?.writeText(items.map((i) => i.kadro_kodu).join('\n'))
   }
 
+  function exportText() {
+    const lines = items.map((k, idx) => {
+      const meta = [`kontenjan ${k.kontenjan ?? '?'}`, k.puan_turu]
+      if (k.gecmis_taban != null) meta.push(`geçen dönem taban ${Number(k.gecmis_taban).toFixed(2)}`)
+      const kosul = k.ozel_kosullar?.length ? `\n      ⚠️ ${k.ozel_kosullar.join(' | ')}` : ''
+      return `${(idx + 1).toString().padStart(2, '0')}. [${k.kadro_kodu}] ${k.unvan} — ${k.il}\n` +
+             `      ${k.kurum}\n      ${meta.filter(Boolean).join(' · ')}${kosul}`
+    })
+    downloadTxt('unisense-kpss-tercih', 'UniSense KPSS Tercih Listesi', lines,
+      items.map((k) => k.kadro_kodu))
+  }
+
   async function onDragEnd(e) {
     const { active, over } = e
     if (!over || active.id === over.id) return
@@ -536,6 +566,11 @@ function KpssTercihPanel({ user, profile }) {
             <button onClick={() => setAnaliz((a) => !a)}
               className={`btn-ghost text-xs inline-flex items-center gap-1 ${analiz ? '!text-accent-300' : ''}`}>
               <BarChart3 size={12} /> {analiz ? 'Analizi kapat' : 'Listemi Değerlendir'}
+            </button>
+          )}
+          {items.length > 0 && (
+            <button onClick={exportText} className="btn-ghost text-xs inline-flex items-center gap-1">
+              <FileDown size={12} /> Listeyi İndir
             </button>
           )}
           {items.length > 0 && (
@@ -572,13 +607,26 @@ function KpssTercihPanel({ user, profile }) {
                           {k.unvan} · {k.il}
                         </div>
                         <div className="text-xs text-slate-400 truncate">{k.kurum}</div>
-                        <div className="text-[10px] text-slate-500 flex gap-3 mt-0.5">
+                        <div className="text-[10px] text-slate-500 flex gap-3 mt-0.5 flex-wrap">
                           <span className="font-mono">{k.kadro_kodu}</span>
                           <span>Kontenjan: {k.kontenjan ?? '?'}</span>
                           {k.gecmis_taban && (
                             <span className="text-amber-300">Geçen dönem: {Number(k.gecmis_taban).toFixed(2)}</span>
                           )}
+                          {k.eslesme?.includes('✓') && (
+                            <span className="text-emerald-300">bölüme özel ✓</span>
+                          )}
                         </div>
+                        {k.ozel_kosullar?.length > 0 && (
+                          <div className="mt-1 space-y-0.5">
+                            {k.ozel_kosullar.map((o, i) => (
+                              <div key={i} className="text-[10px] text-amber-300 flex items-start gap-1">
+                                <span className="shrink-0">⚠️</span>
+                                <span className="line-clamp-1">{o}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <button onClick={() => remove(k.kadro_kodu)}
                         className="text-slate-500 hover:text-rose-400 text-xs shrink-0">
@@ -613,6 +661,17 @@ function DgsTercihPanel({ user, profile }) {
     navigator.clipboard?.writeText(items.map((i) => i.department_code).join('\n'))
   }
 
+  function exportText() {
+    const lines = items.map((p, idx) => {
+      const meta = [`kontenjan ${p.kontenjan ?? '?'}`, p.puan_turu]
+      if (p.min_puan != null) meta.push(`taban ${Number(p.min_puan).toFixed(2)}`)
+      return `${(idx + 1).toString().padStart(2, '0')}. [${p.department_code}] ${p.program_adi}\n` +
+             `      ${p.university_name}${p.city ? ' — ' + p.city : ''}\n      ${meta.filter(Boolean).join(' · ')}`
+    })
+    downloadTxt('unisense-dgs-tercih', 'UniSense DGS Tercih Listesi', lines,
+      items.map((p) => p.department_code))
+  }
+
   async function onDragEnd(e) {
     const { active, over } = e
     if (!over || active.id === over.id) return
@@ -636,6 +695,11 @@ function DgsTercihPanel({ user, profile }) {
             <button onClick={() => setAnaliz((a) => !a)}
               className={`btn-ghost text-xs inline-flex items-center gap-1 ${analiz ? '!text-accent-300' : ''}`}>
               <BarChart3 size={12} /> {analiz ? 'Analizi kapat' : 'Listemi Değerlendir'}
+            </button>
+          )}
+          {items.length > 0 && (
+            <button onClick={exportText} className="btn-ghost text-xs inline-flex items-center gap-1">
+              <FileDown size={12} /> Listeyi İndir
             </button>
           )}
           {items.length > 0 && (

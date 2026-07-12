@@ -67,6 +67,7 @@ function CardsMode({ onResult }) {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [savedToProfile, setSavedToProfile] = useState(false)
+  const [examTrack, setExamTrack] = useState('YKS')  // profil sınav yolu
 
   // İlgi taksonomisini yükle + login user'ın profile'ından önceki ilgileri al
   useEffect(() => {
@@ -91,6 +92,7 @@ function CardsMode({ onResult }) {
           setSelected(new Set(prev))
           setSavedToProfile(true)
         }
+        if (profileData?.profile?.examTrack) setExamTrack(profileData.profile.examTrack)
       })
       .catch((e) => {
         if (cancelled) return
@@ -180,6 +182,19 @@ function CardsMode({ onResult }) {
 
   return (
     <div className="space-y-4">
+      {/* DGS/KPSS kullanıcısına: Pusula YKS bölüm önerisi içindir (BULGU #17) */}
+      {(examTrack === 'DGS' || examTrack === 'KPSS') && (
+        <div className="card border-amber-500/30 bg-amber-500/10 text-sm text-amber-200 flex items-start gap-2">
+          <span className="shrink-0">💡</span>
+          <span>
+            İlgi Pusulası <strong>YKS bölüm önerisi</strong> içindir. Sınav yolun{' '}
+            <strong>{examTrack}</strong>; {examTrack} tercihlerini{' '}
+            <a href="/oneriler" className="text-accent-300 hover:underline">Öneriler</a>{' '}
+            sayfasındaki {examTrack} sekmesinden puanınla yapabilirsin. Yine de
+            ilgilerini keşfetmek istersen buradan devam edebilirsin.
+          </span>
+        </div>
+      )}
       {/* Sayaç + arama + submit */}
       <div className="card flex flex-col md:flex-row gap-3 items-stretch md:items-center">
         <div className="flex-1 flex items-center gap-3 flex-wrap">

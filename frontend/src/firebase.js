@@ -353,6 +353,9 @@ export async function addToKpssTercih(uid, kadro, order) {
     puan_turu: kadro.puan_turu || '',
     kontenjan: kadro.kontenjan ?? null,
     gecmis_taban: kadro.gecmis_taban ?? null,
+    // Eşleşme + özel koşullar (⚠️) tercih listesinde de gösterilsin (BULGU #24)
+    eslesme: kadro.eslesme || '',
+    ozel_kosullar: Array.isArray(kadro.ozel_kosullar) ? kadro.ozel_kosullar.slice(0, 3) : [],
     order,
     addedAt: serverTimestamp(),
   })
