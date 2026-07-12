@@ -8,6 +8,23 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from './contexts/AuthContext'
 import ThemeToggle from './components/ThemeToggle'
 import Logo from './components/Logo'
+import Seo from './components/Seo'
+
+// Rota → SEO meta (rota-bazlı benzersiz title + self-canonical). Kişisel/geçici
+// sayfalar noindex (robots.txt de bunları engelliyor — çift güvence).
+const ROUTE_SEO = {
+  '/': { title: 'UniSense — 2026 Tercih Robotu | YKS, DGS, KPSS Taban Puanlar', description: 'YKS, DGS ve KPSS tercihine yapay zekâ destekli hazırlan: güncel taban puanlar, başarı sıralamaları, net hesaplama ve kişisel tercih önerileri — ücretsiz.' },
+  '/anasayfa': { title: 'UniSense — 2026 Tercih Robotu | YKS, DGS, KPSS', description: 'Güncel taban puanlar, sıralamalar ve yapay zekâ destekli tercih önerileriyle YKS, DGS ve KPSS tercihine hazırlan.' },
+  '/arama': { title: 'Tercih Sorgu — Taban Puan & Sıralama Sorgula | UniSense', description: 'Doğal dilde sor: bölüm taban puanları, başarı sıralamaları, kontenjanlar ve KPSS kadroları — kaynak gösterimli yapay zekâ sohbeti.' },
+  '/oneriler': { title: 'Tercih Önerileri — YKS · DGS · KPSS | UniSense', description: 'Puanına uygun güvenli, hedef ve üst seviye tercihleri yapay zekâyla al. YKS, DGS ve KPSS için ayrı öneriler.' },
+  '/hesap': { title: 'Puan Hesaplama — YKS · DGS · KPSS Net Hesap | UniSense', description: 'Netlerini gir, yaklaşık YKS, DGS veya KPSS yerleştirme puanını anında hesapla; bu puanla hangi programları yazabileceğini gör.' },
+  '/pusula': { title: 'İlgi Pusulası — Sana Uygun Bölümü Bul | UniSense', description: 'Ne okuyacağına karar veremiyor musun? İlgi alanlarından yapay zekâ ile sana uygun üniversite bölümlerini keşfet.' },
+  '/karsilastir': { title: 'Program Karşılaştırma — Taban, Trend, Kadro | UniSense', description: 'Üniversite programlarını yan yana karşılaştır: taban puan, 3 yıllık sıralama trendi, akademik kadro, ücret ve akreditasyon.' },
+  '/gizlilik': { title: 'Gizlilik ve KVKK | UniSense', description: 'UniSense gizlilik politikası ve KVKK aydınlatma metni.' },
+  '/tercih': { title: 'Tercih Listem | UniSense', noindex: true },
+  '/profil': { title: 'Sınav Profilim | UniSense', noindex: true },
+  '/giris': { title: 'Giriş | UniSense', noindex: true },
+}
 
 export default function App() {
   const loc = useLocation()
@@ -15,9 +32,19 @@ export default function App() {
   const { user, isAuthed, logout } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
 
-  // Splash sayfası kendi tam ekran layout'u
+  const seo = ROUTE_SEO[loc.pathname] || ROUTE_SEO['/anasayfa']
+  const seoEl = (
+    <Seo
+      title={seo.title}
+      description={seo.description}
+      path={loc.pathname === '/' ? '/' : loc.pathname}
+      noindex={seo.noindex}
+    />
+  )
+
+  // Splash sayfası kendi tam ekran layout'u (SEO head yine de basılır)
   if (loc.pathname === '/') {
-    return <Outlet />
+    return <>{seoEl}<Outlet /></>
   }
 
   const navItem = (to, label, Icon) => {
@@ -52,6 +79,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {seoEl}
       <header className="sticky top-0 z-30 backdrop-blur-2xl bg-slate-950/40 border-b border-white/5">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-3 group shrink-0">
