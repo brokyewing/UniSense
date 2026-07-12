@@ -381,7 +381,15 @@ _BOLUM_STOPWORDS = frozenset({
     "program", "programlar", "programa", "tercih", "olur", "yapabilir",
     "calisabilir", "var", "yok", "gibi", "icin", "ile", "benim", "bana",
     "sonra", "once", "simdi", "yerlesebilir", "yerlesirmiyim", "istiyorum",
+    # İstatistik/toplam sorularının kelimeleri — bölüm SANILMAMALI (BULGU)
+    "toplam", "kontenjan", "kisilik", "kisi", "kac", "adet", "acildi",
+    "acilan", "acik", "kadar", "sayisi", "donem", "genel", "hepsi", "tum",
 })
+
+# Toplam/istatistik sorusu ("kaç kişilik açıldı", "toplam kontenjan/kadro")
+_KPSS_AGG_RE = re.compile(
+    r"topla(m|mda)|ka(ç|c)\s*(ki(ş|s)i|kadro|kontenjan|adet|memur)|"
+    r"ka(ç|c)\s*ki(ş|s)ilik|kontenjan|ka(ç|c)\s*al(ı|i)m", re.I)
 
 
 def _detect_city_in_query(qf: str) -> str | None:
@@ -443,9 +451,12 @@ def _build_kpss_context(query: str, user_context: dict | None = None) -> str:
         v = float(m.group(1).replace(",", "."))
         if 40 <= v <= 105:
             puan = v
+    # İstatistik/toplam sorusu mu ("kaç kişilik açıldı", "toplam kontenjan")
+    is_agg = bool(_KPSS_AGG_RE.search(qf))
     # Bölüm + şehir: ortak tespit (BULGU #13/#14 — token index tek başına
-    # "bilgisayar/hemşire" gibi meslekleri kaçırıyordu)
-    bolum = _detect_bolum_in_query(query)
+    # "bilgisayar/hemşire" gibi meslekleri kaçırıyordu). Toplam sorusunda
+    # bölüm ARAMA — "kaç kişilik" → "kişilik" bölüm sanılmasın (BULGU)
+    bolum = "" if is_agg else _detect_bolum_in_query(query)
     il = _detect_city_in_query(qf)
     duzey = ("önlisans" if "onlisans" in qf or "on lisans" in qf
              else "ortaöğretim" if "ortaogretim" in qf or "lise" in qf
@@ -455,10 +466,22 @@ def _build_kpss_context(query: str, user_context: dict | None = None) -> str:
     # Dönem veriden okunur; tercih tarihi/"aktif" iddiası HARDCODE EDİLMEZ
     # (BULGU #15 — pencere kapanınca bayatlıyordu). Tarihi LLM'e söylemeyiz.
     donem = r.get("donem", "2026/1")
+    # Dönem geneli özet HER ZAMAN başta — "kaç kişilik/toplam kontenjan" gibi
+    # istatistik sorularını tekil örneklerle değil bütünle yanıtlar (BULGU)
+    ozet = get_kpss_service().donem_ozeti()
+    dz = ozet["duzeyler"]
+    dz_str = ", ".join(
+        f"{d} {v['kadro']} kadro/{v['kontenjan']} kişi"
+        for d, v in dz.items())
     lines = [f"=== KPSS {donem} MERKEZİ YERLEŞTİRME (B GRUBU) KADROLARI ===",
+             f"DÖNEM GENELİ: toplam {ozet['toplam_kadro']} kadro, "
+             f"{ozet['toplam_kontenjan']} kişilik kontenjan "
+             f"({ozet['kurum_sayisi']} kurum, {ozet['il_sayisi']} il). "
+             f"Düzey kırılımı: {dz_str}.",
              f"Filtre: düzey={duzey}, bölüm={bolum or 'tümü'}, "
              f"il={il or 'tümü'}, puan={puan or '?'}",
-             f"Uyan kadro sayısı: {r['total']} (ilk 15 gösteriliyor)", ""]
+             f"Bu filtreye uyan: {r['total']} kadro / "
+             f"{r.get('toplam_kontenjan', 0)} kişilik (ilk 15 örnek)", ""]
     # Öğretmenlik niyeti (BULGU #21): aşağıdaki B grubu kadrolar öğretmenlik
     # DEĞİL — LLM'i baştan uyar ki 'matematik' filtresini yanlış yorumlamasın
     if re.search(r"(ö|o)(ğ|g)retmen", qf):
@@ -617,8 +640,12 @@ class AskService:
             elif _DGS_RE.search(query.text):
                 sinav_context = _build_dgs_context(query.text, user_context)
                 logger.info("dgs_intent_routed")
-            elif uc_track == "KPSS" and _GENERIC_PLACEMENT_RE.search(query.text):
-                # Sınav adı yazılmamış ama kullanıcının yolu KPSS
+            elif uc_track == "KPSS" and (
+                _GENERIC_PLACEMENT_RE.search(query.text)
+                or _KPSS_AGG_RE.search(query.text)
+            ):
+                # Sınav adı yazılmamış ama kullanıcının yolu KPSS —
+                # "toplam kaç kontenjan" gibi istatistik soruları da dahil
                 sinav_context = _build_kpss_context(query.text, user_context)
                 logger.info("kpss_intent_routed", via="exam_track")
             elif uc_track == "DGS" and _GENERIC_PLACEMENT_RE.search(query.text):

@@ -197,6 +197,17 @@ class TestSinavRouting:
         # Bölüm chat'te artık filtreleniyor (BULGU #13) — "tümü" değil
         assert "bölüm=bilgisayar mühendis" in ctx
 
+    def test_kpss_context_toplam_kontenjan(self):
+        """İstatistik sorusu → toplam kontenjan özeti; 'kişilik' bölüm sanılmaz."""
+        from unisense.application.services.ask_service import _build_kpss_context
+
+        ctx = _build_kpss_context("2026/1 kpss de kaç kişilik açıldı")
+        # Dönem geneli özet (tekil örnek değil bütün) verilmeli
+        assert "DÖNEM GENELİ" in ctx and "kişilik kontenjan" in ctx
+        # "kaç kişilik" → "kişilik" YANLIŞLIKLA bölüm sanılmamalı
+        assert "bölüm=kisilik" not in ctx
+        assert "bölüm=tümü" in ctx
+
     def test_exam_track_generic_routing(self):
         """Sınav adı yazılmadan 'puanımla nereye yerleşirim' → profil yolu."""
         from unisense.application.services.ask_service import (
