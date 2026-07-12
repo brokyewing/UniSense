@@ -48,6 +48,13 @@ class Recommendation(BaseModel):
     last_year_base_score: float | None = None
     quota: int | None = None
 
+    # Kart zenginleştirme (öğrenci siteden çıkmasın): koşul/burs/dil/süre/trend
+    scholarship: str = ""
+    education_language: str = ""
+    duration_years: int | None = None
+    osym_conditions: list[str] = Field(default_factory=list)
+    trend: list[dict] = Field(default_factory=list, description="Geçmiş yıl taban sırası/puanı (sparkline)")
+
 
 class RecommendationList(BaseModel):
     """Önerilen tercihlerin tümü."""
