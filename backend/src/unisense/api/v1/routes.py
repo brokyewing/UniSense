@@ -223,6 +223,11 @@ def recommend(
             "placement_probability": r.placement_probability,
             "last_year_base_rank": r.last_year_base_rank,
             "last_year_base_score": r.last_year_base_score,
+            "scholarship": r.scholarship,
+            "education_language": r.education_language,
+            "duration_years": r.duration_years,
+            "osym_conditions": r.osym_conditions,
+            "trend": r.trend,
         }
 
     return RecommendResponse(

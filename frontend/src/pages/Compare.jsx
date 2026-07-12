@@ -3,10 +3,11 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   BarChart3, Loader2, AlertCircle, ArrowLeft, TrendingUp,
-  TrendingDown, Minus, Award, Calendar, Users, Building2,
+  Award, Calendar, Users, Building2,
   MapPin, GraduationCap, ExternalLink, X,
 } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
+import MiniTrend from '../components/MiniTrend'
 import { apiFetch } from '../lib/api'
 
 
@@ -30,63 +31,6 @@ function fmtFee(v) {
 
 
 /** Mini SVG line chart for trend (year → rank). Y axis ters (küçük = yukarı). */
-function MiniTrend({ trend }) {
-  if (!trend || trend.length < 2) {
-    return <div className="text-[10px] text-slate-500 italic">Trend verisi yetersiz</div>
-  }
-  const pts = trend.filter((t) => t.base_rank != null)
-  if (pts.length < 2) {
-    return <div className="text-[10px] text-slate-500 italic">Trend verisi yetersiz</div>
-  }
-  const W = 140, H = 50, P = 6
-  const ranks = pts.map((p) => p.base_rank)
-  const minR = Math.min(...ranks)
-  const maxR = Math.max(...ranks)
-  const range = Math.max(maxR - minR, 1)
-
-  const points = pts.map((p, i) => {
-    const x = P + (i / (pts.length - 1)) * (W - P * 2)
-    // Küçük rank = iyi = yukarı (Y küçük)
-    const y = P + ((p.base_rank - minR) / range) * (H - P * 2)
-    return { x, y, p }
-  })
-  const path = points.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${pt.x} ${pt.y}`).join(' ')
-
-  // Momentum: ilk vs son
-  const first = pts[0].base_rank
-  const last = pts[pts.length - 1].base_rank
-  const diff = first - last  // pozitif = iyileşmiş (rank düşmüş)
-  const momentum = Math.abs(diff) < 100 ? 'stable' : diff > 0 ? 'up' : 'down'
-  const momentumColor = momentum === 'up' ? 'text-emerald-400' : momentum === 'down' ? 'text-rose-400' : 'text-slate-400'
-  const MomentumIcon = momentum === 'up' ? TrendingUp : momentum === 'down' ? TrendingDown : Minus
-
-  return (
-    <div>
-      <svg width={W} height={H} className="block">
-        <path d={path} stroke="currentColor" strokeWidth="1.5" fill="none" className="text-accent-400" />
-        {points.map((pt, i) => (
-          <circle key={i} cx={pt.x} cy={pt.y} r="2.5" className="fill-accent-300">
-            <title>{pt.p.year}: sıra {pt.p.base_rank?.toLocaleString('tr-TR')}</title>
-          </circle>
-        ))}
-      </svg>
-      {/* Her yıl etiketi görünsün (2023 dahil) — uçlarda değil hepsi */}
-      <div className="flex items-center justify-between text-[10px] text-slate-500 mt-1">
-        {points.map((pt, i) => (
-          <span key={i} title={`sıra ${pt.p.base_rank?.toLocaleString('tr-TR')}`}>
-            {pt.p.year}
-          </span>
-        ))}
-      </div>
-      <div className={`flex items-center justify-center gap-0.5 text-[10px] mt-0.5 ${momentumColor}`}>
-        <MomentumIcon size={10} />
-        {Math.abs(diff).toLocaleString('tr-TR')} sıra
-      </div>
-    </div>
-  )
-}
-
-
 function DiffMark({ field, code, diffs }) {
   const d = diffs?.[field]
   if (!d) return null

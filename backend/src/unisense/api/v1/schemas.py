@@ -96,6 +96,11 @@ class RecommendationItem(BaseModel):
     placement_probability: float | None = None
     last_year_base_rank: int | None = None
     last_year_base_score: float | None = None
+    scholarship: str = ""
+    education_language: str = ""
+    duration_years: int | None = None
+    osym_conditions: list[str] = []
+    trend: list[dict] = []
 
 
 class RecommendResponse(BaseModel):

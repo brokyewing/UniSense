@@ -16,6 +16,7 @@ import {
 } from '../firebase'
 import { apiFetch } from '../lib/api'
 import { dgsLevel, kpssLevel } from '../lib/riskLevels'
+import MiniTrend from '../components/MiniTrend'
 
 const SCORE_TYPES = [
   { v: 'SAY', label: 'Sayısal', color: 'from-blue-500 to-cyan-400' },
@@ -115,6 +116,31 @@ function ItemCard({ item, isInTercih, onAdd, onRemove, busyCode }) {
         )}
       </div>
 
+      {/* Burs / dil / süre / özel koşul — öğrenci bu bilgi için siteden çıkmasın */}
+      {(item.scholarship || (item.education_language && item.education_language !== 'Türkçe')
+        || item.duration_years || item.osym_conditions?.length > 0) && (
+        <div className="flex flex-wrap items-center gap-1.5 mt-2">
+          {item.scholarship && /burslu|ücretsiz/i.test(item.scholarship) && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">🎓 {item.scholarship}</span>
+          )}
+          {item.scholarship && /ücretli|paralı/i.test(item.scholarship) && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-slate-300 border border-white/10">{item.scholarship}</span>
+          )}
+          {item.education_language && item.education_language !== 'Türkçe' && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/25">{item.education_language}</span>
+          )}
+          {item.duration_years && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/10">{item.duration_years} yıl</span>
+          )}
+          {item.osym_conditions?.slice(0, 2).map((c, i) => (
+            <span key={i} title={c}
+              className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/25 inline-flex items-center gap-0.5">
+              <AlertTriangle size={9} /> {c.length > 28 ? c.slice(0, 28) + '…' : c}
+            </span>
+          ))}
+        </div>
+      )}
+
       {(item.last_year_base_rank || item.last_year_base_score || item.placement_probability != null) && (
         <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-4 text-xs flex-wrap">
           {item.last_year_base_rank && (
@@ -131,6 +157,12 @@ function ItemCard({ item, isInTercih, onAdd, onRemove, busyCode }) {
               <div className="font-mono text-accent-300">
                 {item.last_year_base_score.toFixed(2)}
               </div>
+            </div>
+          )}
+          {item.trend?.filter((t) => t.base_rank != null).length >= 2 && (
+            <div>
+              <div className="text-slate-500">Trend</div>
+              <MiniTrend trend={item.trend} compact />
             </div>
           )}
           {item.placement_probability != null && (() => {

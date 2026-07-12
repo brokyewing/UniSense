@@ -386,6 +386,11 @@ class RecommendationService:
                 last_year_base_rank=prog_rank,
                 last_year_base_score=r["base_score"],
                 quota=r.get("quota"),
+                scholarship=dept.get("scholarship", ""),
+                education_language=dept.get("education_language", ""),
+                duration_years=dept.get("duration_years"),
+                osym_conditions=(dept.get("osym_conditions") or {}).get("summary", [])[:4],
+                trend=r.get("history", []),
             )
 
             if ratio >= 1.5:
