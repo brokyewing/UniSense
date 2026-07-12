@@ -39,3 +39,8 @@ def kpss_service_dep():
 def dgs_service_dep():
     from unisense.core.di import get_dgs_service
     return get_dgs_service()
+
+
+def guide_service_dep():
+    from unisense.core.di import get_guide_service
+    return get_guide_service()

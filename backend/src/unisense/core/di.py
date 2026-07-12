@@ -68,6 +68,12 @@ def get_dgs_service():
 
 
 @lru_cache(maxsize=1)
+def get_guide_service():
+    from unisense.application.services.guide_service import GuideService
+    return GuideService()
+
+
+@lru_cache(maxsize=1)
 def get_compare_service() -> CompareService:
     from unisense.application.services.compare_service import CompareService
     return CompareService()
