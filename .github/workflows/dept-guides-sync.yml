@@ -1,0 +1,74 @@
+name: Dept Guides Sync
+
+# Bölüm/meslek tanıtımlarını (dept_guides.json) her gün Gemini ile üretir.
+# Üretici resume'lu ve kota-güvenli: günlük Gemini kotası izin verdiği kadar
+# üretip durur, ertesi gün kaldığı yerden devam eder (hedef: 604 bölüm grubu).
+# dept_guides.json değişince "RAG Index Sync" workflow'u otomatik tetiklenir
+# (build_chunks + embed + HF upload) → yeni rehberler chat'e yansır.
+#
+# Tetikleme:
+#   - Otomatik: her gün 06:00 UTC (09:00 TRT)
+#   - Manuel:  GitHub Actions → "Dept Guides Sync" → Run workflow
+#
+# ÖN KOŞUL: repo Settings → Secrets → Actions → GEMINI_API_KEYS
+#           (virgülle ayrık bir veya birden çok anahtar — kota için çok anahtar iyi)
+
+on:
+  schedule:
+    - cron: '0 6 * * *'   # her gün 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dept-guides-sync
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GEMINI_API_KEYS: ${{ secrets.GEMINI_API_KEYS }}
+      USE_TF: '0'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Guard — GEMINI_API_KEYS gerekli
+        run: |
+          if [ -z "$GEMINI_API_KEYS" ]; then
+            echo "::error::GEMINI_API_KEYS secret tanımlı değil — üretim atlandı."
+            echo "Repo Settings → Secrets → Actions → GEMINI_API_KEYS ekle."
+            exit 1
+          fi
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install backend
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Generate dept guides (resume, kota-limitli)
+        working-directory: backend
+        run: python ../scripts/generate_dept_guides.py
+
+      - name: Commit new guides
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backend/data/processed/dept_guides.json
+          if git diff --staged --quiet; then
+            echo "Yeni rehber yok (kota dolu olabilir) — commit atlandı"
+          else
+            n=$(python -c "import json; print(len(json.load(open('backend/data/processed/dept_guides.json', encoding='utf-8'))))")
+            git commit -m "chore(data): bölüm rehberleri güncellendi → ${n}/604 ($(date -u +%Y-%m-%d))"
+            git push
+          fi
