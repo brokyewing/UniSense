@@ -60,10 +60,15 @@ export default function TusDus() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Sınav değişince dal listesini yükle + eski sonuç/filtreyi temizle
+  // Sınav değişince dal listesini yükle + eski sonuç/filtreyi temizle.
+  // ignore guard: hızlı TUS↔DUS toggle'da geç gelen eski yanıt yenisini ezmesin.
   useEffect(() => {
+    let ignore = false
     setMeta(null); setDal(''); setData(null)
-    apiFetch(`/api/v1/tus/meta?sinav=${sinav}`).then(setMeta).catch(() => {})
+    apiFetch(`/api/v1/tus/meta?sinav=${sinav}`)
+      .then((m) => { if (!ignore) setMeta(m) })
+      .catch(() => {})
+    return () => { ignore = true }
   }, [sinav])
 
   async function bul(e) {

@@ -47,6 +47,7 @@ CONFIG = {
     "TUS": {
         "out": BACKEND / "data" / "processed" / "tus_rankings.json",
         "donem": "2025 1. Dönem",
+        "min_kayit": 1500,  # bunun altı = PDF formatı değişmiş/bozuk → YAZMA
         "known_page": ("https://www.osym.gov.tr/TR,33253/"
                        "2025-tus-1-donem-yerlestirme-sonuclarina-iliskin-sayisal-bilgiler.html"),
         "search": ("https://www.osym.gov.tr/arama?_Dil=1&aranan="
@@ -56,6 +57,7 @@ CONFIG = {
     "DUS": {
         "out": BACKEND / "data" / "processed" / "dus_rankings.json",
         "donem": "2025 2. Dönem",
+        "min_kayit": 200,
         "known_page": ("https://www.osym.gov.tr/TR,33701/"
                        "2025-dus-2-donem-yerlestirme-sonuclarina-iliskin-sayisal-bilgiler.html"),
         "search": ("https://www.osym.gov.tr/arama?_Dil=1&aranan="
@@ -174,6 +176,13 @@ def _scrape_one(s: requests.Session, sinav: str, cfg: dict) -> None:
         p.write_bytes(data)
 
     programlar = _parse(p)
+    # Güvenlik tabanı: gözetimsiz cron main'e push ettiği için, PDF formatı
+    # değişip parse çökerse bozuk/eksik veriyi ÜZERİNE YAZMA — eski veri kalsın.
+    floor = cfg.get("min_kayit", 0)
+    if len(programlar) < floor:
+        print(f"   ⛔ {sinav}: yalnız {len(programlar)} kayıt (<{floor}) — PDF formatı "
+              f"değişmiş olabilir; {cfg['out'].name} GÜNCELLENMEDİ (eski veri korundu)")
+        return
     dolu = sum(1 for r in programlar if r.get("min_puan") is not None)
     out = {
         "sinav": sinav,
