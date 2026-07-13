@@ -48,7 +48,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Calculator, Save, Loader2, Info, ListChecks, ArrowRight,
   GraduationCap, BookOpen, Sparkles, Building2, MapPin,
-  Hash, TrendingUp,
+  Hash, TrendingUp, School,
 } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import { useAuth } from '../contexts/AuthContext'
@@ -1240,6 +1240,17 @@ export default function Hesap() {
                   : 'Yaklaşık ÖSYM katsayıları (2026 dönemi). Gerçek puan ±5-10 puan farkedebilir (norm/standardizasyon nedeniyle).'}
               </span>
             </div>
+
+            {/* LGS: yüzdelikle hangi liselere girebilirim → LGS tercih robotu */}
+            {tab === 'LGS' && (
+              <Link
+                to="/lgs"
+                className="w-full inline-flex items-center justify-center gap-2 text-sm px-3 py-2.5 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-emerald-500/40 text-emerald-200 hover:from-green-500/30 hover:to-emerald-500/30 transition"
+              >
+                <School size={14} /> Bu yüzdelikle hangi liselere girebilirim?
+                <ArrowRight size={12} />
+              </Link>
+            )}
 
             {/* Aksiyonlar */}
             <button

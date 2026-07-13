@@ -14,6 +14,7 @@ from unisense.api.v1.dependencies import (
     dgs_service_dep,
     guide_service_dep,
     kpss_service_dep,
+    lgs_service_dep,
     news_service_dep,
     recommendation_service_dep,
 )
@@ -38,6 +39,9 @@ from unisense.api.v1.schemas import (
     GuideListResponse,
     DocResponse,
     HealthResponse,
+    LgsIllerResponse,
+    LgsOneriRequest,
+    LgsOneriResponse,
     KpssKadroRequest,
     KpssKadroResponse,
     ModelInfo,
@@ -421,6 +425,36 @@ def sinav_takvimi(
 ) -> ExamCalendarResponse:
     """Yaklaşan sınav etkinlikleri (kalan gün hesaplı) — haber akışı/takvim."""
     return ExamCalendarResponse(**svc.takvim())
+
+
+@router.get("/lgs/iller", response_model=LgsIllerResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def lgs_iller(
+    request: Request,
+    svc=Depends(lgs_service_dep),
+) -> LgsIllerResponse:
+    """LGS lise verisinde bulunan iller (öneri filtresi dropdown'ı için)."""
+    return LgsIllerResponse(iller=svc.iller())
+
+
+@router.post("/lgs/oneri", response_model=LgsOneriResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def lgs_oneri(
+    request: Request,
+    payload: LgsOneriRequest,
+    svc=Depends(lgs_service_dep),
+) -> LgsOneriResponse:
+    """Yüzdelik dilim (+ il/ilçe/tür) → güvenli/tutar/riskli lise önerileri (tersine).
+
+    TAHMİNÎDİR: geçen yıl (LGS 2025) taban yüzdeliklerine dayanır.
+    """
+    result = svc.oneri(
+        yuzdelik=payload.yuzdelik,
+        il=payload.il,
+        ilce=payload.ilce,
+        turler=payload.turler,
+    )
+    return LgsOneriResponse(**result)
 
 
 @router.post("/programs/compare", response_model=CompareResponse)

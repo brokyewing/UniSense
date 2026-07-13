@@ -91,6 +91,15 @@
     transition: var(--transition-theme);
   }
 
+  /* Yatay kaydırılabilir şeritlerde (ör. dar ekranda nav) scrollbar'ı gizle */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Scrollbar */
   ::-webkit-scrollbar {
     width: 10px;
