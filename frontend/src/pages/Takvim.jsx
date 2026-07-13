@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Loader2, CalendarDays, ExternalLink, Info } from 'lucide-react'
+import { Loader2, CalendarDays, Info } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
@@ -12,12 +12,6 @@ const TUR_STIL = {
   yerlestirme: { label: 'Yerleştirme',  cls: 'bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/30' },
   basvuru:     { label: 'Başvuru',      cls: 'bg-slate-500/15 text-slate-300 border-slate-500/30' },
 }
-
-// Denemeler için yönlendirme (harici — deneme çözme siteleri)
-const DENEME_LINKLERI = [
-  { ad: 'sinavtime.com', not: 'KPSS, YKS, DGS, ALES, TUS, LGS ücretsiz online deneme', url: 'https://sinavtime.com' },
-  { ad: 'denemesinavlarim.com.tr', not: 'AI destekli deneme + eksik-konu planı', url: 'https://denemesinavlarim.com.tr' },
-]
 
 function fmtTarih(iso) {
   try {
@@ -104,24 +98,6 @@ export default function Takvim() {
                 </div>
               </div>
             )}
-
-            {/* Denemeler için yönlendirme */}
-            <div className="card">
-              <h2 className="text-sm font-semibold text-white mb-2">Deneme çözmek ister misin?</h2>
-              <div className="grid sm:grid-cols-2 gap-2">
-                {DENEME_LINKLERI.map((d) => (
-                  <a key={d.url} href={d.url} target="_blank" rel="noopener noreferrer"
-                    className="rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 transition flex items-start gap-2">
-                    <ExternalLink size={13} className="text-accent-300 mt-0.5 shrink-0" />
-                    <div className="min-w-0">
-                      <div className="text-sm text-slate-200">{d.ad}</div>
-                      <div className="text-[10px] text-slate-500">{d.not}</div>
-                    </div>
-                  </a>
-                ))}
-              </div>
-              <p className="text-[10px] text-slate-600 mt-2">Harici siteler — UniSense'ten bağımsızdır.</p>
-            </div>
 
             {data.not && (
               <div className="text-[10px] text-slate-600 flex items-start gap-1.5 px-1">

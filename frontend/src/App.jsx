@@ -1,11 +1,12 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Search, ListChecks, Home as HomeIcon,
   LogIn, LogOut, User, ChevronDown, Compass, Calculator, BookOpen, CalendarDays,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from './contexts/AuthContext'
+import { apiFetch } from './lib/api'
 import ThemeToggle from './components/ThemeToggle'
 import Logo from './components/Logo'
 import Seo from './components/Seo'
@@ -33,6 +34,14 @@ export default function App() {
   const nav = useNavigate()
   const { user, isAuthed, logout } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
+
+  // Backend'i erken uyandır: kullanıcı siteye girer girmez /health'i pingle.
+  // Render free tier boşta uyur; Bölümler/Takvim gibi ilk API çağrısı geldiğinde
+  // soğuk başlangıç beklememesi için sunucu kullanıcı gezerken ısınır.
+  // Fire-and-forget — hatayı yut, UI'yi hiç etkilemesin.
+  useEffect(() => {
+    apiFetch('/api/v1/health').catch(() => {})
+  }, [])
 
   // /bolum* sayfaları kendi <Seo>'sunu basar (dinamik başlık) — App burada basmaz,
   // yoksa parent effect child'ı ezip yanlış başlık kalır.
