@@ -449,6 +449,7 @@ function YksTab({ user }) {
   const [tusScore, setTusScore] = useState('')    // TUS (uzmanlık K/T puanı)
   const [dusScore, setDusScore] = useState('')    // DUS
   const [lgsYuzdelik, setLgsYuzdelik] = useState('')  // LGS yüzdelik dilim
+  const [agsNet, setAgsNet] = useState('')        // AGS toplam net (öğretmenlik)
   const [cities, setCities] = useState('')
   const [uniType, setUniType] = useState('all')
   const [interests, setInterests] = useState([])
@@ -477,6 +478,7 @@ function YksTab({ user }) {
         if (p.tus?.score != null) setTusScore(String(p.tus.score))
         if (p.dus?.score != null) setDusScore(String(p.dus.score))
         if (p.lgs?.yuzdelik != null) setLgsYuzdelik(String(p.lgs.yuzdelik))
+        if (p.ags?.net != null) setAgsNet(String(p.ags.net))
       } catch (e) {
         console.warn(e)
       } finally {
@@ -512,6 +514,7 @@ function YksTab({ user }) {
         tus: tusScore ? { score: parseFloat(tusScore), updatedAt: Date.now() } : null,
         dus: dusScore ? { score: parseFloat(dusScore), updatedAt: Date.now() } : null,
         lgs: lgsYuzdelik ? { yuzdelik: parseFloat(lgsYuzdelik), updatedAt: Date.now() } : null,
+        ags: agsNet ? { net: parseFloat(agsNet), updatedAt: Date.now() } : null,
       })
       setMsg({ type: 'success', text: 'Sınav profilin kaydedildi. Tercih ve öneri sayfalarında otomatik kullanılacak.' })
     } catch (e) {
@@ -547,7 +550,7 @@ function YksTab({ user }) {
       </div>
 
       {/* Sınav yolu blokları — seçili olan aktif kalır, diğer puanlar silinmez */}
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 gap-2">
         {[
           { id: 'YKS', desc: 'Lise → Üniversite', dolu: score },
           { id: 'DGS', desc: 'Önlisans → Lisans', dolu: dgsScore },
@@ -555,6 +558,7 @@ function YksTab({ user }) {
           { id: 'TUS', desc: 'Tıpta uzmanlık', dolu: tusScore },
           { id: 'DUS', desc: 'Dişte uzmanlık', dolu: dusScore },
           { id: 'LGS', desc: 'Liseye geçiş', dolu: lgsYuzdelik },
+          { id: 'AGS', desc: 'Öğretmenlik', dolu: agsNet },
         ].map((t) => {
           const active = examTrack === t.id
           return (
@@ -761,6 +765,25 @@ function YksTab({ user }) {
             placeholder="örn: 2.50"
             className="input-glass"
           />
+        </div>
+      )}
+
+      {/* === AGS alanı === (öğretmenlik — net-odaklı, standart puan resmî değil) */}
+      {examTrack === 'AGS' && (
+        <div>
+          <label className="text-xs text-slate-400 mb-1 block">
+            AGS Toplam Netin <span className="text-slate-600">(Hesap → AGS sekmesinden hesaplanır; 80 soru üzerinden)</span>
+          </label>
+          <input
+            type="number" step="0.01" min="0" max="80"
+            value={agsNet}
+            onChange={(e) => setAgsNet(e.target.value)}
+            placeholder="örn: 52.00"
+            className="input-glass"
+          />
+          <p className="text-[10px] text-slate-500 mt-1">
+            AGS puanı standart-puandır ve sınav ilk uygulama → güvenilir puan/tercih tahmini yok; net bilgi amaçlı saklanır.
+          </p>
         </div>
       )}
 

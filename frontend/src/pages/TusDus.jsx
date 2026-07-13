@@ -67,7 +67,8 @@ function ProgramKart({ p, inList, onToggle }) {
   )
 }
 
-export default function TusDus() {
+// Robot çekirdeği — hem /tus sayfasında hem Öneriler sekmesinde kullanılır
+export function TusRobot() {
   const [sinav, setSinav] = useState('TUS')
   const [puan, setPuan] = useState('')
   const [dal, setDal] = useState('')
@@ -137,25 +138,7 @@ export default function TusDus() {
   }
 
   return (
-    <>
-      <BackgroundScene />
-      <Seo
-        title="TUS / DUS Tercih Robotu 2026 — Puanına Göre Uzmanlık Programı Bul | UniSense"
-        description="TUS veya DUS puanını gir, geçen dönem ÖSYM en küçük yerleşme puanlarına göre yerleşebileceğin uzmanlık dallarını ve kurumları güvenli/tutar/riskli olarak gör — ücretsiz, tahminî."
-        path="/tus"
-      />
-      <div className="max-w-4xl mx-auto space-y-5">
-        <div className="text-center">
-          <div className="w-14 h-14 mx-auto mb-2 rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg">
-            <Stethoscope size={28} className="text-white" />
-          </div>
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-white">
-            TUS / DUS <span className="gradient-text">Tercih Robotu</span>
-          </h1>
-          <p className="text-sm text-slate-400 max-w-xl mx-auto mt-1">
-            Puanını gir → geçen dönem taban puanlarına göre <strong className="text-sky-300">yerleşebileceğin uzmanlık programlarını</strong> gör.
-          </p>
-        </div>
+    <div className="space-y-5">
 
         {/* TUS / DUS toggle */}
         <div className="flex justify-center">
@@ -280,6 +263,32 @@ export default function TusDus() {
             </motion.div>
           )}
         </AnimatePresence>
+    </div>
+  )
+}
+
+export default function TusDus() {
+  return (
+    <>
+      <BackgroundScene />
+      <Seo
+        title="TUS / DUS Tercih Robotu 2026 — Puanına Göre Uzmanlık Programı Bul | UniSense"
+        description="TUS veya DUS puanını gir, geçen dönem ÖSYM en küçük yerleşme puanlarına göre yerleşebileceğin uzmanlık dallarını ve kurumları güvenli/tutar/riskli olarak gör — ücretsiz, tahminî."
+        path="/tus"
+      />
+      <div className="max-w-4xl mx-auto space-y-5">
+        <div className="text-center">
+          <div className="w-14 h-14 mx-auto mb-2 rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg">
+            <Stethoscope size={28} className="text-white" />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-display font-bold text-white">
+            TUS / DUS <span className="gradient-text">Tercih Robotu</span>
+          </h1>
+          <p className="text-sm text-slate-400 max-w-xl mx-auto mt-1">
+            Puanını gir → geçen dönem taban puanlarına göre <strong className="text-sky-300">yerleşebileceğin uzmanlık programlarını</strong> gör.
+          </p>
+        </div>
+        <TusRobot />
       </div>
     </>
   )
