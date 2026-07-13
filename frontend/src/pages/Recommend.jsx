@@ -17,6 +17,8 @@ import {
 import { apiFetch } from '../lib/api'
 import { dgsLevel, kpssLevel } from '../lib/riskLevels'
 import MiniTrend from '../components/MiniTrend'
+import { LgsRobot } from './LGS'
+import { TusRobot } from './TusDus'
 
 const SCORE_TYPES = [
   { v: 'SAY', label: 'Sayısal', color: 'from-blue-500 to-cyan-400' },
@@ -929,9 +931,11 @@ export default function Recommend() {
         const p = data?.profile
         if (p) {
           setProfile(p)
-          // Sınav yoluna göre varsayılan sekme (KPSS'li kullanıcı KPSS önerisi görsün)
-          if (!userPickedMode.current && (p.examTrack === 'DGS' || p.examTrack === 'KPSS')) {
-            setMode(p.examTrack)
+          // Sınav yoluna göre varsayılan sekme (KPSS'li kullanıcı KPSS önerisi görsün).
+          // DUS → TUS sekmesi (TusRobot içinde TUS/DUS toggle var); AGS'nin öneri sekmesi yok.
+          if (!userPickedMode.current) {
+            const t = p.examTrack === 'DUS' ? 'TUS' : p.examTrack
+            if (['DGS', 'KPSS', 'TUS', 'LGS'].includes(t)) setMode(t)
           }
           let filled = false
           if (p.scoreType) {
@@ -1037,6 +1041,10 @@ export default function Recommend() {
       <strong className="text-rose-400">üst seviye</strong>.</>,
     KPSS: <>KPSS puanına ve mezuniyetine göre başvurabileceğin{' '}
       <strong className="text-accent-300">2026/1 kadroları</strong>.</>,
+    TUS: <>TUS/DUS puanınla yerleşebileceğin{' '}
+      <strong className="text-sky-300">uzmanlık programları</strong>.</>,
+    LGS: <>LGS yüzdelik dilimine göre girebileceğin{' '}
+      <strong className="text-emerald-300">liseler</strong>.</>,
   }
 
   return (
@@ -1057,8 +1065,8 @@ export default function Recommend() {
         </div>
 
         {/* Sınav yolu sekmeleri */}
-        <div className="flex justify-center gap-2">
-          {['YKS', 'DGS', 'KPSS'].map((m) => (
+        <div className="flex justify-center gap-2 flex-wrap">
+          {['YKS', 'DGS', 'KPSS', 'TUS', 'LGS'].map((m) => (
             <button
               key={m}
               onClick={() => { userPickedMode.current = true; setMode(m) }}
@@ -1075,6 +1083,8 @@ export default function Recommend() {
 
         {mode === 'DGS' && <DgsOneriPanel user={user} profile={profile} />}
         {mode === 'KPSS' && <KpssOneriPanel user={user} profile={profile} />}
+        {mode === 'TUS' && <TusRobot />}
+        {mode === 'LGS' && <LgsRobot />}
         {mode === 'YKS' && yksGated && <PusulaGate onSkip={() => setSkipPusula(true)} />}
         {mode === 'YKS' && !yksGated && (<>
 

@@ -96,7 +96,8 @@ function LiseKart({ lise, inList, onToggle }) {
   )
 }
 
-export default function LGS() {
+// Robot çekirdeği — hem /lgs sayfasında hem Öneriler sekmesinde kullanılır
+export function LgsRobot() {
   const [yuzdelik, setYuzdelik] = useState('')
   const [il, setIl] = useState('')
   const [turler, setTurler] = useState([])
@@ -162,26 +163,7 @@ export default function LGS() {
   }
 
   return (
-    <>
-      <BackgroundScene />
-      <Seo
-        title="LGS Tercih Robotu 2026 — Yüzdelik Dilimine Göre Lise Bul | UniSense"
-        description="LGS yüzdelik dilimini gir, geçen yıl taban puanlarına göre girebileceğin Fen, Anadolu, Sosyal Bilimler ve İmam Hatip liselerini güvenli/tutar/riskli olarak gör. Ücretsiz, tahminî."
-        path="/lgs"
-      />
-      <div className="max-w-4xl mx-auto space-y-5">
-        <div className="text-center">
-          <div className="w-14 h-14 mx-auto mb-2 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
-            <School size={28} className="text-white" />
-          </div>
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-white">
-            LGS <span className="gradient-text">Tercih Robotu</span>
-          </h1>
-          <p className="text-sm text-slate-400 max-w-xl mx-auto mt-1">
-            Yüzdelik dilimini gir → geçen yılın taban puanlarına göre <strong className="text-emerald-300">girebileceğin liseleri</strong> güvenli / tutar / riskli olarak gör.
-          </p>
-        </div>
-
+    <div className="space-y-5">
         {/* Uyarı + kapsam + MEB linki */}
         <div className="card bg-amber-500/5 border-amber-500/20 text-xs text-slate-300 space-y-1.5">
           <div className="flex items-start gap-2">
@@ -314,6 +296,32 @@ export default function LGS() {
             </motion.div>
           )}
         </AnimatePresence>
+    </div>
+  )
+}
+
+export default function LGS() {
+  return (
+    <>
+      <BackgroundScene />
+      <Seo
+        title="LGS Tercih Robotu 2026 — Yüzdelik Dilimine Göre Lise Bul | UniSense"
+        description="LGS yüzdelik dilimini gir, geçen yıl taban puanlarına göre girebileceğin Fen, Anadolu, Sosyal Bilimler ve İmam Hatip liselerini güvenli/tutar/riskli olarak gör. Ücretsiz, tahminî."
+        path="/lgs"
+      />
+      <div className="max-w-4xl mx-auto space-y-5">
+        <div className="text-center">
+          <div className="w-14 h-14 mx-auto mb-2 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
+            <School size={28} className="text-white" />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-display font-bold text-white">
+            LGS <span className="gradient-text">Tercih Robotu</span>
+          </h1>
+          <p className="text-sm text-slate-400 max-w-xl mx-auto mt-1">
+            Yüzdelik dilimini gir → geçen yılın taban puanlarına göre <strong className="text-emerald-300">girebileceğin liseleri</strong> güvenli / tutar / riskli olarak gör.
+          </p>
+        </div>
+        <LgsRobot />
       </div>
     </>
   )
