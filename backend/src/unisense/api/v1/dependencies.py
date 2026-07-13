@@ -54,3 +54,8 @@ def news_service_dep():
 def lgs_service_dep():
     from unisense.core.di import get_lgs_service
     return get_lgs_service()
+
+
+def tus_service_dep():
+    from unisense.core.di import get_tus_service
+    return get_tus_service()

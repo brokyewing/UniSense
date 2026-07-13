@@ -15,6 +15,7 @@ from unisense.api.v1.dependencies import (
     guide_service_dep,
     kpss_service_dep,
     lgs_service_dep,
+    tus_service_dep,
     news_service_dep,
     recommendation_service_dep,
 )
@@ -42,6 +43,9 @@ from unisense.api.v1.schemas import (
     LgsIllerResponse,
     LgsOneriRequest,
     LgsOneriResponse,
+    TusMetaResponse,
+    TusOneriRequest,
+    TusOneriResponse,
     KpssKadroRequest,
     KpssKadroResponse,
     ModelInfo,
@@ -455,6 +459,42 @@ def lgs_oneri(
         turler=payload.turler,
     )
     return LgsOneriResponse(**result)
+
+
+def _norm_sinav(s: str | None) -> str:
+    return "DUS" if (s or "").strip().upper() == "DUS" else "TUS"
+
+
+@router.get("/tus/meta", response_model=TusMetaResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def tus_meta(
+    request: Request,
+    sinav: str = "TUS",
+    svc=Depends(tus_service_dep),
+) -> TusMetaResponse:
+    """TUS/DUS meta: dönem + dal listesi (öneri filtresi dropdown'ı için)."""
+    return TusMetaResponse(**svc.meta(_norm_sinav(sinav)))
+
+
+@router.post("/tus/oneri", response_model=TusOneriResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def tus_oneri(
+    request: Request,
+    payload: TusOneriRequest,
+    svc=Depends(tus_service_dep),
+) -> TusOneriResponse:
+    """K/T puanı (+ dal/kurum/tür) → yerleşebileceğin uzmanlık programları.
+
+    TAHMÎNİDİR: geçen dönem ÖSYM en küçük yerleşme puanlarına dayanır.
+    """
+    result = svc.oneri(
+        puan=payload.puan,
+        sinav=_norm_sinav(payload.sinav),
+        dal=payload.dal,
+        kontenjan_turu=payload.kontenjan_turu,
+        kurum=payload.kurum,
+    )
+    return TusOneriResponse(**result)
 
 
 @router.post("/programs/compare", response_model=CompareResponse)
