@@ -31,6 +31,14 @@
  *   SAY = 100 + 4.0×Say + 2.6×Söz | EA = 3.3/3.3 | SÖZ = 2.6/4.0 (+AÖBP)
  *   AOBP = (GPA × 25) × 0.5  (4'lük GPA)
  *
+ * ALES — 50 say + 50 söz, net = D−Y/4; puan STANDART-puan → sabit ham→puan YOK.
+ *   Makine NET odaklı: ağırlıklı net SAY 0.75/0.25, SÖZ 0.25/0.75, EA 0.50/0.50.
+ * LGS — 90 soru, net = D−Y/3 (3 yanlış!); MSP ≈ 100 + (ağırlıklı_net/270)×400,
+ *   ders katsayısı Tr/Mat/Fen=4, İnkılap/Din/İng=1.
+ * AGS — 6 alt test (15/15/6/6/30/8=80), net = D−Y/4; NET-ONLY (standart-puan +
+ *   ilk uygulama → güvenilir puan tahmini yok).
+ * (Ayrıntılı sabit/açıklama her sınavın kendi tanımının yanında — bkz. ALES_/LGS_/AGS_.)
+ *
  * NOT: Yaklaşık formüller. Gerçek ÖSYM puanları norm tablosuyla
  * standardize ediliyor — sapma ±5-10 puan olabilir.
  */
@@ -162,6 +170,50 @@ const KPSS_FIELDS = [
 const KPSS_BASE = 40
 const KPSS_COEF = 0.5
 
+// === ALES (ÖSYM) — 50 Sayısal + 50 Sözel, net = D − Y/4. Puan STANDART-puandır
+// (o dönemin aday ort/std'sine bağlı) → sabit ham→puan katsayısı YOK; bu yüzden
+// makine NET odaklıdır (net kesin), sahte puan üretmez. Ağırlıklar resmi
+// 2026-ALES/1 kılavuzu Bölüm 3.9: SAY 0.75/0.25, SÖZ 0.25/0.75, EA 0.50/0.50
+// (internetteki 0.70/0.30 YANLIŞ — eski varsayılan).
+const ALES_FIELDS = [
+  { id: 'ales_say', label: 'Sayısal', max: 50 },
+  { id: 'ales_soz', label: 'Sözel',   max: 50 },
+]
+const ALES_WEIGHTS = {
+  SAY: { ales_say: 0.75, ales_soz: 0.25 },
+  EA:  { ales_say: 0.50, ales_soz: 0.50 },
+  SÖZ: { ales_say: 0.25, ales_soz: 0.75 },
+}
+
+// === LGS (MEB Merkezi Sınav) — 90 soru, net = D − Y/3 (3 yanlış 1 doğru götürür,
+// YKS'deki 1/4 DEĞİL!). Tek puan türü: MSP 100-500. Resmi puan her dersin netini
+// ülke ort/std'ye göre standartlaştırır → sınav öncesi yaklaşık. Ders katsayıları
+// (standart-puan ağırlığı): Türkçe/Matematik/Fen = 4, İnkılap/Din/İngilizce = 1.
+// Yaklaşık MSP = 100 + (ağırlıklı_net / 270) × 400  (tüm boş→100, tüm doğru→500).
+const LGS_PEN = 1 / 3
+const LGS_FIELDS = [
+  { id: 'lgs_tr',  label: 'Türkçe',         max: 20, pen: LGS_PEN, k: 4 },
+  { id: 'lgs_mat', label: 'Matematik',      max: 20, pen: LGS_PEN, k: 4 },
+  { id: 'lgs_fen', label: 'Fen Bilimleri',  max: 20, pen: LGS_PEN, k: 4 },
+  { id: 'lgs_ink', label: 'İnkılap Tarihi', max: 10, pen: LGS_PEN, k: 1 },
+  { id: 'lgs_din', label: 'Din Kültürü',    max: 10, pen: LGS_PEN, k: 1 },
+  { id: 'lgs_ing', label: 'İngilizce',      max: 10, pen: LGS_PEN, k: 1 },
+]
+const LGS_MAX_WN = 270  // 4×(20+20+20) + 1×(10+10+10)
+
+// === AGS (MEB Akademi Giriş Sınavı, 2026, ÖSYM) — öğretmenlik seçme sınavı.
+// 1. oturum: 6 alt test = 80 soru, net = D − Y/4. Puan STANDART-puan + sınav ilk
+// uygulamalardan → güvenilir puan tahmini YOK (resmi doğrulama: can_build=false).
+// Makine yalnız NET verir (kural kesin). ÖABT AYRI 2. oturumdur, buraya dahil değil.
+const AGS_FIELDS = [
+  { id: 'ags_soz', label: 'Sözel Yetenek',      max: 15 },
+  { id: 'ags_say', label: 'Sayısal Yetenek',    max: 15 },
+  { id: 'ags_tar', label: 'Tarih',              max: 6 },
+  { id: 'ags_cog', label: 'Türkiye Coğrafyası', max: 6 },
+  { id: 'ags_egt', label: 'Eğitim Bilimleri',   max: 30 },
+  { id: 'ags_mev', label: 'Mevzuat',            max: 8 },
+]
+
 const TABS = [
   { id: 'TYT', label: 'TYT', desc: 'Önlisans / temel', color: 'from-purple-500 to-violet-500' },
   { id: 'SAY', label: 'AYT-SAY', desc: 'Sayısal lisans', color: 'from-blue-500 to-cyan-400' },
@@ -170,13 +222,18 @@ const TABS = [
   { id: 'DİL', label: 'YDT-DİL', desc: 'Yabancı dil',   color: 'from-amber-500 to-orange-400' },
   { id: 'DGS', label: 'DGS',     desc: 'Önlisans→Lisans', color: 'from-fuchsia-500 to-purple-500' },
   { id: 'KPSS', label: 'KPSS',   desc: 'Memurluk (GY-GK)', color: 'from-sky-500 to-indigo-500' },
+  { id: 'ALES', label: 'ALES',   desc: 'Akademik / YL', color: 'from-indigo-500 to-blue-500' },
+  { id: 'LGS',  label: 'LGS',    desc: 'Liseye geçiş',  color: 'from-green-500 to-emerald-500' },
+  { id: 'AGS',  label: 'AGS',    desc: 'Öğretmenlik',   color: 'from-teal-500 to-cyan-500' },
 ]
 
-// === Net hesaplama: doğru - 0.25*yanlış
-function netOf(dogru, yanlis) {
+// === Net hesaplama: doğru - penalty*yanlış
+// penalty: ÖSYM/YKS/ALES/DGS/KPSS/AGS = 0.25 (4 yanlış 1 doğru),
+//          LGS = 1/3 (3 yanlış 1 doğru). Field bazlı `pen` ile geçilir.
+function netOf(dogru, yanlis, penalty = 0.25) {
   const d = parseFloat(dogru) || 0
   const y = parseFloat(yanlis) || 0
-  return Math.max(0, d - 0.25 * y)
+  return Math.max(0, d - penalty * y)
 }
 
 // === Diploma puanı → OBP
@@ -253,6 +310,37 @@ function placementScore(nets, type, obp) {
   return 100 + tytW + aytW + obp * OBP_MULT
 }
 
+// === ALES ağırlıklı net (puan türü başına). ALES puanı standart-puandır → sabit
+// ham→puan yok; ağırlıklı net göreli bir göstergedir (0-50 bandı, resmi 0.75/0.25
+// ağırlıklarıyla). Kesin puan sınav sonrası ÖSYM'ce belirlenir.
+function alesWeightedNets(nets) {
+  const say = nets.ales_say || 0
+  const soz = nets.ales_soz || 0
+  const out = {}
+  for (const [type, w] of Object.entries(ALES_WEIGHTS)) {
+    out[type] = (say > 0 || soz > 0) ? w.ales_say * say + w.ales_soz * soz : 0
+  }
+  return out
+}
+
+// === LGS puanı (MSP, yaklaşık 100-500). Doğrusal: 100 + (ağırlıklı_net/270)×400.
+// Resmi yöntem her dersin netini ayrı standartlaştırır; bu birinci-derece yaklaşım.
+function lgsScore(nets) {
+  let wn = 0
+  let any = false
+  for (const f of LGS_FIELDS) {
+    const n = nets[f.id] || 0
+    if (n > 0) any = true
+    wn += (f.k || 1) * n
+  }
+  return any ? 100 + (wn / LGS_MAX_WN) * 400 : 0
+}
+
+// === AGS toplam net (kesin). Puan yok — standart-puan + ilk uygulama.
+function agsTotalNet(nets) {
+  return AGS_FIELDS.reduce((s, f) => s + (nets[f.id] || 0), 0)
+}
+
 
 function NetInput({ field, value, onChange }) {
   const dKey = `${field.id}_d`
@@ -263,7 +351,7 @@ function NetInput({ field, value, onChange }) {
   const yNum = parseFloat(y) || 0
   const total = dNum + yNum
   const exceeded = total > field.max
-  const net = netOf(d, y)
+  const net = netOf(d, y, field.pen ?? 0.25)
 
   // D ve Y'nin max'ı, diğerine göre dinamik kalır
   const dMax = field.max - (yNum || 0)
@@ -716,12 +804,13 @@ export default function Hesap() {
     const allFields = [
       ...TYT_FIELDS, ...AYT_SAY_FIELDS, ...AYT_EA_FIELDS,
       ...AYT_SOZ_FIELDS, ...AYT_DIL_FIELDS, ...DGS_FIELDS, ...KPSS_FIELDS,
+      ...ALES_FIELDS, ...LGS_FIELDS, ...AGS_FIELDS,
     ]
     const seen = new Set()
     for (const f of allFields) {
       if (seen.has(f.id)) continue
       seen.add(f.id)
-      out[f.id] = netOf(data[`${f.id}_d`], data[`${f.id}_y`])
+      out[f.id] = netOf(data[`${f.id}_d`], data[`${f.id}_y`], f.pen ?? 0.25)
     }
     return out
   }, [data])
@@ -757,6 +846,25 @@ export default function Hesap() {
         label: 'DGS Puanları (SAY / EA / SÖZ)',
       }
     }
+    if (tab === 'ALES') {
+      const wn = alesWeightedNets(nets)  // {SAY, EA, SÖZ} ağırlıklı net
+      const best = Math.max(wn.SAY, wn.EA, wn['SÖZ'])
+      return {
+        scoreType: 'ALES',
+        alesNets: wn,
+        sayNet: nets.ales_say || 0,
+        sozNet: nets.ales_soz || 0,
+        finalScore: best,
+        label: 'ALES Ağırlıklı Net (SAY / EA / SÖZ)',
+      }
+    }
+    if (tab === 'LGS') {
+      const s = lgsScore(nets)
+      return { scoreType: 'LGS', finalScore: s, label: 'LGS Puanı (MSP · yaklaşık)' }
+    }
+    if (tab === 'AGS') {
+      return { scoreType: 'AGS', finalScore: agsTotalNet(nets), label: 'AGS Toplam Net' }
+    }
     // SAY/EA/SÖZ/DİL — ÖSYM tek formülü (TYT katkısı katsayılara gömülü)
     const finalScore = placementScore(nets, tab, obp)
     return {
@@ -770,7 +878,9 @@ export default function Hesap() {
 
   // === Simulasyon: bu puanla hangi programlar yazılır? ===
   async function runSimulation() {
-    if (result.finalScore <= 100 || !['SAY','EA','SÖZ','DİL','TYT'].includes(tab)) {
+    // isYksPlacement render kapsamında (aşağıda) tanımlı; runSimulation tıklamada
+    // çalıştığından çağrı anında ilklenmiş olur.
+    if (result.finalScore <= 100 || !isYksPlacement) {
       setSimError('Önce netlerini gir, geçerli bir puan oluşunca dene')
       setTimeout(() => setSimError(''), 2500)
       return
@@ -842,9 +952,11 @@ export default function Hesap() {
         }
       }
       await updateUserProfile(user.uid, profilePatch)
+      // Tercih sayfası yalnız YKS/DGS/KPSS puanını kullanır (feedsTercih); ALES/
+      // LGS/AGS netleri sadece hesap makinesine geri yüklenir — yanlış vaat verme.
       setSavedMsg({
         type: 'success',
-        text: `✓ Hesap kaydedildi${profilePatch.score ? ` (${tab} puanı: ${profilePatch.score})` : ''}. Tercih sayfasında otomatik dolar.`,
+        text: `✓ Hesap kaydedildi${profilePatch.score ? ` (${tab} puanı: ${profilePatch.score})` : ''}.${feedsTercih ? ' Tercih sayfasında otomatik dolar.' : ''}`,
       })
       setTimeout(() => setSavedMsg(null), 4500)
     } catch (e) {
@@ -863,8 +975,23 @@ export default function Hesap() {
     if (tab === 'DİL') return AYT_DIL_FIELDS
     if (tab === 'DGS') return DGS_FIELDS
     if (tab === 'KPSS') return KPSS_FIELDS
+    if (tab === 'ALES') return ALES_FIELDS
+    if (tab === 'LGS') return LGS_FIELDS
+    if (tab === 'AGS') return AGS_FIELDS
     return []
   }, [tab])
+
+  // Bu sekmeler YKS yerleştirme puanı üretir → "hangi programları yazarım"
+  // simülasyonu yalnız bunlarda anlamlı (ALES/LGS/AGS öneri motoruna bağlanmaz).
+  const isYksPlacement = ['TYT', 'SAY', 'EA', 'SÖZ', 'DİL'].includes(tab)
+  // Puanı Tercih (/oneriler) sayfasına taşınan sekmeler — YKS + KPSS + DGS
+  // (Recommend.jsx profile.kpss/dgs.score'u yükler). ALES/LGS/AGS taşınmaz.
+  const feedsTercih = isYksPlacement || tab === 'KPSS' || tab === 'DGS'
+  // Geçerli bir sonuç oluştu mu (kaydet/gösterim eşiği sekmeye göre değişir)
+  const hasResult =
+    tab === 'KPSS' ? result.finalScore > KPSS_BASE
+    : tab === 'ALES' || tab === 'AGS' ? result.finalScore > 0
+    : result.finalScore > 100  // YKS puanları ve LGS MSP (taban 100)
 
   return (
     <>
@@ -885,22 +1012,25 @@ export default function Hesap() {
             animate={{ opacity: 1, y: 0 }}
             className="text-3xl md:text-4xl font-display font-bold text-white mb-2"
           >
-            {tab === 'KPSS' ? 'KPSS' : tab === 'DGS' ? 'DGS' : 'YKS'}{' '}
+            {['DGS', 'KPSS', 'ALES', 'LGS', 'AGS'].includes(tab) ? tab : 'YKS'}{' '}
             <span className="gradient-text">Hesap Makinesi</span> 2026
           </motion.h1>
           <p className="text-sm text-slate-400 max-w-xl mx-auto">
-            Netlerini yaz, yaklaşık{' '}
+            Netlerini yaz,{' '}
             <strong className="text-amber-300">
-              {tab === 'KPSS' ? 'KPSS GY-GK puanını'
-                : tab === 'DGS' ? 'DGS yerleştirme puanını'
-                : 'YKS yerleştirme puanını'}
-            </strong> öğren. Kaydedersen Tercih sayfasında otomatik dolar.
+              {tab === 'KPSS' ? 'yaklaşık KPSS GY-GK puanını'
+                : tab === 'DGS' ? 'yaklaşık DGS yerleştirme puanını'
+                : tab === 'ALES' ? 'ALES netini ve ağırlıklı netini'
+                : tab === 'LGS' ? 'yaklaşık LGS puanını (MSP)'
+                : tab === 'AGS' ? 'AGS netini'
+                : 'yaklaşık YKS yerleştirme puanını'}
+            </strong> hesapla.{feedsTercih ? ' Kaydedersen Tercih sayfasında otomatik dolar.' : ''}
           </p>
         </div>
 
         {/* Sınav türü tabları */}
         <div className="card !p-2">
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-1">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-1">
             {TABS.map((t) => {
               const active = tab === t.id
               return (
@@ -927,20 +1057,19 @@ export default function Hesap() {
             <div className="flex items-center justify-between border-b border-white/5 pb-2">
               <h3 className="text-sm font-semibold text-white flex items-center gap-2">
                 <BookOpen size={14} className="text-accent-300" />
-                {tab === 'DGS' ? 'DGS Net Girişi'
+                {isYksPlacement && tab !== 'TYT' ? `TYT + ${tab} Net Girişi`
                   : tab === 'KPSS' ? 'KPSS GY-GK Net Girişi'
-                  : tab === 'TYT' ? 'TYT Net Girişi'
-                  : `TYT + ${tab} Net Girişi`}
+                  : `${tab} Net Girişi`}
               </h3>
               <div className="text-[10px] text-slate-500 flex items-center gap-3">
                 <span>D: doğru</span>
                 <span>Y: yanlış</span>
-                <span>Net = D − 0.25Y</span>
+                <span>{tab === 'LGS' ? 'Net = D − Y/3' : 'Net = D − 0.25Y'}</span>
               </div>
             </div>
 
-            {/* TYT zorunlu (DGS ve KPSS hariç) */}
-            {tab !== 'DGS' && tab !== 'TYT' && tab !== 'KPSS' && (
+            {/* TYT zorunlu — yalnız YKS AYT puan türlerinde (SAY/EA/SÖZ/DİL) */}
+            {isYksPlacement && tab !== 'TYT' && (
               <div className="opacity-90">
                 <div className="text-[10px] text-slate-500 uppercase mt-2 mb-1">TYT (zorunlu)</div>
                 {TYT_FIELDS.map((f) => (
@@ -950,7 +1079,7 @@ export default function Hesap() {
             )}
 
             <div>
-              {tab !== 'DGS' && tab !== 'TYT' && tab !== 'KPSS' && (
+              {isYksPlacement && tab !== 'TYT' && (
                 <div className="text-[10px] text-slate-500 uppercase mt-2 mb-1">{tab}</div>
               )}
               {activeFields.map((f) => (
@@ -958,8 +1087,8 @@ export default function Hesap() {
               ))}
             </div>
 
-            {/* Diploma notu — Tab'a göre 100'lük (YKS) veya 4'lük (DGS); KPSS'de yok */}
-            {tab !== 'KPSS' && (
+            {/* Diploma notu — yalnız YKS (100'lük diploma) ve DGS (4'lük GPA); diğerlerinde yok */}
+            {['TYT', 'SAY', 'EA', 'SÖZ', 'DİL', 'DGS'].includes(tab) && (
             <div className="pt-2 mt-2 border-t border-white/5">
               {tab === 'DGS' ? (
                 <>
@@ -1056,15 +1185,28 @@ export default function Hesap() {
                     </div>
                   ))}
                 </div>
+              ) : result.alesNets ? (
+                <div className="mt-3 grid grid-cols-3 gap-2 px-4">
+                  {['SAY', 'EA', 'SÖZ'].map((t) => (
+                    <div key={t} className="rounded-xl bg-black/20 py-3">
+                      <div className="text-[10px] text-slate-400">{t}</div>
+                      <div className="text-2xl font-display font-bold bg-gradient-to-br from-amber-300 to-rose-400 bg-clip-text text-transparent">
+                        {result.alesNets[t] > 0 ? result.alesNets[t].toFixed(1) : '—'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               ) : (
                 <div className="text-5xl font-display font-bold mt-2 bg-gradient-to-br from-amber-300 to-rose-400 bg-clip-text text-transparent">
-                  {/* KPSS 40-100 aralığında; YKS puanları 100 tabanlı */}
-                  {result.finalScore > (tab === 'KPSS' ? KPSS_BASE : 100)
-                    ? result.finalScore.toFixed(2) : '—'}
+                  {/* KPSS 40-100; YKS 100 tabanlı; LGS MSP 100-500; AGS toplam net 0-80 */}
+                  {hasResult ? result.finalScore.toFixed(2) : '—'}
                 </div>
               )}
-              <div className="text-[10px] text-slate-500 mt-2 flex items-center justify-center gap-2">
-                {tab !== 'TYT' && tab !== 'DGS' && result.tytHam > 0 && (
+              <div className="text-[10px] text-slate-500 mt-2 flex items-center justify-center gap-2 flex-wrap">
+                {tab === 'ALES' && (result.sayNet > 0 || result.sozNet > 0) && (
+                  <span>Sayısal net: {result.sayNet.toFixed(2)} · Sözel net: {result.sozNet.toFixed(2)}</span>
+                )}
+                {isYksPlacement && tab !== 'TYT' && result.tytHam > 0 && (
                   <span>TYT ham: {result.tytHam.toFixed(1)}</span>
                 )}
                 {result.ham > 0 && (
@@ -1073,7 +1215,7 @@ export default function Hesap() {
                 {tab === 'DGS' && aobp > 0 && (
                   <span>AOBP: +{aobp.toFixed(1)}</span>
                 )}
-                {tab !== 'DGS' && tab !== 'KPSS' && obp > 0 && (
+                {isYksPlacement && obp > 0 && (
                   <span>OBP: +{(obp * OBP_MULT).toFixed(1)}</span>
                 )}
               </div>
@@ -1085,19 +1227,24 @@ export default function Hesap() {
             {/* DGS: puanlarla geçilebilecek lisans programları */}
             {tab === 'DGS' && <DgsProgramPanel scores={result.dgsScores} uniPref={uniPref} />}
 
-            {/* Yaklaşık olduğunu açıklayan info */}
+            {/* Yaklaşık/kesin olduğunu açıklayan info — sekmeye göre */}
             <div className="text-[10px] text-slate-500 px-3 py-2 rounded-lg bg-white/5 border border-white/10 flex items-start gap-2">
               <Info size={12} className="text-amber-400 mt-0.5 shrink-0" />
               <span>
-                Yaklaşık ÖSYM katsayıları (2026 dönemi). Gerçek puan ±5-10 puan farkedebilir
-                (norm/standardizasyon nedeniyle).
+                {tab === 'ALES'
+                  ? 'Net kesindir. ALES puanı standart-puandır (o dönemki aday ortalama/std\'sine bağlı) → kesin puan ancak ÖSYM sonucuyla belli olur. Ağırlıklar resmi 2026-ALES/1 kılavuzu (SAY 0.75/0.25, SÖZ 0.25/0.75, EA 0.50/0.50).'
+                  : tab === 'LGS'
+                  ? 'Net kuralı D − Y/3 (3 yanlış 1 doğru) kesindir. MSP (100-500) yaklaşıktır — resmi puan her dersin netini ülke ortalama/std\'sine göre standartlaştırır; kesin puan ve yüzdelik dilim sınav sonrası belli olur.'
+                  : tab === 'AGS'
+                  ? 'Yalnız net gösterilir (kural kesin: D − Y/4). AGS puanı standart-puandır ve sınav ilk uygulamalardan biri → güvenilir puan tahmini yapılamaz; puanı üçüncü-parti sitelerden de doğrulama. ÖABT ayrı 2. oturumdur.'
+                  : 'Yaklaşık ÖSYM katsayıları (2026 dönemi). Gerçek puan ±5-10 puan farkedebilir (norm/standardizasyon nedeniyle).'}
               </span>
             </div>
 
             {/* Aksiyonlar */}
             <button
               onClick={handleSave}
-              disabled={saving || result.finalScore <= (tab === 'KPSS' ? KPSS_BASE : 100)}
+              disabled={saving || !hasResult}
               className="btn-primary w-full inline-flex items-center justify-center gap-2 disabled:opacity-40"
             >
               {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
@@ -1119,7 +1266,7 @@ export default function Hesap() {
             )}
 
             {/* Simulasyon butonu — bu puanla yazılabilecek programları çek */}
-            {result.finalScore > 100 && ['SAY', 'EA', 'SÖZ', 'DİL', 'TYT'].includes(tab) && (
+            {isYksPlacement && result.finalScore > 100 && (
               <div className="flex items-center justify-center gap-1.5">
                 <span className="text-[10px] text-slate-500">Üni türü:</span>
                 {[['all', 'Tümü'], ['Devlet', 'Devlet'], ['Vakıf', 'Vakıf']].map(([v, l]) => (
@@ -1137,7 +1284,7 @@ export default function Hesap() {
                 ))}
               </div>
             )}
-            {result.finalScore > 100 && (
+            {isYksPlacement && result.finalScore > 100 && (
               <button
                 onClick={runSimulation}
                 disabled={simLoading}
@@ -1157,7 +1304,7 @@ export default function Hesap() {
               </div>
             )}
 
-            {result.finalScore > 100 && isAuthed && (
+            {feedsTercih && result.finalScore > 100 && isAuthed && (
               <Link
                 to="/oneriler"
                 className="btn-ghost w-full inline-flex items-center justify-center gap-2 text-sm"
