@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   Search, ListChecks, Database, Sparkles, GraduationCap,
-  TrendingUp, Building2, BookOpen, MapPin, Zap, Compass, CalendarDays, ArrowRight,
+  Building2, BookOpen, MapPin, Zap, Compass, CalendarDays, ArrowRight,
 } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import { apiFetch } from '../lib/api'
@@ -74,11 +74,11 @@ const FEATURES = [
     to: '/oneriler',
   },
   {
-    icon: TrendingUp,
-    title: '2025 Taban Sıralamaları',
-    desc: 'En güncel YÖK Atlas verisi: taban puan + başarı sırası.',
+    icon: BookOpen,
+    title: 'Bölüm Rehberi',
+    desc: 'Bölüm ne iş yapar, hangi dersleri okur, mezunu nerede çalışır? 79 bölüm tanıtımı + güncel taban puanları.',
     accent: 'from-cyber-cyan to-brand-500',
-    to: '/arama?q=2025 en yüksek taban puanı',
+    to: '/bolum',
   },
 ]
 
