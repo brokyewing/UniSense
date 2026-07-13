@@ -31,6 +31,8 @@ import {
   addToTercih,
   watchKpssTercih, removeFromKpssTercih, MAX_KPSS_TERCIH,
   watchDgsTercih, removeFromDgsTercih, MAX_DGS_TERCIH,
+  watchUzmanlikTercih, removeFromUzmanlikTercih, MAX_TUS_TERCIH,
+  watchLgsTercih, removeFromLgsTercih, MAX_LGS_TERCIH,
   reorderSubcollection,
   getUserProfile,
 } from '../firebase'
@@ -758,6 +760,196 @@ function DgsTercihPanel({ user, profile }) {
 }
 
 
+/** TUS/DUS uzmanlık tercih listesi — tus_tercih / dus_tercih (max 30). Kişisel kısa liste. */
+function UzmanlikTercihPanel({ user, sinav }) {
+  const [items, setItems] = useState([])
+  const sub = sinav === 'DUS' ? 'dus_tercih' : 'tus_tercih'
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
+
+  useEffect(() => {
+    if (!user) return
+    return watchUzmanlikTercih(user.uid, sinav, setItems)
+  }, [user, sinav])
+
+  function copyAll() {
+    navigator.clipboard?.writeText(items.map((i) => i.kod).join('\n'))
+  }
+
+  function exportText() {
+    const lines = items.map((p, idx) => {
+      const meta = [`kontenjan ${p.kontenjan ?? '?'}`, p.kontenjan_turu]
+      if (p.min_puan != null) meta.push(`taban ${Number(p.min_puan).toFixed(2)}`)
+      return `${(idx + 1).toString().padStart(2, '0')}. [${p.kod}] ${p.dal}\n` +
+             `      ${p.kurum || '—'}\n      ${meta.filter(Boolean).join(' · ')}`
+    })
+    downloadTxt(`unisense-${sinav.toLowerCase()}-tercih`, `UniSense ${sinav} Tercih Listesi`, lines,
+      items.map((p) => p.kod))
+  }
+
+  async function onDragEnd(e) {
+    const { active, over } = e
+    if (!over || active.id === over.id) return
+    const oldI = items.findIndex((x) => x.kod === active.id)
+    const newI = items.findIndex((x) => x.kod === over.id)
+    const next = arrayMove(items, oldI, newI)
+    setItems(next)
+    try { await reorderSubcollection(user.uid, sub, next.map((x) => x.kod)) } catch {}
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <p className="text-sm text-slate-400">
+          {items.length} / {MAX_TUS_TERCIH} program — {sinav} tercihleri ÖSYM takvimindeki dönemde
+          <a href="https://ais.osym.gov.tr" target="_blank" rel="noreferrer"
+            className="text-accent-300 hover:underline ml-1">ais.osym.gov.tr</a>'de yapılır
+        </p>
+        {items.length > 0 && (
+          <div className="flex gap-2">
+            <button onClick={exportText} className="btn-ghost text-xs inline-flex items-center gap-1">
+              <FileDown size={12} /> İndir
+            </button>
+            <button onClick={copyAll} className="btn-ghost text-xs inline-flex items-center gap-1">
+              <Copy size={12} /> Kodları kopyala
+            </button>
+          </div>
+        )}
+      </div>
+      {items.length === 0 ? (
+        <div className="card text-center py-10 text-slate-400 text-sm">
+          {sinav} tercih listen boş. <br />
+          <span className="text-slate-500 text-xs">
+            {sinav} robotunda puanını girip "+ Tercih" ile program ekleyebilirsin.
+          </span>
+        </div>
+      ) : (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <SortableContext items={items.map((p) => p.kod)} strategy={verticalListSortingStrategy}>
+            <div className="space-y-2">
+              {items.map((p, idx) => (
+                <SimpleSortableRow key={p.kod} id={p.kod}>
+                  {(grip) => (
+                    <div className="card !py-3 flex items-center gap-2">
+                      {grip}
+                      <div className="w-7 h-7 rounded-lg bg-accent-500/20 text-accent-300 text-xs font-bold flex items-center justify-center shrink-0">
+                        {idx + 1}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm text-slate-200 font-medium truncate">{p.dal}</div>
+                        <div className="text-xs text-slate-400 truncate">{p.kurum || '—'}</div>
+                        <div className="text-[10px] text-slate-500 flex gap-3 mt-0.5 flex-wrap">
+                          <span className="font-mono">{p.kod}</span>
+                          {p.min_puan != null && <span className="text-amber-300">Taban: {Number(p.min_puan).toFixed(2)}</span>}
+                          <span>Kontenjan: {p.kontenjan ?? '?'}</span>
+                          {p.kontenjan_turu && p.kontenjan_turu !== 'Genel' && <span className="text-fuchsia-300">{p.kontenjan_turu}</span>}
+                        </div>
+                      </div>
+                      <button onClick={() => removeFromUzmanlikTercih(user.uid, sinav, p.kod)}
+                        className="text-slate-500 hover:text-rose-400 text-xs shrink-0">
+                        Kaldır
+                      </button>
+                    </div>
+                  )}
+                </SimpleSortableRow>
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+      )}
+    </div>
+  )
+}
+
+
+/** LGS lise tercih listesi — lgs_tercih (max 25). Kişisel kısa liste (resmi tercih MEB e-Okul'da). */
+function LgsTercihPanel({ user }) {
+  const [items, setItems] = useState([])
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
+
+  useEffect(() => {
+    if (!user) return
+    return watchLgsTercih(user.uid, setItems)
+  }, [user])
+
+  function exportText() {
+    const lines = items.map((l, idx) => {
+      const meta = [`yüzdelik ${l.yuzdelik ?? '?'}`, l.tur, l.dil]
+      return `${(idx + 1).toString().padStart(2, '0')}. ${l.okul}\n` +
+             `      ${l.ilce ? l.ilce + ' / ' : ''}${l.il}\n      ${meta.filter(Boolean).join(' · ')}`
+    })
+    downloadTxt('unisense-lgs-tercih', 'UniSense LGS Lise Tercih Listesi', lines,
+      items.map((l) => l.okul))
+  }
+
+  async function onDragEnd(e) {
+    const { active, over } = e
+    if (!over || active.id === over.id) return
+    const oldI = items.findIndex((x) => x.id === active.id)
+    const newI = items.findIndex((x) => x.id === over.id)
+    const next = arrayMove(items, oldI, newI)
+    setItems(next)
+    try { await reorderSubcollection(user.uid, 'lgs_tercih', next.map((x) => x.id)) } catch {}
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <p className="text-sm text-slate-400">
+          {items.length} / {MAX_LGS_TERCIH} lise — resmî LGS tercihi
+          <a href="https://www.meb.gov.tr" target="_blank" rel="noreferrer"
+            className="text-accent-300 hover:underline ml-1">e-Okul / MEB</a>'de yapılır
+        </p>
+        {items.length > 0 && (
+          <button onClick={exportText} className="btn-ghost text-xs inline-flex items-center gap-1">
+            <FileDown size={12} /> Listeyi İndir
+          </button>
+        )}
+      </div>
+      {items.length === 0 ? (
+        <div className="card text-center py-10 text-slate-400 text-sm">
+          LGS tercih listen boş. <br />
+          <span className="text-slate-500 text-xs">
+            LGS robotunda yüzdeliğini girip "+ Tercih" ile lise ekleyebilirsin.
+          </span>
+        </div>
+      ) : (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <SortableContext items={items.map((l) => l.id)} strategy={verticalListSortingStrategy}>
+            <div className="space-y-2">
+              {items.map((l, idx) => (
+                <SimpleSortableRow key={l.id} id={l.id}>
+                  {(grip) => (
+                    <div className="card !py-3 flex items-center gap-2">
+                      {grip}
+                      <div className="w-7 h-7 rounded-lg bg-accent-500/20 text-accent-300 text-xs font-bold flex items-center justify-center shrink-0">
+                        {idx + 1}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm text-slate-200 font-medium truncate">{l.okul}</div>
+                        <div className="text-xs text-slate-400 truncate">{l.ilce ? `${l.ilce} / ` : ''}{l.il}</div>
+                        <div className="text-[10px] text-slate-500 flex gap-3 mt-0.5 flex-wrap">
+                          {l.yuzdelik != null && <span className="text-amber-300">Yüzdelik: %{l.yuzdelik}</span>}
+                          <span>{l.tur}</span>
+                          <span>{l.dil}</span>
+                        </div>
+                      </div>
+                      <button onClick={() => removeFromLgsTercih(user.uid, l.id)}
+                        className="text-slate-500 hover:text-rose-400 text-xs shrink-0">
+                        Kaldır
+                      </button>
+                    </div>
+                  )}
+                </SimpleSortableRow>
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+      )}
+    </div>
+  )
+}
+
+
 export default function TercihList() {
   const nav = useNavigate()
   const { user, isAuthed, loading } = useAuth()
@@ -797,7 +989,7 @@ export default function TercihList() {
     getUserProfile(user.uid).then((p) => {
       setProfile(p?.profile || null)
       const t = p?.profile?.examTrack
-      if (t === 'DGS' || t === 'KPSS') setMode(t)
+      if (['DGS', 'KPSS', 'TUS', 'DUS', 'LGS'].includes(t)) setMode(t)
     }).catch(() => {})
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
@@ -1047,9 +1239,9 @@ export default function TercihList() {
               <ListChecks className="text-accent-400" size={26} />
               Tercih Listen
             </h1>
-            {/* YKS / KPSS ayrı listeler */}
-            <div className="flex gap-1 mt-2">
-              {['YKS', 'DGS', 'KPSS'].map((m) => (
+            {/* Her sınav ayrı liste */}
+            <div className="flex flex-wrap gap-1 mt-2">
+              {['YKS', 'DGS', 'KPSS', 'TUS', 'DUS', 'LGS'].map((m) => (
                 <button key={m} onClick={() => setMode(m)}
                   className={`px-3 py-1 rounded-lg text-xs font-medium border ${
                     mode === m
@@ -1133,6 +1325,9 @@ export default function TercihList() {
 
         {mode === 'KPSS' && <KpssTercihPanel user={user} profile={profile} />}
         {mode === 'DGS' && <DgsTercihPanel user={user} profile={profile} />}
+        {mode === 'TUS' && <UzmanlikTercihPanel user={user} sinav="TUS" />}
+        {mode === 'DUS' && <UzmanlikTercihPanel user={user} sinav="DUS" />}
+        {mode === 'LGS' && <LgsTercihPanel user={user} />}
 
         {mode === 'YKS' && yksAnaliz && items.length > 0 && (
           <AnalizPanel mode="YKS" items={items} profile={profile} />

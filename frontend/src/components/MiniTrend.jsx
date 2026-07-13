@@ -35,7 +35,7 @@ export default function MiniTrend({ trend, compact = false }) {
 
   if (compact) {
     return (
-      <span className="inline-flex items-center gap-1" title={`${pts[0].p.year}→${pts[pts.length - 1].p.year} sıra trendi`}>
+      <span className="inline-flex items-center gap-1" title={`${pts[0].year}→${pts[pts.length - 1].year} sıra trendi`}>
         <svg width={W} height={H} className="block">
           <path d={path} stroke="currentColor" strokeWidth="1.5" fill="none" className="text-accent-400" />
           {points.map((pt, i) => (

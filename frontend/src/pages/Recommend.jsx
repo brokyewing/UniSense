@@ -229,7 +229,7 @@ function ItemCard({ item, isInTercih, onAdd, onRemove, busyCode }) {
 }
 
 // === Pusula yapılmamışsa engel ekran (YKS modunda; sahne üst bileşenden gelir) ===
-function PusulaGate() {
+function PusulaGate({ onSkip }) {
   const navigate = useNavigate()
   return (
     <>
@@ -270,9 +270,9 @@ function PusulaGate() {
               Pusulaya Git
               <ArrowRight size={16} />
             </button>
-            <Link to="/arama" className="btn-ghost px-6 py-3">
+            <button onClick={onSkip} className="btn-ghost px-6 py-3">
               Yine de aramak istiyorum →
-            </Link>
+            </button>
           </div>
 
           {/* Nasıl çalışır mini özet */}
@@ -850,6 +850,7 @@ export default function Recommend() {
   const [uniType, setUniType] = useState('all')  // 'all' | 'Devlet' | 'Vakıf'
   const [mode, setMode] = useState('YKS')        // YKS | DGS | KPSS — profilden açılır
   const [profile, setProfile] = useState(null)
+  const [skipPusula, setSkipPusula] = useState(false)  // "Yine de ara" → Pusula'sız puan-only öneri
   const userPickedMode = useRef(false)           // kullanıcı elle sekme seçtiyse profil ezmesin
 
   // Pusula sonucunu sessionStorage'tan oku
@@ -988,7 +989,8 @@ export default function Recommend() {
       setError('Lütfen puan veya sıralama gir')
       return
     }
-    if (!pusulaState?.names?.length) {
+    // Pusula yapılmadıysa ve kullanıcı "yine de ara" demediyse engelle
+    if (!pusulaState?.names?.length && !skipPusula) {
       setError('Önce Pusula\'dan ilgilerini seç')
       return
     }
@@ -1001,7 +1003,8 @@ export default function Recommend() {
           score_type: scoreType,
           score: score ? parseFloat(score) : null,
           rank: rank ? parseInt(rank, 10) : null,
-          preferred_departments: pusulaState.names,
+          // Pusula yoksa boş → backend puana göre tüm bölümlerden önerir
+          preferred_departments: pusulaState?.names || [],
           preferred_uni_types: uniType === 'all' ? [] : [uniType],
         },
       })
@@ -1013,8 +1016,10 @@ export default function Recommend() {
     }
   }
 
-  // YKS modunda pusula yapılmamışsa engel ekranı (DGS/KPSS pusula istemez)
-  const yksGated = !pusulaState?.names?.length
+  // YKS modunda pusula yapılmamışsa engel ekranı (DGS/KPSS pusula istemez).
+  // "Yine de aramak istiyorum" (skipPusula) → engeli atla, puana göre tüm
+  // bölümlerden öneri ver (preferred_departments boş gider).
+  const yksGated = !skipPusula && !pusulaState?.names?.length
 
   const modeLabel =
     pusulaState?.mode === 'interests' ? 'İlgilerine göre'
@@ -1070,10 +1075,11 @@ export default function Recommend() {
 
         {mode === 'DGS' && <DgsOneriPanel user={user} profile={profile} />}
         {mode === 'KPSS' && <KpssOneriPanel user={user} profile={profile} />}
-        {mode === 'YKS' && yksGated && <PusulaGate />}
+        {mode === 'YKS' && yksGated && <PusulaGate onSkip={() => setSkipPusula(true)} />}
         {mode === 'YKS' && !yksGated && (<>
 
-        {/* Pusula sonucu — bölüm chip'leri */}
+        {/* Pusula sonucu — bölüm chip'leri (Pusula yapıldıysa) */}
+        {pusulaState?.names?.length > 0 ? (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1123,6 +1129,23 @@ export default function Recommend() {
             ))}
           </div>
         </motion.div>
+        ) : (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="card border-accent-500/30 bg-accent-500/5 flex items-center gap-3"
+        >
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center shrink-0">
+            <ListChecks size={16} className="text-white" />
+          </div>
+          <div className="flex-1 text-sm text-slate-200">
+            <strong className="text-accent-200">Puana göre öneri</strong> — tüm bölümlerden, ilgi filtresi olmadan.
+            <button onClick={() => navigate('/pusula')} className="ml-1 text-accent-300 hover:underline">
+              İlgilerine göre daralt →
+            </button>
+          </div>
+        </motion.div>
+        )}
 
         {/* Profil bilgi banner'ı */}
         {user && profileLoaded && (

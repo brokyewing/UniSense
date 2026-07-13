@@ -4,6 +4,10 @@ import { Loader2, School, Info, ExternalLink, MapPin, Users, Search, ShieldCheck
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
+import { useAuth } from '../contexts/AuthContext'
+import {
+  watchLgsTercih, addToLgsTercih, removeFromLgsTercih, MAX_LGS_TERCIH, lgsTercihKey,
+} from '../firebase'
 
 const TUR_STIL = {
   fen:            { label: 'Fen',            cls: 'bg-blue-500/15 text-blue-300 border-blue-500/30' },
@@ -46,7 +50,7 @@ function YuzdelikTrend({ trend }) {
   )
 }
 
-function LiseKart({ lise }) {
+function LiseKart({ lise, inList, onToggle }) {
   const s = TUR_STIL[lise.tur] || TUR_STIL.diger
   return (
     <div className="rounded-xl bg-white/[0.03] border border-white/5 p-3">
@@ -57,7 +61,20 @@ function LiseKart({ lise }) {
             <MapPin size={10} /> {lise.ilce ? `${lise.ilce} / ` : ''}{lise.il}
           </div>
         </div>
-        <span className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded-full border ${s.cls}`}>{s.label}</span>
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          <span className={`text-[10px] px-1.5 py-0.5 rounded-full border ${s.cls}`}>{s.label}</span>
+          <button
+            onClick={() => onToggle(lise)}
+            title={inList ? 'Tercihten çıkar' : 'Tercih listeme ekle'}
+            className={`rounded-lg px-2 py-0.5 text-[10px] border transition ${
+              inList
+                ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10'
+                : 'border-white/10 text-slate-300 hover:bg-white/10'
+            }`}
+          >
+            {inList ? '✓ Listede' : '+ Tercih'}
+          </button>
+        </div>
       </div>
       <div className="flex items-end justify-between mt-2">
         <div>
@@ -87,10 +104,35 @@ export default function LGS() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const { user } = useAuth()
+  const [tercihIds, setTercihIds] = useState(new Set())
+  const [toast, setToast] = useState('')
 
   useEffect(() => {
     apiFetch('/api/v1/lgs/iller').then((d) => setIller(d.iller || [])).catch(() => {})
   }, [])
+
+  // Tercih listesini canlı izle → kartlardaki "Listede/+ Tercih" senkron
+  useEffect(() => {
+    if (!user) { setTercihIds(new Set()); return }
+    return watchLgsTercih(user.uid, (items) => setTercihIds(new Set(items.map((i) => i.id))))
+  }, [user])
+
+  function flash(msg) { setToast(msg); setTimeout(() => setToast(''), 2500) }
+
+  async function toggleTercih(lise) {
+    if (!user) { flash('Tercihe eklemek için giriş yap'); return }
+    const key = lgsTercihKey(lise)
+    try {
+      if (tercihIds.has(key)) {
+        await removeFromLgsTercih(user.uid, key)
+      } else {
+        if (tercihIds.size >= MAX_LGS_TERCIH) { flash(`Liste dolu (en fazla ${MAX_LGS_TERCIH} lise)`); return }
+        await addToLgsTercih(user.uid, lise, tercihIds.size + 1)
+        flash('✓ Tercih listene eklendi — Tercihlerim sayfasında')
+      }
+    } catch (e) { flash(e.message) }
+  }
 
   function toggleTur(t) {
     setTurler((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]))
@@ -211,6 +253,12 @@ export default function LGS() {
           {error && <div className="text-xs text-rose-300 text-center">⚠️ {error}</div>}
         </form>
 
+        {toast && (
+          <div className="text-xs text-center text-accent-200 bg-accent-500/10 border border-accent-500/30 rounded-lg py-2">
+            {toast}
+          </div>
+        )}
+
         {/* Sonuçlar */}
         <AnimatePresence>
           {data && (
@@ -246,7 +294,10 @@ export default function LGS() {
                       </div>
                     </div>
                     <div className="grid sm:grid-cols-2 gap-2">
-                      {items.map((l, i) => <LiseKart key={`${l.okul}-${i}`} lise={l} />)}
+                      {items.map((l, i) => (
+                        <LiseKart key={`${l.okul}-${i}`} lise={l}
+                          inList={tercihIds.has(lgsTercihKey(l))} onToggle={toggleTercih} />
+                      ))}
                     </div>
                     {data.sayilar[kova.key] > items.length && (
                       <div className="text-[10px] text-slate-500 text-center mt-2">
