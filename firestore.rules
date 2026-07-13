@@ -68,6 +68,38 @@ service cloud.firestore {
           && strMax('il', 100);
       }
 
+      // TUS uzmanlık tercih listesi (max 30)
+      match /tus_tercih/{programKodu} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(12)
+          && strMax('dal', 200)
+          && strMax('kurum', 400)
+          && strMax('kontenjan_turu', 60);
+      }
+
+      // DUS uzmanlık tercih listesi (max 30)
+      match /dus_tercih/{programKodu} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(12)
+          && strMax('dal', 200)
+          && strMax('kurum', 400)
+          && strMax('kontenjan_turu', 60);
+      }
+
+      // LGS lise tercih listesi (max 25)
+      match /lgs_tercih/{liseKey} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(12)
+          && strMax('okul', 300)
+          && strMax('il', 100)
+          && strMax('ilce', 100)
+          && strMax('tur', 60)
+          && strMax('dil', 100);
+      }
+
       // Sorgu geçmişi — sadece ekleme + okuma + silme (değiştirilemez log)
       match /queries/{qid} {
         allow read, delete: if isOwner(uid);
