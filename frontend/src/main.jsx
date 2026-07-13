@@ -17,6 +17,7 @@ import BolumKatalog from './pages/BolumKatalog.jsx'
 import BolumDetay from './pages/BolumDetay.jsx'
 import Takvim from './pages/Takvim.jsx'
 import LGS from './pages/LGS.jsx'
+import TusDus from './pages/TusDus.jsx'
 import { AuthProvider } from './contexts/AuthContext.jsx'
 import { ThemeProvider } from './contexts/ThemeContext.jsx'
 import './index.css'
@@ -59,6 +60,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/bolum/:slug" element={<BolumDetay />} />
               <Route path="/takvim" element={<Takvim />} />
               <Route path="/lgs" element={<LGS />} />
+              <Route path="/tus" element={<TusDus />} />
               {LEGACY_ROUTES.map(([from, to]) => (
                 <Route key={from} path={from} element={<LegacyRedirect to={to} />} />
               ))}

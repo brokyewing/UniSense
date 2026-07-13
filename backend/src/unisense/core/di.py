@@ -86,6 +86,12 @@ def get_lgs_service():
 
 
 @lru_cache(maxsize=1)
+def get_tus_service():
+    from unisense.application.services.tus_service import TusService
+    return TusService()
+
+
+@lru_cache(maxsize=1)
 def get_compare_service() -> CompareService:
     from unisense.application.services.compare_service import CompareService
     return CompareService()

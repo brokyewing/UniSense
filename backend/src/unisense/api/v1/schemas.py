@@ -486,3 +486,50 @@ class LgsOneriResponse(BaseModel):
 
 class LgsIllerResponse(BaseModel):
     iller: list[str]
+
+
+# === TUS/DUS uzmanlık tercih robotu ===
+
+class TusOneriRequest(BaseModel):
+    puan: float = Field(..., ge=0, le=100)      # K veya T puanı
+    sinav: str = "TUS"                          # TUS | DUS
+    dal: str | None = None                      # uzmanlık dalı (tam eşleşme)
+    kontenjan_turu: str | None = None           # Genel | Yabancı Uyruklu
+    kurum: str | None = None                    # kurum adı içinde arama
+
+
+class TusProgram(BaseModel):
+    kod: str = ""
+    ad: str = ""
+    kurum: str | None = None
+    dal: str = ""
+    kontenjan_turu: str = ""
+    kontenjan: int | None = None
+    yerlesen: int | None = None
+    bos: int | None = None
+    min_puan: float | None = None
+    max_puan: float | None = None
+
+
+class TusOneriResponse(BaseModel):
+    sinav: str = "TUS"
+    donem: str = ""
+    puan: float
+    not_: str = Field(default="", alias="not")
+    sayilar: dict[str, int]
+    guvenli: list[TusProgram]
+    tutar: list[TusProgram]
+    riskli: list[TusProgram]
+
+    model_config = {"populate_by_name": True}
+
+
+class TusMetaResponse(BaseModel):
+    sinav: str = "TUS"
+    donem: str = ""
+    guncelleme: str = ""
+    kaynak: str = ""
+    kaynak_url: str = ""
+    toplam: int | None = None
+    taban_puanli: int | None = None
+    dallar: list[str] = []
