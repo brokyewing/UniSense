@@ -186,8 +186,17 @@ def scrape() -> dict:
     }
 
 
+_MIN_KAYIT = 1500  # bunun altı = kaynak yapısı değişmiş/erişilemez → YAZMA
+
+
 def main() -> None:
     data = scrape()
+    # Güvenlik tabanı: gözetimsiz cron main'e push ettiği için, kaynak yapısı
+    # değişip scrape çökerse bozuk/eksik veriyi üzerine YAZMA (eski veri korunur).
+    if data["toplam"] < _MIN_KAYIT:
+        print(f"\n⛔ Yalnız {data['toplam']} lise (<{_MIN_KAYIT}) — kaynak değişmiş "
+              f"olabilir; {OUT.name} GÜNCELLENMEDİ (eski veri korundu)")
+        return
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
     tur_sayim: dict[str, int] = {}
