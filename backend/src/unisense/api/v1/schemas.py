@@ -439,3 +439,50 @@ class ExamCalendarResponse(BaseModel):
     gecmis: list[ExamEvent] = []
 
     model_config = {"populate_by_name": True}
+
+
+# === LGS tercih robotu (tersine öneri) ===
+
+class LgsOneriRequest(BaseModel):
+    yuzdelik: float = Field(..., ge=0, le=100)  # Türkiye geneli yüzdelik dilim
+    il: str | None = None
+    ilce: str | None = None
+    turler: list[str] | None = None             # fen, anadolu, sosyal, imam_hatip, meslek...
+
+
+class LgsTrendPoint(BaseModel):
+    yil: int
+    yuzdelik: float
+    puan: float | None = None
+
+
+class LgsLise(BaseModel):
+    okul: str
+    il: str = ""
+    ilce: str = ""
+    tur: str = ""
+    dil: str = ""
+    taban_puan: float | None = None
+    yuzdelik: float | None = None
+    kontenjan: int | None = None
+    pansiyon: str | None = None
+    trend: list[LgsTrendPoint] = []
+
+
+class LgsOneriResponse(BaseModel):
+    yuzdelik: float
+    guncelleme: str = ""
+    kaynak: str = ""
+    not_: str = Field(default="", alias="not")
+    yil: int | None = None
+    toplam: int | None = None
+    sayilar: dict[str, int]
+    guvenli: list[LgsLise]
+    tutar: list[LgsLise]
+    riskli: list[LgsLise]
+
+    model_config = {"populate_by_name": True}
+
+
+class LgsIllerResponse(BaseModel):
+    iller: list[str]
