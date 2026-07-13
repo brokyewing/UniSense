@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import {
   Search, ListChecks, Home as HomeIcon,
-  LogIn, LogOut, User, ChevronDown, Compass, Calculator, BookOpen, CalendarDays, School, Stethoscope,
+  LogIn, LogOut, User, ChevronDown, Compass, Calculator, BookOpen, CalendarDays,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from './contexts/AuthContext'
@@ -114,8 +114,6 @@ export default function App() {
             {navItem('/pusula', 'Pusula', Compass)}
             {navItem('/oneriler', 'Tercih', ListChecks)}
             {navItem('/hesap', 'Hesap', Calculator)}
-            {navItem('/lgs', 'LGS', School)}
-            {navItem('/tus', 'TUS', Stethoscope)}
           </nav>
 
           {/* Sağ taraf — theme toggle profil avatarına yakın */}
