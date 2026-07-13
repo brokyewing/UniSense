@@ -446,6 +446,9 @@ function YksTab({ user }) {
   const [kpssDuzey, setKpssDuzey] = useState('lisans')
   const [dgsScore, setDgsScore] = useState('')    // DGS (Hesap'tan da dolar)
   const [dgsType, setDgsType] = useState('SAY')
+  const [tusScore, setTusScore] = useState('')    // TUS (uzmanlık K/T puanı)
+  const [dusScore, setDusScore] = useState('')    // DUS
+  const [lgsYuzdelik, setLgsYuzdelik] = useState('')  // LGS yüzdelik dilim
   const [cities, setCities] = useState('')
   const [uniType, setUniType] = useState('all')
   const [interests, setInterests] = useState([])
@@ -471,6 +474,9 @@ function YksTab({ user }) {
         if (p.kpss?.duzey) setKpssDuzey(p.kpss.duzey)
         if (p.dgs?.score != null) setDgsScore(String(p.dgs.score))
         if (p.dgs?.type) setDgsType(p.dgs.type)
+        if (p.tus?.score != null) setTusScore(String(p.tus.score))
+        if (p.dus?.score != null) setDusScore(String(p.dus.score))
+        if (p.lgs?.yuzdelik != null) setLgsYuzdelik(String(p.lgs.yuzdelik))
       } catch (e) {
         console.warn(e)
       } finally {
@@ -503,6 +509,9 @@ function YksTab({ user }) {
           ? { score: parseFloat(kpssScore), duzey: kpssDuzey, updatedAt: Date.now() }
           : null,
         dgs: dgsScore ? { score: parseFloat(dgsScore), type: dgsType, updatedAt: Date.now() } : null,
+        tus: tusScore ? { score: parseFloat(tusScore), updatedAt: Date.now() } : null,
+        dus: dusScore ? { score: parseFloat(dusScore), updatedAt: Date.now() } : null,
+        lgs: lgsYuzdelik ? { yuzdelik: parseFloat(lgsYuzdelik), updatedAt: Date.now() } : null,
       })
       setMsg({ type: 'success', text: 'Sınav profilin kaydedildi. Tercih ve öneri sayfalarında otomatik kullanılacak.' })
     } catch (e) {
@@ -538,11 +547,14 @@ function YksTab({ user }) {
       </div>
 
       {/* Sınav yolu blokları — seçili olan aktif kalır, diğer puanlar silinmez */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
         {[
           { id: 'YKS', desc: 'Lise → Üniversite', dolu: score },
           { id: 'DGS', desc: 'Önlisans → Lisans', dolu: dgsScore },
           { id: 'KPSS', desc: 'Memurluk', dolu: kpssScore },
+          { id: 'TUS', desc: 'Tıpta uzmanlık', dolu: tusScore },
+          { id: 'DUS', desc: 'Dişte uzmanlık', dolu: dusScore },
+          { id: 'LGS', desc: 'Liseye geçiş', dolu: lgsYuzdelik },
         ].map((t) => {
           const active = examTrack === t.id
           return (
@@ -701,6 +713,54 @@ function YksTab({ user }) {
               ))}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* === TUS alanı === */}
+      {examTrack === 'TUS' && (
+        <div>
+          <label className="text-xs text-slate-400 mb-1 block">
+            TUS Puanın <span className="text-slate-600">(K/T — TUS robotunda tercih için kullanılır)</span>
+          </label>
+          <input
+            type="number" step="0.01" min="0" max="100"
+            value={tusScore}
+            onChange={(e) => setTusScore(e.target.value)}
+            placeholder="örn: 62.40"
+            className="input-glass"
+          />
+        </div>
+      )}
+
+      {/* === DUS alanı === */}
+      {examTrack === 'DUS' && (
+        <div>
+          <label className="text-xs text-slate-400 mb-1 block">
+            DUS Puanın <span className="text-slate-600">(K/T — DUS robotunda tercih için kullanılır)</span>
+          </label>
+          <input
+            type="number" step="0.01" min="0" max="100"
+            value={dusScore}
+            onChange={(e) => setDusScore(e.target.value)}
+            placeholder="örn: 60.00"
+            className="input-glass"
+          />
+        </div>
+      )}
+
+      {/* === LGS alanı === */}
+      {examTrack === 'LGS' && (
+        <div>
+          <label className="text-xs text-slate-400 mb-1 block">
+            LGS Yüzdelik Dilimin <span className="text-slate-600">(Türkiye geneli — LGS robotunda kullanılır)</span>
+          </label>
+          <input
+            type="number" step="0.01" min="0" max="100"
+            value={lgsYuzdelik}
+            onChange={(e) => setLgsYuzdelik(e.target.value)}
+            placeholder="örn: 2.50"
+            className="input-glass"
+          />
         </div>
       )}
 

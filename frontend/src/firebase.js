@@ -413,6 +413,96 @@ export async function removeFromDgsTercih(uid, code) {
   await deleteDoc(doc(db, 'users', uid, 'dgs_tercih', String(code)))
 }
 
+// === TUS/DUS UZMANLIK TERCIH LISTESI (tus_tercih / dus_tercih — ayrı koleksiyonlar) ===
+// TUS ve DUS aynı veri şeklinde olduğu için tek jenerik fonksiyon seti; koleksiyon
+// sinav'a göre seçilir. Kişisel kısa liste (resmi yerleştirme ÖSYM'de yapılır).
+
+export const MAX_TUS_TERCIH = 30
+
+const _uzmanlikSub = (sinav) => (sinav === 'DUS' ? 'dus_tercih' : 'tus_tercih')
+
+export function watchUzmanlikTercih(uid, sinav, callback) {
+  if (!db) return () => {}
+  const q = query(
+    collection(db, 'users', uid, _uzmanlikSub(sinav)),
+    orderBy('order', 'asc'),
+    limit(MAX_TUS_TERCIH)
+  )
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+  })
+}
+
+export async function addToUzmanlikTercih(uid, sinav, prog, order) {
+  if (!db) throw new Error('Firebase yok')
+  const code = String(prog.kod)
+  await setDoc(doc(db, 'users', uid, _uzmanlikSub(sinav), code), {
+    kod: code,
+    dal: prog.dal || '',
+    kurum: prog.kurum || '',
+    kontenjan_turu: prog.kontenjan_turu || '',
+    min_puan: prog.min_puan ?? null,
+    max_puan: prog.max_puan ?? null,
+    kontenjan: prog.kontenjan ?? null,
+    yerlesen: prog.yerlesen ?? null,
+    order,
+    addedAt: serverTimestamp(),
+  })
+}
+
+export async function removeFromUzmanlikTercih(uid, sinav, code) {
+  if (!db) throw new Error('Firebase yok')
+  await deleteDoc(doc(db, 'users', uid, _uzmanlikSub(sinav), String(code)))
+}
+
+// === LGS LISE TERCIH LISTESI (lgs_tercih) ===
+// Liselerin verisinde benzersiz kod yok → okul+ilçe+dil'den kararlı bir anahtar üret.
+
+export const MAX_LGS_TERCIH = 25
+
+export function lgsTercihKey(lise) {
+  const raw = `${lise.okul || ''}-${lise.ilce || ''}-${lise.dil || ''}`
+  return raw
+    .replace(/İ/g, 'i').replace(/I/g, 'i').toLowerCase()
+    .replace(/[çğıöşü]/g, (c) => ({ ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u' }[c] || c))
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+    .slice(0, 200) || 'lise'
+}
+
+export function watchLgsTercih(uid, callback) {
+  if (!db) return () => {}
+  const q = query(
+    collection(db, 'users', uid, 'lgs_tercih'),
+    orderBy('order', 'asc'),
+    limit(MAX_LGS_TERCIH)
+  )
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+  })
+}
+
+export async function addToLgsTercih(uid, lise, order) {
+  if (!db) throw new Error('Firebase yok')
+  const key = lgsTercihKey(lise)
+  await setDoc(doc(db, 'users', uid, 'lgs_tercih', key), {
+    okul: lise.okul || '',
+    il: lise.il || '',
+    ilce: lise.ilce || '',
+    tur: lise.tur || '',
+    dil: lise.dil || '',
+    yuzdelik: lise.yuzdelik ?? null,
+    taban_puan: lise.taban_puan ?? null,
+    kontenjan: lise.kontenjan ?? null,
+    order,
+    addedAt: serverTimestamp(),
+  })
+}
+
+export async function removeFromLgsTercih(uid, key) {
+  if (!db) throw new Error('Firebase yok')
+  await deleteDoc(doc(db, 'users', uid, 'lgs_tercih', String(key)))
+}
+
 // === QUERY HISTORY (basit log) ===
 
 export async function logQuery(uid, queryText, response) {

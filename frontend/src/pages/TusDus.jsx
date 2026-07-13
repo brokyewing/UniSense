@@ -4,6 +4,10 @@ import { Loader2, Stethoscope, Info, ExternalLink, Building2, Search, ShieldChec
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
+import { useAuth } from '../contexts/AuthContext'
+import {
+  watchUzmanlikTercih, addToUzmanlikTercih, removeFromUzmanlikTercih, MAX_TUS_TERCIH,
+} from '../firebase'
 
 const SINAVLAR = [
   { key: 'TUS', label: 'TUS', desc: 'Tıpta Uzmanlık' },
@@ -16,7 +20,7 @@ const KOVALAR = [
   { key: 'riskli',  label: 'Riskli',  icon: Rocket,      renk: 'from-rose-500 to-fuchsia-600', desc: 'Tabanın altında — taban düşerse şans' },
 ]
 
-function ProgramKart({ p }) {
+function ProgramKart({ p, inList, onToggle }) {
   return (
     <div className="rounded-xl bg-white/[0.03] border border-white/5 p-3">
       <div className="flex items-start justify-between gap-2">
@@ -26,11 +30,24 @@ function ProgramKart({ p }) {
             <Building2 size={10} className="shrink-0" /> <span className="truncate">{p.kurum || '—'}</span>
           </div>
         </div>
-        {p.kontenjan_turu && p.kontenjan_turu !== 'Genel' && (
-          <span className="shrink-0 text-[9px] px-1.5 py-0.5 rounded-full border bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/30">
-            {p.kontenjan_turu}
-          </span>
-        )}
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          {p.kontenjan_turu && p.kontenjan_turu !== 'Genel' && (
+            <span className="text-[9px] px-1.5 py-0.5 rounded-full border bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/30">
+              {p.kontenjan_turu}
+            </span>
+          )}
+          <button
+            onClick={() => onToggle(p)}
+            title={inList ? 'Tercihten çıkar' : 'Tercih listeme ekle'}
+            className={`rounded-lg px-2 py-0.5 text-[10px] border transition ${
+              inList
+                ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10'
+                : 'border-white/10 text-slate-300 hover:bg-white/10'
+            }`}
+          >
+            {inList ? '✓ Listede' : '+ Tercih'}
+          </button>
+        </div>
       </div>
       <div className="flex items-end justify-between mt-2">
         <div>
@@ -59,6 +76,31 @@ export default function TusDus() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const { user } = useAuth()
+  const [tercihIds, setTercihIds] = useState(new Set())
+  const [toast, setToast] = useState('')
+
+  // Aktif sınavın (TUS/DUS) tercih listesini canlı izle → kart butonları senkron
+  useEffect(() => {
+    if (!user) { setTercihIds(new Set()); return }
+    return watchUzmanlikTercih(user.uid, sinav, (items) => setTercihIds(new Set(items.map((i) => i.id))))
+  }, [user, sinav])
+
+  function flash(msg) { setToast(msg); setTimeout(() => setToast(''), 2500) }
+
+  async function toggleTercih(p) {
+    if (!user) { flash('Tercihe eklemek için giriş yap'); return }
+    const code = String(p.kod)
+    try {
+      if (tercihIds.has(code)) {
+        await removeFromUzmanlikTercih(user.uid, sinav, code)
+      } else {
+        if (tercihIds.size >= MAX_TUS_TERCIH) { flash(`Liste dolu (en fazla ${MAX_TUS_TERCIH})`); return }
+        await addToUzmanlikTercih(user.uid, sinav, p, tercihIds.size + 1)
+        flash(`✓ ${sinav} tercihine eklendi — Tercihlerim sayfasında`)
+      }
+    } catch (e) { flash(e.message) }
+  }
 
   // Sınav değişince dal listesini yükle + eski sonuç/filtreyi temizle.
   // ignore guard: hızlı TUS↔DUS toggle'da geç gelen eski yanıt yenisini ezmesin.
@@ -178,6 +220,12 @@ export default function TusDus() {
           {error && <div className="text-xs text-rose-300 text-center">⚠️ {error}</div>}
         </form>
 
+        {toast && (
+          <div className="text-xs text-center text-accent-200 bg-accent-500/10 border border-accent-500/30 rounded-lg py-2">
+            {toast}
+          </div>
+        )}
+
         {/* Sonuçlar */}
         <AnimatePresence>
           {data && (
@@ -212,7 +260,10 @@ export default function TusDus() {
                       </div>
                     </div>
                     <div className="grid sm:grid-cols-2 gap-2">
-                      {items.map((p, i) => <ProgramKart key={`${p.kod}-${i}`} p={p} />)}
+                      {items.map((p, i) => (
+                        <ProgramKart key={`${p.kod}-${i}`} p={p}
+                          inList={tercihIds.has(String(p.kod))} onToggle={toggleTercih} />
+                      ))}
                     </div>
                     {data.sayilar[kova.key] > items.length && (
                       <div className="text-[10px] text-slate-500 text-center mt-2">
