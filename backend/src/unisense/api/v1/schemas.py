@@ -492,6 +492,10 @@ class LgsIllerResponse(BaseModel):
     iller: list[str]
 
 
+class LgsIlcelerResponse(BaseModel):
+    ilceler: list[str]
+
+
 # === TUS/DUS uzmanlık tercih robotu ===
 
 class TusOneriRequest(BaseModel):

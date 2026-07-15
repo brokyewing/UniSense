@@ -7,6 +7,7 @@ import { apiFetch } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
 import {
   watchLgsTercih, addToLgsTercih, removeFromLgsTercih, MAX_LGS_TERCIH, lgsTercihKey,
+  getUserProfile,
 } from '../firebase'
 
 const TUR_STIL = {
@@ -118,6 +119,8 @@ function LiseKart({ lise, inList, onToggle }) {
 export function LgsRobot() {
   const [yuzdelik, setYuzdelik] = useState('')
   const [il, setIl] = useState('')
+  const [ilce, setIlce] = useState('')
+  const [ilceler, setIlceler] = useState([])
   const [turler, setTurler] = useState([])
   const [iller, setIller] = useState([])
   const [data, setData] = useState(null)
@@ -131,10 +134,39 @@ export function LgsRobot() {
     apiFetch('/api/v1/lgs/iller').then((d) => setIller(d.iller || [])).catch(() => {})
   }, [])
 
+  // İl değişince ilçe listesini yükle + eski ilçe seçimini sıfırla
+  useEffect(() => {
+    setIlce('')
+    if (!il || il === '__ALL__') { setIlceler([]); return }
+    let cancelled = false
+    apiFetch(`/api/v1/lgs/ilceler?il=${encodeURIComponent(il)}`)
+      .then((d) => { if (!cancelled) setIlceler(d.ilceler || []) })
+      .catch(() => { if (!cancelled) setIlceler([]) })
+    return () => { cancelled = true }
+  }, [il])
+
   // Tercih listesini canlı izle → kartlardaki "Listede/+ Tercih" senkron
   useEffect(() => {
     if (!user) { setTercihIds(new Set()); return }
     return watchLgsTercih(user.uid, (items) => setTercihIds(new Set(items.map((i) => i.id))))
+  }, [user])
+
+  // Profildeki LGS yüzdeliğini otomatik doldur (YKS/DGS/KPSS'deki davranışla
+  // tutarlı) — kullanıcı bir şey yazdıysa ÜZERİNE YAZMA
+  const [autoNot, setAutoNot] = useState('')
+  useEffect(() => {
+    if (!user) return
+    let cancelled = false
+    getUserProfile(user.uid).then((p) => {
+      const y = p?.profile?.lgs?.yuzdelik
+      if (cancelled || y == null) return
+      setYuzdelik((prev) => {
+        if (prev) return prev
+        setAutoNot('Yüzdelik dilimin profilinden geldi')
+        return String(y)
+      })
+    }).catch(() => {})
+    return () => { cancelled = true }
   }, [user])
 
   function flash(msg) { setToast(msg); setTimeout(() => setToast(''), 2500) }
@@ -178,7 +210,12 @@ export function LgsRobot() {
     try {
       const res = await apiFetch('/api/v1/lgs/oneri', {
         method: 'POST',
-        body: { yuzdelik: y, il: il === '__ALL__' ? null : il, turler: turler.length ? turler : null },
+        body: {
+          yuzdelik: y,
+          il: il === '__ALL__' ? null : il,
+          ilce: il !== '__ALL__' && ilce ? ilce : null,
+          turler: turler.length ? turler : null,
+        },
       })
       setData(res)
     } catch (err) {
@@ -214,29 +251,41 @@ export function LgsRobot() {
 
         {/* Form */}
         <form onSubmit={bul} className="card space-y-3">
-          <div className="grid sm:grid-cols-[1fr,1fr] gap-3">
+          <div className="grid sm:grid-cols-3 gap-3">
             <div>
               <label className="text-xs text-slate-300 mb-1 block">
-                Yüzdelik dilimin <span className="text-slate-500">(LGS sonuç belgende yazar, ör. 2.5)</span>
+                Yüzdelik dilimin <span className="text-slate-500">(ör. 2.5)</span>
               </label>
               <div className="relative">
                 <input
                   type="number" min="0" max="100" step="0.01" value={yuzdelik}
-                  onChange={(e) => setYuzdelik(e.target.value)}
+                  onChange={(e) => { setYuzdelik(e.target.value); setAutoNot('') }}
                   placeholder="ör. 2.50"
                   className="input-glass w-full pr-8"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">%</span>
               </div>
+              {autoNot && <div className="text-[10px] text-accent-300 mt-1">✨ {autoNot}</div>}
             </div>
             <div>
               <label className="text-xs text-slate-300 mb-1 block">
-                İlin <span className="text-slate-500">(tercih edeceğin il — yatılı düşünüyorsan "Tüm Türkiye")</span>
+                İlin <span className="text-slate-500">(yatılıysa "Tüm Türkiye")</span>
               </label>
               <select value={il} onChange={(e) => setIl(e.target.value)} className="input-glass w-full">
                 <option value="" disabled>İl seçin…</option>
                 <option value="__ALL__">🇹🇷 Tüm Türkiye (pansiyonlu okullar dahil)</option>
                 {iller.map((i) => <option key={i} value={i}>{i}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-slate-300 mb-1 block">
+                İlçe <span className="text-slate-500">(opsiyonel)</span>
+              </label>
+              <select value={ilce} onChange={(e) => setIlce(e.target.value)}
+                disabled={!il || il === '__ALL__' || ilceler.length === 0}
+                className="input-glass w-full disabled:opacity-40">
+                <option value="">Tüm ilçeler</option>
+                {ilceler.map((i) => <option key={i} value={i}>{i}</option>)}
               </select>
             </div>
           </div>
@@ -276,7 +325,9 @@ export function LgsRobot() {
             <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
               <div className="text-center text-xs text-slate-400">
                 <strong className="text-white">%{data.yuzdelik}</strong> yüzdelik dilimiyle
-                {il && il !== '__ALL__' ? <> <strong className="text-white">{il}</strong>'da</> : ' Türkiye genelinde'}{' '}
+                {il && il !== '__ALL__'
+                  ? <> <strong className="text-white">{ilce ? `${il} / ${ilce}` : il}</strong>'da</>
+                  : ' Türkiye genelinde'}{' '}
                 <span className="text-emerald-300">{data.sayilar.guvenli}</span> güvenli ·{' '}
                 <span className="text-amber-300">{data.sayilar.tutar}</span> tutar ·{' '}
                 <span className="text-rose-300">{data.sayilar.riskli}</span> riskli lise

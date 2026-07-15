@@ -40,6 +40,7 @@ from unisense.api.v1.schemas import (
     GuideListResponse,
     DocResponse,
     HealthResponse,
+    LgsIlcelerResponse,
     LgsIllerResponse,
     LgsOneriRequest,
     LgsOneriResponse,
@@ -439,6 +440,17 @@ def lgs_iller(
 ) -> LgsIllerResponse:
     """LGS lise verisinde bulunan iller (öneri filtresi dropdown'ı için)."""
     return LgsIllerResponse(iller=svc.iller())
+
+
+@router.get("/lgs/ilceler", response_model=LgsIlcelerResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def lgs_ilceler(
+    request: Request,
+    il: str,
+    svc=Depends(lgs_service_dep),
+) -> LgsIlcelerResponse:
+    """Seçilen ildeki ilçeler (öneri filtresi dropdown'ı için)."""
+    return LgsIlcelerResponse(ilceler=svc.ilceler(il))
 
 
 @router.post("/lgs/oneri", response_model=LgsOneriResponse)
