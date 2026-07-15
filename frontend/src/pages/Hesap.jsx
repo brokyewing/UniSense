@@ -230,10 +230,12 @@ const TABS = [
 // === Net hesaplama: doğru - penalty*yanlış
 // penalty: ÖSYM/YKS/ALES/DGS/KPSS/AGS = 0.25 (4 yanlış 1 doğru),
 //          LGS = 1/3 (3 yanlış 1 doğru). Field bazlı `pen` ile geçilir.
+// Negatif net NEGATİF kalır (ÖSYM kuralı): 0'a kırpılırsa çok yanlışlı
+// derslerde toplam puan olduğundan yüksek çıkar.
 function netOf(dogru, yanlis, penalty = 0.25) {
   const d = parseFloat(dogru) || 0
   const y = parseFloat(yanlis) || 0
-  return Math.max(0, d - penalty * y)
+  return d - penalty * y
 }
 
 // === Diploma puanı → OBP
@@ -243,7 +245,9 @@ function netOf(dogru, yanlis, penalty = 0.25) {
 //     AOBP = GPA × 25 × 0.5 (DGS yerleştirmeye eklenen)
 function diploma100ToObp(diploma100) {
   const d = parseFloat(diploma100)
-  if (!d || d < 0 || d > 100) return 0
+  // Diploma notu 50-100 aralığındadır (min OBP 250); 50 altı henüz geçerli
+  // bir not değil → 0 (yazarken ara değerler puana karışmasın)
+  if (!d || d < 50 || d > 100) return 0
   return d * 5  // 50→250, 100→500
 }
 function gpa4ToAobp(gpa4) {
@@ -252,13 +256,15 @@ function gpa4ToAobp(gpa4) {
   return d * 25 * 0.5  // 4 → 50 puan eklenir
 }
 
-// === Ham puan hesabı (ders bazlı katsayılar)
+// === Ham puan hesabı (ders bazlı katsayılar). Negatif netler de toplama
+// katılır (ÖSYM kuralı) — sadece n>0 alınsaydı çok yanlışlı ders yok sayılır,
+// puan olduğundan yüksek çıkardı.
 function weightedSum(nets, coefMap) {
   let total = 0
   let anyNet = false
   for (const [key, coef] of Object.entries(coefMap)) {
     const n = parseFloat(nets[key]) || 0
-    if (n > 0) {
+    if (n !== 0) {
       anyNet = true
       total += n * coef
     }
@@ -318,7 +324,7 @@ function alesWeightedNets(nets) {
   const soz = nets.ales_soz || 0
   const out = {}
   for (const [type, w] of Object.entries(ALES_WEIGHTS)) {
-    out[type] = (say > 0 || soz > 0) ? w.ales_say * say + w.ales_soz * soz : 0
+    out[type] = (say !== 0 || soz !== 0) ? w.ales_say * say + w.ales_soz * soz : 0
   }
   return out
 }
@@ -330,10 +336,11 @@ function lgsScore(nets) {
   let any = false
   for (const f of LGS_FIELDS) {
     const n = nets[f.id] || 0
-    if (n > 0) any = true
+    if (n !== 0) any = true
     wn += (f.k || 1) * n
   }
-  return any ? 100 + (wn / LGS_MAX_WN) * 400 : 0
+  // Taban 100'ün altına inmesin (negatif ağırlıklı nette bile MSP min 100)
+  return any ? Math.max(100, 100 + (wn / LGS_MAX_WN) * 400) : 0
 }
 
 // === AGS toplam net (kesin). Puan yok — standart-puan + ilk uygulama.
@@ -402,8 +409,8 @@ function NetInput({ field, value, onChange }) {
         title={`Maksimum ${yMax} yanlış girebilirsin`}
         className="w-14 input-glass !py-1 !px-2 text-center text-sm font-mono"
       />
-      <div className="w-16 text-right text-sm font-mono text-accent-300">
-        {net > 0 ? net.toFixed(2) : '-'}
+      <div className={`w-16 text-right text-sm font-mono ${net < 0 ? 'text-rose-400' : 'text-accent-300'}`}>
+        {total > 0 ? net.toFixed(2) : '-'}
       </div>
     </div>
   )
@@ -950,6 +957,12 @@ export default function Hesap() {
           type: bestType,
           updatedAt: Date.now(),
         }
+      } else if (tab === 'AGS' && result.finalScore > 0) {
+        // Profil sayfasının AGS bloğu profile.ags.net bekler — aynı şema
+        profilePatch.ags = {
+          net: parseFloat(result.finalScore.toFixed(2)),
+          updatedAt: Date.now(),
+        }
       }
       await updateUserProfile(user.uid, profilePatch)
       // Tercih sayfası yalnız YKS/DGS/KPSS puanını kullanır (feedsTercih); ALES/
@@ -1036,7 +1049,13 @@ export default function Hesap() {
               return (
                 <button
                   key={t.id}
-                  onClick={() => setTab(t.id)}
+                  onClick={() => {
+                    setTab(t.id)
+                    // Eski sekmenin simülasyon sonuçları yeni sekmenin puanıyla
+                    // yan yana kalmasın (yanıltıcı eşleşme)
+                    setSimResults(null)
+                    setSimError('')
+                  }}
                   className={`px-2 py-2.5 rounded-lg text-xs font-medium transition ${
                     active
                       ? `bg-gradient-to-br ${t.color} text-white shadow-lg`
@@ -1315,7 +1334,8 @@ export default function Hesap() {
               </div>
             )}
 
-            {feedsTercih && result.finalScore > 100 && isAuthed && (
+            {/* hasResult: KPSS eşiği KPSS_BASE(40)'tır — sabit >100 KPSS'de linki hiç göstermiyordu */}
+            {feedsTercih && hasResult && isAuthed && (
               <Link
                 to="/oneriler"
                 className="btn-ghost w-full inline-flex items-center justify-center gap-2 text-sm"

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Loader2, Stethoscope, Info, ExternalLink, Building2, Search, ShieldCheck, Target, Rocket, Users } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
@@ -73,6 +73,7 @@ export function TusRobot() {
   const [puan, setPuan] = useState('')
   const [dal, setDal] = useState('')
   const [kurum, setKurum] = useState('')
+  const [kontenjanTuru, setKontenjanTuru] = useState('Genel') // Genel | Yabancı Uyruklu
   const [meta, setMeta] = useState(null)
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -80,6 +81,9 @@ export function TusRobot() {
   const { user } = useAuth()
   const [tercihIds, setTercihIds] = useState(new Set())
   const [toast, setToast] = useState('')
+  // Stale-response koruması: bul() beklerken sınav değişirse eski yanıt basılmasın
+  const sinavRef = useRef(sinav)
+  sinavRef.current = sinav
 
   // Aktif sınavın (TUS/DUS) tercih listesini canlı izle → kart butonları senkron
   useEffect(() => {
@@ -97,7 +101,9 @@ export function TusRobot() {
         await removeFromUzmanlikTercih(user.uid, sinav, code)
       } else {
         if (tercihIds.size >= MAX_TUS_TERCIH) { flash(`Liste dolu (en fazla ${MAX_TUS_TERCIH})`); return }
-        await addToUzmanlikTercih(user.uid, sinav, p, tercihIds.size + 1)
+        // order = Date.now(): size+1 silme sonrası çakışıyor (duplicate order →
+        // yeni öğe listenin ortasına düşer); reorder zaten 1..n'e normalleştirir.
+        await addToUzmanlikTercih(user.uid, sinav, p, Date.now())
         flash(`✓ ${sinav} tercihine eklendi — Tercihlerim sayfasında`)
       }
     } catch (e) { flash(e.message) }
@@ -124,14 +130,19 @@ export function TusRobot() {
     }
     setLoading(true)
     setError('')
+    const istekSinav = sinav
     try {
       const res = await apiFetch('/api/v1/tus/oneri', {
         method: 'POST',
-        body: { puan: p, sinav, dal: dal || null, kurum: kurum || null },
+        body: {
+          puan: p, sinav, dal: dal || null, kurum: kurum || null,
+          kontenjan_turu: kontenjanTuru,
+        },
       })
+      if (sinavRef.current !== istekSinav) return // sınav değişti — eski yanıtı basma
       setData(res)
     } catch (err) {
-      setError(err.message)
+      if (sinavRef.current === istekSinav) setError(err.message)
     } finally {
       setLoading(false)
     }
@@ -190,10 +201,29 @@ export function TusRobot() {
               </select>
             </div>
           </div>
-          <div>
-            <label className="text-xs text-slate-300 mb-1 block">Kurum ara <span className="text-slate-500">(opsiyonel — ör. Hacettepe, İstanbul)</span></label>
-            <input type="text" value={kurum} onChange={(e) => setKurum(e.target.value)} placeholder="Üniversite / hastane adı"
-              className="input-glass w-full" />
+          <div className="grid sm:grid-cols-[1.4fr,1fr] gap-3">
+            <div>
+              <label className="text-xs text-slate-300 mb-1 block">Kurum ara <span className="text-slate-500">(opsiyonel — ör. Hacettepe, İstanbul)</span></label>
+              <input type="text" value={kurum} onChange={(e) => setKurum(e.target.value)} placeholder="Üniversite / hastane adı"
+                className="input-glass w-full" />
+            </div>
+            <div>
+              <label className="text-xs text-slate-300 mb-1 block">
+                Kontenjan türü <span className="text-slate-500">(tabanları ayrıdır)</span>
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
+                {['Genel', 'Yabancı Uyruklu'].map((t) => (
+                  <button key={t} type="button" onClick={() => setKontenjanTuru(t)}
+                    className={`px-2 py-2 rounded-lg text-xs border transition ${
+                      kontenjanTuru === t
+                        ? 'border-sky-500/60 bg-sky-500/15 text-sky-200 font-medium'
+                        : 'border-white/10 text-slate-400 hover:bg-white/5'
+                    }`}>
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
           <button type="submit" disabled={loading}
             className="btn-primary w-full inline-flex items-center justify-center gap-2 disabled:opacity-50">

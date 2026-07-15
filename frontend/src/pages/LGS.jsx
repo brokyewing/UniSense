@@ -147,7 +147,8 @@ export function LgsRobot() {
         await removeFromLgsTercih(user.uid, key)
       } else {
         if (tercihIds.size >= MAX_LGS_TERCIH) { flash(`Liste dolu (en fazla ${MAX_LGS_TERCIH} lise)`); return }
-        await addToLgsTercih(user.uid, lise, tercihIds.size + 1)
+        // order = Date.now(): size+1 silme sonrası çakışıyor; reorder 1..n normalleştirir
+        await addToLgsTercih(user.uid, lise, Date.now())
         flash('✓ Tercih listene eklendi — Tercihlerim sayfasında')
       }
     } catch (e) { flash(e.message) }

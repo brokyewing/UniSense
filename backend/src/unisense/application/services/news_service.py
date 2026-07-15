@@ -33,12 +33,25 @@ class NewsService:
             except (ValueError, KeyError):
                 continue
             kalan = (d - today).days
+            # Süreli etkinlik (ör. tercih dönemi): başlangıç geçse de bitiş
+            # gelmediyse 'devam ediyor' — geçmişe düşmez, kalan_gun=0 kalır.
+            devam = False
+            bitis = e.get("bitis")
+            if bitis and kalan < 0:
+                try:
+                    if today <= date.fromisoformat(bitis):
+                        devam = True
+                        kalan = 0
+                except ValueError:
+                    pass
             events.append({
                 "id": e.get("id", ""),
                 "sinav": e.get("sinav", ""),
                 "tam_ad": e.get("tam_ad", ""),
                 "tur": e.get("tur", ""),
                 "tarih": e["tarih"],
+                "bitis": bitis,
+                "devam": devam,
                 "aciklama": e.get("aciklama", ""),
                 "kaynak": e.get("kaynak", ""),
                 "tahmini": bool(e.get("tahmini", False)),

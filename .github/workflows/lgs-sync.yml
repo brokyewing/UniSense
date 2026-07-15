@@ -10,7 +10,11 @@ name: LGS Lise Data Sync
 
 on:
   schedule:
-    - cron: '0 6 25 8 *'  # 25 Ağustos 06:00 UTC = 09:00 TRT
+    # Ağustos-Eylül pazartesileri (taban puanlar bu dönemde açıklanır/oturur).
+    # Yılda tek tarih yerine dönemsel-haftalık: GitHub'ın 60 gün inaktivite
+    # kuralı schedule'ı sessizce kapatabildiği için tek atışa güvenilmez;
+    # scraper değişiklik yoksa zaten commit atmaz.
+    - cron: '0 6 * 8,9 1'
   workflow_dispatch:
 
 permissions:

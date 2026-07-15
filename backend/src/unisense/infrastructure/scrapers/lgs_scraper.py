@@ -83,15 +83,16 @@ def _fold(s: str) -> str:
 
 
 def _classify_tur(okul: str) -> str:
-    """Okul adından lise türünü çıkarır (öncelik sırası önemli — imam_hatip ve
-    meslek, 'anadolu' içerdikleri için ondan ÖNCE kontrol edilir)."""
+    """Okul adından lise türünü çıkarır (öncelik sırası önemli — 'imam hatip'
+    EN ÖNCE: 'Fen, Sosyal Bilimler ve Teknoloji Anadolu İmam Hatip Lisesi' gibi
+    adlar sosyal/fen içerse de okul idari olarak İmam Hatip'tir)."""
     f = _fold(okul)
+    if "imam hatip" in f:
+        return "imam_hatip"
     if "sosyal bilimler" in f:
         return "sosyal"
     if "fen lisesi" in f:
         return "fen"
-    if "imam hatip" in f:
-        return "imam_hatip"
     if "guzel sanatlar" in f:
         return "guzel_sanatlar"
     if "spor lisesi" in f:
@@ -228,12 +229,28 @@ _MIN_KAYIT = 1500  # bunun altı = kaynak yapısı değişmiş/erişilemez → Y
 
 def main() -> None:
     data = scrape()
-    # Güvenlik tabanı: gözetimsiz cron main'e push ettiği için, kaynak yapısı
-    # değişip scrape çökerse bozuk/eksik veriyi üzerine YAZMA (eski veri korunur).
+    # Güvenlik tabanları: gözetimsiz cron main'e push ettiği için bozuk/eksik
+    # veri eski verinin üzerine YAZILMAZ; exit 1 ile workflow da kırmızı düşer.
+    # 1) Herhangi bir il başarısızsa yazma (kısmî veri = o ilin öğrencisine boş sonuç)
+    if data["basarisiz_iller"]:
+        print(f"\n⛔ {len(data['basarisiz_iller'])} il başarısız "
+              f"({', '.join(data['basarisiz_iller'][:5])}…) — {OUT.name} GÜNCELLENMEDİ")
+        sys.exit(1)
+    # 2) Mutlak taban
     if data["toplam"] < _MIN_KAYIT:
         print(f"\n⛔ Yalnız {data['toplam']} lise (<{_MIN_KAYIT}) — kaynak değişmiş "
               f"olabilir; {OUT.name} GÜNCELLENMEDİ (eski veri korundu)")
-        return
+        sys.exit(1)
+    # 3) Önceki dosyaya göre %90 tabanı (kaynak sessizce daralırsa yakala)
+    if OUT.exists():
+        try:
+            onceki = json.loads(OUT.read_text(encoding="utf-8")).get("toplam", 0)
+            if onceki and data["toplam"] < onceki * 0.9:
+                print(f"\n⛔ {data['toplam']} < önceki {onceki}×0.9 — şüpheli daralma; "
+                      f"{OUT.name} GÜNCELLENMEDİ")
+                sys.exit(1)
+        except Exception:  # noqa: BLE001, S110
+            pass
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
     tur_sayim: dict[str, int] = {}

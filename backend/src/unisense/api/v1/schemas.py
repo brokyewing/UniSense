@@ -425,7 +425,9 @@ class ExamEvent(BaseModel):
     sinav: str = ""
     tam_ad: str = ""
     tur: str = ""          # sinav | sonuc | tercih | yerlestirme | basvuru
-    tarih: str = ""        # ISO
+    tarih: str = ""        # ISO (süreli etkinlikte başlangıç)
+    bitis: str | None = None   # süreli etkinlik bitişi (ör. tercih dönemi)
+    devam: bool = False        # başlangıç geçti ama bitiş gelmedi → sürüyor
     aciklama: str = ""
     kaynak: str = ""
     tahmini: bool = False
