@@ -44,6 +44,8 @@ jobs:
         if: steps.ufuk.outputs.tukeniyor == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          SON_TARIH: ${{ steps.ufuk.outputs.son_tarih }}
+          KALAN_GUN: ${{ steps.ufuk.outputs.kalan_gun }}
         run: |
           TITLE="Takvim güncellemesi: exam_calendar.json'a yeni yıl tarihlerini ekle"
           EXISTING=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open \
@@ -52,14 +54,17 @@ jobs:
             echo "Zaten açık bir takvim issue'su var — yenisi açılmadı."
             exit 0
           fi
+          {
+            echo "Takvimdeki son etkinlik: **${SON_TARIH}** (${KALAN_GUN} gün kaldı)."
+            echo ""
+            echo "ÖSYM/MEB yeni yıl sınav takvimini duyurduysa \`backend/data/processed/exam_calendar.json\` dosyasına yeni etkinlikleri ekleyin:"
+            echo "- Kaynaklar: [ÖSYM Sınav Takvimi](https://www.osym.gov.tr/TR,8797/takvim.html) · [MEB duyuruları](https://www.meb.gov.tr)"
+            echo "- Süreli etkinliklere (tercih dönemleri) \`bitis\` alanı eklemeyi unutmayın"
+            echo "- Kesinleşmemiş tarihlere \`\"tahmini\": true\` koyun"
+            echo ""
+            echo "Bu issue, takvimde 60 günden az etkinlik kaldığında otomatik açılır (calendar-check.yml)."
+          } > /tmp/issue-body.md
           gh issue create --repo "$GITHUB_REPOSITORY" \
             --title "$TITLE" \
-            --body "Takvimdeki son etkinlik: **${{ steps.ufuk.outputs.son_tarih }}** (${{ steps.ufuk.outputs.kalan_gun }} gün kaldı).
-
-ÖSYM/MEB yeni yıl sınav takvimini duyurduysa \`backend/data/processed/exam_calendar.json\` dosyasına yeni etkinlikleri ekleyin:
-- Kaynaklar: [ÖSYM Sınav Takvimi](https://www.osym.gov.tr/TR,8797/takvim.html) · [MEB duyuruları](https://www.meb.gov.tr)
-- Süreli etkinliklere (tercih dönemleri) \`bitis\` alanı eklemeyi unutmayın
-- Kesinleşmemiş tarihlere \`\"tahmini\": true\` koyun
-
-Bu issue, takvimde 60 günden az etkinlik kaldığında otomatik açılır (calendar-check.yml)."
+            --body-file /tmp/issue-body.md
           echo "Issue açıldı."
