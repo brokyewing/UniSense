@@ -504,6 +504,12 @@ function DgsProgramPanel({ scores, uniPref }) {
   }
   const ara = () => araWith(bolum)
 
+  // Üni türü değişince mevcut sonucu otomatik yenile (filtre "çalışmıyor" izlenimi fix)
+  useEffect(() => {
+    if (res) araWith(bolum)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uniType])
+
   return (
     <div className="card space-y-3">
       <h3 className="text-sm font-semibold text-white flex items-center gap-2">
@@ -882,6 +888,13 @@ export default function Hesap() {
       label: `${tab} Yerleştirme Puanı`,
     }
   }, [nets, obp, aobp, tab])
+
+  // Üni türü değişince mevcut simülasyon sonucunu otomatik yenile —
+  // eskiden eski liste ekranda kalıyordu ("filtre çalışmıyor" izlenimi)
+  useEffect(() => {
+    if (simResults) runSimulation()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uniPref])
 
   // === Simulasyon: bu puanla hangi programlar yazılır? ===
   async function runSimulation() {

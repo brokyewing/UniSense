@@ -137,3 +137,34 @@ class TestTusOneri:
         assert m["sinav"] == "DUS" and m["donem"] == "" and m["dallar"] == []
         r = svc.oneri(50.0, sinav="DUS")
         assert r["sinav"] == "DUS" and r["sayilar"] == {"guvenli": 0, "tutar": 0, "riskli": 0}
+
+
+class TestLgsCokluIlVePansiyon:
+    def _svc(self, monkeypatch):
+        import copy
+        veri = copy.deepcopy(FAKE_LGS)
+        veri["liseler"][0]["pansiyon"] = "Erkek(16) Kız(20)"   # Kolay Lisesi — yatılı
+        veri["liseler"][1]["pansiyon"] = "Yok"                 # Sınır Lisesi
+        veri["liseler"][2]["pansiyon"] = None                  # Zor Lisesi
+        veri["liseler"][3]["pansiyon"] = "Kız(40)"             # Çok Zor (ANKARA) — yatılı
+        monkeypatch.setattr(lgs_mod, "_load", lambda: veri)
+        return LgsService()
+
+    def test_coklu_il(self, monkeypatch):
+        r = self._svc(monkeypatch).oneri(2.0, iller=["istanbul", "ANKARA"])
+        tum = r["guvenli"] + r["tutar"] + r["riskli"]
+        assert len(tum) == 3  # İstanbul'dan 3 (Ankara'daki kapsam dışı zaten)
+
+    def test_pansiyon_var(self, monkeypatch):
+        r = self._svc(monkeypatch).oneri(2.0, pansiyon="var")
+        tum = r["guvenli"] + r["tutar"] + r["riskli"]
+        assert [x["okul"] for x in tum] == ["Kolay Lisesi"]  # tek yatılı (kapsam içi)
+
+    def test_pansiyon_yok(self, monkeypatch):
+        r = self._svc(monkeypatch).oneri(2.0, pansiyon="yok")
+        tum = r["guvenli"] + r["tutar"] + r["riskli"]
+        assert {x["okul"] for x in tum} == {"Sınır Lisesi", "Zor Lisesi"}  # 'Yok' + None
+
+    def test_tekil_il_geriye_uyum(self, monkeypatch):
+        r = self._svc(monkeypatch).oneri(2.0, il="istanbul")
+        assert sum(r["sayilar"].values()) == 3

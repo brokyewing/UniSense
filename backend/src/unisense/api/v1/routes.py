@@ -467,8 +467,10 @@ def lgs_oneri(
     result = svc.oneri(
         yuzdelik=payload.yuzdelik,
         il=payload.il,
+        iller=payload.iller,
         ilce=payload.ilce,
         turler=payload.turler,
+        pansiyon=payload.pansiyon,
     )
     return LgsOneriResponse(**result)
 

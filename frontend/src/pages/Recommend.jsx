@@ -230,77 +230,6 @@ function ItemCard({ item, isInTercih, onAdd, onRemove, busyCode }) {
   )
 }
 
-// === Pusula yapılmamışsa engel ekran (YKS modunda; sahne üst bileşenden gelir) ===
-function PusulaGate({ onSkip }) {
-  const navigate = useNavigate()
-  return (
-    <>
-      <div className="max-w-2xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4 }}
-          className="card text-center py-10 px-6 border-accent-500/30 bg-gradient-to-br from-accent-500/5 to-emerald-500/5"
-        >
-          <motion.div
-            initial={{ rotate: -10, scale: 0.8 }}
-            animate={{ rotate: 0, scale: 1 }}
-            transition={{ type: 'spring', stiffness: 200 }}
-            className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-brand-500 via-accent-500 to-cyber-pink flex items-center justify-center shadow-2xl shadow-accent-500/30"
-          >
-            <Compass size={40} className="text-white" />
-          </motion.div>
-
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-3">
-            Önce <span className="gradient-text">İlgilerini Seç</span>
-          </h2>
-
-          <p className="text-slate-300 mb-2 max-w-lg mx-auto leading-relaxed">
-            Tercih önerisi alabilmek için önce <strong className="text-accent-300">İlgi Pusulası</strong>'ndan
-            ilgilendiğin alanları belirlemelisin.
-          </p>
-          <p className="text-sm text-slate-400 mb-8 max-w-lg mx-auto">
-            Sadece puanla değil, <strong className="text-emerald-300">karakterine ve ilgilerine uyan</strong> bölümleri öneriyoruz.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button
-              onClick={() => navigate('/pusula')}
-              className="btn-primary px-6 py-3 inline-flex items-center justify-center gap-2"
-            >
-              <Compass size={18} />
-              Pusulaya Git
-              <ArrowRight size={16} />
-            </button>
-            <button onClick={onSkip} className="btn-ghost px-6 py-3">
-              Yine de aramak istiyorum →
-            </button>
-          </div>
-
-          {/* Nasıl çalışır mini özet */}
-          <div className="mt-10 pt-6 border-t border-white/5 text-left grid sm:grid-cols-3 gap-4">
-            {[
-              { n: 1, t: 'İlgilerini seç', d: 'Hasta bakımı, yazılım, tasarım gibi konuları işaretle' },
-              { n: 2, t: 'Bölüm öneri al', d: 'Sana uygun 15 bölüm listesi otomatik çıkar' },
-              { n: 3, t: 'Tercihi yap', d: 'Puanına uygun program kovaları (güvenli/hedef/üst)' },
-            ].map((step) => (
-              <div key={step.n} className="flex gap-2">
-                <div className="w-7 h-7 rounded-full bg-accent-500/20 text-accent-300 flex items-center justify-center text-xs font-bold shrink-0">
-                  {step.n}
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-white">{step.t}</div>
-                  <div className="text-xs text-slate-400 mt-0.5 leading-relaxed">{step.d}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
-    </>
-  )
-}
-
 
 // === Ortak: kategori grubu başlığı + kart ızgarası ===
 function CategoryGroup({ cat, items, renderItem }) {
@@ -375,8 +304,7 @@ function DgsOneriPanel({ user, profile }) {
       setTercihIds(new Set(items.map((i) => String(i.department_code)))))
   }, [user])
 
-  async function onSubmit(e) {
-    e.preventDefault()
+  async function ara() {
     const p = parseFloat(puan)
     if (!p || p < 100 || p > 600) {
       setError('Geçerli bir DGS puanı gir (100–600) — Hesap sayfasından net girerek hesaplayabilirsin')
@@ -404,6 +332,17 @@ function DgsOneriPanel({ user, profile }) {
       setLoading(false)
     }
   }
+
+  function onSubmit(e) {
+    e.preventDefault()
+    ara()
+  }
+
+  // Üni türü değişince mevcut sonucu otomatik yenile (filtre "çalışmıyor" izlenimi fix)
+  useEffect(() => {
+    if (res) ara()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uniType])
 
   async function toggleTercih(item) {
     if (!user) { setError('Tercih listesine eklemek için giriş yap'); return }
@@ -852,7 +791,7 @@ export default function Recommend() {
   const [uniType, setUniType] = useState('all')  // 'all' | 'Devlet' | 'Vakıf'
   const [mode, setMode] = useState('YKS')        // YKS | DGS | KPSS — profilden açılır
   const [profile, setProfile] = useState(null)
-  const [skipPusula, setSkipPusula] = useState(false)  // "Yine de ara" → Pusula'sız puan-only öneri
+  const [bolumInput, setBolumInput] = useState('')  // elle bölüm filtresi (virgülle çoklu)
   const userPickedMode = useRef(false)           // kullanıcı elle sekme seçtiyse profil ezmesin
 
   // Pusula sonucunu sessionStorage'tan oku
@@ -987,28 +926,24 @@ export default function Recommend() {
     sessionStorage.setItem('pusula_depts', JSON.stringify(next))
   }
 
-  async function onSubmit(e) {
-    e.preventDefault()
+  async function runRecommend() {
     if (!score && !rank) {
       setError('Lütfen puan veya sıralama gir')
-      return
-    }
-    // Pusula yapılmadıysa ve kullanıcı "yine de ara" demediyse engelle
-    if (!pusulaState?.names?.length && !skipPusula) {
-      setError('Önce Pusula\'dan ilgilerini seç')
       return
     }
     setLoading(true)
     setError('')
     try {
+      // Pusula bölümleri + elle yazılan bölümler (virgülle çoklu);
+      // ikisi de boşsa backend puana göre TÜM bölümlerden önerir
+      const manuel = bolumInput.split(',').map((s) => s.trim()).filter(Boolean)
       const data = await apiFetch('/api/v1/recommend', {
         method: 'POST',
         body: {
           score_type: scoreType,
           score: score ? parseFloat(score) : null,
           rank: rank ? parseInt(rank, 10) : null,
-          // Pusula yoksa boş → backend puana göre tüm bölümlerden önerir
-          preferred_departments: pusulaState?.names || [],
+          preferred_departments: [...(pusulaState?.names || []), ...manuel],
           preferred_uni_types: uniType === 'all' ? [] : [uniType],
         },
       })
@@ -1020,10 +955,17 @@ export default function Recommend() {
     }
   }
 
-  // YKS modunda pusula yapılmamışsa engel ekranı (DGS/KPSS pusula istemez).
-  // "Yine de aramak istiyorum" (skipPusula) → engeli atla, puana göre tüm
-  // bölümlerden öneri ver (preferred_departments boş gider).
-  const yksGated = !skipPusula && !pusulaState?.names?.length
+  function onSubmit(e) {
+    e.preventDefault()
+    runRecommend()
+  }
+
+  // Üni türü değişince mevcut sonucu OTOMATİK yenile — eskiden eski liste
+  // ekranda kalıyordu ve filtre "çalışmıyor" gibi görünüyordu
+  useEffect(() => {
+    if (result && mode === 'YKS') runRecommend()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uniType])
 
   const modeLabel =
     pusulaState?.mode === 'interests' ? 'İlgilerine göre'
@@ -1085,8 +1027,7 @@ export default function Recommend() {
         {mode === 'KPSS' && <KpssOneriPanel user={user} profile={profile} />}
         {mode === 'TUS' && <TusRobot />}
         {mode === 'LGS' && <LgsRobot />}
-        {mode === 'YKS' && yksGated && <PusulaGate onSkip={() => setSkipPusula(true)} />}
-        {mode === 'YKS' && !yksGated && (<>
+        {mode === 'YKS' && (<>
 
         {/* Pusula sonucu — bölüm chip'leri (Pusula yapıldıysa) */}
         {pusulaState?.names?.length > 0 ? (
@@ -1149,9 +1090,10 @@ export default function Recommend() {
             <ListChecks size={16} className="text-white" />
           </div>
           <div className="flex-1 text-sm text-slate-200">
-            <strong className="text-accent-200">Puana göre öneri</strong> — tüm bölümlerden, ilgi filtresi olmadan.
-            <button onClick={() => navigate('/pusula')} className="ml-1 text-accent-300 hover:underline">
-              İlgilerine göre daralt →
+            Aşağıya bölüm yazabilir veya boş bırakıp <strong className="text-accent-200">puana göre tüm bölümlerden</strong> öneri alabilirsin.
+            <span className="text-slate-400"> Ne okuyacağını bilmiyor musun?</span>
+            <button onClick={() => navigate('/pusula')} className="ml-1 text-accent-300 hover:underline inline-flex items-center gap-1">
+              <Compass size={12} /> İlgi Pusulası'yla keşfet →
             </button>
           </div>
         </motion.div>
@@ -1229,6 +1171,21 @@ export default function Recommend() {
             </div>
           </div>
 
+          {/* Bölüm filtresi — DGS'deki bölüm aramasının YKS karşılığı.
+              Pusula chip'leriyle BİRLEŞİR; ikisi de boşsa tüm bölümler. */}
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">
+              Bölüm <span className="text-slate-500 text-xs">(opsiyonel — virgülle birden çok yazabilirsin)</span>
+            </label>
+            <input
+              type="text"
+              value={bolumInput}
+              onChange={(e) => setBolumInput(e.target.value)}
+              placeholder="örn: bilgisayar mühendisliği, yazılım mühendisliği"
+              className="input-glass"
+            />
+          </div>
+
           {/* Üniversite Tipi Toggle */}
           <div>
             <label className="text-sm text-slate-300 mb-2 block">
@@ -1285,7 +1242,7 @@ export default function Recommend() {
             ) : (
               <>
                 <ListChecks size={18} />
-                Pusula + Puanla Tercih Öner
+                Tercih Öner
               </>
             )}
           </button>
