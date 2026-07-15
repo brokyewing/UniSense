@@ -305,6 +305,10 @@ class CompareTrendPoint(BaseModel):
 class CompareItem(BaseModel):
     code: str
     found: bool
+    # DGS (dikey geçiş) — kod eşleşirse taban/kontenjan
+    dgs_min_puan: float | None = None
+    dgs_puan_turu: str | None = None
+    dgs_kontenjan: int | None = None
     # Program
     department_name: str = ""
     department_group: str = ""
@@ -447,9 +451,11 @@ class ExamCalendarResponse(BaseModel):
 
 class LgsOneriRequest(BaseModel):
     yuzdelik: float = Field(..., ge=0, le=100)  # Türkiye geneli yüzdelik dilim
-    il: str | None = None
+    il: str | None = None                       # tekil (geriye uyum)
+    iller: list[str] | None = None              # çoklu il seçimi
     ilce: str | None = None
     turler: list[str] | None = None             # fen, anadolu, sosyal, imam_hatip, meslek...
+    pansiyon: str | None = None                 # 'var' (yatılı) | 'yok' (gündüz) | None
 
 
 class LgsTrendPoint(BaseModel):

@@ -87,21 +87,32 @@ class LgsService:
         self,
         yuzdelik: float,
         il: str | None = None,
+        iller: list[str] | None = None,
         ilce: str | None = None,
         turler: list[str] | None = None,
+        pansiyon: str | None = None,
         limit: int = 30,
     ) -> dict:
         d = _load()
         liseler = d.get("liseler", [])
-        if il:
-            ilf = _fold(il)
-            liseler = [x for x in liseler if _fold(x.get("il", "")) == ilf]
+        # Çoklu il desteği: `il` (tekil, geriye uyum) + `iller` birleşir
+        il_set = {_fold(x) for x in ([il] if il else []) + (iller or []) if x}
+        if il_set:
+            liseler = [x for x in liseler if _fold(x.get("il", "")) in il_set]
         if ilce:
             icf = _fold(ilce)
             liseler = [x for x in liseler if _fold(x.get("ilce", "")) == icf]
         if turler:
             ts = set(turler)
             liseler = [x for x in liseler if x.get("tur") in ts]
+        # Yatılı/yatısız (Rota Maarif'teki pansiyon filtresi):
+        # 'var' → pansiyonu olan okullar; 'yok' → pansiyonsuz (gündüz)
+        if pansiyon in ("var", "yok"):
+            def _pansiyonlu(x: dict) -> bool:
+                p = _fold(x.get("pansiyon") or "")
+                return bool(p) and p != "yok"
+            istenen = pansiyon == "var"
+            liseler = [x for x in liseler if _pansiyonlu(x) == istenen]
 
         guvenli: list[dict] = []
         tutar: list[dict] = []

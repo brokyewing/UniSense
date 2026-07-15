@@ -283,6 +283,15 @@ export default function Compare() {
                 <Row label="Ücret"              items={items} fmt={(it) => fmtFee(it.fee_try)} diffField="fee_try" diffs={diffs} />
                 <Row label="Akreditasyon"      items={items} fmt={(it) => it.accreditation || '—'} />
                 <Row label="Min başarı sırası" items={items} fmt={(it) => it.min_basari_sirasi_kosul || '—'} />
+                {/* DGS (dikey geçiş) — kod eşleşen programlarda; DGS'li kullanıcı
+                    da aynı sekmeden karşılaştırabilsin */}
+                {items.some((it) => it.dgs_min_puan != null) && (<>
+                  <Row label="DGS taban puanı" items={items}
+                    fmt={(it) => it.dgs_min_puan != null
+                      ? `${it.dgs_min_puan.toFixed(2)} (${it.dgs_puan_turu || '?'})` : '—'} />
+                  <Row label="DGS kontenjan" items={items}
+                    fmt={(it) => numberOrDash(it.dgs_kontenjan)} />
+                </>)}
 
                 <div className="h-3" />
 

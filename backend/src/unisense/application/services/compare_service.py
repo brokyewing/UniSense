@@ -5,10 +5,13 @@ gibi alanları toplar; frontend'de yan yana tablo gösterimi için.
 """
 from __future__ import annotations
 
+import json
 from functools import lru_cache
+from pathlib import Path
 from typing import Any
 
 from unisense.application.services.trend_service import get_program_trend
+from unisense.core.config import get_settings
 from unisense.core.logging import get_logger
 
 logger = get_logger(__name__)
@@ -35,6 +38,23 @@ def _load_full_data() -> tuple[dict[str, dict], dict[str, dict], dict[str, dict]
     )
 
 
+@lru_cache(maxsize=1)
+def _dgs_lookup() -> dict[str, dict]:
+    """DGS taban verisi: department_code → kayıt.
+
+    DGS program kodları YÖK Atlas lisans kodlarıyla AYNI olduğundan aynı
+    karşılaştırma tablosunda 'DGS taban' satırı gösterilebilir — DGS'li
+    kullanıcı da /karsilastir sekmesini kullanır.
+    """
+    p = Path(get_settings().project_root) / "data" / "processed" / "dgs_rankings.json"
+    if not p.exists():
+        return {}
+    out: dict[str, dict] = {}
+    for r in json.load(open(p, encoding="utf-8")):
+        out.setdefault(str(r.get("department_code")), r)
+    return out
+
+
 def _program_detail(code: str) -> dict[str, Any]:
     """Tek bir program için karşılaştırma payload'ı."""
     code = str(code)
@@ -48,6 +68,7 @@ def _program_detail(code: str) -> dict[str, Any]:
     rank = rank_lookup.get(code, {})
     trend = get_program_trend(code)
     staff = dept.get("academic_staff") or {}
+    dgs = _dgs_lookup().get(code)
 
     return {
         "code": code,
@@ -78,6 +99,10 @@ def _program_detail(code: str) -> dict[str, Any]:
         "base_rank": rank.get("base_rank"),
         "quota": rank.get("quota"),
         "yerlesen": rank.get("yerlesen"),
+        # DGS (dikey geçiş) yerleştirme — kod eşleşirse
+        "dgs_min_puan": dgs.get("min_puan") if dgs else None,
+        "dgs_puan_turu": dgs.get("puan_turu") if dgs else None,
+        "dgs_kontenjan": dgs.get("kontenjan") if dgs else None,
         # Akademik kadro
         "academic_total": staff.get("total", 0),
         "academic_professor": staff.get("professor", 0),

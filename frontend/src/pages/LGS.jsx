@@ -118,11 +118,12 @@ function LiseKart({ lise, inList, onToggle }) {
 // Robot çekirdeği — hem /lgs sayfasında hem Öneriler sekmesinde kullanılır
 export function LgsRobot() {
   const [yuzdelik, setYuzdelik] = useState('')
-  const [il, setIl] = useState('')
+  const [secliIller, setSecliIller] = useState([])  // çoklu il ('__ALL__' = Tüm Türkiye)
   const [ilce, setIlce] = useState('')
   const [ilceler, setIlceler] = useState([])
   const [turler, setTurler] = useState([])
   const [iller, setIller] = useState([])
+  const [pansiyon, setPansiyon] = useState('')      // '' | 'var' (yatılı) | 'yok' (gündüz)
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -134,16 +135,30 @@ export function LgsRobot() {
     apiFetch('/api/v1/lgs/iller').then((d) => setIller(d.iller || [])).catch(() => {})
   }, [])
 
-  // İl değişince ilçe listesini yükle + eski ilçe seçimini sıfırla
+  // İlçe filtresi yalnız TEK il seçiliyken anlamlı — seçim değişince yükle/sıfırla
+  const tekIl = secliIller.length === 1 && secliIller[0] !== '__ALL__' ? secliIller[0] : null
   useEffect(() => {
     setIlce('')
-    if (!il || il === '__ALL__') { setIlceler([]); return }
+    if (!tekIl) { setIlceler([]); return }
     let cancelled = false
-    apiFetch(`/api/v1/lgs/ilceler?il=${encodeURIComponent(il)}`)
+    apiFetch(`/api/v1/lgs/ilceler?il=${encodeURIComponent(tekIl)}`)
       .then((d) => { if (!cancelled) setIlceler(d.ilceler || []) })
       .catch(() => { if (!cancelled) setIlceler([]) })
     return () => { cancelled = true }
-  }, [il])
+  }, [tekIl])
+
+  function ilEkle(v) {
+    if (!v) return
+    setSecliIller((prev) => {
+      if (v === '__ALL__') return ['__ALL__']            // Tüm Türkiye tek başına
+      const temiz = prev.filter((x) => x !== '__ALL__')  // il seçilince ALL düşer
+      return temiz.includes(v) ? temiz : [...temiz, v]
+    })
+  }
+
+  function ilCikar(v) {
+    setSecliIller((prev) => prev.filter((x) => x !== v))
+  }
 
   // Tercih listesini canlı izle → kartlardaki "Listede/+ Tercih" senkron
   useEffect(() => {
@@ -198,23 +213,24 @@ export function LgsRobot() {
       setTimeout(() => setError(''), 2500)
       return
     }
-    // İl seçimi zorunlu — LGS tercihi il bazlıdır; tüm Türkiye ancak bilinçli
-    // seçimle (yatılı/pansiyonlu arayanlar) anlamlı.
-    if (!il) {
-      setError('Önce ilini seç (yatılı düşünüyorsan "Tüm Türkiye").')
+    // En az bir il (veya bilinçli "Tüm Türkiye") seçimi zorunlu
+    if (secliIller.length === 0) {
+      setError('Önce il(lerini) seç (yatılı düşünüyorsan "Tüm Türkiye").')
       setTimeout(() => setError(''), 3000)
       return
     }
     setLoading(true)
     setError('')
     try {
+      const tumTurkiye = secliIller.includes('__ALL__')
       const res = await apiFetch('/api/v1/lgs/oneri', {
         method: 'POST',
         body: {
           yuzdelik: y,
-          il: il === '__ALL__' ? null : il,
-          ilce: il !== '__ALL__' && ilce ? ilce : null,
+          iller: tumTurkiye ? null : secliIller,
+          ilce: tekIl && ilce ? ilce : null,
           turler: turler.length ? turler : null,
+          pansiyon: pansiyon || null,
         },
       })
       setData(res)
@@ -269,24 +285,55 @@ export function LgsRobot() {
             </div>
             <div>
               <label className="text-xs text-slate-300 mb-1 block">
-                İlin <span className="text-slate-500">(yatılıysa "Tüm Türkiye")</span>
+                İl ekle <span className="text-slate-500">(birden çok seçebilirsin)</span>
               </label>
-              <select value={il} onChange={(e) => setIl(e.target.value)} className="input-glass w-full">
+              <select value="" onChange={(e) => ilEkle(e.target.value)} className="input-glass w-full">
                 <option value="" disabled>İl seçin…</option>
                 <option value="__ALL__">🇹🇷 Tüm Türkiye (pansiyonlu okullar dahil)</option>
-                {iller.map((i) => <option key={i} value={i}>{i}</option>)}
+                {iller.filter((i) => !secliIller.includes(i)).map((i) => <option key={i} value={i}>{i}</option>)}
               </select>
             </div>
             <div>
               <label className="text-xs text-slate-300 mb-1 block">
-                İlçe <span className="text-slate-500">(opsiyonel)</span>
+                İlçe <span className="text-slate-500">(tek il seçiliyken)</span>
               </label>
               <select value={ilce} onChange={(e) => setIlce(e.target.value)}
-                disabled={!il || il === '__ALL__' || ilceler.length === 0}
+                disabled={!tekIl || ilceler.length === 0}
                 className="input-glass w-full disabled:opacity-40">
                 <option value="">Tüm ilçeler</option>
                 {ilceler.map((i) => <option key={i} value={i}>{i}</option>)}
               </select>
+            </div>
+          </div>
+
+          {/* Seçili iller (chip) */}
+          {secliIller.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {secliIller.map((i) => (
+                <span key={i}
+                  className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-200 border border-emerald-500/25 inline-flex items-center gap-1.5">
+                  {i === '__ALL__' ? '🇹🇷 Tüm Türkiye' : i}
+                  <button type="button" onClick={() => ilCikar(i)}
+                    className="opacity-60 hover:opacity-100 hover:text-rose-300 transition">✕</button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Yatılı/gündüz (pansiyon) filtresi */}
+          <div>
+            <label className="text-xs text-slate-300 mb-1 block">Pansiyon (yatılı)</label>
+            <div className="flex gap-1.5">
+              {[['', 'Farketmez'], ['var', '🛏 Yatılı (pansiyonlu)'], ['yok', '🏠 Gündüz (pansiyonsuz)']].map(([v, l]) => (
+                <button key={v || 'hepsi'} type="button" onClick={() => setPansiyon(v)}
+                  className={`text-xs px-2.5 py-1.5 rounded-lg border transition ${
+                    pansiyon === v
+                      ? 'border-sky-500/60 bg-sky-500/15 text-sky-200 font-medium'
+                      : 'border-white/10 text-slate-400 hover:bg-white/5'
+                  }`}>
+                  {l}
+                </button>
+              ))}
             </div>
           </div>
           <div>
@@ -325,8 +372,8 @@ export function LgsRobot() {
             <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
               <div className="text-center text-xs text-slate-400">
                 <strong className="text-white">%{data.yuzdelik}</strong> yüzdelik dilimiyle
-                {il && il !== '__ALL__'
-                  ? <> <strong className="text-white">{ilce ? `${il} / ${ilce}` : il}</strong>'da</>
+                {secliIller.length && !secliIller.includes('__ALL__')
+                  ? <> <strong className="text-white">{tekIl && ilce ? `${tekIl} / ${ilce}` : secliIller.join(', ')}</strong>'da</>
                   : ' Türkiye genelinde'}{' '}
                 <span className="text-emerald-300">{data.sayilar.guvenli}</span> güvenli ·{' '}
                 <span className="text-amber-300">{data.sayilar.tutar}</span> tutar ·{' '}
