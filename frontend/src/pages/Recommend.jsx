@@ -16,6 +16,7 @@ import {
 } from '../firebase'
 import { apiFetch } from '../lib/api'
 import { dgsLevel, kpssLevel } from '../lib/riskLevels'
+import { TR_ILLER } from '../lib/iller'
 import MiniTrend from '../components/MiniTrend'
 import { LgsRobot } from './LGS'
 import { TusRobot } from './TusDus'
@@ -289,6 +290,36 @@ function DgsOneriPanel({ user, profile }) {
   const [error, setError] = useState('')
   const [tercihIds, setTercihIds] = useState(new Set())
   const [busyCode, setBusyCode] = useState(null)
+  // Önlisans → lisans geçiş yolları (ÖSYM Tablo-2) — Hesap'tan taşındı
+  const [onlisans, setOnlisans] = useState('')
+  const [onlisansListe, setOnlisansListe] = useState([])
+  const [gecis, setGecis] = useState(null)
+  const [gecisLoading, setGecisLoading] = useState(false)
+
+  useEffect(() => {
+    // Autocomplete için önlisans program adları (bir kez).
+    // Set ile teklenir — kaynakta yinelenen adlar var (duplicate React key)
+    apiFetch('/api/v1/dgs/gecis', { method: 'POST', body: { onlisans: '' } })
+      .then((d) => setOnlisansListe([...new Set(d.programlar || [])]))
+      .catch(() => {})
+  }, [])
+
+  async function gecisAra() {
+    if (!onlisans.trim()) return
+    setGecisLoading(true)
+    try {
+      const d = await apiFetch('/api/v1/dgs/gecis', { method: 'POST', body: { onlisans } })
+      setGecis(d.gruplar || [])
+    } catch (e) { setError(e.message) } finally { setGecisLoading(false) }
+  }
+
+  function lisansSec(ad) {
+    // Hedef lisans bölümüne tıkla → bölüm filtresi dolar; puan geçerliyse arar
+    setBolum(ad)
+    setGecis(null)
+    const p = parseFloat(puan)
+    if (p >= 100 && p <= 600) setTimeout(() => ara(ad), 0)
+  }
 
   // Profil varsayılanları (async yüklenir)
   useEffect(() => {
@@ -304,7 +335,7 @@ function DgsOneriPanel({ user, profile }) {
       setTercihIds(new Set(items.map((i) => String(i.department_code)))))
   }, [user])
 
-  async function ara() {
+  async function ara(bolumOverride) {
     const p = parseFloat(puan)
     if (!p || p < 100 || p > 600) {
       setError('Geçerli bir DGS puanı gir (100–600) — Hesap sayfasından net girerek hesaplayabilirsin')
@@ -318,7 +349,7 @@ function DgsOneriPanel({ user, profile }) {
         body: {
           puan_turu: pt,
           puan: p,
-          bolum,
+          bolum: bolumOverride ?? bolum,
           il: il.trim() || null,
           uni_turu: uniType === 'all' ? null : uniType,
           oneri: true, // tabanı puanın 10 puana kadar üstündekiler de gelsin (üst seviye)
@@ -454,6 +485,48 @@ function DgsOneriPanel({ user, profile }) {
             </div>
           </div>
         </div>
+        {/* Önlisans → lisans geçiş yolları (ÖSYM Tablo-2) — bölümünü yaz,
+            geçebileceğin lisans bölümlerini gör, tıkla → filtre dolar */}
+        <div className="rounded-xl bg-white/5 border border-white/5 p-3 space-y-2">
+          <div className="text-xs text-slate-300 font-medium">
+            Önlisans bölümünü yaz → geçebileceğin lisans bölümlerini gör
+          </div>
+          <div className="flex gap-2">
+            <input
+              value={onlisans}
+              onChange={(e) => setOnlisans(e.target.value)}
+              list="dgs-onlisans-programlar"
+              placeholder="örn: Bilgisayar Programcılığı"
+              className="input-glass text-sm flex-1 !py-2"
+            />
+            <datalist id="dgs-onlisans-programlar">
+              {onlisansListe.map((a) => <option key={a} value={a} />)}
+            </datalist>
+            <button type="button" onClick={gecisAra} disabled={gecisLoading || !onlisans.trim()}
+              className="btn-ghost text-xs disabled:opacity-50">
+              {gecisLoading ? <Loader2 size={12} className="animate-spin" /> : 'Geçiş yolları'}
+            </button>
+          </div>
+          {gecis && gecis.length === 0 && (
+            <div className="text-[11px] text-slate-500">Eşleşen alan bulunamadı — farklı yazımla dene</div>
+          )}
+          {gecis && gecis.map((g, gi) => (
+            // key'e index dahil: farklı gruplar aynı temsilci alan adını taşıyabiliyor
+            <div key={`${g.alan}-${gi}`} className="space-y-1.5">
+              <div className="text-[10px] text-slate-500">{g.alan}</div>
+              <div className="flex flex-wrap gap-1.5">
+                {g.lisans.map((l) => (
+                  <button key={l.kod} type="button" onClick={() => lisansSec(l.ad)}
+                    title={`${l.ad} programlarını tabanlarıyla listele`}
+                    className="rounded-lg px-2 py-1 text-[11px] border border-accent-500/30 text-accent-300 hover:bg-accent-500/10">
+                    {l.ad} <span className="text-slate-500">· {l.puan_turu}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="text-sm text-slate-300 mb-2 block">Bölüm filtresi <span className="text-slate-500">(opsiyonel)</span></label>
@@ -536,7 +609,7 @@ function KpssOneriPanel({ user, profile }) {
   const [puan, setPuan] = useState('')
   const [duzey, setDuzey] = useState('lisans')
   const [bolum, setBolum] = useState('')
-  const [il, setIl] = useState('')
+  const [secliIller, setSecliIller] = useState([])  // çoklu şehir seçimi
   const [res, setRes] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -547,7 +620,16 @@ function KpssOneriPanel({ user, profile }) {
     if (!profile) return
     if (profile.kpss?.score != null) setPuan(String(profile.kpss.score))
     if (profile.kpss?.duzey) setDuzey(profile.kpss.duzey)
+    // Profildeki tercih şehirleri varsayılan olarak dolar
+    if (Array.isArray(profile.preferredCities) && profile.preferredCities.length) {
+      setSecliIller((prev) => (prev.length ? prev : profile.preferredCities))
+    }
   }, [profile])
+
+  function ilEkle(v) {
+    if (!v) return
+    setSecliIller((prev) => (prev.includes(v) ? prev : [...prev, v]))
+  }
 
   useEffect(() => {
     if (!user) { setTercihIds(new Set()); return }
@@ -567,7 +649,7 @@ function KpssOneriPanel({ user, profile }) {
     try {
       const d = await apiFetch('/api/v1/kpss/kadrolar', {
         method: 'POST',
-        body: { bolum, duzey, il: il.trim() || null, puan: p, limit: 100 },
+        body: { bolum, duzey, iller: secliIller.length ? secliIller : null, puan: p, limit: 100 },
       })
       setRes({ ...d, puan: p })
     } catch (e) {
@@ -716,11 +798,31 @@ function KpssOneriPanel({ user, profile }) {
               placeholder="örn: Bilgisayar Mühendisliği" className="input-glass" />
           </div>
           <div>
-            <label className="text-sm text-slate-300 mb-2 block">Şehir <span className="text-slate-500">(opsiyonel)</span></label>
-            <input value={il} onChange={(e) => setIl(e.target.value)}
-              placeholder="örn: Ankara" className="input-glass" />
+            <label className="text-sm text-slate-300 mb-2 block">
+              Şehir ekle <span className="text-slate-500">(birden çok seçebilirsin — boş = tümü)</span>
+            </label>
+            <select value="" onChange={(e) => ilEkle(e.target.value)} className="input-glass w-full">
+              <option value="" disabled>Şehir seçin…</option>
+              {TR_ILLER.filter((i) => !secliIller.includes(i)).map((i) => (
+                <option key={i} value={i}>{i}</option>
+              ))}
+            </select>
           </div>
         </div>
+
+        {/* Seçili şehirler (chip) */}
+        {secliIller.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {secliIller.map((i) => (
+              <span key={i}
+                className="text-xs px-2.5 py-1 rounded-full bg-sky-500/15 text-sky-200 border border-sky-500/25 inline-flex items-center gap-1.5">
+                {i}
+                <button type="button" onClick={() => setSecliIller((prev) => prev.filter((x) => x !== i))}
+                  className="opacity-60 hover:opacity-100 hover:text-rose-300 transition">✕</button>
+              </span>
+            ))}
+          </div>
+        )}
 
         {error && (
           <div className="text-sm text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-3">

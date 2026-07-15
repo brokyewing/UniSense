@@ -128,6 +128,7 @@ class KpssService:
         puan: float | None = None,
         duzey: str | None = None,
         il: str | None = None,
+        iller: list[str] | None = None,
         limit: int = 30,
     ) -> dict:
         kadrolar, nitelikler, _ = _load()
@@ -137,11 +138,14 @@ class KpssService:
         kesin, adli, generic = (_matching_nitelik_codes(bolum, duzey)
                                 if bolum else (set(), set(), set()))
 
+        # Çoklu il desteği: `il` (tekil, geriye uyum) + `iller` birleşir
+        il_set = {fold_tr(x) for x in ([il] if il else []) + (iller or []) if x}
+
         items: list[dict] = []
         for k in kadrolar:
             if duzey and k["duzey"] != duzey:
                 continue
-            if il and fold_tr(k.get("il", "")) != fold_tr(il):
+            if il_set and fold_tr(k.get("il", "")) not in il_set:
                 continue
             kcodes = set(k.get("nitelikler", []))
             if bolum:

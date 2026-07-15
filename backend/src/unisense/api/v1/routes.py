@@ -358,6 +358,7 @@ def kpss_kadrolar(
         puan=body.puan,
         duzey=body.duzey,
         il=body.il,
+        iller=body.iller,
         limit=body.limit,
     )
     return KpssKadroResponse(**result)
