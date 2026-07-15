@@ -147,10 +147,22 @@ _CITY_PATTERNS: list[tuple["re.Pattern[str]", str]] | None = None
 _WHERE_PATTERNS = [
     re.compile(r"hangi\s+(ü|u)niversite"),
     re.compile(r"\bnerede\b|\bnerelerde\b|\bhangi\s+(ş|s)ehir"),
+    re.compile(r"\bnereler(i|e)?\b"),  # "nereleri tercih etmeliyim / nerelere girerim"
     re.compile(r"\bvar\s*m(ı|i)\b"),
     re.compile(r"\bbulunan\b|\bbulunuyor\b|\ba(ç|c)an\b"),
     re.compile(r"\blistele\b|\bt(ü|u)m(ü|u)n(ü|u)\b"),
 ]
+
+# Sayım/envanter soruları — "toplam kaç tane X programı var (elinde)?"
+# RAG top_k=12 ile sayım yapılamaz; yapısal veriden gerçek toplam gerekir
+_COUNT_RE = re.compile(
+    r"ka(ç|c)\s*(tane|adet|program|b(ö|o)l(ü|u)m|(ü|u)niversite|kod)|"
+    r"toplam\s+ka(ç|c)|say(ı|i)s(ı|i)\s+(ka(ç|c)|nedir|ne)", re.I)
+
+# "24 tane tercih yap" / "tercih listesi oluştur" — N tercihlik liste isteği
+_TERCIH_N_RE = re.compile(r"(\d{1,2})\s*(?:tane|adet)?\s*tercih", re.I)
+_TERCIH_LIST_RE = re.compile(
+    r"tercih\s*(listesi|yap|olu(ş|s)tur|haz(ı|i)rla|ver|et)", re.I)
 
 
 @lru_cache(maxsize=1)
@@ -253,10 +265,12 @@ def _extract_intent(query: str) -> dict | None:
         if pat.search(qf):
             cities.append(city)
 
-    # Bölüm anahtar kelimeleri (fold'lu kıyas, orijinal kw döner)
+    # Bölüm anahtar kelimeleri (fold'lu kıyas, orijinal kw döner).
+    # Kelime BAŞI sınırı şart: "diş" mühen-DİS-liği içinde eşleşmesin
+    # (soneki serbest bırak — "bilgisayar mühendis" → "mühendisliği" kasıtlı prefix)
     departments: list[str] = []
     for kw in _DEPT_KEYWORDS:
-        if fold_tr(kw) in qf:
+        if re.search(rf"(?<![a-z]){re.escape(fold_tr(kw))}", qf):
             departments.append(kw)
 
     # Taksonomi-tabanlı bölüm tespiti: sorgudaki ayırt edici kelimeler
@@ -271,6 +285,21 @@ def _extract_intent(query: str) -> dict | None:
     # "Nerede / hangi üniversitede / var mı" kalıbı
     is_where_query = any(p.search(q) or p.search(qf) for p in _WHERE_PATTERNS)
 
+    # Sayım sorusu ("toplam kaç tane ... var") — bölümle birlikte tetikler
+    is_count = bool(_COUNT_RE.search(q))
+
+    # "N tane tercih yap" / "tercih listesi oluştur" — N tercihlik liste isteği
+    list_n = None
+    m_n = _TERCIH_N_RE.search(q)
+    if m_n:
+        try:
+            n = int(m_n.group(1))
+            if 2 <= n <= 30:
+                list_n = n
+        except ValueError:
+            pass
+    is_tercih_list = list_n is not None or bool(_TERCIH_LIST_RE.search(q))
+
     # Üniversite adları (Hacettepe, Boğaziçi... — veri destekli, cache'li)
     universities: list[str] = []
     try:
@@ -279,7 +308,10 @@ def _extract_intent(query: str) -> dict | None:
     except Exception:  # noqa: BLE001 — veri dosyası yoksa (test ortamı) sessiz geç
         pass
 
-    has_listing_target = departments and (cities or universities or is_where_query)
+    # Bölüm tespit edildiyse sayım/tercih-listesi/nerede soruları da yapısal
+    # veri gerektirir (RAG'in top_k limiti sayamaz/24'lük liste kuramaz)
+    has_listing_target = departments and (
+        cities or universities or is_where_query or is_count or is_tercih_list)
     if rank is None and score is None and not geo_flags and not has_listing_target:
         return None
 
@@ -305,6 +337,8 @@ def _extract_intent(query: str) -> dict | None:
         "cities": cities,
         "universities": universities,
         "geo_flags": geo_flags,
+        "is_count": is_count,
+        "list_n": list_n,
     }
 
 
@@ -315,11 +349,12 @@ def _build_listing_context(intent: dict, rec_service: "RecommendationService") -
     RAG top_k=12 ile ~98 programın tamamını getiremez; yapısal veriden
     eksiksiz liste + toplam kontenjan üretilir.
     """
+    list_n = intent.get("list_n")
     result = rec_service.list_programs(
         cities=intent.get("cities") or None,
         uni_codes=intent.get("universities") or None,
         dept_keywords=intent.get("departments") or None,
-        limit=30,
+        limit=max(30, (list_n or 0) + 6),  # N tercih istendiyse seçecek kadar ver
     )
     if not result["total"]:
         return ""
@@ -336,6 +371,19 @@ def _build_listing_context(intent: dict, rec_service: "RecommendationService") -
         f"Toplam {result['total']} program, toplam kontenjan {result['total_quota']:,}. "
         f"(İlk {len(result['programs'])} tanesi taban sırasına göre listelendi)"
     )
+    if intent.get("is_count"):
+        lines.append(
+            f"YÖNERGE: Kullanıcı SAYIM sordu — net cevap ver: elimizde bu bölüm için "
+            f"toplam {result['total']} program var. Ardından birkaç örnek göster."
+        )
+    if list_n:
+        lines.append(
+            f"YÖNERGE: Kullanıcı {list_n} tercihlik liste istedi ama PUAN/SIRA VERMEDİ. "
+            f"Aşağıdaki verilerden {list_n} maddelik NUMARALI liste üret (taban sırasına göre, "
+            f"[kod] bölüm — üniversite (şehir) sıra/taban formatında). Listenin kişiselleştirilmiş "
+            f"OLMADIĞINI, puanını/sıralamasını yazarsa ya da Tercih sayfasını (/oneriler) "
+            f"kullanırsa puanına göre güvenli/hedef/riskli dengesiyle kurulacağını belirt."
+        )
     for p in result["programs"]:
         rank_s = f"{p['base_rank']:,}" if p["base_rank"] else "?"
         score_s = f"{p['base_score']:.2f}" if p["base_score"] else "?"
@@ -574,12 +622,23 @@ def _build_recommendation_context(intent: dict, rec_service: "RecommendationServ
     if geo_flags:
         lines.append(f"Coğrafi filtre: {', '.join(geo_flags)}")
     lines.append(f"Notes: {result.notes}")
+    list_n = intent.get("list_n")
+    if list_n:
+        lines.append(
+            f"YÖNERGE: Kullanıcı {list_n} tercihlik liste istedi — kovalardan dengeli seç "
+            f"(üstte birkaç ÜST SEVİYE, ortada HEDEF ağırlıklı, altta GÜVENLİ) ve tercih "
+            f"sırasına dizilmiş NUMARALI {list_n} maddelik TEK liste üret; her maddede "
+            f"[kod] bölüm — üniversite (şehir) sıra/taban yaz."
+        )
     lines.append("")
 
+    # N tercih istendiyse kovaları N'e kadar genişlet (varsayılan 8/10/5 = 23,
+    # "24 tercih yap" için yetmez)
+    _s, _t, _r = (list_n, list_n, list_n) if list_n else (8, 10, 5)
     for cat_name, cat_list in [
-        ("GÜVENLİ (rahat yerleşir)", result.safe[:8]),
-        ("HEDEF (uygun)", result.target[:10]),
-        ("ÜST SEVİYE (zorlama)", result.reach[:5]),
+        ("GÜVENLİ (rahat yerleşir)", result.safe[:_s]),
+        ("HEDEF (uygun)", result.target[:_t]),
+        ("ÜST SEVİYE (zorlama)", result.reach[:_r]),
     ]:
         if not cat_list:
             continue
