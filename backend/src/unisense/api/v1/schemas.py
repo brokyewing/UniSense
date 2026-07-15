@@ -219,7 +219,8 @@ class KpssKadroRequest(BaseModel):
     bolum: str = Field(default="", max_length=120)
     puan: float | None = Field(None, ge=0, le=120)
     duzey: str | None = Field(None, pattern="^(lisans|önlisans|ortaöğretim)$")
-    il: str | None = Field(None, max_length=40)
+    il: str | None = Field(None, max_length=40)          # tekil (geriye uyum)
+    iller: list[str] | None = Field(None, max_length=20)  # çoklu şehir seçimi
     limit: int = Field(default=30, ge=1, le=100)
 
 
