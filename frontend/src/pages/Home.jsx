@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
-  Search, ListChecks, Database, Sparkles, GraduationCap,
-  Building2, BookOpen, MapPin, Zap, Compass, CalendarDays, ArrowRight,
+  Search, ListChecks, Database, Sparkles,
+  BookOpen, Compass, Calculator, CalendarDays, ArrowRight,
 } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import { apiFetch } from '../lib/api'
@@ -43,43 +43,57 @@ function UpcomingExams() {
   )
 }
 
-const STATS = [
-  { value: '227', label: 'Üniversite', icon: Building2, color: 'from-brand-500 to-cyber-cyan' },
-  { value: '21.602', label: 'Program', icon: BookOpen, color: 'from-accent-500 to-cyber-pink', sub: 'Lisans + Önlisans' },
-  { value: '3.061', label: 'Fakülte / MYO', icon: GraduationCap, color: 'from-cyber-cyan to-emerald-400' },
-  { value: '7', label: 'Bölge', icon: MapPin, color: 'from-amber-400 to-orange-500' },
-]
-
+// Ürün özellikleri — sitenin sattığı 6 çekirdek değer
 const FEATURES = [
   {
-    icon: Compass,
-    title: 'İlgi Pusulası',
-    desc: 'Hangi bölüm sana uygun bilmiyorsan: kart seç, yazı yaz, ya da 5 soru cevapla.',
-    accent: 'from-emerald-500 to-cyber-cyan',
-    to: '/pusula',
-    badge: 'YENİ',
-  },
-  {
-    icon: Search,
-    title: 'Doğal Dil Sorgu',
-    desc: '"İTÜ Bilgisayar Müh taban puanı?" yaz, anında cevap al.',
-    accent: 'from-brand-500 to-accent-500',
-    to: '/arama',
-  },
-  {
     icon: ListChecks,
-    title: 'Tercih Önerme',
-    desc: 'Puanın ve sıralamana göre güvenli/hedef/üst seviye 30 tercih.',
+    title: 'Tercih Robotları',
+    desc: 'Puanını gir → yerleşebileceğin yerler güvenli/hedef/riskli kovalarında. YKS, DGS, KPSS, LGS ve TUS/DUS için ayrı robot.',
     accent: 'from-accent-500 to-cyber-pink',
     to: '/oneriler',
   },
   {
+    icon: Calculator,
+    title: 'Puan Hesaplama',
+    desc: 'Netlerini yaz, yaklaşık puanını anında gör: YKS, DGS, KPSS, ALES, LGS, AGS — resmî kılavuz formüllerine göre.',
+    accent: 'from-amber-500 to-orange-500',
+    to: '/hesap',
+  },
+  {
+    icon: Compass,
+    title: 'İlgi Pusulası',
+    desc: 'Ne okuyacağına karar veremiyorsan: ilgilerini seç, yapay zekâ sana uygun bölümleri çıkarsın.',
+    accent: 'from-emerald-500 to-cyber-cyan',
+    to: '/pusula',
+  },
+  {
+    icon: Search,
+    title: 'Akıllı Sorgu',
+    desc: '"İTÜ Bilgisayar taban puanı?" yaz, kaynak gösterimli cevabı anında al.',
+    accent: 'from-brand-500 to-accent-500',
+    to: '/arama',
+  },
+  {
     icon: BookOpen,
     title: 'Bölüm Rehberi',
-    desc: 'Bölüm ne iş yapar, hangi dersleri okur, mezunu nerede çalışır? 79 bölüm tanıtımı + güncel taban puanları.',
+    desc: 'Bölüm ne iş yapar, mezunu nerede çalışır? Tanıtımlar + güncel taban puanları.',
     accent: 'from-cyber-cyan to-brand-500',
     to: '/bolum',
   },
+  {
+    icon: CalendarDays,
+    title: 'Sınav Takvimi',
+    desc: 'Tüm 2026 sınav, sonuç ve tercih tarihleri — kaç gün kaldığıyla.',
+    accent: 'from-green-500 to-emerald-500',
+    to: '/takvim',
+  },
+]
+
+// Nasıl çalışır — 3 adım (ürün akışı)
+const ADIMLAR = [
+  { n: 1, t: 'Puanını veya ilgini gir', d: 'Net hesapla, puanını yaz ya da Pusula ile ilgilerini seç' },
+  { n: 2, t: 'Sana uygun listeyi al', d: 'Güvenli / hedef / riskli kovalarında kişisel öneriler' },
+  { n: 3, t: 'Tercih listeni kur', d: 'Beğendiklerini kaydet, sırala, indir — tercih gününe hazır ol' },
 ]
 
 const SAMPLE_QUERIES = [
@@ -93,32 +107,6 @@ const SAMPLE_QUERIES = [
   'KKTC üniversiteleri lisans programları',
 ]
 
-
-function StatCard({ stat, index }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.1 * index }}
-      className="card relative overflow-hidden group"
-    >
-      <div
-        className={`absolute -top-10 -right-10 w-32 h-32 rounded-full opacity-30
-                    blur-2xl bg-gradient-to-br ${stat.color} group-hover:opacity-50 transition-opacity`}
-      />
-      <div className="relative">
-        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3 shadow-lg`}>
-          <stat.icon size={20} className="text-white" />
-        </div>
-        <div className="text-3xl font-display font-bold text-white">{stat.value}</div>
-        <div className="text-sm text-slate-400 mt-1">{stat.label}</div>
-        {stat.sub && (
-          <div className="text-[10px] text-slate-500 mt-0.5">{stat.sub}</div>
-        )}
-      </div>
-    </motion.div>
-  )
-}
 
 function FeatureCard({ feat, index }) {
   return (
@@ -174,7 +162,7 @@ export default function Home() {
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-500/10 border border-accent-500/30 text-accent-300 text-xs font-medium mb-6 backdrop-blur-xl"
           >
             <span className="w-2 h-2 rounded-full bg-accent-500 animate-pulse" />
-            🎓 2026 Tercih Dönemi · YKS · DGS · KPSS
+            🎓 2026 Tercih Dönemi · YKS · DGS · KPSS · LGS · TUS
           </motion.div>
 
           <motion.h1
@@ -194,8 +182,8 @@ export default function Home() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-8 leading-relaxed pretty"
           >
-            Türkiye'nin tüm üniversite ve bölümlerine ait sıralama, taban puan,
-            kontenjan bilgilerini sor; AI destekli öneri al.
+            Puanını gir, yerleşebileceğin yerleri gör. Lise, üniversite, memurluk ve
+            uzmanlık tercihlerinin tamamı — <strong className="text-accent-300">tamamen ücretsiz</strong>.
           </motion.p>
 
           <motion.div
@@ -204,22 +192,15 @@ export default function Home() {
             transition={{ duration: 0.7, delay: 0.3 }}
             className="flex justify-center gap-3 flex-wrap"
           >
-            <Link to="/arama" className="btn-primary inline-flex items-center gap-2">
-              <Search size={18} />
-              Sorgu Başlat
-            </Link>
-            <Link to="/oneriler" className="btn-ghost inline-flex items-center gap-2">
+            <Link to="/oneriler" className="btn-primary inline-flex items-center gap-2">
               <ListChecks size={18} />
-              Tercih Önerisi
+              Tercih Önerisi Al
+            </Link>
+            <Link to="/hesap" className="btn-ghost inline-flex items-center gap-2">
+              <Calculator size={18} />
+              Puan Hesapla
             </Link>
           </motion.div>
-        </section>
-
-        {/* İstatistikler */}
-        <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {STATS.map((s, i) => (
-            <StatCard key={i} stat={s} index={i} />
-          ))}
         </section>
 
         {/* Yaklaşan sınavlar */}
@@ -237,9 +218,29 @@ export default function Home() {
           >
             Ne yapabilirim?
           </motion.h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {FEATURES.map((f, i) => (
               <FeatureCard key={i} feat={f} index={i} />
+            ))}
+          </div>
+        </section>
+
+        {/* Nasıl çalışır — 3 adım */}
+        <section className="card">
+          <h2 className="font-display font-semibold text-lg text-white mb-4 text-center">
+            Nasıl çalışır?
+          </h2>
+          <div className="grid sm:grid-cols-3 gap-4">
+            {ADIMLAR.map((a) => (
+              <div key={a.n} className="flex gap-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 text-white flex items-center justify-center text-sm font-display font-bold shrink-0">
+                  {a.n}
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-white">{a.t}</div>
+                  <div className="text-xs text-slate-400 mt-0.5">{a.d}</div>
+                </div>
+              </div>
             ))}
           </div>
         </section>
@@ -264,29 +265,17 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Veri kaynakları */}
-        <section className="card">
-          <div className="flex items-center gap-2 mb-3">
-            <Database size={18} className="text-cyber-cyan" />
-            <h2 className="font-display font-semibold text-lg text-white">Veri Kaynaklarımız</h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-3 text-sm">
-            <div className="flex items-center gap-2 text-slate-300">
-              <Zap size={14} className="text-amber-400" />
-              <strong>YÖK Atlas</strong>
-              <span className="text-slate-500">— 12.265 program</span>
-            </div>
-            <div className="flex items-center gap-2 text-slate-300">
-              <Zap size={14} className="text-emerald-400" />
-              <strong>Wikipedia TR</strong>
-              <span className="text-slate-500">— 200+ üni tanımı</span>
-            </div>
-            <div className="flex items-center gap-2 text-slate-300">
-              <Zap size={14} className="text-pink-400" />
-              <strong>ÖSYM 2025</strong>
-              <span className="text-slate-500">— resmi yerleştirme</span>
-            </div>
-          </div>
+        {/* Güven şeridi — kaynaklar tek satır */}
+        <section className="text-center text-xs text-slate-500 flex items-center justify-center gap-2 flex-wrap">
+          <Database size={12} className="text-cyber-cyan" />
+          <span>Veriler resmî kaynaklardan:</span>
+          <strong className="text-slate-300">YÖK Atlas</strong>
+          <span className="text-slate-700">·</span>
+          <strong className="text-slate-300">ÖSYM</strong>
+          <span className="text-slate-700">·</span>
+          <strong className="text-slate-300">MEB</strong>
+          <span className="text-slate-700">·</span>
+          <span className="text-emerald-400 font-medium">%100 ücretsiz — üyelik zorunlu değil</span>
         </section>
       </div>
     </>
