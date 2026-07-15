@@ -7,6 +7,7 @@ import { apiFetch } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
 import {
   watchUzmanlikTercih, addToUzmanlikTercih, removeFromUzmanlikTercih, MAX_TUS_TERCIH,
+  getUserProfile,
 } from '../firebase'
 
 const SINAVLAR = [
@@ -84,6 +85,26 @@ export function TusRobot() {
   // Stale-response koruması: bul() beklerken sınav değişirse eski yanıt basılmasın
   const sinavRef = useRef(sinav)
   sinavRef.current = sinav
+
+  // Profildeki TUS/DUS puanını otomatik doldur (diğer sınavlarla tutarlı) —
+  // kullanıcı bir şey yazdıysa üzerine yazma. Sınav değişince o sınavın puanı denenir.
+  const [profil, setProfil] = useState(null)
+  const [autoNot, setAutoNot] = useState('')
+  useEffect(() => {
+    if (!user) { setProfil(null); return }
+    let cancelled = false
+    getUserProfile(user.uid).then((p) => { if (!cancelled) setProfil(p?.profile || null) }).catch(() => {})
+    return () => { cancelled = true }
+  }, [user])
+  useEffect(() => {
+    const score = sinav === 'DUS' ? profil?.dus?.score : profil?.tus?.score
+    if (score == null) return
+    setPuan((prev) => {
+      if (prev) return prev
+      setAutoNot(`${sinav} puanın profilinden geldi`)
+      return String(score)
+    })
+  }, [profil, sinav])
 
   // Aktif sınavın (TUS/DUS) tercih listesini canlı izle → kart butonları senkron
   useEffect(() => {
@@ -188,8 +209,9 @@ export function TusRobot() {
                 {sinav} puanın <span className="text-slate-500">(K/T, ör. 55.40)</span>
               </label>
               <input type="number" min="0" max="100" step="0.01" value={puan}
-                onChange={(e) => setPuan(e.target.value)} placeholder="ör. 55.40"
+                onChange={(e) => { setPuan(e.target.value); setAutoNot('') }} placeholder="ör. 55.40"
                 className="input-glass w-full" />
+              {autoNot && <div className="text-[10px] text-accent-300 mt-1">✨ {autoNot}</div>}
             </div>
             <div>
               <label className="text-xs text-slate-300 mb-1 block">

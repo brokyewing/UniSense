@@ -74,6 +74,15 @@ class LgsService:
         d = _load()
         return sorted({x["il"] for x in d.get("liseler", []) if x.get("il")})
 
+    def ilceler(self, il: str) -> list[str]:
+        """Seçilen ildeki ilçeler (dropdown için, alfabetik)."""
+        ilf = _fold(il)
+        d = _load()
+        return sorted({
+            x["ilce"] for x in d.get("liseler", [])
+            if x.get("ilce") and _fold(x.get("il", "")) == ilf
+        })
+
     def oneri(
         self,
         yuzdelik: float,

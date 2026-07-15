@@ -1,0 +1,65 @@
+name: Exam Calendar Check
+
+# exam_calendar.json'daki resmî tarihler yılda bir ELLE güncellenir (ÖSYM/MEB
+# duyuruları otomatik scrape edilmez — yanlış tarih basmak itibar riski).
+# Bu bekçi süreci otomatikleştirir: takvimde 60 günden az etkinlik kaldığında
+# GitHub Issue açar → yeni yılın tarihleri duyurulunca eklenir, issue kapanır.
+#
+# Tetikleme: her ayın 1'i (+ manuel)
+
+on:
+  schedule:
+    - cron: '0 7 1 * *'  # her ayın 1'i 07:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Takvim ufku kontrolü
+        id: ufuk
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_OUTPUT"
+          import json
+          from datetime import date
+          cal = json.load(open('backend/data/processed/exam_calendar.json', encoding='utf-8'))
+          tarihler = [e['tarih'] for e in cal.get('etkinlikler', []) if e.get('tarih')]
+          son = max(tarihler) if tarihler else '1970-01-01'
+          kalan = (date.fromisoformat(son) - date.today()).days
+          print(f"son_tarih={son}")
+          print(f"kalan_gun={kalan}")
+          print(f"tukeniyor={'true' if kalan < 60 else 'false'}")
+          EOF
+          cat "$GITHUB_OUTPUT"
+
+      - name: Issue aç (takvim tükeniyorsa, açık issue yoksa)
+        if: steps.ufuk.outputs.tukeniyor == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TITLE="Takvim güncellemesi: exam_calendar.json'a yeni yıl tarihlerini ekle"
+          EXISTING=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open \
+                     --search "in:title exam_calendar" --json number --jq 'length')
+          if [ "$EXISTING" -gt 0 ]; then
+            echo "Zaten açık bir takvim issue'su var — yenisi açılmadı."
+            exit 0
+          fi
+          gh issue create --repo "$GITHUB_REPOSITORY" \
+            --title "$TITLE" \
+            --body "Takvimdeki son etkinlik: **${{ steps.ufuk.outputs.son_tarih }}** (${{ steps.ufuk.outputs.kalan_gun }} gün kaldı).
+
+ÖSYM/MEB yeni yıl sınav takvimini duyurduysa \`backend/data/processed/exam_calendar.json\` dosyasına yeni etkinlikleri ekleyin:
+- Kaynaklar: [ÖSYM Sınav Takvimi](https://www.osym.gov.tr/TR,8797/takvim.html) · [MEB duyuruları](https://www.meb.gov.tr)
+- Süreli etkinliklere (tercih dönemleri) \`bitis\` alanı eklemeyi unutmayın
+- Kesinleşmemiş tarihlere \`\"tahmini\": true\` koyun
+
+Bu issue, takvimde 60 günden az etkinlik kaldığında otomatik açılır (calendar-check.yml)."
+          echo "Issue açıldı."
