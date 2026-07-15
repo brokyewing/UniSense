@@ -219,3 +219,48 @@ class TestSinavRouting:
         q = "puanımla nereye yerleşebilirim"
         assert _GENERIC_PLACEMENT_RE.search(q)
         assert not _KPSS_RE.search(q) and not _DGS_RE.search(q)
+
+
+class TestCountAndTercihIntents:
+    """Sohbet testinde yakalanan üç gerçek kaçak — sayım/N-tercih/nereleri
+    soruları RAG'e düşüp 'elimde yok' cevabı üretiyordu (yapısal veri gerekir)."""
+
+    def test_sayim_sorusu_intent_tetikler(self):
+        intent = _extract_intent("toplam kaç tane bilgisayar mühendisliği program kodu var elinde")
+        assert intent is not None
+        assert intent["is_count"] is True
+        assert any("bilgisayar" in d for d in intent["departments"])
+
+    def test_n_tercih_yap_intent_tetikler(self):
+        intent = _extract_intent("bana 24 tane tercih yap hepsi bilgisayar mühendisliği olsun")
+        assert intent is not None
+        assert intent["list_n"] == 24
+
+    def test_tercih_listesi_olustur_sayisiz(self):
+        intent = _extract_intent("bilgisayar mühendisliği için tercih listesi oluştur")
+        assert intent is not None
+        assert intent["list_n"] is None  # sayı yok ama liste isteği tetikledi
+
+    def test_nereleri_tercih_etmeliyim(self):
+        intent = _extract_intent("yks puanıma göre bilgisayar mühendisliği istiyorum nereleri tercih etmeliyim")
+        assert intent is not None  # 'nereleri' where-kalıbı
+
+    def test_duz_bilgi_sorusu_hala_rag(self):
+        # Tetikleyicisiz bölüm sorusu RAG'de kalmalı (aşırı-tetikleme olmasın)
+        assert _extract_intent("bilgisayar mühendisliği nedir") is None
+
+    def test_gecersiz_n_sinirlari(self):
+        # 0 veya 30 üstü N list_n olmaz ama liste isteği yine tetikler
+        intent = _extract_intent("bana 99 tane tercih yap bilgisayar mühendisliği")
+        assert intent is not None and intent["list_n"] is None
+
+    def test_dis_muhendislik_icinde_eslesmez(self):
+        # "diş" anahtar kelimesi "mühendisliği" substring'inde tetiklenmemeli
+        intent = _extract_intent("toplam kaç tane bilgisayar mühendisliği programı var")
+        assert intent is not None
+        assert not any(d == "diş" for d in intent["departments"])
+
+    def test_dis_hekimligi_hala_eslesir(self):
+        intent = _extract_intent("kaç tane diş hekimliği programı var")
+        assert intent is not None
+        assert any("diş" in d for d in intent["departments"])
