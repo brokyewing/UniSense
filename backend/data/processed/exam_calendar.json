@@ -1,36 +1,219 @@
 {
-  "guncelleme": "2026-07",
-  "not": "Tarihler ÖSYM/MEB 2026 kılavuz ve resmi duyurularına dayanır. 'tahmini:true' olanlar sınav sonrası ayrı kılavuzla kesinleşir. Resmi teyit: osym.gov.tr, meb.gov.tr.",
-  "etkinlikler": [
-    { "id": "yks-sinav",    "sinav": "YKS", "tam_ad": "Yükseköğretim Kurumları Sınavı", "tur": "sinav",       "tarih": "2026-06-20", "aciklama": "TYT 20 Haziran, AYT/YDT 21 Haziran", "kaynak": "ÖSYM" },
-    { "id": "yks-sonuc",    "sinav": "YKS", "tam_ad": "Yükseköğretim Kurumları Sınavı", "tur": "sonuc",       "tarih": "2026-07-22", "aciklama": "Sonuçların açıklanması", "kaynak": "ÖSYM" },
-    { "id": "yks-tercih",   "sinav": "YKS", "tam_ad": "Yükseköğretim Kurumları Sınavı", "tur": "tercih",      "tarih": "2026-08-01", "aciklama": "Tercih dönemi (ÖSYM kılavuzuyla kesinleşecek)", "tahmini": true, "kaynak": "ÖSYM" },
-
-    { "id": "lgs-sinav",    "sinav": "LGS", "tam_ad": "Liselere Geçiş Merkezî Sınavı",   "tur": "sinav",       "tarih": "2026-06-13", "aciklama": "Merkezî sınav (2 oturum)", "kaynak": "MEB" },
-    { "id": "lgs-sonuc",    "sinav": "LGS", "tam_ad": "Liselere Geçiş Merkezî Sınavı",   "tur": "sonuc",       "tarih": "2026-07-10", "aciklama": "Sonuçların açıklanması", "kaynak": "MEB" },
-    { "id": "lgs-tercih",   "sinav": "LGS", "tam_ad": "Liselere Geçiş Merkezî Sınavı",   "tur": "tercih",      "tarih": "2026-07-13", "aciklama": "Tercih dönemi (13–24 Temmuz)", "kaynak": "MEB" },
-    { "id": "lgs-yerlestirme","sinav": "LGS","tam_ad": "Liselere Geçiş Merkezî Sınavı",  "tur": "yerlestirme", "tarih": "2026-08-05", "aciklama": "Yerleştirme sonuçları", "kaynak": "MEB" },
-
-    { "id": "dgs-sinav",    "sinav": "DGS", "tam_ad": "Dikey Geçiş Sınavı",              "tur": "sinav",       "tarih": "2026-07-19", "aciklama": "DGS 2026", "kaynak": "ÖSYM" },
-    { "id": "dgs-sonuc",    "sinav": "DGS", "tam_ad": "Dikey Geçiş Sınavı",              "tur": "sonuc",       "tarih": "2026-08-13", "aciklama": "Sonuçların açıklanması", "kaynak": "ÖSYM" },
-    { "id": "dgs-tercih",   "sinav": "DGS", "tam_ad": "Dikey Geçiş Sınavı",              "tur": "tercih",      "tarih": "2026-08-20", "aciklama": "Tercih dönemi (ÖSYM kılavuzuyla kesinleşecek)", "tahmini": true, "kaynak": "ÖSYM" },
-
-    { "id": "ales2-sinav",  "sinav": "ALES", "tam_ad": "Akademik Personel ve Lisansüstü Eğitimi Giriş Sınavı", "tur": "sinav", "tarih": "2026-07-26", "aciklama": "ALES/2 sınavı", "kaynak": "ÖSYM" },
-    { "id": "ales2-sonuc",  "sinav": "ALES", "tam_ad": "Akademik Personel ve Lisansüstü Eğitimi Giriş Sınavı", "tur": "sonuc", "tarih": "2026-08-14", "aciklama": "ALES/2 sonuçları", "kaynak": "ÖSYM" },
-    { "id": "ales3-sinav",  "sinav": "ALES", "tam_ad": "Akademik Personel ve Lisansüstü Eğitimi Giriş Sınavı", "tur": "sinav", "tarih": "2026-11-29", "aciklama": "ALES/3 sınavı", "kaynak": "ÖSYM" },
-    { "id": "ales3-sonuc",  "sinav": "ALES", "tam_ad": "Akademik Personel ve Lisansüstü Eğitimi Giriş Sınavı", "tur": "sonuc", "tarih": "2026-12-17", "aciklama": "ALES/3 sonuçları", "kaynak": "ÖSYM" },
-
-    { "id": "tus2-sinav",   "sinav": "TUS", "tam_ad": "Tıpta Uzmanlık Eğitimi Giriş Sınavı", "tur": "sinav", "tarih": "2026-08-23", "aciklama": "TUS 2. Dönem sınavı", "kaynak": "ÖSYM" },
-    { "id": "tus2-sonuc",   "sinav": "TUS", "tam_ad": "Tıpta Uzmanlık Eğitimi Giriş Sınavı", "tur": "sonuc", "tarih": "2026-09-17", "aciklama": "TUS 2. Dönem sonuçları", "kaynak": "ÖSYM" },
-
-    { "id": "dus2-sinav",   "sinav": "DUS", "tam_ad": "Diş Hekimliğinde Uzmanlık Eğitimi Giriş Sınavı", "tur": "sinav", "tarih": "2026-11-01", "aciklama": "DUS 2. Dönem sınavı", "kaynak": "ÖSYM" },
-    { "id": "dus2-sonuc",   "sinav": "DUS", "tam_ad": "Diş Hekimliğinde Uzmanlık Eğitimi Giriş Sınavı", "tur": "sonuc", "tarih": "2026-11-26", "aciklama": "DUS 2. Dönem sonuçları", "kaynak": "ÖSYM" },
-
-    { "id": "kpss-lisans-sinav",  "sinav": "KPSS", "tam_ad": "Kamu Personeli Seçme Sınavı (Lisans)",       "tur": "sinav", "tarih": "2026-09-06", "aciklama": "Lisans GY-GK (Alan bilgisi 12–13 Eylül)", "kaynak": "ÖSYM" },
-    { "id": "kpss-lisans-sonuc",  "sinav": "KPSS", "tam_ad": "Kamu Personeli Seçme Sınavı (Lisans)",       "tur": "sonuc", "tarih": "2026-10-07", "aciklama": "Lisans sonuçları", "kaynak": "ÖSYM" },
-    { "id": "kpss-onlisans-sinav","sinav": "KPSS", "tam_ad": "Kamu Personeli Seçme Sınavı (Önlisans)",     "tur": "sinav", "tarih": "2026-10-04", "aciklama": "Önlisans sınavı", "kaynak": "ÖSYM" },
-    { "id": "kpss-ort-sinav",     "sinav": "KPSS", "tam_ad": "Kamu Personeli Seçme Sınavı (Ortaöğretim)",  "tur": "sinav", "tarih": "2026-10-25", "aciklama": "Ortaöğretim sınavı", "kaynak": "ÖSYM" },
-
-    { "id": "ags-sinav",    "sinav": "AGS", "tam_ad": "MEB Akademi Giriş Sınavı",        "tur": "sinav",       "tarih": "2026-07-26", "aciklama": "Öğretmenliğe geçiş sınavı (tarih resmi takvimden teyit edilmeli)", "tahmini": true, "kaynak": "ÖSYM/MEB" }
-  ]
+ "guncelleme": "2026-07",
+ "not": "Tarihler ÖSYM/MEB 2026 kılavuz ve resmi duyurularına dayanır. 'tahmini:true' olanlar sınav sonrası ayrı kılavuzla kesinleşir. Resmi teyit: osym.gov.tr, meb.gov.tr.",
+ "etkinlikler": [
+  {
+   "id": "yks-sinav",
+   "sinav": "YKS",
+   "tam_ad": "Yükseköğretim Kurumları Sınavı",
+   "tur": "sinav",
+   "tarih": "2026-06-20",
+   "aciklama": "TYT 20 Haziran, AYT/YDT 21 Haziran",
+   "kaynak": "ÖSYM"
+  },
+  {
+   "id": "yks-sonuc",
+   "sinav": "YKS",
+   "tam_ad": "Yükseköğretim Kurumları Sınavı",
+   "tur": "sonuc",
+   "tarih": "2026-07-22",
+   "aciklama": "Sonuçların açıklanması",
+   "kaynak": "ÖSYM"
+  },
+  {
+   "id": "yks-tercih",
+   "sinav": "YKS",
+   "tam_ad": "Yükseköğretim Kurumları Sınavı",
+   "tur": "tercih",
+   "tarih": "2026-08-01",
+   "aciklama": "Tercih dönemi (ÖSYM kılavuzuyla kesinleşecek)",
+   "tahmini": true,
+   "kaynak": "ÖSYM",
+   "bitis": "2026-08-10"
+  },
+  {
+   "id": "lgs-sinav",
+   "sinav": "LGS",
+   "tam_ad": "Liselere Geçiş Merkezî Sınavı",
+   "tur": "sinav",
+   "tarih": "2026-06-13",
+   "aciklama": "Merkezî sınav (2 oturum)",
+   "kaynak": "MEB"
+  },
+  {
+   "id": "lgs-sonuc",
+   "sinav": "LGS",
+   "tam_ad": "Liselere Geçiş Merkezî Sınavı",
+   "tur": "sonuc",
+   "tarih": "2026-07-10",
+   "aciklama": "Sonuçların açıklanması",
+   "kaynak": "MEB"
+  },
+  {
+   "id": "lgs-tercih",
+   "sinav": "LGS",
+   "tam_ad": "Liselere Geçiş Merkezî Sınavı",
+   "tur": "tercih",
+   "tarih": "2026-07-13",
+   "aciklama": "Tercih dönemi (13–24 Temmuz)",
+   "kaynak": "MEB",
+   "bitis": "2026-07-24"
+  },
+  {
+   "id": "lgs-yerlestirme",
+   "sinav": "LGS",
+   "tam_ad": "Liselere Geçiş Merkezî Sınavı",
+   "tur": "yerlestirme",
+   "tarih": "2026-08-05",
+   "aciklama": "Yerleştirme sonuçları",
+   "kaynak": "MEB"
+  },
+  {
+   "id": "dgs-sinav",
+   "sinav": "DGS",
+   "tam_ad": "Dikey Geçiş Sınavı",
+   "tur": "sinav",
+   "tarih": "2026-07-19",
+   "aciklama": "DGS 2026",
+   "kaynak": "ÖSYM"
+  },
+  {
+   "id": "dgs-sonuc",
+   "sinav": "DGS",
+   "tam_ad": "Dikey Geçiş Sınavı",
+   "tur": "sonuc",
+   "tarih": "2026-08-13",
+   "aciklama": "Sonuçların açıklanması",
+   "kaynak": "ÖSYM"
+  },
+  {
+   "id": "dgs-tercih",
+   "sinav": "DGS",
+   "tam_ad": "Dikey Geçiş Sınavı",
+   "tur": "tercih",
+   "tarih": "2026-08-20",
+   "aciklama": "Tercih dönemi (ÖSYM kılavuzuyla kesinleşecek)",
+   "tahmini": true,
+   "kaynak": "ÖSYM",
+   "bitis": "2026-08-27"
+  },
+  {
+   "id": "ales2-sinav",
+   "sinav": "ALES",
+   "tam_ad": "Akademik Personel ve Lisansüstü Eğitimi Giriş Sınavı",
+   "tur": "sinav",
+   "tarih": "2026-07-26",
+   "aciklama": "ALES/2 sınavı",
+   "kaynak": "ÖSYM"
+  },
+  {
+   "id": "ales2-sonuc",
+   "sinav": "ALES",
+   "tam_ad": "Akademik Personel ve Lisansüstü Eğitimi Giriş Sınavı",
+   "tur": "sonuc",
+   "tarih": "2026-08-14",
+   "aciklama": "ALES/2 sonuçları",
+   "kaynak": "ÖSYM"
+  },
+  {
+   "id": "ales3-sinav",
+   "sinav": "ALES",
+   "tam_ad": "Akademik Personel ve Lisansüstü Eğitimi Giriş Sınavı",
+   "tur": "sinav",
+   "tarih": "2026-11-29",
+   "aciklama": "ALES/3 sınavı",
+   "kaynak": "ÖSYM"
+  },
+  {
+   "id": "ales3-sonuc",
+   "sinav": "ALES",
+   "tam_ad": "Akademik Personel ve Lisansüstü Eğitimi Giriş Sınavı",
+   "tur": "sonuc",
+   "tarih": "2026-12-17",
+   "aciklama": "ALES/3 sonuçları",
+   "kaynak": "ÖSYM"
+  },
+  {
+   "id": "tus2-sinav",
+   "sinav": "TUS",
+   "tam_ad": "Tıpta Uzmanlık Eğitimi Giriş Sınavı",
+   "tur": "sinav",
+   "tarih": "2026-08-23",
+   "aciklama": "TUS 2. Dönem sınavı",
+   "kaynak": "ÖSYM"
+  },
+  {
+   "id": "tus2-sonuc",
+   "sinav": "TUS",
+   "tam_ad": "Tıpta Uzmanlık Eğitimi Giriş Sınavı",
+   "tur": "sonuc",
+   "tarih": "2026-09-17",
+   "aciklama": "TUS 2. Dönem sonuçları",
+   "kaynak": "ÖSYM"
+  },
+  {
+   "id": "dus2-sinav",
+   "sinav": "DUS",
+   "tam_ad": "Diş Hekimliğinde Uzmanlık Eğitimi Giriş Sınavı",
+   "tur": "sinav",
+   "tarih": "2026-11-01",
+   "aciklama": "DUS 2. Dönem sınavı",
+   "kaynak": "ÖSYM"
+  },
+  {
+   "id": "dus2-sonuc",
+   "sinav": "DUS",
+   "tam_ad": "Diş Hekimliğinde Uzmanlık Eğitimi Giriş Sınavı",
+   "tur": "sonuc",
+   "tarih": "2026-11-26",
+   "aciklama": "DUS 2. Dönem sonuçları",
+   "kaynak": "ÖSYM"
+  },
+  {
+   "id": "kpss-lisans-sinav",
+   "sinav": "KPSS",
+   "tam_ad": "Kamu Personeli Seçme Sınavı (Lisans)",
+   "tur": "sinav",
+   "tarih": "2026-09-06",
+   "aciklama": "Lisans GY-GK (Alan bilgisi 12–13 Eylül)",
+   "kaynak": "ÖSYM"
+  },
+  {
+   "id": "kpss-lisans-sonuc",
+   "sinav": "KPSS",
+   "tam_ad": "Kamu Personeli Seçme Sınavı (Lisans)",
+   "tur": "sonuc",
+   "tarih": "2026-10-07",
+   "aciklama": "Lisans sonuçları",
+   "kaynak": "ÖSYM"
+  },
+  {
+   "id": "kpss-onlisans-sinav",
+   "sinav": "KPSS",
+   "tam_ad": "Kamu Personeli Seçme Sınavı (Önlisans)",
+   "tur": "sinav",
+   "tarih": "2026-10-04",
+   "aciklama": "Önlisans sınavı",
+   "kaynak": "ÖSYM"
+  },
+  {
+   "id": "kpss-ort-sinav",
+   "sinav": "KPSS",
+   "tam_ad": "Kamu Personeli Seçme Sınavı (Ortaöğretim)",
+   "tur": "sinav",
+   "tarih": "2026-10-25",
+   "aciklama": "Ortaöğretim sınavı",
+   "kaynak": "ÖSYM"
+  },
+  {
+   "id": "ags-sinav",
+   "sinav": "AGS",
+   "tam_ad": "MEB Akademi Giriş Sınavı",
+   "tur": "sinav",
+   "tarih": "2026-07-26",
+   "aciklama": "Öğretmenliğe geçiş sınavı (tarih resmi takvimden teyit edilmeli)",
+   "tahmini": true,
+   "kaynak": "ÖSYM/MEB"
+  }
+ ]
 }

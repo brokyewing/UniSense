@@ -167,7 +167,10 @@ def _scrape_one(s: requests.Session, sinav: str, cfg: dict) -> None:
     if not pdfs:
         print(f"   ⛔ {sinav} min/max PDF bulunamadı — atlandı")
         return
-    p = CACHE / f"{sinav.lower()}_minmax.pdf"
+    # Cache dosya adı DÖNEME bağlı: sabit ad kullanılırsa yeni dönem keşfedilse
+    # bile eski dönemin PDF'i parse edilip yeni dönem etiketiyle yazılırdı.
+    donem_slug = re.sub(r"[^0-9a-z]+", "-", donem.lower()).strip("-")
+    p = CACHE / f"{sinav.lower()}_{donem_slug}_minmax.pdf"
     if not p.exists() or p.stat().st_size < 10_000:
         data = s.get(pdfs[0], timeout=180).content
         if data[:4] != b"%PDF":

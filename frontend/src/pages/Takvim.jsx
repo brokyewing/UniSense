@@ -19,7 +19,8 @@ function fmtTarih(iso) {
   } catch { return iso }
 }
 
-function KalanRozet({ gun }) {
+function KalanRozet({ gun, devam }) {
+  if (devam) return <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Sürüyor</span>
   if (gun === 0) return <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40">Bugün</span>
   const cls = gun <= 7 ? 'bg-rose-500/15 text-rose-300 border-rose-500/30'
     : gun <= 30 ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
@@ -61,6 +62,15 @@ export default function Takvim() {
           <div className="card text-center text-rose-300">⚠️ {error}</div>
         ) : (
           <>
+            {data.yaklasan.length === 0 && (
+              <div className="card text-center py-8 text-sm text-slate-400">
+                Bu yılın takvimi tamamlandı. 🎓<br />
+                <span className="text-xs text-slate-500">
+                  Yeni yılın sınav tarihleri ÖSYM/MEB duyurularıyla birlikte buraya eklenecek —
+                  resmî takvim: <a href="https://www.osym.gov.tr" target="_blank" rel="noopener noreferrer" className="text-accent-300 hover:underline">osym.gov.tr</a>
+                </span>
+              </div>
+            )}
             <div className="space-y-2">
               {data.yaklasan.map((e, i) => {
                 const s = TUR_STIL[e.tur] || TUR_STIL.sinav
@@ -79,7 +89,7 @@ export default function Takvim() {
                       </div>
                       <div className="text-xs text-slate-500 truncate">{e.aciklama}</div>
                     </div>
-                    <KalanRozet gun={e.kalan_gun} />
+                    <KalanRozet gun={e.kalan_gun} devam={e.devam} />
                   </motion.div>
                 )
               })}

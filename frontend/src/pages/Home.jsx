@@ -31,8 +31,8 @@ function UpcomingExams() {
           <div key={e.id} className="rounded-xl bg-white/5 border border-white/10 px-3 py-2">
             <div className="flex items-baseline justify-between">
               <span className="font-display font-bold text-white">{e.sinav}</span>
-              <span className={`text-xs font-semibold ${e.kalan_gun <= 7 ? 'text-rose-300' : 'text-amber-300'}`}>
-                {e.kalan_gun === 0 ? 'Bugün' : `${e.kalan_gun} gün`}
+              <span className={`text-xs font-semibold ${e.devam ? 'text-emerald-300' : e.kalan_gun <= 7 ? 'text-rose-300' : 'text-amber-300'}`}>
+                {e.devam ? 'Sürüyor' : e.kalan_gun === 0 ? 'Bugün' : `${e.kalan_gun} gün`}
               </span>
             </div>
             <div className="text-[11px] text-slate-400">{TUR[e.tur] || e.tur}</div>

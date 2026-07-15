@@ -366,14 +366,20 @@ export async function removeFromKpssTercih(uid, code) {
   await deleteDoc(doc(db, 'users', uid, 'kpss_tercih', String(code)))
 }
 
-/** KPSS/DGS tercih listelerini yeni sıraya göre topluca yeniden numarala. */
+/** KPSS/DGS/TUS/DUS/LGS tercih listelerini yeni sıraya göre topluca numarala. */
 export async function reorderSubcollection(uid, sub, orderedIds) {
   if (!db || !Array.isArray(orderedIds) || orderedIds.length === 0) return
   const batch = writeBatch(db)
   orderedIds.forEach((id, idx) => {
     batch.update(doc(db, 'users', uid, sub, String(id)), { order: idx + 1 })
   })
-  await batch.commit()
+  try {
+    await batch.commit()
+  } catch (e) {
+    // Eşzamanlı silmede batch komple reddedilir — sessiz kalmasın; UI zaten
+    // onSnapshot'la gerçek duruma döner, kalıcı hasar yok.
+    console.warn(`reorder ${sub} başarısız (eşzamanlı değişiklik olabilir):`, e?.message)
+  }
 }
 
 // === DGS TERCIH LISTESI (üçüncü ayrı alan; DGS merkezi yerleştirmede 30 tercih) ===
@@ -423,10 +429,12 @@ const _uzmanlikSub = (sinav) => (sinav === 'DUS' ? 'dus_tercih' : 'tus_tercih')
 
 export function watchUzmanlikTercih(uid, sinav, callback) {
   if (!db) return () => {}
+  // limit() BİLEREK yok: sorgu limitli olursa MAX üstüne taşan doküman
+  // (ör. eski bir yarış durumundan) kalıcı görünmez ve silinemez olur.
+  // Ekleme zaten client'ta MAX ile kapatılıyor.
   const q = query(
     collection(db, 'users', uid, _uzmanlikSub(sinav)),
-    orderBy('order', 'asc'),
-    limit(MAX_TUS_TERCIH)
+    orderBy('order', 'asc')
   )
   return onSnapshot(q, (snap) => {
     callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
@@ -461,20 +469,24 @@ export async function removeFromUzmanlikTercih(uid, sinav, code) {
 export const MAX_LGS_TERCIH = 25
 
 export function lgsTercihKey(lise) {
-  const raw = `${lise.okul || ''}-${lise.ilce || ''}-${lise.dil || ''}`
+  // yuzdelik anahtara DAHİL: veride aynı okul+ilçe+dil'e sahip farklı program
+  // satırları var (kaynak alan/dal sütununu ayrıştırmıyor) — yüzdelik olmadan
+  // iki farklı program tek Firestore dokümanına düşüyor ve kartlar birbirine
+  // bağlanıyordu (birini ekleyince ikisi de "Listede" görünüyordu).
+  const raw = `${lise.okul || ''}-${lise.ilce || ''}-${lise.dil || ''}-${lise.yuzdelik ?? ''}`
   return raw
     .replace(/İ/g, 'i').replace(/I/g, 'i').toLowerCase()
     .replace(/[çğıöşü]/g, (c) => ({ ç: 'c', ğ: 'g', ı: 'i', ö: 'o', ş: 's', ü: 'u' }[c] || c))
-    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+    .replace(/[^a-z0-9.]+/g, '-').replace(/^-|-$/g, '')
     .slice(0, 200) || 'lise'
 }
 
 export function watchLgsTercih(uid, callback) {
   if (!db) return () => {}
+  // limit() bilerek yok — bkz. watchUzmanlikTercih notu
   const q = query(
     collection(db, 'users', uid, 'lgs_tercih'),
-    orderBy('order', 'asc'),
-    limit(MAX_LGS_TERCIH)
+    orderBy('order', 'asc')
   )
   return onSnapshot(q, (snap) => {
     callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))

@@ -59,6 +59,10 @@ class TusService:
     def meta(self, sinav: str = "TUS") -> dict:
         d = _load(sinav)
         m = {k: d.get(k) for k in _META_KEYS}
+        # Veri dosyası yoksa None'lar şemanın zorunlu str alanlarını patlatır (500)
+        m["sinav"] = m.get("sinav") or sinav
+        for k in ("donem", "guncelleme", "kaynak", "kaynak_url"):
+            m[k] = m.get(k) or ""
         m["dallar"] = sorted({p["dal"] for p in d.get("programlar", []) if p.get("dal")})
         return m
 
@@ -76,8 +80,10 @@ class TusService:
         if dal:
             df = _fold(dal)
             progs = [p for p in progs if _fold(p.get("dal", "")) == df]
-        if kontenjan_turu:
-            progs = [p for p in progs if p.get("kontenjan_turu") == kontenjan_turu]
+        # Varsayılan GENEL: Yabancı Uyruklu kontenjanların tabanları belirgin
+        # düşük — filtresiz bırakılırsa TR adayının önerilerine karışıp yanıltır.
+        kontenjan_turu = kontenjan_turu or "Genel"
+        progs = [p for p in progs if p.get("kontenjan_turu") == kontenjan_turu]
         if kurum:
             kf = _fold(kurum)
             progs = [p for p in progs if kf in _fold(p.get("kurum") or "")]
@@ -98,7 +104,7 @@ class TusService:
         def key(p: dict) -> float:
             return -p["min_puan"]
 
-        meta = {k: d.get(k) for k in ("sinav", "donem")}
+        meta = {"sinav": d.get("sinav") or sinav, "donem": d.get("donem") or ""}
         return {
             **meta,
             "puan": puan,
