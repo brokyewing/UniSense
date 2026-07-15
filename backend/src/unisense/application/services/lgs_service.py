@@ -43,6 +43,27 @@ def _load() -> dict:
     return json.load(open(p, encoding="utf-8"))
 
 
+def _degerlendir(lise: dict) -> dict:
+    """Çok-yıllı arşivden okul değerlendirmesi: taban yüzdeliği yıllar içinde
+    küçülüyorsa okul ZORLAŞIYOR (daha iyi yüzdelik gerekir), büyüyorsa
+    KOLAYLAŞIYOR. Kopya döner — lru_cache'teki veriyi mutasyona uğratmaz.
+    """
+    trend = lise.get("trend") or []
+    yonu = None
+    if len(trend) >= 2:
+        sirali = sorted(trend, key=lambda t: t["yil"])
+        eski, yeni = sirali[0]["yuzdelik"], sirali[-1]["yuzdelik"]
+        if eski and eski > 0:
+            oran = yeni / eski
+            if oran <= 0.85:
+                yonu = "zorlasiyor"      # yüzdelik daraldı → rekabet arttı
+            elif oran >= 1.15:
+                yonu = "kolaylasiyor"    # yüzdelik genişledi → rekabet azaldı
+            else:
+                yonu = "istikrarli"
+    return {**lise, "trend_yonu": yonu}
+
+
 class LgsService:
     def meta(self) -> dict:
         d = _load()
@@ -81,11 +102,11 @@ class LgsService:
             if t is None or t <= 0:
                 continue
             if yuzdelik <= t * _GUVENLI:
-                guvenli.append(lise)
+                guvenli.append(_degerlendir(lise))
             elif yuzdelik <= t:
-                tutar.append(lise)
+                tutar.append(_degerlendir(lise))
             elif yuzdelik <= t * _RISKLI:
-                riskli.append(lise)
+                riskli.append(_degerlendir(lise))
 
         # Her kovada zor→kolay (küçük yüzdelik önce): en prestijli seçenekler üstte
         def key(lise: dict) -> float:
