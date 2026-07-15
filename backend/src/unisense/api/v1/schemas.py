@@ -467,6 +467,8 @@ class LgsLise(BaseModel):
     kontenjan: int | None = None
     pansiyon: str | None = None
     trend: list[LgsTrendPoint] = []
+    # Çok-yıllı arşiv değerlendirmesi: zorlasiyor | kolaylasiyor | istikrarli
+    trend_yonu: str | None = None
 
 
 class LgsOneriResponse(BaseModel):

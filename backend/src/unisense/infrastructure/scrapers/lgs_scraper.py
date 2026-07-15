@@ -23,6 +23,7 @@ import json
 import re
 import sys
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
@@ -154,6 +155,34 @@ def parse_il(html: str, il_slug: str) -> list[dict]:
     return liseler
 
 
+def _lise_key(lise: dict) -> str:
+    """Okul kaydını yıllar arası eşlemek için kararlı anahtar (kod alanı yok)."""
+    return _fold(f"{lise['okul']}|{lise.get('ilce', '')}|{lise.get('dil', '')}")
+
+
+def _merge_history(yeni: list[dict], eski: list[dict]) -> None:
+    """Önceki JSON'daki trend yıllarını yeni kayıtlara taşır (yerinde).
+
+    Kaynak site yalnız son ~4 yılı gösterir; her yıllık cron'da eski yıllar
+    düşer. Bu birleştirme sayesinde arşiv sitede birikir: aynı yıl için YENİ
+    veri kazanır, yeni scrape'te olmayan eski yıllar korunur.
+    """
+    eski_map = {_lise_key(x): x for x in eski}
+    tasinan = 0
+    for lise in yeni:
+        onceki = eski_map.get(_lise_key(lise))
+        if not onceki:
+            continue
+        mevcut_yillar = {t["yil"] for t in lise["trend"]}
+        for t in onceki.get("trend", []):
+            if t["yil"] not in mevcut_yillar:
+                lise["trend"].append(t)
+                tasinan += 1
+        lise["trend"].sort(key=lambda t: -t["yil"])  # en güncel önce
+    if tasinan:
+        print(f"  ↺ arşivden {tasinan} eski yıl kaydı korundu")
+
+
 def scrape() -> dict:
     all_liseler: list[dict] = []
     basarisiz: list[str] = []
@@ -168,14 +197,22 @@ def scrape() -> dict:
             basarisiz.append(slug)
             print(f"[{i:2}/81] {slug:16} HATA: {type(e).__name__}: {e}")
         time.sleep(0.7)  # kibar gecikme
-    # En güncel yılı tespit et (trend'lerdeki max yıl)
+    # Önceki dosyadaki eski yılları koru (kaynak site eski yılları düşürür)
+    if OUT.exists():
+        try:
+            eski = json.loads(OUT.read_text(encoding="utf-8")).get("liseler", [])
+            _merge_history(all_liseler, eski)
+        except Exception as e:  # noqa: BLE001
+            print(f"  ⚠️ arşiv birleştirme atlandı: {e}")
+    # En güncel yılı tespit et (trend'lerdeki max yıl) — metinler yıla göre üretilir,
+    # böylece yıllık cron'da elle güncelleme gerekmez
     yillar = [t["yil"] for lise in all_liseler for t in lise["trend"]]
     guncel_yil = max(yillar) if yillar else None
     return {
-        "guncelleme": "2026-07",
+        "guncelleme": datetime.now(timezone.utc).strftime("%Y-%m"),
         "kaynak": "MEB e-Okul taban puan verisi (tabanpuanlari.tr üzerinden derlendi)",
         "not": (
-            "Yüzdelik dilim Türkiye geneli, geçen yıl (LGS 2025) verisidir ve TAHMİNÎDİR — "
+            f"Yüzdelik dilim Türkiye geneli, geçen yıl (LGS {guncel_yil}) verisidir ve TAHMİNÎDİR — "
             "bu yılki taban puanları değişebilir. Yalnızca merkezî sınavla öğrenci alan liseleri "
             "kapsar; adrese dayalı yerleştirme kapsam dışıdır. Resmî tercih: rotamaarif.meb.gov.tr"
         ),

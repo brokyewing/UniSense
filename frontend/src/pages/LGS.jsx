@@ -29,6 +29,16 @@ const KOVALAR = [
   { key: 'riskli',  label: 'Riskli',  icon: Rocket,      renk: 'from-rose-500 to-fuchsia-600', desc: 'Taban üstü — denemeye değer' },
 ]
 
+// Çok-yıllı arşiv değerlendirmesi rozeti (backend trend_yonu üretir)
+const TREND_YONU = {
+  zorlasiyor:   { label: '↗ zorlaşıyor',  cls: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
+                  title: 'Taban yüzdeliği yıllar içinde daraldı — rekabet artıyor' },
+  kolaylasiyor: { label: '↘ kolaylaşıyor', cls: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+                  title: 'Taban yüzdeliği yıllar içinde genişledi — rekabet azalıyor' },
+  istikrarli:   { label: '→ istikrarlı',  cls: 'bg-white/5 text-slate-400 border-white/10',
+                  title: 'Taban yüzdeliği yıllar içinde stabil' },
+}
+
 // Küçük yüzdelik trend sparkline (düşük yüzdelik = iyi = grafikte yukarı)
 function YuzdelikTrend({ trend }) {
   const pts = (trend || []).filter((t) => t.yuzdelik != null).slice().reverse() // eski→yeni
@@ -88,9 +98,17 @@ function LiseKart({ lise, inList, onToggle }) {
           {lise.kontenjan != null && <div className="inline-flex items-center gap-1"><Users size={9} /> {lise.kontenjan}</div>}
         </div>
       </div>
-      <div className="flex items-center justify-between mt-1.5">
+      <div className="flex items-center justify-between mt-1.5 gap-1.5">
         <span className="text-[10px] text-slate-500 truncate">{lise.dil}</span>
-        <YuzdelikTrend trend={lise.trend} />
+        <span className="flex items-center gap-1.5 shrink-0">
+          {TREND_YONU[lise.trend_yonu] && (
+            <span title={TREND_YONU[lise.trend_yonu].title}
+              className={`text-[9px] px-1.5 py-0.5 rounded-full border ${TREND_YONU[lise.trend_yonu].cls}`}>
+              {TREND_YONU[lise.trend_yonu].label}
+            </span>
+          )}
+          <YuzdelikTrend trend={lise.trend} />
+        </span>
       </div>
     </div>
   )
@@ -147,12 +165,19 @@ export function LgsRobot() {
       setTimeout(() => setError(''), 2500)
       return
     }
+    // İl seçimi zorunlu — LGS tercihi il bazlıdır; tüm Türkiye ancak bilinçli
+    // seçimle (yatılı/pansiyonlu arayanlar) anlamlı.
+    if (!il) {
+      setError('Önce ilini seç (yatılı düşünüyorsan "Tüm Türkiye").')
+      setTimeout(() => setError(''), 3000)
+      return
+    }
     setLoading(true)
     setError('')
     try {
       const res = await apiFetch('/api/v1/lgs/oneri', {
         method: 'POST',
-        body: { yuzdelik: y, il: il || null, turler: turler.length ? turler : null },
+        body: { yuzdelik: y, il: il === '__ALL__' ? null : il, turler: turler.length ? turler : null },
       })
       setData(res)
     } catch (err) {
@@ -204,9 +229,12 @@ export function LgsRobot() {
               </div>
             </div>
             <div>
-              <label className="text-xs text-slate-300 mb-1 block">İl <span className="text-slate-500">(opsiyonel)</span></label>
+              <label className="text-xs text-slate-300 mb-1 block">
+                İlin <span className="text-slate-500">(tercih edeceğin il — yatılı düşünüyorsan "Tüm Türkiye")</span>
+              </label>
               <select value={il} onChange={(e) => setIl(e.target.value)} className="input-glass w-full">
-                <option value="">Tüm iller</option>
+                <option value="" disabled>İl seçin…</option>
+                <option value="__ALL__">🇹🇷 Tüm Türkiye (pansiyonlu okullar dahil)</option>
                 {iller.map((i) => <option key={i} value={i}>{i}</option>)}
               </select>
             </div>
@@ -247,7 +275,7 @@ export function LgsRobot() {
             <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
               <div className="text-center text-xs text-slate-400">
                 <strong className="text-white">%{data.yuzdelik}</strong> yüzdelik dilimiyle
-                {il ? <> <strong className="text-white">{il}</strong>'da</> : ' Türkiye genelinde'}{' '}
+                {il && il !== '__ALL__' ? <> <strong className="text-white">{il}</strong>'da</> : ' Türkiye genelinde'}{' '}
                 <span className="text-emerald-300">{data.sayilar.guvenli}</span> güvenli ·{' '}
                 <span className="text-amber-300">{data.sayilar.tutar}</span> tutar ·{' '}
                 <span className="text-rose-300">{data.sayilar.riskli}</span> riskli lise
