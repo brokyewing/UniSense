@@ -6,4 +6,4 @@ Disallow: /giris
 Disallow: /profile
 Disallow: /login
 
-Sitemap: https://www.unisense.site/sitemap.xml
+Sitemap: https://www.unisense.com.tr/sitemap.xml

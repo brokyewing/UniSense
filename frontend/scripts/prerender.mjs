@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DIST = resolve(__dirname, '../dist')
-const SITE = 'https://www.unisense.site'
+const SITE = 'https://www.unisense.com.tr'
 const TITLE_ANCHOR = '<title>UniSense — 2026 Tercih Robotu | YKS, DGS, KPSS</title>'
 
 if (!existsSync(resolve(DIST, 'index.html'))) {

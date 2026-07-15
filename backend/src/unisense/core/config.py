@@ -60,7 +60,10 @@ class Settings(BaseSettings):
     firebase_project_id: str = ""
     rate_limit_ask: int = 20
     rate_limit_default: int = 60
-    cors_allowed_origins: str = "https://unisense.vercel.app,http://localhost:5173,http://localhost:5174"
+    cors_allowed_origins: str = (
+        "https://www.unisense.com.tr,https://unisense.com.tr,"
+        "http://localhost:5173,http://localhost:5174"
+    )
     audit_log_path: str = "./logs/audit.log"
 
     # === Dış kaynaklar ===

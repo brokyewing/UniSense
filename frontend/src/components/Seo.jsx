@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-const SITE = 'https://www.unisense.site'
+const SITE = 'https://www.unisense.com.tr'
 const DEFAULT_IMAGE = `${SITE}/logo.png`
 
 /**

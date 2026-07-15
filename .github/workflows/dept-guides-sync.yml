@@ -36,31 +36,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Guard — GEMINI_API_KEYS gerekli
+      # Secret yoksa job'u FAIL etme — uyarıyla atla (her gün kırmızı koşu +
+      # hata maili üretmesin). Secret eklenince sonraki koşuda kendiliğinden üretir.
+      - name: Guard — GEMINI_API_KEYS var mı?
+        id: guard
         run: |
           if [ -z "$GEMINI_API_KEYS" ]; then
-            echo "::error::GEMINI_API_KEYS secret tanımlı değil — üretim atlandı."
-            echo "Repo Settings → Secrets → Actions → GEMINI_API_KEYS ekle."
-            exit 1
+            echo "::warning::GEMINI_API_KEYS secret tanımlı değil — rehber üretimi ATLANDI. Repo Settings → Secrets and variables → Actions → New repository secret → GEMINI_API_KEYS (backend/.env'deki değer)."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Setup Python 3.11
+        if: steps.guard.outputs.skip != 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
 
       - name: Install backend
+        if: steps.guard.outputs.skip != 'true'
         working-directory: backend
         run: |
           python -m pip install --upgrade pip
           pip install -e .
 
       - name: Generate dept guides (resume, kota-limitli)
+        if: steps.guard.outputs.skip != 'true'
         working-directory: backend
         run: python ../scripts/generate_dept_guides.py
 
       - name: Commit new guides
+        if: steps.guard.outputs.skip != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
