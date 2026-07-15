@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import {
-  Search, ListChecks, Home as HomeIcon,
+  Search, ListChecks,
   LogIn, LogOut, User, ChevronDown, Compass, Calculator, BookOpen, CalendarDays,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -68,6 +68,7 @@ export default function App() {
     return (
       <Link
         to={to}
+        title={label}
         className={`
           relative flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium
           transition-all duration-300 shrink-0
@@ -82,7 +83,9 @@ export default function App() {
           />
         )}
         <Icon size={16} className="relative z-10" />
-        <span className="relative z-10 hidden sm:inline">{label}</span>
+        {/* Etiketler lg+ ekranda: login avatarı geniş — orta ekranda ikon-only
+            kalınca 6 sekme her durumda sığar, 'Hesap' kaydırmada gizli kalmaz */}
+        <span className="relative z-10 hidden lg:inline">{label}</span>
       </Link>
     )
   }
@@ -98,7 +101,8 @@ export default function App() {
       {seoEl}
       <header className="sticky top-0 z-30 backdrop-blur-2xl bg-slate-950/40 border-b border-white/5">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <Link to="/" className="flex items-center gap-3 group shrink-0">
+          {/* Logo = Ana Sayfa (nav'da ayrı öğe yok) */}
+          <Link to="/anasayfa" className="flex items-center gap-3 group shrink-0">
             <Logo size={40} rounded="rounded-none" />
             <div className="hidden sm:block">
               <h1 className="font-display font-bold text-lg text-white leading-none">UniSense</h1>
@@ -106,14 +110,14 @@ export default function App() {
             </div>
           </Link>
 
+          {/* Ana Sayfa nav'da yok — logo zaten anasayfaya götürür (6 sekme) */}
           <nav className="flex items-center gap-1 min-w-0 overflow-x-auto no-scrollbar">
-            {navItem('/anasayfa', 'Ana Sayfa', HomeIcon)}
+            {navItem('/oneriler', 'Tercih', ListChecks)}
+            {navItem('/hesap', 'Hesap', Calculator)}
+            {navItem('/pusula', 'Pusula', Compass)}
             {navItem('/arama', 'Sorgu', Search)}
             {navItem('/bolum', 'Bölümler', BookOpen)}
             {navItem('/takvim', 'Takvim', CalendarDays)}
-            {navItem('/pusula', 'Pusula', Compass)}
-            {navItem('/oneriler', 'Tercih', ListChecks)}
-            {navItem('/hesap', 'Hesap', Calculator)}
           </nav>
 
           {/* Sağ taraf — theme toggle profil avatarına yakın */}
