@@ -65,7 +65,17 @@ jobs:
       - name: Generate dept guides (resume, kota-limitli)
         if: steps.guard.outputs.skip != 'true'
         working-directory: backend
-        run: python ../scripts/generate_dept_guides.py
+        env:
+          PYTHONUNBUFFERED: '1'
+        # Hata olursa son satırları ANNOTATION olarak yüzeye çıkar — log
+        # indirmeden (auth ister) e-postadaki Annotations kutusunda görünsün
+        run: |
+          set -o pipefail
+          python ../scripts/generate_dept_guides.py 2>&1 | tee /tmp/gen.log || {
+            echo "::error::Dept guides üretimi düştü — logun son satırları:"
+            tail -n 15 /tmp/gen.log | while IFS= read -r l; do echo "::error::$l"; done
+            exit 1
+          }
 
       - name: Commit new guides
         if: steps.guard.outputs.skip != 'true'
