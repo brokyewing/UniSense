@@ -20,6 +20,7 @@ on:
 
 permissions:
   contents: write
+  actions: write  # commit sonrası index-sync'i dispatch etmek için
 
 concurrency:
   group: dept-guides-sync
@@ -79,14 +80,25 @@ jobs:
 
       - name: Commit new guides
         if: steps.guard.outputs.skip != 'true'
+        id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add backend/data/processed/dept_guides.json
           if git diff --staged --quiet; then
             echo "Yeni rehber yok (kota dolu olabilir) — commit atlandı"
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
           else
             n=$(python -c "import json; print(len(json.load(open('backend/data/processed/dept_guides.json', encoding='utf-8'))))")
             git commit -m "chore(data): bölüm rehberleri güncellendi → ${n}/604 ($(date -u +%Y-%m-%d))"
             git push
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      # GITHUB_TOKEN push'ları başka workflow'ların on:push'unu ATEŞLEMEZ —
+      # yeni rehberlerin chat'e (RAG) yansıması için index-sync AÇIKÇA tetiklenir
+      - name: Trigger RAG Index Sync
+        if: steps.commit.outputs.pushed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run index-sync.yml --repo "$GITHUB_REPOSITORY"

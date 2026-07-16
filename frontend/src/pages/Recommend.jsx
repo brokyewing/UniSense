@@ -430,7 +430,7 @@ function DgsOneriPanel({ user, profile }) {
         </div>
         <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-4 text-xs flex-wrap">
           <div>
-            <div className="text-slate-500">Taban ({p.yil || 2025})</div>
+            <div className="text-slate-500">Taban{p.yil ? ` (${p.yil})` : ''}</div>
             <div className="font-mono text-accent-300">
               {p.min_puan != null ? p.min_puan.toFixed(2) : 'boş kaldı'}
             </div>
@@ -1084,7 +1084,7 @@ export default function Recommend() {
       <strong className="text-amber-400">hedef</strong> ve{' '}
       <strong className="text-rose-400">üst seviye</strong>.</>,
     KPSS: <>KPSS puanına ve mezuniyetine göre başvurabileceğin{' '}
-      <strong className="text-accent-300">2026/1 kadroları</strong>.</>,
+      <strong className="text-accent-300">aktif dönem kadroları</strong>.</>,
     TUS: <>TUS/DUS puanınla yerleşebileceğin{' '}
       <strong className="text-sky-300">uzmanlık programları</strong>.</>,
     LGS: <>LGS yüzdelik dilimine göre girebileceğin{' '}

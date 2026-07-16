@@ -37,6 +37,7 @@ jobs:
           print(f"son_tarih={son}")
           print(f"kalan_gun={kalan}")
           print(f"tukeniyor={'true' if kalan < 60 else 'false'}")
+          print(f"tukendi={'true' if kalan < 0 else 'false'}")
           EOF
           cat "$GITHUB_OUTPUT"
 
@@ -68,3 +69,11 @@ jobs:
             --title "$TITLE" \
             --body-file /tmp/issue-body.md
           echo "Issue açıldı."
+
+      # Takvim TAMAMEN tükendiyse (sitede boş takvim!) koşuyu kırmızıya düşür —
+      # issue gözden kaçsa bile failure e-postası garantidir
+      - name: Takvim tükendi — görünür alarm
+        if: steps.ufuk.outputs.tukendi == 'true'
+        run: |
+          echo "::error::exam_calendar.json'da GELECEK etkinlik kalmadı — sitedeki takvim boş görünüyor! Yeni yıl tarihlerini ekleyin."
+          exit 1

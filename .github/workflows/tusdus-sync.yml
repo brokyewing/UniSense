@@ -10,7 +10,9 @@ name: TUS/DUS Data Sync
 
 on:
   schedule:
-    - cron: '0 6 5 1,3,5,7,9,11 *'  # 2 ayda bir, ayın 5'i 06:00 UTC
+    # Aylık: TUS/DUS dönem sonuçları düzensiz tarihlerle yayınlanır — 2 aylık
+    # koşu yeni dönemi 2 aya kadar geciktirebiliyordu. Scraper idempotent.
+    - cron: '0 6 5 * *'
   workflow_dispatch:
 
 permissions:

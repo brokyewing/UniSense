@@ -9,6 +9,7 @@ import {
   watchUzmanlikTercih, addToUzmanlikTercih, removeFromUzmanlikTercih, MAX_TUS_TERCIH,
   getUserProfile,
 } from '../firebase'
+import { TERCIH_YILI } from '../lib/donem'
 
 const SINAVLAR = [
   { key: 'TUS', label: 'TUS', desc: 'Tıpta Uzmanlık' },
@@ -324,7 +325,7 @@ export default function TusDus() {
     <>
       <BackgroundScene />
       <Seo
-        title="TUS / DUS Tercih Robotu 2026 — Puanına Göre Uzmanlık Programı Bul | UniSense"
+        title={`TUS / DUS Tercih Robotu ${TERCIH_YILI} — Puanına Göre Uzmanlık Programı Bul | UniSense`}
         description="TUS veya DUS puanını gir, geçen dönem ÖSYM en küçük yerleşme puanlarına göre yerleşebileceğin uzmanlık dallarını ve kurumları güvenli/tutar/riskli olarak gör — ücretsiz, tahminî."
         path="/tus"
       />

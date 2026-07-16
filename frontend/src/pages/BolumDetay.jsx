@@ -109,7 +109,7 @@ export default function BolumDetay() {
           <div className="flex items-center justify-between flex-wrap gap-2">
             <h2 className="font-semibold text-white flex items-center gap-2">
               <GraduationCap size={16} className="text-accent-300" />
-              {data.name} Taban Puanları <span className="text-xs text-slate-500 font-normal">(2025 yerleştirme)</span>
+              {data.name} Taban Puanları {data.data_yili && <span className="text-xs text-slate-500 font-normal">({data.data_yili} yerleştirme)</span>}
             </h2>
             <div className="flex gap-2">
               <input value={il} onChange={(e) => setIl(e.target.value)} placeholder="Şehir"

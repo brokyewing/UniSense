@@ -418,6 +418,7 @@ class GuideDetailResponse(BaseModel):
     name: str
     category: str = ""
     program_count: int = 0
+    data_yili: int | None = None  # taban/sıra verilerinin yılı (rankings'ten)
     summary: str = ""
     content: str = ""
     programs: list[GuideProgram]

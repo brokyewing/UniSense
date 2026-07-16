@@ -6,8 +6,10 @@ name: Yearly YKS Data Sync
 
 on:
   schedule:
-    # Saniye dk sa gün ay haftagünü — UTC
-    - cron: '0 3 15 8 *'  # 15 Ağustos 03:00 UTC = 06:00 TRT
+    # Ağustos-Ekim cumartesileri: YKS yerleştirme sonuçları Ağustos'ta açıklanır
+    # ama tek atışlık cron (15 Ağu) kaçarsa 1 yıl telafi yoktu; haftalık koşu
+    # idempotenttir (değişiklik yoksa commit atlanır).
+    - cron: '0 3 * 8,9,10 6'
   workflow_dispatch:
     inputs:
       skip_scrape:
@@ -17,6 +19,11 @@ on:
 
 permissions:
   contents: write
+  actions: write  # commit sonrası index-sync'i dispatch etmek için
+
+concurrency:
+  group: yearly-data-sync
+  cancel-in-progress: false
 
 jobs:
   sync:
@@ -86,34 +93,41 @@ jobs:
         run: python -m unisense.infrastructure.scrapers.dgs_scraper
         continue-on-error: true
 
+      - name: Scrape — İŞKUR meslek rehberleri (RAG chunk kaynağı)
+        working-directory: backend
+        run: python -m unisense.infrastructure.scrapers.iskur_mbk_scraper
+        continue-on-error: true
+
       - name: Build chunks
         working-directory: backend
         run: python -m unisense.cli.build_chunks
 
       - name: Commit data updates
+        id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add backend/data/raw backend/data/processed
           if git diff --staged --quiet; then
             echo "Hiç değişiklik yok, commit atlandı"
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
           else
             git commit -m "chore(data): yıllık YKS veri senkronizasyonu ($(date -u +%Y-%m-%d))
 
             - YÖK Atlas lisans + önlisans güncel
-            - URAP sıralamaları güncel
-            - Wikipedia infobox (website/logo/kuruluş yılı) güncel
-            - Chunks yeniden üretildi (deploy ortamı embed'i kendi çalıştırır)
+            - URAP + Wikipedia + İŞKUR güncel
+            - RAG index rebuild'i index-sync workflow'u üstlenir
             "
             git push
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Trigger backend rebuild (Render webhook — opsiyonel)
-        if: env.RENDER_DEPLOY_HOOK != ''
+      # ESKİ VARSAYIM YANLIŞTI: 'deploy embed'i kendi çalıştırır' — Dockerfile
+      # önce fetch_index dener ve HF'deki ESKİ index'i başarıyla indirir; yeni
+      # veri RAG'e hiç ulaşmazdı. Doğru sıra (chunks→embed→HF upload→Render
+      # hook) index-sync'te — bot push on:push'u ateşlemediği için AÇIKÇA çağır.
+      - name: Trigger RAG Index Sync
+        if: steps.commit.outputs.pushed == 'true'
         env:
-          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
-        run: |
-          if [ -n "$RENDER_DEPLOY_HOOK" ]; then
-            curl -fsSL -X POST "$RENDER_DEPLOY_HOOK"
-            echo "Render redeploy tetiklendi (embed yeniden çalışacak)"
-          fi
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run index-sync.yml --repo "$GITHUB_REPOSITORY"

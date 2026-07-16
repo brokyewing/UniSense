@@ -192,13 +192,19 @@ class KpssService:
         # Geçmiş tabanı bilinenler önce, taban artan (ulaşılabilirlik)
         items.sort(key=lambda x: (x["gecmis_taban"] is None,
                                   x["gecmis_taban"] or 999))
+        # Dönem etiketleri VERİDEN: scraper her kadroya keşfedilen dönemi
+        # damgalıyor (donem_ozeti ile aynı türetme) — yeni dönem verisi
+        # gelince metinler kendiliğinden günceller
+        donem = kadrolar[0].get("donem", "2026/1") if kadrolar else "2026/1"
+        gecmis_donemler = {p["donem"] for kayitlar in _taban_index().values() for p in kayitlar}
+        gecmis = max(gecmis_donemler) if gecmis_donemler else "geçmiş dönem"
         return {
-            "donem": "2026/1",
+            "donem": donem,
             "total": len(items),
             "toplam_kontenjan": sum((it.get("kontenjan") or 0) for it in items),
             "items": items[:limit],
-            "uyari": ("Taban puanlar GEÇMİŞ dönem yerleştirmelerinden (2025) — "
-                      "2026/1 tabanları yerleştirme sonrası belli olur."),
+            "uyari": (f"Taban puanlar GEÇMİŞ dönem yerleştirmelerinden ({gecmis}) — "
+                      f"{donem} tabanları yerleştirme sonrası belli olur."),
         }
 
     def donem_ozeti(self) -> dict:

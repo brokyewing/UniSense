@@ -1,0 +1,60 @@
+name: Yearly Prep Reminder
+
+# Her yıl 1 Haziran'da "yeni dönem hazırlığı" kontrol listesi issue'su açar.
+# Veriler cron'larla kendiliğinden akar (YKS/DGS yıllık, KPSS/TUS-DUS dönemlik,
+# LGS Ağu-Eyl, index otomatik rebuild+deploy) — ama İKİ şey bilinçli olarak
+# insan onayı ister ve bu bekçi onları unutturmaz:
+#   1. Hesap makinesi katsayıları/soru yapıları (resmî kılavuz doğrulaması
+#      olmadan otomatik değiştirmek = yanlış puan basma riski)
+#   2. exam_calendar.json yeni yıl tarihleri (calendar-check ayrıca 60 gün
+#      kala da uyarır)
+
+on:
+  schedule:
+    - cron: '0 7 1 6 *'  # her yıl 1 Haziran 07:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Yıllık hazırlık issue'su aç
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          YIL=$(date -u +%Y)
+          TITLE="Yıllık hazırlık ${YIL}: katsayı + takvim + yapı doğrulaması"
+          EXISTING=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open \
+                     --search "in:title Yıllık hazırlık" --json number --jq 'length')
+          if [ "$EXISTING" -gt 0 ]; then
+            echo "Zaten açık bir yıllık hazırlık issue'su var."
+            exit 0
+          fi
+          {
+            echo "Yeni dönem öncesi resmî kılavuzlar yayımlandıkça işaretleyin:"
+            echo ""
+            echo "## Hesap makineleri (frontend/src/pages/Hesap.jsx)"
+            echo "- [ ] YKS: TYT/AYT soru sayıları ve yaklaşık katsayılar değişti mi? (ÖSYM kılavuzu)"
+            echo "- [ ] DGS: 50+50 yapı ve tür ağırlıkları aynı mı?"
+            echo "- [ ] KPSS: GY-GK 60+60 ve taban modeli aynı mı?"
+            echo "- [ ] ALES: 50+50 + 0.75/0.25 ağırlıklar aynı mı? (kılavuz Böl. 3.9)"
+            echo "- [ ] LGS: 90 soru, D−Y/3, ders katsayıları (4/4/4/1/1/1) aynı mı? (MEB)"
+            echo "- [ ] AGS: alt test yapısı (15/15/6/6/30/8) değişti mi? Taban verisi yayımlandıysa robot değerlendir"
+            echo ""
+            echo "## Takvim ve içerik"
+            echo "- [ ] exam_calendar.json: yeni yıl sınav/sonuç/tercih tarihleri (bitis alanlı)"
+            echo "- [ ] Ana sayfa / SEO metinlerindeki dönem yılı doğru mu?"
+            echo ""
+            echo "## Zincir sağlığı (normalde otomatik — sadece kontrol)"
+            echo "- [ ] yearly-data-sync (15 Ağu) yeşil koştu, index-sync HF upload + Render deploy tetiklendi"
+            echo "- [ ] lgs-sync / kpss-sync / tusdus-sync yeni dönemi keşfetti"
+            echo ""
+            echo "_Bu issue her 1 Haziran'da otomatik açılır (yearly-prep.yml)._"
+          } > /tmp/body.md
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body-file /tmp/body.md
+          echo "Issue açıldı."

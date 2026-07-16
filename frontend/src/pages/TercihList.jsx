@@ -559,7 +559,7 @@ function KpssTercihPanel({ user, profile }) {
     <div className="space-y-3">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <p className="text-sm text-slate-400">
-          {items.length} / {MAX_KPSS_TERCIH} kadro — 2026/1 tercihleri 9-16 Temmuz'da
+          {items.length} / {MAX_KPSS_TERCIH} kadro — KPSS tercihleri ÖSYM takvimindeki dönemde
           <a href="https://ais.osym.gov.tr" target="_blank" rel="noreferrer"
             className="text-accent-300 hover:underline ml-1">ais.osym.gov.tr</a>'de yapılır
         </p>
