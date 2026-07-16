@@ -5,7 +5,7 @@
 # query param sanır (tüm istekler 422 döner).
 import re
 
-from fastapi import APIRouter, Depends, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 
 from unisense.api.v1.dependencies import (
     ask_service_dep,
@@ -80,19 +80,20 @@ _OSYM_CODE_RE = re.compile(r"\b(\d{9})\b")
 
 @router.get("/health", response_model=HealthResponse)
 def health(response: Response) -> HealthResponse:
-    """Sağlık kontrolü — vector index boş/erişilemezse 503 döner.
+    """Sağlık kontrolü.
 
-    Aksi halde Render 'sağlıklı ama cevap veremeyen' bir instance'ı
-    trafikte tutar.
+    Index boşsa 'degraded' ama 200: eskiden 503 dönüyordu ve HF kesintisinde
+    (index inemeyince) Render health-check'i instance'ı öldürüp crash-loop
+    yaratıyordu. RAG-dışı her şey (takvim/robotlar/öneri/hesap) chroma'sız
+    çalıştığı için instance TRAFİKTE KALMALI; yalnız /ask degraded olur ve
+    arka plan görevi (lifespan) index'i HF dönünce kendiliğinden indirir.
     """
     try:
         count = get_vector_store().count()
     except Exception:  # noqa: BLE001
         count = None
-    if not count:
-        response.status_code = 503
-        return HealthResponse(status="degraded", version="0.1.0", chunks_count=count)
-    return HealthResponse(status="ok", version="0.1.0", chunks_count=count)
+    status = "ok" if count else "degraded"
+    return HealthResponse(status=status, version="0.1.0", chunks_count=count)
 
 
 @router.get("/models", response_model=ModelsResponse)
@@ -119,9 +120,24 @@ def list_models() -> ModelsResponse:
 def ask(
     request: Request,
     body: AskRequest,
-    svc: AskService = Depends(ask_service_dep),
 ) -> AskResponse:
     """Üniversite/bölüm sorgu — RAG ile."""
+    # Degraded mod (index boş — ör. HF kesintisinde boot): 500 yerine anlaşılır
+    # mesaj. GUARD, servis kurulumundan ÖNCE: AskService inşası embedding
+    # modelini ister ve model dosyası yokken HF'e gidip ASILIR — bu yüzden
+    # Depends() yerine guard sonrası elle çözülür.
+    try:
+        index_hazir = bool(get_vector_store().count())
+    except Exception:  # noqa: BLE001
+        index_hazir = False
+    if not index_hazir:
+        raise HTTPException(
+            status_code=503,
+            detail="Bilgi bankası şu an yükleniyor (geçici kesinti) — birkaç dakika "
+                   "sonra tekrar dene. Tercih robotları ve hesaplama araçları çalışıyor.",
+        )
+    svc: AskService = ask_service_dep()
+
     safe_query = sanitize_query(body.query)
 
     audit(

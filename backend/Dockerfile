@@ -57,10 +57,14 @@ EXPOSE 8002
 # (HF_INDEX_REPO tanımlıysa, ~30-60sn), o da olmazsa embed çalıştır.
 # Render free tier'da kalıcı disk yok — index bu yüzden HF'den gelir.
 # --proxy-headers: LB arkasında gerçek istemci IP'si (rate limit için şart)
+# Index alınamazsa bile UYGULAMA BAŞLAR (degraded): HF kesintisi tüm siteyi
+# öldürmesin — RAG-dışı özellikler (takvim/robotlar/öneri/hesap) chroma'sız
+# çalışır, index arka planda (lifespan retry) HF dönünce kendiliğinden iner.
 CMD CHROMA_DIR="${CHROMA_PERSIST_DIR:-./data/embeddings/chromadb}" && \
     if [ ! -d "$CHROMA_DIR" ] || [ -z "$(ls -A "$CHROMA_DIR" 2>/dev/null)" ]; then \
-      python -m unisense.cli.fetch_index || \
-      { echo ">>> Index indirilemedi, embed calisiyor..." && python -m unisense.cli.embed; }; \
-    fi && \
+      timeout 300 python -m unisense.cli.fetch_index || \
+      { echo ">>> Index indirilemedi, embed deneniyor..." && timeout 600 python -m unisense.cli.embed; } || \
+      echo ">>> Index alinamadi — DEGRADED modda basliyor (RAG kapali, arka planda tekrar denenecek)"; \
+    fi; \
     exec uvicorn unisense.main:app --host 0.0.0.0 --port ${PORT:-8002} \
       --proxy-headers --forwarded-allow-ips "*"

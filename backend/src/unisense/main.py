@@ -17,6 +17,35 @@ from unisense.core.di import get_vector_store
 from unisense.core.logging import configure_logging, get_logger
 
 
+async def _index_retry_loop() -> None:
+    """Index boş başladıysa (ör. HF kesintisi) arka planda indirmeyi dene.
+
+    HF geri gelince RAG kendiliğinden açılır — instance restart gerekmez.
+    5 dk aralıkla dener; başarınca DI cache'ini temizleyip store'u yeniden
+    ısıtır ve çıkar.
+    """
+    import asyncio
+
+    from unisense.cli.fetch_index import main as fetch_index_main
+    from unisense.core import di
+
+    logger = get_logger(__name__)
+    while True:
+        await asyncio.sleep(300)
+        try:
+            rc = await asyncio.to_thread(fetch_index_main)
+            if rc != 0:
+                continue
+            di.get_vector_store.cache_clear()
+            store = get_vector_store()
+            if store.count():
+                store.warmup()
+                logger.info("index_retry_success", chunks=store.count())
+                return
+        except Exception as e:  # noqa: BLE001
+            logger.warning("index_retry_failed", error=str(e)[:200])
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup: embedding modeli + ChromaDB index'i önceden ısıt.
@@ -24,17 +53,30 @@ async def lifespan(app: FastAPI):
     Cold start sırasında ilk /api/v1/ask çağrısı normalde sentence-transformers
     modelini yüklemek için ~10sn bekletir. Burada startup'ta önceden ısıtarak
     ilk gerçek istek p50'sini ~4sn'ye düşürürüz.
+
+    Index BOŞSA (HF kesintisinde degraded boot): uygulamayı düşürmek yerine
+    arka plan retry görevi başlatılır — site RAG-dışı özelliklerle çalışmaya
+    devam eder.
     """
+    import asyncio
+
     logger = get_logger(__name__)
     logger.info("lifespan_warmup_start")
+    retry_task = None
     try:
         store = get_vector_store()
-        store.warmup()
-        logger.info("lifespan_warmup_complete")
+        if store.count():
+            store.warmup()
+            logger.info("lifespan_warmup_complete")
+        else:
+            logger.warning("lifespan_index_empty_degraded")
+            retry_task = asyncio.create_task(_index_retry_loop())
     except Exception as e:
         logger.error("lifespan_warmup_error", error=str(e))
+        retry_task = asyncio.create_task(_index_retry_loop())
     yield
-    # Shutdown — DI cache temizliği gerekmez (process bitince düşer)
+    if retry_task:
+        retry_task.cancel()
 
 
 def create_app() -> FastAPI:
