@@ -58,8 +58,15 @@ class Settings(BaseSettings):
     # SPA'ya gizli API key gömülemez; kullanıcı kimliği Firebase Auth ile doğrulanır.
     security_require_auth: bool = False
     firebase_project_id: str = ""
-    rate_limit_ask: int = 20
-    rate_limit_default: int = 60
+    rate_limit_ask: int = 20               # /ask — hesap/IP başına dakika
+    rate_limit_default: int = 60           # diğer uçlar — dakika
+    # /ask GÜNLÜK tavanları — LLM kota tükenme saldırısına karşı (açık Firebase
+    # kaydıyla çok hesap açıp günün Gemini kotasını bitirmeyi engeller):
+    #  - hesap başı günlük: tek hesabın aşırı çağrısını ucuza durdurur
+    #  - GLOBAL günlük: tüm hesaplar toplamına sert backstop (çok-hesap saldırısı)
+    # Değerler env ile ayarlanabilir; Gemini ücretsiz kotasının altında tutulmalı.
+    rate_limit_ask_daily: int = 60         # hesap/IP başına gün
+    rate_limit_ask_daily_global: int = 1200  # tüm site toplamı / gün
     cors_allowed_origins: str = (
         "https://www.unisense.com.tr,https://unisense.com.tr,"
         "http://localhost:5173,http://localhost:5174"

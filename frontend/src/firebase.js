@@ -9,6 +9,7 @@
  *   users/{uid}/sessions/{sid}   — sohbet oturumları (max 5)
  */
 import { initializeApp } from 'firebase/app'
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
 import {
   getAuth,
   GoogleAuthProvider,
@@ -66,9 +67,27 @@ let auth = null
 let db = null
 let storage = null
 let googleProvider = null
+let appCheck = null
 
 if (firebaseConfig.apiKey) {
   app = initializeApp(firebaseConfig)
+
+  // App Check — istekleri GERÇEK uygulamadan geldiğine dair doğrular; konsolda
+  // "Enforce" açılınca Firestore'a raw-SDK/REST ile (UI atlanarak) sınırsız
+  // doküman yazma / doğrudan erişim engellenir. reCAPTCHA v3 site key'i env'de
+  // varsa aktifleşir — yoksa (lokal dev) sessizce atlanır, uygulama çalışır.
+  const recaptchaKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY
+  if (recaptchaKey) {
+    try {
+      appCheck = initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(recaptchaKey),
+        isTokenAutoRefreshEnabled: true,
+      })
+    } catch (e) {
+      console.warn('App Check başlatılamadı:', e?.message || e)
+    }
+  }
+
   auth = getAuth(app)
   db = getFirestore(app)
   storage = getStorage(app)
@@ -78,7 +97,7 @@ if (firebaseConfig.apiKey) {
   console.warn('🔥 Firebase config bulunamadı (.env.local). Auth özellikleri devre dışı.')
 }
 
-export { app, auth, db, storage, googleProvider }
+export { app, auth, db, storage, googleProvider, appCheck }
 
 // === HAZIR AVATAR'LAR (DiceBear API, ücretsiz) ===
 // Internet erişimi olmasa bile çalışır (URL string)
