@@ -78,10 +78,12 @@ class StudentProfileRequest(BaseModel):
     score_type: ScoreType
     score: float | None = Field(None, ge=0, le=600)
     rank: int | None = Field(None, ge=1)
-    preferred_cities: list[str] = Field(default_factory=list)
-    preferred_uni_types: list[str] = Field(default_factory=list)
-    preferred_languages: list[str] = Field(default_factory=list)
-    preferred_departments: list[str] = Field(default_factory=list)
+    # max_length: aşırı-boyutlu gövde DoS'unu engelle (81 il, birkaç tür/dil
+    # yeter — sınırsız liste 512MB instance'ı OOM'a sürükleyebilir)
+    preferred_cities: list[str] = Field(default_factory=list, max_length=81)
+    preferred_uni_types: list[str] = Field(default_factory=list, max_length=10)
+    preferred_languages: list[str] = Field(default_factory=list, max_length=10)
+    preferred_departments: list[str] = Field(default_factory=list, max_length=50)
 
 
 class RecommendationItem(BaseModel):
@@ -453,11 +455,13 @@ class ExamCalendarResponse(BaseModel):
 
 class LgsOneriRequest(BaseModel):
     yuzdelik: float = Field(..., ge=0, le=100)  # Türkiye geneli yüzdelik dilim
-    il: str | None = None                       # tekil (geriye uyum)
-    iller: list[str] | None = None              # çoklu il seçimi
-    ilce: str | None = None
-    turler: list[str] | None = None             # fen, anadolu, sosyal, imam_hatip, meslek...
-    pansiyon: str | None = None                 # 'var' (yatılı) | 'yok' (gündüz) | None
+    il: str | None = Field(None, max_length=40)  # tekil (geriye uyum)
+    # max_length: KpssKadroRequest.iller (max 20) ile tutarlı — sınırsız liste
+    # aşırı-boyutlu gövdeyle 512MB instance'ı OOM'a sürükleyebilir (DoS)
+    iller: list[str] | None = Field(None, max_length=81)   # çoklu il seçimi
+    ilce: str | None = Field(None, max_length=60)
+    turler: list[str] | None = Field(None, max_length=20)  # fen, anadolu, sosyal, imam_hatip, meslek...
+    pansiyon: str | None = Field(None, max_length=10)       # 'var' (yatılı) | 'yok' (gündüz) | None
 
 
 class LgsTrendPoint(BaseModel):
@@ -508,10 +512,10 @@ class LgsIlcelerResponse(BaseModel):
 
 class TusOneriRequest(BaseModel):
     puan: float = Field(..., ge=0, le=100)      # K veya T puanı
-    sinav: str = "TUS"                          # TUS | DUS
-    dal: str | None = None                      # uzmanlık dalı (tam eşleşme)
-    kontenjan_turu: str | None = None           # Genel | Yabancı Uyruklu
-    kurum: str | None = None                    # kurum adı içinde arama
+    sinav: str = Field("TUS", max_length=10)    # TUS | DUS
+    dal: str | None = Field(None, max_length=120)          # uzmanlık dalı (tam eşleşme)
+    kontenjan_turu: str | None = Field(None, max_length=40)  # Genel | Yabancı Uyruklu
+    kurum: str | None = Field(None, max_length=120)        # kurum adı içinde arama
 
 
 class TusProgram(BaseModel):
