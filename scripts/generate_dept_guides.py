@@ -24,8 +24,11 @@ BACKEND = Path(__file__).resolve().parents[1] / "backend"
 sys.path.insert(0, str(BACKEND / "src"))
 OUT = BACKEND / "data" / "processed" / "dept_guides.json"
 
-# Kota havuzları model bazında ayrı — biri dolunca diğerine geç
-MODELS = ["gemini-2.5-flash-lite", "gemini-2.5-flash"]
+# Kota havuzları model bazında ayrı — biri dolunca diğerine geç.
+# `-latest` ALIAS'ları kullan: pinned sürümler (gemini-2.5-flash gibi) bazı
+# API projelerine "no longer available to new users" 404'ü veriyor; alias hep
+# güncel erişilebilir sürüme çözülür (production ask_service ile aynı strateji).
+MODELS = ["gemini-flash-lite-latest", "gemini-flash-latest"]
 # Free tier: ~10-15 RPM/key — key başına 6sn aralık bırak
 MIN_INTERVAL_PER_KEY_S = 6.0
 
@@ -75,6 +78,10 @@ def main() -> None:
     todo = [g for g in groups if g["name"] not in guides]
     last_call: dict[int, float] = {}
     done, fail = 0, 0
+    # dead = artık denenmeyecek kombolar. İki nedeni AYIR: kota (bugünlük dolu,
+    # yarın resume) vs model kapalı (kalıcı — yanlış yapılandırma sinyali).
+    quota_dead: set[tuple[int, str]] = set()
+    model_dead: set[tuple[int, str]] = set()
 
     for i, g in enumerate(todo):
         prompt = PROMPT.format(
@@ -104,14 +111,22 @@ def main() -> None:
                 text = None
             except Exception as e:  # noqa: BLE001
                 msg = str(e)
-                if "429" in msg[:60] or "quota" in msg[:200].lower():
-                    if "PerDay" in msg:
+                low = msg.lower()
+                if "429" in msg[:60] or "quota" in low or "resource_exhausted" in low:
+                    if "perday" in low or "per day" in low:
                         # Günlük kota gerçekten bitti — bu kombo bugünlük ölü
                         print(f"   ⏳ günlük kota: key{ki}×{model_name} devre dışı")
                         dead.add((ki, model_name))
+                        quota_dead.add((ki, model_name))
                     else:
                         # Dakikalık patlama — bekle, kombo YAŞIYOR
                         time.sleep(20)
+                elif "404" in msg or "not found" in low or "not available" in low:
+                    # Model bu key'e kapalı (ör. pinned sürüm yeni projelere
+                    # kapalı) — kombo KALICI ölü, her item'da tekrar deneme
+                    print(f"   🚫 model kapalı: key{ki}×{model_name}")
+                    dead.add((ki, model_name))
+                    model_dead.add((ki, model_name))
                 else:
                     print(f"   ⚠️ {g['name']}: {msg[:100]}")
         if text:
@@ -133,7 +148,22 @@ def main() -> None:
 
     json.dump(list(guides.values()), open(OUT, "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
-    print(f"✅ {len(guides)} tanıtım → {OUT}")
+    print(f"✅ {len(guides)} tanıtım → {OUT} (bu tur: +{done}, hata: {fail})")
+
+    # Çıkış kodu kararı: dept-guides zenginleştirmedir, kota kuruması NORMALdir
+    # (CI'yi kırmamalı — yarın resume eder). AMA tüm model×key kombinasyonu
+    # "model kapalı" (404) ise bu gerçek bir yanlış yapılandırmadır → gürültülü
+    # patla ki fark edilsin. Karışık durumda (biraz kota biraz 404) sessiz geç.
+    total_combos = len(keys) * len(MODELS)
+    if done == 0 and todo:
+        if len(model_dead) >= total_combos:
+            sys.exit(
+                f"❌ HİÇBİR model×key çalışmadı — tümü 'model kapalı' (404). "
+                f"Model isimleri geçersiz olabilir: {MODELS}. "
+                f"Erişilebilir modeller için: genai.list_models()."
+            )
+        print("ℹ️ Bu turda yeni tanıtım üretilemedi (günlük kota kuru) — "
+              "yarın otomatik resume edecek. CI yeşil kalır.")
 
 
 if __name__ == "__main__":
