@@ -62,7 +62,14 @@ from unisense.application.services import (
     CompassService,
     RecommendationService,
 )
-from unisense.api.middleware.rate_limit import ASK_LIMIT, DEFAULT_LIMIT, limiter
+from unisense.api.middleware.rate_limit import (
+    ASK_DAILY_GLOBAL_LIMIT,
+    ASK_DAILY_LIMIT,
+    ASK_LIMIT,
+    DEFAULT_LIMIT,
+    _global_key,
+    limiter,
+)
 from unisense.core.di import get_vector_store
 from unisense.core.logging import get_logger
 from unisense.domain.models import Query, StudentProfile
@@ -116,7 +123,13 @@ def list_models() -> ModelsResponse:
     response_model=AskResponse,
     dependencies=[Depends(require_api_key), Depends(require_user)],
 )
+# Üç katman: (1) hesap/IP başına dakika (ani patlama), (2) hesap/IP başına gün
+# (tek hesabın aşırı kullanımı), (3) site geneli gün (çok-hesap LLM kota tüketme
+# saldırısına sert backstop — açık Firebase kaydıyla Gemini günlük kotasını
+# bitirmeyi engeller). Limit aşılınca slowapi 429 döndürür.
 @limiter.limit(ASK_LIMIT)
+@limiter.limit(ASK_DAILY_LIMIT)
+@limiter.limit(ASK_DAILY_GLOBAL_LIMIT, key_func=_global_key)
 def ask(
     request: Request,
     body: AskRequest,
