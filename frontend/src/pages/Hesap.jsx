@@ -54,6 +54,7 @@ import BackgroundScene from '../components/three/BackgroundScene'
 import { useAuth } from '../contexts/AuthContext'
 import { getUserProfile, updateUserProfile } from '../firebase'
 import { apiFetch } from '../lib/api'
+import { TERCIH_YILI } from '../lib/donem'
 
 // === Yaklaşık ÖSYM katsayıları (ders-bazlı)
 const TYT_BIAS = 100
@@ -690,7 +691,7 @@ export default function Hesap() {
             className="text-3xl md:text-4xl font-display font-bold text-white mb-2"
           >
             {['DGS', 'KPSS', 'ALES', 'LGS', 'AGS'].includes(tab) ? tab : 'YKS'}{' '}
-            <span className="gradient-text">Hesap Makinesi</span> 2026
+            <span className="gradient-text">Hesap Makinesi</span> {TERCIH_YILI}
           </motion.h1>
           <p className="text-sm text-slate-400 max-w-xl mx-auto">
             Netlerini yaz,{' '}

@@ -479,7 +479,8 @@ def lgs_oneri(
 ) -> LgsOneriResponse:
     """Yüzdelik dilim (+ il/ilçe/tür) → güvenli/tutar/riskli lise önerileri (tersine).
 
-    TAHMİNÎDİR: geçen yıl (LGS 2025) taban yüzdeliklerine dayanır.
+    TAHMİNÎDİR: geçen yılın taban yüzdeliklerine dayanır (veri yılı yanıttaki
+    `yil` alanındadır).
     """
     result = svc.oneri(
         yuzdelik=payload.yuzdelik,

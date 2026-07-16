@@ -13,14 +13,29 @@ Strateji:
 """
 from __future__ import annotations
 
+import datetime as _dt
 import json
 import sys
+from functools import lru_cache
 from pathlib import Path
 from collections import defaultdict
 
 if sys.platform == "win32":
     import io as _io
     sys.stdout = _io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+
+
+@lru_cache(maxsize=1)
+def _data_year() -> int:
+    """Rankings verisinin yılı — chunk 'source' etiketleri veriden türesin."""
+    try:
+        proc = Path(__file__).resolve().parents[3] / "data" / "processed"
+        rankings = json.load(open(proc / "rankings.json", encoding="utf-8"))
+        years = {r.get("year") for r in rankings[:500] if r.get("year")}
+        return max(years) if years else _dt.date.today().year - 1
+    except Exception:  # noqa: BLE001
+        return _dt.date.today().year - 1
 
 
 def fmt_score(p: dict) -> str:
@@ -141,14 +156,14 @@ def build_program_chunks(departments: list[dict], rankings: list[dict]) -> list[
             "department_code": d["code"],
             "department_group": d.get("group_name", ""),
             "score_type": d.get("score_type", ""),
-            "year": r.get("year") if r else 2025,
+            "year": (yil := (r.get("year") if r else 2025)),
             "city": d.get("city", ""),
             "region": d.get("region", ""),
             "education_level": d.get("education_level", ""),
             "education_language": d.get("education_language", ""),
             "scholarship": d.get("scholarship", ""),
             "heading": d["name"],
-            "source": "YÖK Atlas 2025",
+            "source": f"YÖK Atlas {yil}",
             "source_url": f"https://yokatlas.yok.gov.tr/lisans.php?y={d.get('kilavuz_kodu', '')}",
             "language": "tr",
         })
@@ -212,7 +227,7 @@ def build_university_summary_chunks(universities: list[dict],
             "city": u.get("city", ""),
             "region": u.get("region", ""),
             "heading": u["name"],
-            "source": "YÖK Atlas 2025 + Wikipedia",
+            "source": f"YÖK Atlas {_data_year()} + Wikipedia",
             "source_url": u.get("website", ""),
             "language": "tr",
             # Metadata için sayısal/string ek alanlar (chunk_meta'da kullanılabilir)
@@ -287,7 +302,7 @@ def build_dept_guide_chunks(guides: list[dict]) -> list[dict]:
             "department_code": "",
             "department_group": name,
             "score_type": "",
-            "year": 2026,
+            "year": _dt.date.today().year,
             "city": "",
             "heading": f"{name} nedir, mezunları ne iş yapar?",
             "source": "Bölüm Rehberi (yapay zeka destekli özet)",

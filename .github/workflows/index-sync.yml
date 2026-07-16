@@ -5,7 +5,11 @@ name: RAG Index Sync
 # (fetch_index), dolayısıyla index güncellenmeden yeni rehberler chat'e YANSIMAZ.
 #
 # Tetikleme:
-#   - Otomatik: dept_guides.json veya diğer chunk kaynakları main'e push'lanınca
+#   - Otomatik: chunk kaynakları main'e İNSAN eliyle push'lanınca (aşağıdaki paths)
+#   - workflow_dispatch: dept-guides-sync ve yearly-data-sync BOT commit'lerinden
+#     sonra bunu AÇIKÇA tetikler — GitHub kuralı: GITHUB_TOKEN ile atılan push
+#     başka workflow'ların 'on: push'unu ATEŞLEMEZ (özyineleme koruması), yani
+#     path filtresi bot commit'lerinde tek başına yetmez.
 #   - Manuel:  GitHub Actions → "RAG Index Sync" → Run workflow
 #
 # ÖN KOŞUL: repo Settings → Secrets → Actions → HF_TOKEN (write yetkili) eklenmeli.
@@ -18,7 +22,9 @@ on:
       - 'backend/data/processed/dept_guides.json'
       - 'backend/data/processed/departments.json'
       - 'backend/data/processed/rankings.json'
-      - 'backend/data/processed/wikipedia_*.json'
+      - 'backend/data/processed/universities.json'
+      - 'backend/data/processed/iskur_guides.json'
+      - 'backend/data/raw/wikipedia/universities.json'
 
 permissions:
   contents: write
@@ -81,11 +87,23 @@ jobs:
             git push
           fi
 
+      # Script REPO KÖKÜNDEKİ scripts/ altında — 'scripts/...' yolu backend
+      # cwd'sinde YOKTU ve adım her koşuda düşüyordu (denetim bulgusu)
       - name: Upload index → HF dataset
         if: ${{ env.HF_TOKEN != '' }}
         working-directory: backend
-        run: python scripts/upload_index_hf.py BrokyEwing/unisense-index
+        run: python ../scripts/upload_index_hf.py BrokyEwing/unisense-index
+
+      - name: Secret eksikse zinciri görünür kır
+        if: ${{ env.HF_TOKEN == '' }}
+        run: |
+          echo "::warning::HF_TOKEN secret yok — index HF'e YÜKLENMEDİ; canlı RAG bayat kalacak. Settings → Secrets → HF_TOKEN ekleyin."
+          exit 1
 
       - name: Trigger Render redeploy (fetch_index yeni index'i çeker)
         if: ${{ env.RENDER_DEPLOY_HOOK != '' }}
         run: curl -fsSL -X POST "$RENDER_DEPLOY_HOOK"
+
+      - name: Deploy hook eksikse uyar
+        if: ${{ env.RENDER_DEPLOY_HOOK == '' }}
+        run: echo "::warning::RENDER_DEPLOY_HOOK secret yok — yeni index bir sonraki doğal restart'a kadar canlıya inmeyecek."

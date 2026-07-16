@@ -169,9 +169,11 @@ class DgsService:
         else:
             # Normal arama: tabanı puana en yakın (en "değerli" ulaşılabilir) önce
             items.sort(key=lambda x: (x["min_puan"] is None, -(x["min_puan"] or 0)))
+        yil = items[0]["yil"] if items and items[0].get("yil") else 2025
         return {
             "total": len(items),
+            "yil": yil,  # ask_service başlığı ve frontend etiketleri veriden okusun
             "items": items[:limit],
-            "uyari": (f"Taban puanlar {items[0]['yil'] if items else 2025} DGS "
+            "uyari": (f"Taban puanlar {yil} DGS "
                       "yerleştirmesine aittir; yeni dönemde değişebilir."),
         }

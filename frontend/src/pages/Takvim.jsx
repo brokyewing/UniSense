@@ -4,6 +4,7 @@ import { Loader2, CalendarDays, Info } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
+import { TERCIH_YILI } from '../lib/donem'
 
 const TUR_STIL = {
   sinav:       { label: 'Sınav',        cls: 'bg-blue-500/15 text-blue-300 border-blue-500/30' },
@@ -44,14 +45,14 @@ export default function Takvim() {
     <>
       <BackgroundScene />
       <Seo
-        title="2026 Sınav Takvimi — YKS, LGS, DGS, KPSS, ALES, TUS Tarihleri | UniSense"
-        description="2026 YKS, LGS, DGS, KPSS, ALES, TUS, DUS ve AGS sınav, sonuç ve tercih tarihleri — kaç gün kaldığıyla birlikte tek sayfada."
+        title={`${TERCIH_YILI} Sınav Takvimi — YKS, LGS, DGS, KPSS, ALES, TUS Tarihleri | UniSense`}
+        description={`${TERCIH_YILI} YKS, LGS, DGS, KPSS, ALES, TUS, DUS ve AGS sınav, sonuç ve tercih tarihleri — kaç gün kaldığıyla birlikte tek sayfada.`}
         path="/takvim"
       />
       <div className="max-w-3xl mx-auto space-y-5">
         <div className="text-center">
           <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1 flex items-center justify-center gap-2">
-            <CalendarDays className="text-accent-300" /> 2026 Sınav Takvimi
+            <CalendarDays className="text-accent-300" /> {TERCIH_YILI} Sınav Takvimi
           </h1>
           <p className="text-slate-400 text-sm">Yaklaşan sınav, sonuç ve tercih tarihleri — kaç gün kaldığıyla.</p>
         </div>

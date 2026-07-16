@@ -9,6 +9,7 @@ import {
   watchLgsTercih, addToLgsTercih, removeFromLgsTercih, MAX_LGS_TERCIH, lgsTercihKey,
   getUserProfile,
 } from '../firebase'
+import { TERCIH_YILI } from '../lib/donem'
 
 const TUR_STIL = {
   fen:            { label: 'Fen',            cls: 'bg-blue-500/15 text-blue-300 border-blue-500/30' },
@@ -89,7 +90,7 @@ function LiseKart({ lise, inList, onToggle }) {
       </div>
       <div className="flex items-end justify-between mt-2">
         <div>
-          <div className="text-[10px] text-slate-500">Taban yüzdelik (2025)</div>
+          <div className="text-[10px] text-slate-500">Taban yüzdelik{lise.trend?.[0]?.yil ? ` (${lise.trend[0].yil})` : ''}</div>
           <div className="text-lg font-display font-bold text-accent-300 leading-none">
             %{lise.yuzdelik?.toLocaleString('tr-TR')}
           </div>
@@ -248,7 +249,7 @@ export function LgsRobot() {
           <div className="flex items-start gap-2">
             <Info size={13} className="text-amber-400 mt-0.5 shrink-0" />
             <span>
-              <strong className="text-amber-300">Tahminîdir.</strong> Sonuçlar geçen yıl (LGS 2025) Türkiye geneli
+              <strong className="text-amber-300">Tahminîdir.</strong> Sonuçlar geçen yılın (son açıklanan LGS) Türkiye geneli
               taban yüzdeliklerine dayanır; bu yılki taban puanları değişebilir — garanti değildir.
             </span>
           </div>
@@ -432,7 +433,7 @@ export default function LGS() {
     <>
       <BackgroundScene />
       <Seo
-        title="LGS Tercih Robotu 2026 — Yüzdelik Dilimine Göre Lise Bul | UniSense"
+        title={`LGS Tercih Robotu ${TERCIH_YILI} — Yüzdelik Dilimine Göre Lise Bul | UniSense`}
         description="LGS yüzdelik dilimini gir, geçen yıl taban puanlarına göre girebileceğin Fen, Anadolu, Sosyal Bilimler ve İmam Hatip liselerini güvenli/tutar/riskli olarak gör. Ücretsiz, tahminî."
         path="/lgs"
       />

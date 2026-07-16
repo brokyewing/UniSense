@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import { apiFetch } from '../lib/api'
+import { TERCIH_YILI } from '../lib/donem'
 
 // Yaklaşan sınavlar widget'ı — /takvim'den ilk 3 etkinlik
 function UpcomingExams() {
@@ -83,7 +84,7 @@ const FEATURES = [
   {
     icon: CalendarDays,
     title: 'Sınav Takvimi',
-    desc: 'Tüm 2026 sınav, sonuç ve tercih tarihleri — kaç gün kaldığıyla.',
+    desc: `Tüm ${TERCIH_YILI} sınav, sonuç ve tercih tarihleri — kaç gün kaldığıyla.`,
     accent: 'from-green-500 to-emerald-500',
     to: '/takvim',
   },
@@ -162,7 +163,7 @@ export default function Home() {
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-500/10 border border-accent-500/30 text-accent-300 text-xs font-medium mb-6 backdrop-blur-xl"
           >
             <span className="w-2 h-2 rounded-full bg-accent-500 animate-pulse" />
-            🎓 2026 Tercih Dönemi · YKS · DGS · KPSS · LGS · TUS
+            🎓 {TERCIH_YILI} Tercih Dönemi · YKS · DGS · KPSS · LGS · TUS
           </motion.div>
 
           <motion.h1

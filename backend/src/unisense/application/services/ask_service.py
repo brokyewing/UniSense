@@ -342,6 +342,20 @@ def _extract_intent(query: str) -> dict | None:
     }
 
 
+@lru_cache(maxsize=1)
+def _rankings_year() -> int:
+    """Rankings verisinin yılı — LLM'e giden 'X verisi' etiketleri veriden
+    türesin, yıllık senkronda elle güncelleme gerekmesin."""
+    try:
+        from unisense.application.services.recommendation_service import _load_data
+
+        rankings, _, _ = _load_data()
+        years = {r.get("year") for r in rankings[:500] if r.get("year")}
+        return max(years) if years else 2025
+    except Exception:  # noqa: BLE001
+        return 2025
+
+
 def _build_listing_context(intent: dict, rec_service: "RecommendationService") -> str:
     """Sıra/puan VERİLMEDEN sorulan envanter soruları için program listesi.
 
@@ -366,7 +380,7 @@ def _build_listing_context(intent: dict, rec_service: "RecommendationService") -
         scope.append(f"{len(intent['universities'])} üniversite")
     scope.append(", ".join(intent.get("departments") or []))
 
-    lines = [f"=== PROGRAM LİSTESİ ({' — '.join(s for s in scope if s)}) — 2025 verisi ==="]
+    lines = [f"=== PROGRAM LİSTESİ ({' — '.join(s for s in scope if s)}) — {_rankings_year()} verisi ==="]
     lines.append(
         f"Toplam {result['total']} program, toplam kontenjan {result['total_quota']:,}. "
         f"(İlk {len(result['programs'])} tanesi taban sırasına göre listelendi)"
@@ -573,7 +587,7 @@ def _build_dgs_context(query: str, user_context: dict | None = None) -> str:
     il = _detect_city_in_query(qf)
 
     r = get_dgs_service().program_ara(puan_turu=pt, puan=puan, bolum=bolum, il=il, limit=15)
-    lines = ["=== DGS LİSANS GEÇİŞ PROGRAMLARI (2025 tabanları) ===",
+    lines = [f"=== DGS LİSANS GEÇİŞ PROGRAMLARI ({r.get('yil', _rankings_year())} tabanları) ===",
              f"Filtre: puan türü={pt}, puan={puan or '?'}, "
              f"bölüm={bolum or 'tümü'}, il={il or 'tümü'}",
              f"Uyan program sayısı: {r['total']} (ilk 15)", ""]
@@ -613,7 +627,7 @@ def _build_recommendation_context(intent: dict, rec_service: "RecommendationServ
     setattr(profile, "_geo_flags", geo_flags)
     result = rec_service.recommend(profile)
 
-    lines = ["=== TERCİH ÖNERİLERİ (sıra bazlı, taban verisi 2025) ==="]
+    lines = [f"=== TERCİH ÖNERİLERİ (sıra bazlı, taban verisi {_rankings_year()}) ==="]
     lines.append(f"Profil: {st_enum.value}, sıra={intent.get('rank') or '?'}, puan={intent.get('score') or '?'}")
     if intent.get("uni_types"):
         lines.append(f"Filtre: {', '.join(intent['uni_types'])}")
@@ -753,7 +767,8 @@ class AskService:
                 # History dosyası yoksa kullanıcıya açık not
                 trend_context = (
                     "=== TREND NOTU ===\n"
-                    "Şu anda 2025 verisi var. Geçmiş yıl arşivi (2020-2024) hazırlanıyor — "
+                    f"Şu anda {_rankings_year()} verisi var. Geçmiş yıl arşivi "
+                    f"({_rankings_year() - 5}-{_rankings_year() - 1}) hazırlanıyor — "
                     "trend sorularına şu an cevap için Wikipedia/üni sayfalarındaki sözel "
                     "bilgilerle yetinin."
                 )

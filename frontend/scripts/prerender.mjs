@@ -13,7 +13,9 @@ import { fileURLToPath } from 'node:url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DIST = resolve(__dirname, '../dist')
 const SITE = 'https://www.unisense.com.tr'
-const TITLE_ANCHOR = '<title>UniSense — 2026 Tercih Robotu | YKS, DGS, KPSS</title>'
+// Tercih dönemi yılı — src/lib/donem.js ile AYNI formül (build anında hesaplanır)
+const TERCIH_YILI = (() => { const d = new Date(); return d.getMonth() >= 8 ? d.getFullYear() + 1 : d.getFullYear() })()
+const TITLE_ANCHOR = `<title>UniSense — ${TERCIH_YILI} Tercih Robotu | YKS, DGS, KPSS</title>`
 
 if (!existsSync(resolve(DIST, 'index.html'))) {
   console.log('[prerender] dist/index.html yok — build çalışmamış, atlanıyor')
@@ -76,17 +78,17 @@ function writePage(routePath, html) {
 
 // --- Statik araç rotaları (App ROUTE_SEO ile aynı) ---
 const STATIC_ROUTES = {
-  '/': { title: 'UniSense — 2026 Tercih Robotu | YKS, DGS, KPSS Taban Puanlar', description: 'YKS, DGS ve KPSS tercihine yapay zekâ destekli hazırlan: güncel taban puanlar, başarı sıralamaları, net hesaplama ve kişisel tercih önerileri — ücretsiz.' },
-  '/anasayfa': { title: 'UniSense — 2026 Tercih Robotu | YKS, DGS, KPSS', description: 'Güncel taban puanlar, sıralamalar ve yapay zekâ destekli tercih önerileriyle YKS, DGS ve KPSS tercihine hazırlan.' },
+  '/': { title: `UniSense — ${TERCIH_YILI} Tercih Robotu | YKS, DGS, KPSS Taban Puanlar`, description: 'YKS, DGS ve KPSS tercihine yapay zekâ destekli hazırlan: güncel taban puanlar, başarı sıralamaları, net hesaplama ve kişisel tercih önerileri — ücretsiz.' },
+  '/anasayfa': { title: `UniSense — ${TERCIH_YILI} Tercih Robotu | YKS, DGS, KPSS`, description: 'Güncel taban puanlar, sıralamalar ve yapay zekâ destekli tercih önerileriyle YKS, DGS ve KPSS tercihine hazırlan.' },
   '/arama': { title: 'Tercih Sorgu — Taban Puan & Sıralama Sorgula | UniSense', description: 'Doğal dilde sor: bölüm taban puanları, başarı sıralamaları, kontenjanlar ve KPSS kadroları — kaynak gösterimli yapay zekâ sohbeti.' },
   '/oneriler': { title: 'Tercih Önerileri — YKS · DGS · KPSS | UniSense', description: 'Puanına uygun güvenli, hedef ve üst seviye tercihleri yapay zekâyla al. YKS, DGS ve KPSS için ayrı öneriler.' },
   '/hesap': { title: 'Puan Hesaplama — YKS · DGS · KPSS Net Hesap | UniSense', description: 'Netlerini gir, yaklaşık YKS, DGS veya KPSS yerleştirme puanını anında hesapla.' },
   '/pusula': { title: 'İlgi Pusulası — Sana Uygun Bölümü Bul | UniSense', description: 'İlgi alanlarından yapay zekâ ile sana uygun üniversite bölümlerini keşfet.' },
   '/karsilastir': { title: 'Program Karşılaştırma — Taban, Trend, Kadro | UniSense', description: 'Üniversite programlarını yan yana karşılaştır: taban puan, 3 yıllık sıralama trendi, akademik kadro, ücret ve akreditasyon.' },
   '/bolum': { title: 'Bölüm Rehberi — Üniversite Bölümleri Tanıtımı | UniSense', description: 'Üniversite bölümleri ne iş yapar, hangi dersleri okur, mezunları nerede çalışır? Tanıtımlar + güncel taban puanları.' },
-  '/takvim': { title: '2026 Sınav Takvimi — YKS, LGS, DGS, KPSS, ALES, TUS | UniSense', description: '2026 YKS, LGS, DGS, KPSS, ALES, TUS, DUS ve AGS sınav, sonuç ve tercih tarihleri — kaç gün kaldığıyla tek sayfada.' },
-  '/lgs': { title: 'LGS Tercih Robotu 2026 — Yüzdelik Dilimine Göre Lise Bul | UniSense', description: 'LGS yüzdelik dilimini gir, girebileceğin Fen, Anadolu, Sosyal Bilimler ve İmam Hatip liselerini güvenli/tutar/riskli olarak gör — ücretsiz, tahminî.' },
-  '/tus': { title: 'TUS / DUS Tercih Robotu 2026 — Puanına Göre Uzmanlık Bul | UniSense', description: 'TUS veya DUS puanını gir, geçen dönem ÖSYM taban puanlarına göre yerleşebileceğin uzmanlık dallarını ve kurumları güvenli/tutar/riskli olarak gör — ücretsiz, tahminî.' },
+  '/takvim': { title: `${TERCIH_YILI} Sınav Takvimi — YKS, LGS, DGS, KPSS, ALES, TUS | UniSense`, description: `${TERCIH_YILI} YKS, LGS, DGS, KPSS, ALES, TUS, DUS ve AGS sınav, sonuç ve tercih tarihleri — kaç gün kaldığıyla tek sayfada.` },
+  '/lgs': { title: `LGS Tercih Robotu ${TERCIH_YILI} — Yüzdelik Dilimine Göre Lise Bul | UniSense`, description: 'LGS yüzdelik dilimini gir, girebileceğin Fen, Anadolu, Sosyal Bilimler ve İmam Hatip liselerini güvenli/tutar/riskli olarak gör — ücretsiz, tahminî.' },
+  '/tus': { title: `TUS / DUS Tercih Robotu ${TERCIH_YILI} — Puanına Göre Uzmanlık Bul | UniSense`, description: 'TUS veya DUS puanını gir, geçen dönem ÖSYM taban puanlarına göre yerleşebileceğin uzmanlık dallarını ve kurumları güvenli/tutar/riskli olarak gör — ücretsiz, tahminî.' },
   '/gizlilik': { title: 'Gizlilik ve KVKK | UniSense', description: 'UniSense gizlilik politikası ve KVKK aydınlatma metni.' },
 }
 

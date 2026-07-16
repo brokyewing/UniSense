@@ -92,8 +92,11 @@ class GuideService:
             })
         # Tabanı yüksek (en zor/prestijli) önce; tabanı olmayan (boş kalan) sona
         programs.sort(key=lambda x: (x["base_score"] is None, -(x["base_score"] or 0)))
+        # Veri yılı — frontend '(YYYY yerleştirme)' etiketini veriden okusun
+        yillar = {r.get("year") for r in rankings[:500] if r.get("year")}
         return {
             "slug": slug,
+            "data_yili": max(yillar) if yillar else None,
             "name": g["name"],
             "category": g.get("category", ""),
             "program_count": g.get("program_count", 0),
