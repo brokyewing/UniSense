@@ -62,7 +62,11 @@ def main() -> None:
     settings = get_settings()
     keys = settings.gemini_keys_list
     if not keys:
-        sys.exit("GEMINI_API_KEYS gerekli (backend/.env)")
+        # Geçerli key yok: ya secret boş ya da hepsi geçersiz formatta (validator
+        # bozuk olanları düşürür + uyarı basar). Eyleme dönük mesaj:
+        sys.exit("Geçerli GEMINI_API_KEYS yok — her key 'AIza' veya 'AQ.' ile "
+                 "başlamalı. GitHub Secrets → GEMINI_API_KEYS (veya backend/.env) "
+                 "değerini kontrol et (virgülle ayır, tırnak/boşluk/satır ekleme).")
 
     taxonomy = get_taxonomy()
     cat_labels = {k: v["label"] for k, v in taxonomy["categories"].items()}

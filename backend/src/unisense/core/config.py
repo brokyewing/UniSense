@@ -84,14 +84,23 @@ class Settings(BaseSettings):
         # İki geçerli format var:
         #   AIza... → eski Standard key (Google Eylül 2026'da tamamen kapatıyor!)
         #   AQ.  ... → yeni Auth key (Haziran 2026'dan beri varsayılan)
+        # DAYANIKLILIK: bozuk formatlı key'i FIRLATMA — DÜŞÜR. Aksi halde tek
+        # hatalı key (ör. GitHub secret'ine yanlış yapıştırılan bir değer) tüm
+        # Settings()'i, dolayısıyla backend boot'unu VE her workflow'u çökertir.
+        # Bozuklar atılır, geçerliler kalır; hiç geçerli yoksa boş döner (uygulama
+        # RAG-dışı çalışır, generate script "key yok" ile temiz çıkar).
         if not v.strip():
             return v
         keys = [k.strip() for k in v.split(",") if k.strip()]
-        for k in keys:
-            if not (k.startswith("AIza") or k.startswith("AQ.")):
-                # Key içeriğini hata mesajına yazma — loglara sızmasın
-                raise ValueError("Invalid Gemini key format (must start with 'AIza' or 'AQ.')")
-        return v
+        valid = [k for k in keys if k.startswith("AIza") or k.startswith("AQ.")]
+        dropped = len(keys) - len(valid)
+        if dropped:
+            import sys as _sys
+            # Key İÇERİĞİNİ yazma (loga sızmasın) — sadece sayı
+            print(f"[config] UYARI: {dropped} Gemini key'i geçersiz formatta "
+                  f"(AIza/AQ. ile başlamıyor) — atlandı. Geçerli kalan: {len(valid)}.",
+                  file=_sys.stderr)
+        return ",".join(valid)
 
     @property
     def gemini_keys_list(self) -> list[str]:
