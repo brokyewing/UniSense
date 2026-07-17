@@ -50,11 +50,15 @@ def _client_key(request: Request) -> str:
     return _real_client_ip(request)
 
 
-def _global_key(_request: Request) -> str:
+def _global_key(*_args) -> str:
     """Site geneli tek kova — /ask günlük GLOBAL tavan için sabit anahtar.
 
     Her istek aynı anahtara düşer → tüm site toplamı tek limite tabi olur.
     Çok-hesap (açık Firebase kaydı) LLM kota tüketme saldırısına sert backstop.
+
+    DİKKAT: slowapi bu per-limit key_func'u bazı kod yollarında ARGÜMANSIZ,
+    bazılarında request ile çağırıyor → *_args ile her iki biçimi de karşıla
+    (yoksa /ask her istekte TypeError ile 500 verir — bkz. regresyon testi).
     """
     return "ask:global"
 

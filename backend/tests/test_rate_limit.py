@@ -5,6 +5,7 @@ from unisense.api.middleware.rate_limit import (
     ASK_LIMIT,
     DEFAULT_LIMIT,
     _client_key,
+    _global_key,
     _real_client_ip,
 )
 
@@ -51,3 +52,14 @@ def test_spoofed_left_xff_cannot_rotate_the_bucket():
 
 def test_single_xff_entry_is_used():
     assert _real_client_ip(_req(xff="203.0.113.9")) == "203.0.113.9"
+
+
+def test_global_key_callable_with_no_args():
+    # REGRESYON: slowapi per-limit key_func'u ARGÜMANSIZ çağırıyor. Tek argüman
+    # beklerse /ask her istekte TypeError → 500 verir (flagship sohbet kırılır).
+    assert _global_key() == "ask:global"
+
+
+def test_global_key_callable_with_request_arg():
+    # request ile de çağrılabilmeli (slowapi diğer kod yolu)
+    assert _global_key(_req(xff="1.2.3.4")) == "ask:global"
