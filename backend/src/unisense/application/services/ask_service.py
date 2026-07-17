@@ -170,6 +170,14 @@ _NET_RE = re.compile(
     r"\bka(ç|c)\s*net\b|\bnet\s*(yap|gerek|laz(ı|i)m|olmal|yeter|at(ı|i)|istiyor)",
     re.I)
 
+# OBP / diploma notu — net tahminini kişiselleştirmek için (yoksa varsayılan ~50).
+#   "obp 450" / "obp'm 420"   → OBP doğrudan (0-500), katkı = OBP×0.12
+#   "diploma notum 90" / "ortalamam 85" → not (0-100), OBP = not×5, katkı = not×0.6
+# "obp 450", "obp'm 420", "obpm: 400" — ek/tırnak/işaret araya girebilir
+_OBP_RE = re.compile(r"\bobp[^\d]{0,6}(\d{2,3}(?:[.,]\d+)?)", re.I)
+_DIPLOMA_RE = re.compile(
+    r"(?:diploma|ortalama|not\s*ortalam\w*)[^\d]{0,12}(\d{1,3}(?:[.,]\d+)?)", re.I)
+
 
 @lru_cache(maxsize=1)
 def _group_token_index() -> dict[str, list[str]]:
@@ -296,6 +304,8 @@ def _extract_intent(query: str) -> dict | None:
 
     # "kaç net gerekir" — bölüm tabanından tahmini net (tersine hesap)
     is_net = bool(_NET_RE.search(q))
+    # Kullanıcı OBP/diploma verdiyse net tahmini kişiselleşir (yoksa varsayılan)
+    obp_katki = _parse_obp_katki(q) if is_net else None
 
     # "N tane tercih yap" / "tercih listesi oluştur" — N tercihlik liste isteği
     list_n = None
@@ -349,6 +359,7 @@ def _extract_intent(query: str) -> dict | None:
         "geo_flags": geo_flags,
         "is_count": is_count,
         "is_net": is_net,
+        "obp_katki": obp_katki,
         "list_n": list_n,
     }
 
@@ -372,19 +383,43 @@ def _rankings_year() -> int:
 # TUZAK: bir PUAN tek net kombinasyonuna karşılık gelmez (dağılım + OBP değişir);
 # bu yüzden TAHMİNÎ. Basit-dürüst model: öğrenci TYT ve AYT'de AYNI oranda (f)
 # doğru yapıyor + referans OBP varsayımı. Metinde "tahmini" olduğu belirtilir.
-_OBP_KATKI = 50.0    # diploma ~85 → OBP ~420 → 420×0.12 ≈ 50 puan
+_OBP_KATKI = 50.0    # diploma ~85 → OBP ~420 → 420×0.12 ≈ 50 puan (VARSAYILAN)
 _TYT_SORU = 120      # TYT toplam soru
 _AYT_SORU = 80       # SAY/EA/SÖZ AYT toplam soru (~80)
 
 
-def _estimate_nets(score: float | None, score_type: str) -> dict | None:
-    """Taban puanından yaklaşık net (TYT + AYT). Tahminî — bkz. üst not."""
+def _parse_obp_katki(q: str) -> float | None:
+    """Sorgudan OBP/diploma → yerleştirme puanına OBP katkısı (OBP×0.12).
+
+    Kullanıcı verirse net tahmini kişiselleşir; yoksa None → varsayılan kullanılır.
+    """
+    m = _OBP_RE.search(q)
+    if m:
+        obp = float(m.group(1).replace(",", "."))
+        if 0 <= obp <= 500:
+            return round(obp * 0.12, 1)
+    m = _DIPLOMA_RE.search(q)
+    if m:
+        nota = float(m.group(1).replace(",", "."))
+        if 0 <= nota <= 100:  # 100'lük not → OBP = not×5 → katkı = not×5×0.12
+            return round(nota * 5 * 0.12, 1)
+    return None
+
+
+def _estimate_nets(
+    score: float | None, score_type: str, obp_katki: float | None = None
+) -> dict | None:
+    """Taban puanından yaklaşık net (TYT + AYT). Tahminî — bkz. üst not.
+
+    obp_katki verilmezse varsayılan ~50 (diploma ~85) kullanılır.
+    """
     if not score:
         return None
+    katki = obp_katki if obp_katki is not None else _OBP_KATKI
     if score_type == "TYT":  # önlisans / TYT puanı → sadece TYT bloğu (max ~160)
-        f = max(0.0, min(1.0, (score - 100 - _OBP_KATKI) / 160))
+        f = max(0.0, min(1.0, (score - 100 - katki) / 160))
         return {"tyt": round(f * _TYT_SORU), "ayt": None}
-    f = max(0.0, min(1.0, (score - 100 - _OBP_KATKI) / 400))  # TYT160 + AYT240
+    f = max(0.0, min(1.0, (score - 100 - katki) / 400))  # TYT160 + AYT240
     return {"tyt": round(f * _TYT_SORU), "ayt": round(f * _AYT_SORU)}
 
 
@@ -423,14 +458,24 @@ def _build_listing_context(intent: dict, rec_service: "RecommendationService") -
             f"toplam {result['total']} program var. Ardından birkaç örnek göster."
         )
     if intent.get("is_net"):
+        obp_k = intent.get("obp_katki")
+        if obp_k is not None:
+            obp_not = (
+                f"Kullanıcı OBP/diploma verdi (yerleştirmeye ~{obp_k:.0f} puan katkı) — "
+                f"'~net' değerleri BU DEĞERE göre hesaplandı. "
+            )
+        else:
+            obp_not = (
+                "'~net' değerleri VARSAYILAN OBP (diploma ~85 / ~50 puan katkı) ile "
+                "hesaplandı; kullanıcı diploma notunu/OBP'sini yazarsa daha isabetli olur — "
+                "bunu nazikçe hatırlat. "
+            )
         lines.append(
-            "YÖNERGE: Kullanıcı KAÇ NET gerektiğini sordu. Her programın yanındaki "
-            "'~net' TAHMİNÎ değerini kullan (diploma ~85 / OBP ~50 puan katkısı ve "
-            "TYT-AYT'de dengeli-eşit başarı varsayımıyla hesaplandı). En zor ve daha "
-            "ulaşılabilir programlar için bir net ARALIĞI ver (ör. 'ODTÜ için ~TYT X+AYT Y, "
-            "daha ulaşılabilir programlar için ~TYT A+AYT B'). MUTLAKA belirt: bu TAHMİNÎDİR, "
-            "gerçek net dağılıma ve OBP'ne (diploma notu) göre değişir; kesin hesap için "
-            "Hesap sayfasını (net gir → puan gör) öner."
+            "YÖNERGE: Kullanıcı KAÇ NET gerektiğini sordu. Her programın yanındaki '~net' "
+            f"TAHMİNÎ değerini kullan (TYT-AYT'de dengeli-eşit başarı varsayımıyla). {obp_not}"
+            "En zor ve daha ulaşılabilir programlar için bir net ARALIĞI ver. MUTLAKA belirt: "
+            "bu TAHMİNÎDİR, gerçek net dağılıma göre de değişir; kesin hesap için Hesap "
+            "sayfasını (net gir → puan gör) öner."
         )
     if list_n:
         lines.append(
@@ -451,7 +496,9 @@ def _build_listing_context(intent: dict, rec_service: "RecommendationService") -
         city = "" if p["city"] and p["city"] in uni else f" ({p['city']})"
         net_s = ""
         if intent.get("is_net"):
-            est = _estimate_nets(p["base_score"], intent.get("score_type", "SAY"))
+            est = _estimate_nets(
+                p["base_score"], intent.get("score_type", "SAY"),
+                intent.get("obp_katki"))
             if est:
                 net_s = (f" | ~net: TYT {est['tyt']}"
                          + (f"+AYT {est['ayt']}" if est["ayt"] is not None else ""))
