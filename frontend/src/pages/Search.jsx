@@ -284,6 +284,13 @@ export default function Search() {
       const prof = p?.profile || {}
       const ctx = {}
       if (prof.examTrack) ctx.exam_track = prof.examTrack
+      // YKS puanı/sırası — "puanıma göre X kazanabilir miyim" tarzı sorularda
+      // backend profildekini kullanır, kullanıcı tekrar yazmak zorunda kalmaz
+      if (prof.score) {
+        ctx.yks_puan = prof.score
+        if (prof.scoreType) ctx.yks_turu = prof.scoreType
+      }
+      if (prof.rank) ctx.yks_sira = prof.rank
       if (prof.kpss?.score) {
         ctx.kpss_puan = prof.kpss.score
         if (prof.kpss.duzey) ctx.kpss_duzey = prof.kpss.duzey

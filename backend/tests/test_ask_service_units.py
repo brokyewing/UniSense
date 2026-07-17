@@ -411,3 +411,12 @@ class TestConversationContext:
                          users=["kpss bilgisayar", "tıp taban puanı nedir istanbul"])
         rt = _routing_text(q).lower()
         assert "tıp" in rt and "kpss" not in rt
+
+
+class TestUserExamContextSchema:
+    def test_yks_fields_retained(self):
+        # REGRESYON: şemada yks_puan yoktu → frontend gönderse de pydantic atıyordu
+        from unisense.api.v1.schemas import UserExamContext
+        c = UserExamContext(yks_puan=430, yks_turu="SAY", yks_sira=65550)
+        d = c.model_dump(exclude_none=True)
+        assert d["yks_puan"] == 430 and d["yks_turu"] == "SAY" and d["yks_sira"] == 65550

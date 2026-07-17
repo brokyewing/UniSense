@@ -177,6 +177,12 @@ _FOLLOWUP_RE = re.compile(
     r"peki|bunlar(dan|ı)?|hangi(leri|si)?|ayn(ı|i)|(ş|s)ehir|il(ç|c)e|iller|"
     r"o zaman|bi(r)?\s*de|de\s*bak|da\s*bak|nas(ı|i)l)\b", re.I)
 
+# Kullanıcı KENDİ puanını kastediyor mu — "puanıma göre", "kazanabilir miyim",
+# "girer/yeter/tutar mıyım". Profildeki YKS puanını devreye almak için.
+_SELF_SCORE_RE = re.compile(
+    r"puan(ı|i)m|s(ı|i)ra(la)?m|kazan(abil|(ı|i)r\s*m)|gir(er|ebilir)\s*m|"
+    r"yeter\s*m|tutar\s*m|yazabil|(ş|s)ans(ı|i)m|nereye\s*gir|benim\s*puan", re.I)
+
 # OBP / diploma notu — net tahminini kişiselleştirmek için (yoksa varsayılan ~50).
 #   "obp 450" / "obp'm 420"   → OBP doğrudan (0-500), katkı = OBP×0.12
 #   "diploma notum 90" / "ortalamam 85" → not (0-100), OBP = not×5, katkı = not×0.6
@@ -496,6 +502,23 @@ def _build_listing_context(intent: dict, rec_service: "RecommendationService") -
             f"YÖNERGE: Kullanıcı SAYIM sordu — net cevap ver: elimizde bu bölüm için "
             f"toplam {result['total']} program var. Ardından birkaç örnek göster."
         )
+    us = intent.get("user_score")
+    if us:
+        ust = intent.get("user_score_type") or "SAY"
+        usr = intent.get("user_rank")
+        lines.append(
+            f"KULLANICI PROFİL PUANI: {us} ({ust})"
+            + (f", tahmini sıra ~{usr:,}" if usr else "")
+        )
+        lines.append(
+            "YÖNERGE: Kullanıcı KENDİ puanıyla yerleşip yerleşemeyeceğini soruyor. "
+            "Yukarıdaki her programın TABANIYLA kullanıcının puanını/sırasını kıyasla ve "
+            "NET değerlendir: puan tabandan belirgin YÜKSEKSE 'rahatça yerleşirsin', "
+            "YAKINSA (±birkaç puan) 'sınırda/riskli', DÜŞÜKSE 'bu puanla zor' de. "
+            "Örn: '430 puanınla taban 437 olan Çukurova sınırın hafif altında — zor ama "
+            "taban düşerse şansın olabilir'. TAHMİNÎdir; kesin sıra sınav sonucuna bağlı, "
+            "geçen yıl tabanı bu yıl değişebilir — bunu da belirt."
+        )
     if intent.get("is_net"):
         obp_k = intent.get("obp_katki")
         if obp_k is not None:
@@ -541,9 +564,20 @@ def _build_listing_context(intent: dict, rec_service: "RecommendationService") -
             if est:
                 net_s = (f" | ~net: TYT {est['tyt']}"
                          + (f"+AYT {est['ayt']}" if est["ayt"] is not None else ""))
+        # Kullanıcının profil puanıyla ÖN-HESAPLANMIŞ değerlendirme (LLM atlamasın)
+        kars_s = ""
+        us = intent.get("user_score")
+        if us and p["base_score"]:
+            fark = us - p["base_score"]
+            if fark >= 12:
+                kars_s = f" → SENİN İÇİN GÜVENLİ (puanın {us} tabandan {fark:+.0f})"
+            elif fark >= -6:
+                kars_s = f" → SENİN İÇİN SINIRDA/RİSKLİ (puanın {us} ≈ taban {p['base_score']:.0f})"
+            else:
+                kars_s = f" → SENİN İÇİN ZOR (puanın {us} tabandan {fark:.0f} geride)"
         lines.append(
             f"• [{p['department_code']}] {p['department_name']}{burs} — {uni}{city} "
-            f"sıra: {rank_s} | taban: {score_s} | kontenjan: {p['quota'] or '?'}{net_s}"
+            f"sıra: {rank_s} | taban: {score_s} | kontenjan: {p['quota'] or '?'}{net_s}{kars_s}"
         )
     return "\n".join(lines)
 
@@ -866,6 +900,27 @@ class AskService:
 
         # 1. Intent kontrolü — sıra/puan tabanlı sorgu mu? (bağlamsal metinle)
         intent = _extract_intent(rt) if not sinav_context else None
+
+        # 1b. PROFİL YKS PUANI — kullanıcı mesajda puan yazmadıysa profildekini kullan
+        # ("puanıma göre X kazanabilir miyim"). Mesajdaki açık puan HER ZAMAN öncelikli.
+        uc = user_context or {}
+        yks_puan = uc.get("yks_puan")
+        if yks_puan and not sinav_context:
+            if intent is not None and intent.get("score") is None and intent.get("rank") is None:
+                # Bölüm/üni sorusu var, puan yok → profildeki puanı KIYAS için kat
+                intent["user_score"] = yks_puan
+                intent["user_score_type"] = uc.get("yks_turu")
+                intent["user_rank"] = uc.get("yks_sira")
+            elif intent is None and _SELF_SCORE_RE.search(rt):
+                # "puanıma göre nereye girerim" — mesajda bölüm de yok → profilden öneri
+                intent = {
+                    "rank": uc.get("yks_sira"), "score": yks_puan,
+                    "score_type": uc.get("yks_turu") or "SAY",
+                    "uni_types": [], "departments": [], "cities": [], "universities": [],
+                    "geo_flags": [], "is_count": False, "is_net": False,
+                    "obp_katki": None, "list_n": None,
+                }
+
         rec_context = ""
         if intent and self._recommendation is not None:
             try:
