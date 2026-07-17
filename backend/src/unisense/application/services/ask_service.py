@@ -371,24 +371,36 @@ def _extract_intent(query: str) -> dict | None:
     }
 
 
+def _is_refinement(text: str) -> bool:
+    """Kısa + takip-işareti taşıyan (kendi konusunu kurmayan) mesaj mı."""
+    return len(re.findall(r"\w+", text)) <= 6 and bool(_FOLLOWUP_RE.search(text))
+
+
 def _routing_text(query) -> str:
     """Yapısal yönlendirme için bağlamsal metin: kısa TAKİP mesajlarında önceki
-    kullanıcı mesajını da kat (chat bağlam sürekliliği).
+    kullanıcı mesajlarını da kat (chat bağlam sürekliliği, çok-turlu).
 
-    Örn: önce "kpss bilgisayar mühendisi", sonra "tüm illerde bak" → ikincisi
-    tek başına ne KPSS ne bölüm içerir, RAG'e düşüp alakasız cevap verirdi.
-    Artık önceki soruyla birleşip doğru (KPSS + bilgisayar + tüm il) yönlenir.
-    Sadece YÖNLENDİRME/RETRIEVAL için; cevap/cache/LLM hâlâ gerçek mesajı kullanır.
+    Örn: "kpss bilgisayar mühendisi" → "tüm illerde bak" → "peki en çoğu hangi il".
+    Her takip mesajı tek başına konu içermez; RAG'e düşüp sapardı. Artık geriye
+    doğru KONUYU KURAN mesaja kadar yürünüp birleştirilir (arada birkaç takip
+    mesajı olsa da). Konu değişmişse (yeni bağımsız soru) DURULUR — eski konu
+    taşınmaz. Sadece YÖNLENDİRME için; cevap/cache/LLM gerçek mesajı kullanır.
     """
     cur = query.text
     hist = getattr(query, "history", None) or []
-    prev = next((t.text for t in reversed(hist) if getattr(t, "role", None) == "user"), None)
-    if not prev:
+    if not _is_refinement(cur):
+        return cur  # kendi konusu var → birleştirme
+    users = [t.text for t in hist if getattr(t, "role", None) == "user" and t.text]
+    if not users:
         return cur
-    words = len(re.findall(r"\w+", cur))
-    if words <= 6 and _FOLLOWUP_RE.search(cur):  # kısa + refinement → birleştir
-        return f"{prev}\n{cur}"
-    return cur
+    # Geriye yürü: takip mesajlarını topla, ilk KONU-KURAN mesajda dur (onu da al)
+    collected: list[str] = []
+    for txt in reversed(users[-6:]):  # en fazla son 6 kullanıcı mesajı
+        collected.append(txt)
+        if not _is_refinement(txt):  # konuyu kuran mesaj → dur
+            break
+    collected.reverse()
+    return "\n".join([*collected, cur])
 
 
 @lru_cache(maxsize=1)

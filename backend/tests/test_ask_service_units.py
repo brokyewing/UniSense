@@ -388,3 +388,26 @@ class TestConversationContext:
         from unisense.application.services.ask_service import _routing_text
         uzun = "istanbul ankara izmir bursa hangi üniversitelerde bilgisayar var say"
         assert _routing_text(self._q(uzun, prev="kpss")) == uzun
+
+    def _q_hist(self, text, users):
+        # users: sırayla kullanıcı mesajları (aralarına bot cevabı serpilir)
+        h = []
+        for u in users:
+            h.append(ChatTurn(role="user", text=u))
+            h.append(ChatTurn(role="bot", text="..."))
+        return Query(text=text, top_k=12, history=h, model_preference="gemini")
+
+    def test_multiturn_walks_back_to_topic(self):
+        # 3+ tur: konu-kuran mesaj birkaç takip mesajı geride olsa da korunmalı
+        from unisense.application.services.ask_service import _KPSS_RE, _routing_text
+        q = self._q_hist("peki en çok hangi ilde",
+                         users=["kpss bilgisayar mühendisi kadroları", "tüm illerde bak"])
+        assert _KPSS_RE.search(_routing_text(q))
+
+    def test_topic_change_stops_walkback(self):
+        # Konu değiştiyse (yeni bağımsız soru) eski konu TAŞINMAMALI
+        from unisense.application.services.ask_service import _routing_text
+        q = self._q_hist("peki ankarada",
+                         users=["kpss bilgisayar", "tıp taban puanı nedir istanbul"])
+        rt = _routing_text(q).lower()
+        assert "tıp" in rt and "kpss" not in rt
