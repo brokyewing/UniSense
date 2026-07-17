@@ -170,6 +170,13 @@ _NET_RE = re.compile(
     r"\bka(ç|c)\s*net\b|\bnet\s*(yap|gerek|laz(ı|i)m|olmal|yeter|at(ı|i)|istiyor)",
     re.I)
 
+# Takip (refinement) mesajı işaretleri — "tüm illerde bak", "peki", "diğerleri"...
+# Tek başına konu içermeyen bu mesajlar önceki soruyla birleştirilir (bağlam).
+_FOLLOWUP_RE = re.compile(
+    r"\b(t(ü|u)m(ü|u)?|hepsi(ni)?|b(ü|u)t(ü|u)n|di(ğ|g)er(ler(i|ini)?)?|ba(ş|s)ka|"
+    r"peki|bunlar(dan|ı)?|hangi(leri|si)?|ayn(ı|i)|(ş|s)ehir|il(ç|c)e|iller|"
+    r"o zaman|bi(r)?\s*de|de\s*bak|da\s*bak|nas(ı|i)l)\b", re.I)
+
 # OBP / diploma notu — net tahminini kişiselleştirmek için (yoksa varsayılan ~50).
 #   "obp 450" / "obp'm 420"   → OBP doğrudan (0-500), katkı = OBP×0.12
 #   "diploma notum 90" / "ortalamam 85" → not (0-100), OBP = not×5, katkı = not×0.6
@@ -362,6 +369,26 @@ def _extract_intent(query: str) -> dict | None:
         "obp_katki": obp_katki,
         "list_n": list_n,
     }
+
+
+def _routing_text(query) -> str:
+    """Yapısal yönlendirme için bağlamsal metin: kısa TAKİP mesajlarında önceki
+    kullanıcı mesajını da kat (chat bağlam sürekliliği).
+
+    Örn: önce "kpss bilgisayar mühendisi", sonra "tüm illerde bak" → ikincisi
+    tek başına ne KPSS ne bölüm içerir, RAG'e düşüp alakasız cevap verirdi.
+    Artık önceki soruyla birleşip doğru (KPSS + bilgisayar + tüm il) yönlenir.
+    Sadece YÖNLENDİRME/RETRIEVAL için; cevap/cache/LLM hâlâ gerçek mesajı kullanır.
+    """
+    cur = query.text
+    hist = getattr(query, "history", None) or []
+    prev = next((t.text for t in reversed(hist) if getattr(t, "role", None) == "user"), None)
+    if not prev:
+        return cur
+    words = len(re.findall(r"\w+", cur))
+    if words <= 6 and _FOLLOWUP_RE.search(cur):  # kısa + refinement → birleştir
+        return f"{prev}\n{cur}"
+    return cur
 
 
 @lru_cache(maxsize=1)
@@ -799,31 +826,34 @@ class AskService:
 
         # 0b. KPSS / DGS sorguları — kendi yapısal veri kaynaklarına yönlenir
         # (YKS RAG'i bu soruları cevaplayamaz; kadro/geçiş verisi ayrı)
+        # ROUTING metni bağlamsaldır: kısa takip mesajları ("tüm illerde bak")
+        # önceki soruyla birleşir (bkz. _routing_text) → chat bağlamı korunur.
+        rt = _routing_text(query)
         sinav_context = ""
         uc_track = (user_context or {}).get("exam_track")
         try:
-            if _KPSS_RE.search(query.text):
-                sinav_context = _build_kpss_context(query.text, user_context)
+            if _KPSS_RE.search(rt):
+                sinav_context = _build_kpss_context(rt, user_context)
                 logger.info("kpss_intent_routed")
-            elif _DGS_RE.search(query.text):
-                sinav_context = _build_dgs_context(query.text, user_context)
+            elif _DGS_RE.search(rt):
+                sinav_context = _build_dgs_context(rt, user_context)
                 logger.info("dgs_intent_routed")
             elif uc_track == "KPSS" and (
-                _GENERIC_PLACEMENT_RE.search(query.text)
-                or _KPSS_AGG_RE.search(query.text)
+                _GENERIC_PLACEMENT_RE.search(rt)
+                or _KPSS_AGG_RE.search(rt)
             ):
                 # Sınav adı yazılmamış ama kullanıcının yolu KPSS —
                 # "toplam kaç kontenjan" gibi istatistik soruları da dahil
-                sinav_context = _build_kpss_context(query.text, user_context)
+                sinav_context = _build_kpss_context(rt, user_context)
                 logger.info("kpss_intent_routed", via="exam_track")
-            elif uc_track == "DGS" and _GENERIC_PLACEMENT_RE.search(query.text):
-                sinav_context = _build_dgs_context(query.text, user_context)
+            elif uc_track == "DGS" and _GENERIC_PLACEMENT_RE.search(rt):
+                sinav_context = _build_dgs_context(rt, user_context)
                 logger.info("dgs_intent_routed", via="exam_track")
         except Exception as e:  # noqa: BLE001
             logger.warning("sinav_context_failed", error=str(e)[:200])
 
-        # 1. Intent kontrolü — sıra/puan tabanlı sorgu mu?
-        intent = _extract_intent(query.text) if not sinav_context else None
+        # 1. Intent kontrolü — sıra/puan tabanlı sorgu mu? (bağlamsal metinle)
+        intent = _extract_intent(rt) if not sinav_context else None
         rec_context = ""
         if intent and self._recommendation is not None:
             try:

@@ -361,3 +361,30 @@ class TestTahminiSira:
         from unisense.application.services.recommendation_service import tahmini_sira
         r = tahmini_sira(600.0, "SAY")  # veri üstü uç
         assert r is not None and r["sinir"] == "ust"
+
+
+class TestConversationContext:
+    def _q(self, text, prev=None):
+        h = [ChatTurn(role="user", text=prev)] if prev else []
+        return Query(text=text, top_k=12, history=h, model_preference="gemini")
+
+    def test_followup_merges_prev_for_routing(self):
+        from unisense.application.services.ask_service import _KPSS_RE, _routing_text
+        rt = _routing_text(self._q("tüm illerde bak",
+                                    prev="kpss bilgisayar mühendisi kadroları"))
+        assert _KPSS_RE.search(rt)  # takip mesajı KPSS bağlamını miras aldı
+
+    def test_new_topic_not_merged(self):
+        from unisense.application.services.ask_service import _routing_text
+        # Kendi konusu olan mesaj birleşmez (yeni soru)
+        assert _routing_text(self._q("tıp taban puanı nedir",
+                                     prev="kpss bilgisayar")) == "tıp taban puanı nedir"
+
+    def test_no_history_unchanged(self):
+        from unisense.application.services.ask_service import _routing_text
+        assert _routing_text(self._q("tüm illerde bak")) == "tüm illerde bak"
+
+    def test_long_message_not_merged(self):
+        from unisense.application.services.ask_service import _routing_text
+        uzun = "istanbul ankara izmir bursa hangi üniversitelerde bilgisayar var say"
+        assert _routing_text(self._q(uzun, prev="kpss")) == uzun
