@@ -6,6 +6,7 @@
 import re
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import Query as ApiQuery  # domain.models.Query ile ad çakışmasın
 
 from unisense.api.v1.dependencies import (
     ask_service_dep,
@@ -22,6 +23,7 @@ from unisense.api.v1.dependencies import (
 from unisense.api.v1.schemas import (
     AskRequest,
     AskResponse,
+    SiralamaResponse,
     CompareRequest,
     CompareResponse,
     CompassAxesRequest,
@@ -368,6 +370,26 @@ def programs_lookup(
     """Tercih listesindeki kodlar için sıra/taban/kontenjan bilgisini batch döner."""
     programs = svc.lookup_programs(body.codes)
     return ProgramLookupResponse(programs=programs)
+
+
+@router.get("/hesap/siralama", response_model=SiralamaResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def hesap_siralama(
+    request: Request,
+    puan: float = ApiQuery(..., ge=0, le=600),
+    tur: str = ApiQuery("SAY", max_length=6),
+) -> SiralamaResponse:
+    """Yerleştirme puanından TAHMİNÎ başarı sırası (program tabanlarından interpolasyon).
+
+    Hesap makinesi puanının yanında sıra göstermek için. Gerçek ÖSYM puan-sıralama
+    tablosu değil — yaklaşık; uçlarda (çok yüksek/düşük puan) daha zayıf.
+    """
+    from unisense.application.services.recommendation_service import tahmini_sira
+
+    r = tahmini_sira(puan, tur.upper())
+    if r is None:
+        raise HTTPException(status_code=404, detail="Bu puan türü için sıralama verisi yok")
+    return SiralamaResponse(**r)
 
 
 @router.post("/kpss/kadrolar", response_model=KpssKadroResponse)

@@ -427,6 +427,7 @@ export default function Hesap() {
   const [simLoading, setSimLoading] = useState(false)
   const [simError, setSimError] = useState('')
   const [uniPref, setUniPref] = useState('all') // all | Devlet | Vakıf — profilden dolar
+  const [siralama, setSiralama] = useState(null) // YKS puanından tahmini başarı sırası
 
   // YKS için OBP (250-500), DGS için AOBP (0-50 puan)
   const obp = diploma100ToObp(diploma100)   // YKS yerleştirmesinde × 0.12 ile eklenir
@@ -540,6 +541,19 @@ export default function Hesap() {
       label: `${tab} Yerleştirme Puanı`,
     }
   }, [nets, obp, aobp, tab])
+
+  // YKS yerleştirme puanı → tahmini başarı sırası (puanın yanında göster).
+  // Sadece YKS türlerinde (SAY/EA/SÖZ/DİL/TYT) ve geçerli puanda çağrılır.
+  useEffect(() => {
+    const yks = ['TYT', 'SAY', 'EA', 'SÖZ', 'DİL'].includes(tab)
+    if (!yks || result.finalScore <= 100) { setSiralama(null); return }
+    let cancelled = false
+    const puan = result.finalScore.toFixed(2)
+    apiFetch(`/api/v1/hesap/siralama?puan=${puan}&tur=${encodeURIComponent(tab)}`)
+      .then((d) => { if (!cancelled) setSiralama(d) })
+      .catch(() => { if (!cancelled) setSiralama(null) })
+    return () => { cancelled = true }
+  }, [tab, result.finalScore])
 
   // Üni türü değişince mevcut simülasyon sonucunu otomatik yenile —
   // eskiden eski liste ekranda kalıyordu ("filtre çalışmıyor" izlenimi)
@@ -884,6 +898,17 @@ export default function Hesap() {
                 <div className="text-5xl font-display font-bold mt-2 bg-gradient-to-br from-amber-300 to-rose-400 bg-clip-text text-transparent">
                   {/* KPSS 40-100; YKS 100 tabanlı; LGS MSP 100-500; AGS toplam net 0-80 */}
                   {hasResult ? result.finalScore.toFixed(2) : '—'}
+                </div>
+              )}
+              {/* Tahmini başarı sırası — sadece YKS türlerinde (puan → sıra) */}
+              {isYksPlacement && hasResult && siralama && (
+                <div className="mt-2 text-sm text-slate-300">
+                  ≈ <span className="font-display font-bold text-amber-300">
+                    {siralama.tahmini_sira.toLocaleString('tr-TR')}.
+                  </span> başarı sırası
+                  <span className="block text-[10px] text-slate-500 mt-0.5">
+                    tahmini{siralama.sinir ? ' · puan veri aralığının ucunda, sapma yüksek' : ''}
+                  </span>
                 </div>
               )}
               <div className="text-[10px] text-slate-500 mt-2 flex items-center justify-center gap-2 flex-wrap">

@@ -332,3 +332,32 @@ class TestObpPersonalization:
         # obp_katki=None → varsayılan (~50) ile aynı sonuç
         from unisense.application.services.ask_service import _OBP_KATKI
         assert _estimate_nets(500.0, "SAY", None) == _estimate_nets(500.0, "SAY", _OBP_KATKI)
+
+
+class TestTahminiSira:
+    def test_higher_score_lower_rank(self):
+        from unisense.application.services.recommendation_service import tahmini_sira
+        yuksek = tahmini_sira(500.0, "SAY")
+        dusuk = tahmini_sira(400.0, "SAY")
+        assert yuksek and dusuk
+        assert yuksek["tahmini_sira"] < dusuk["tahmini_sira"]  # yüksek puan = iyi sıra
+        assert yuksek["tahmini_sira"] >= 1
+
+    def test_all_yks_types_supported(self):
+        from unisense.application.services.recommendation_service import tahmini_sira
+        for tur in ["SAY", "EA", "SÖZ", "TYT", "DİL"]:
+            r = tahmini_sira(420.0, tur)
+            assert r is not None and r["tahmini_sira"] >= 1, tur
+
+    def test_unknown_type_returns_none(self):
+        from unisense.application.services.recommendation_service import tahmini_sira
+        assert tahmini_sira(450.0, "YOK") is None
+
+    def test_none_score_returns_none(self):
+        from unisense.application.services.recommendation_service import tahmini_sira
+        assert tahmini_sira(None, "SAY") is None
+
+    def test_out_of_range_flags_sinir(self):
+        from unisense.application.services.recommendation_service import tahmini_sira
+        r = tahmini_sira(600.0, "SAY")  # veri üstü uç
+        assert r is not None and r["sinir"] == "ust"
