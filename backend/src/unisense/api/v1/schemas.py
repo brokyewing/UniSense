@@ -86,6 +86,15 @@ class StudentProfileRequest(BaseModel):
     preferred_departments: list[str] = Field(default_factory=list, max_length=50)
 
 
+class SiralamaResponse(BaseModel):
+    """Hesap makinesi: yerleştirme puanından tahmini başarı sırası."""
+    puan: float
+    tur: str
+    tahmini_sira: int
+    # "alt"/"ust" = puan veri aralığının dışında (uçta tahmin daha zayıf); None = aralık içi
+    sinir: str | None = None
+
+
 class RecommendationItem(BaseModel):
     department_code: str
     university_code: str
