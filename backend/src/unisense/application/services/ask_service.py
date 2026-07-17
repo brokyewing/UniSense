@@ -837,6 +837,61 @@ def _build_recommendation_context(intent: dict, rec_service: "RecommendationServ
     return "\n".join(lines)
 
 
+def _build_profile_context(uc: dict | None) -> str:
+    """Kullanıcının profil sınav verilerinden kompakt 'KENDİ verisi' bloğu.
+
+    Her mesajda LLM'e verilir → 'puanım/sıralamam/kazanabilir miyim' sorularını
+    doğrudan yanıtlar, 'kişisel veriye erişemem' DEMEZ. YKS sırası tek kaynaktan
+    (profildeki kayıtlı sıra, yoksa puandan tahmin) → tutarlı.
+    """
+    if not uc:
+        return ""
+    rows: list[str] = []
+    yks_p = uc.get("yks_puan")
+    if yks_p:
+        tur = uc.get("yks_turu") or "SAY"
+        sira = uc.get("yks_sira")
+        if not sira:  # profilde sıra yoksa puandan tahmin (tek tutarlı kaynak)
+            try:
+                from unisense.application.services.recommendation_service import (
+                    tahmini_sira,
+                )
+                est = tahmini_sira(float(yks_p), tur)
+                sira = est["tahmini_sira"] if est else None
+            except Exception:  # noqa: BLE001
+                sira = None
+        rows.append(f"YKS: {yks_p} puan ({tur})"
+                    + (f", ~{sira:,}. başarı sırası" if sira else ""))
+    if uc.get("kpss_puan"):
+        rows.append(f"KPSS: {uc['kpss_puan']} puan"
+                    + (f" ({uc['kpss_duzey']})" if uc.get("kpss_duzey") else ""))
+    if uc.get("dgs_puan"):
+        rows.append(f"DGS: {uc['dgs_puan']} puan"
+                    + (f" ({uc['dgs_turu']})" if uc.get("dgs_turu") else ""))
+    if uc.get("tus_puan"):
+        rows.append(f"TUS: {uc['tus_puan']} puan")
+    if uc.get("dus_puan"):
+        rows.append(f"DUS: {uc['dus_puan']} puan")
+    if uc.get("lgs_yuzdelik") is not None:
+        rows.append(f"LGS: %{uc['lgs_yuzdelik']} yüzdelik dilim")
+    if uc.get("ags_net") is not None:
+        rows.append(f"AGS: {uc['ags_net']} net")
+    if uc.get("tercih_sehirler"):
+        rows.append(f"Tercih ettiği şehirler: {', '.join(uc['tercih_sehirler'])}")
+    if uc.get("tercih_uni_turu") and uc.get("tercih_uni_turu") != "all":
+        rows.append(f"Üniversite tercihi: {uc['tercih_uni_turu']}")
+    if not rows:
+        return ""
+    return (
+        "=== KULLANICI SINAV PROFİLİ (bu kişinin KENDİ kayıtlı verisi) ===\n"
+        + "\n".join(f"- {r}" for r in rows)
+        + "\nYÖNERGE: Bu, kullanıcının profilinden SANA verilen KENDİ verisidir. "
+        "'puanım/sıralamam/kazanabilir miyim' gibi ifadelerde bunu DOĞRUDAN kullan. "
+        "ASLA 'kişisel verine erişemem' deme — erişimin var, yukarıda listeli. Sıra "
+        "sorulursa yukarıdaki TEK sırayı kullan (farklı sıra uydurma, tutarlı ol)."
+    )
+
+
 class AskService:
     """RAG (Gemini + ChromaDB) + sıra/puan intent → Recommend hybrid."""
 
@@ -965,8 +1020,11 @@ class AskService:
                     "bilgilerle yetinin."
                 )
 
-        # 3. Context'i birleştir — sınav (KPSS/DGS), recommendation, trend, RAG
+        # 3. Context'i birleştir — PROFİL (en üstte), sınav, recommendation, trend, RAG
         parts = []
+        profile_context = _build_profile_context(uc)
+        if profile_context:
+            parts.append(profile_context)
         if sinav_context:
             parts.append(sinav_context)
         if rec_context:
