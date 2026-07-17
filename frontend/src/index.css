@@ -152,11 +152,11 @@
   }
 
   .btn-primary {
-    @apply relative px-5 py-2.5 rounded-xl font-medium overflow-hidden
-           bg-gradient-to-r from-brand-600 via-accent-600 to-brand-600 bg-[length:200%_100%]
-           shadow-lg shadow-brand-500/20 hover:shadow-accent-500/40
+    @apply relative px-5 py-2.5 rounded-xl font-semibold overflow-hidden
+           bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 bg-[length:200%_100%]
+           shadow-lg shadow-amber-500/25 hover:shadow-orange-500/45
            transition-all duration-500 hover:bg-[position:100%_50%] active:scale-95;
-    color: white;  /* gradient üzerinde her zaman beyaz */
+    color: #1a1200;  /* amber üzerinde koyu metin — WCAG kontrast (beyaz kalırdı) */
   }
 
   .btn-ghost {
