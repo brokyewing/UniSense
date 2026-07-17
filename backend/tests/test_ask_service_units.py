@@ -1,5 +1,9 @@
 """AskService saf fonksiyon testleri — intent çıkarımı ve cache key."""
-from unisense.application.services.ask_service import _extract_intent, _make_cache_key
+from unisense.application.services.ask_service import (
+    _estimate_nets,
+    _extract_intent,
+    _make_cache_key,
+)
 from unisense.domain.models import ChatTurn, Query
 
 
@@ -264,3 +268,35 @@ class TestCountAndTercihIntents:
         intent = _extract_intent("kaç tane diş hekimliği programı var")
         assert intent is not None
         assert any("diş" in d for d in intent["departments"])
+
+
+class TestNetEstimate:
+    def test_net_intent_with_department_routes_to_listing(self):
+        # "kaç net" + bölüm → yapısal listeye gitmeli (RAG'e düşmemeli)
+        intent = _extract_intent("bilgisayar mühendisliği için kaç net yapmalıyım")
+        assert intent is not None
+        assert intent["is_net"] is True
+        assert any("bilgisayar" in d for d in intent["departments"])
+
+    def test_generic_net_without_department_falls_through(self):
+        # Bölüm yoksa özel cevap üretilemez → None (RAG)
+        assert _extract_intent("kaç net yapmalıyım") is None
+
+    def test_internet_is_not_net_intent(self):
+        # 'internet' yanlış tetiklememeli
+        i = _extract_intent("koç üniversitesinde internet var mı")
+        assert i is None or i.get("is_net") is False
+
+    def test_estimate_nets_monotonic_and_bounded(self):
+        yuksek = _estimate_nets(534.0, "SAY")   # ODTÜ civarı
+        dusuk = _estimate_nets(312.0, "SAY")    # ulaşılabilir
+        assert yuksek["tyt"] > dusuk["tyt"]
+        assert yuksek["ayt"] > dusuk["ayt"]
+        assert 0 <= dusuk["tyt"] <= 120 and 0 <= yuksek["ayt"] <= 80
+
+    def test_estimate_nets_tyt_only_type(self):
+        e = _estimate_nets(300.0, "TYT")
+        assert e["ayt"] is None and 0 <= e["tyt"] <= 120
+
+    def test_estimate_nets_none_score(self):
+        assert _estimate_nets(None, "SAY") is None

@@ -164,6 +164,12 @@ _TERCIH_N_RE = re.compile(r"(\d{1,2})\s*(?:tane|adet)?\s*tercih", re.I)
 _TERCIH_LIST_RE = re.compile(
     r"tercih\s*(listesi|yap|olu(ş|s)tur|haz(ı|i)rla|ver|et)", re.I)
 
+# "kaç net yapmalıyım" — bölümün tabanına ulaşmak için tahmini net.
+# 'internet' vb. eşleşmesin diye net'te \b sınırı.
+_NET_RE = re.compile(
+    r"\bka(ç|c)\s*net\b|\bnet\s*(yap|gerek|laz(ı|i)m|olmal|yeter|at(ı|i)|istiyor)",
+    re.I)
+
 
 @lru_cache(maxsize=1)
 def _group_token_index() -> dict[str, list[str]]:
@@ -288,6 +294,9 @@ def _extract_intent(query: str) -> dict | None:
     # Sayım sorusu ("toplam kaç tane ... var") — bölümle birlikte tetikler
     is_count = bool(_COUNT_RE.search(q))
 
+    # "kaç net gerekir" — bölüm tabanından tahmini net (tersine hesap)
+    is_net = bool(_NET_RE.search(q))
+
     # "N tane tercih yap" / "tercih listesi oluştur" — N tercihlik liste isteği
     list_n = None
     m_n = _TERCIH_N_RE.search(q)
@@ -311,7 +320,8 @@ def _extract_intent(query: str) -> dict | None:
     # Bölüm tespit edildiyse sayım/tercih-listesi/nerede soruları da yapısal
     # veri gerektirir (RAG'in top_k limiti sayamaz/24'lük liste kuramaz)
     has_listing_target = departments and (
-        cities or universities or is_where_query or is_count or is_tercih_list)
+        cities or universities or is_where_query or is_count or is_tercih_list
+        or is_net)
     if rank is None and score is None and not geo_flags and not has_listing_target:
         return None
 
@@ -338,6 +348,7 @@ def _extract_intent(query: str) -> dict | None:
         "universities": universities,
         "geo_flags": geo_flags,
         "is_count": is_count,
+        "is_net": is_net,
         "list_n": list_n,
     }
 
@@ -354,6 +365,27 @@ def _rankings_year() -> int:
         return max(years) if years else 2025
     except Exception:  # noqa: BLE001
         return 2025
+
+
+# === YKS net tahmini (TERSİNE: taban puanı → yaklaşık net) ===
+# ÖSYM yerleştirme ≈ 100 + TYT_bloğu(max~160) + AYT_bloğu(max~240) + OBP×0.12.
+# TUZAK: bir PUAN tek net kombinasyonuna karşılık gelmez (dağılım + OBP değişir);
+# bu yüzden TAHMİNÎ. Basit-dürüst model: öğrenci TYT ve AYT'de AYNI oranda (f)
+# doğru yapıyor + referans OBP varsayımı. Metinde "tahmini" olduğu belirtilir.
+_OBP_KATKI = 50.0    # diploma ~85 → OBP ~420 → 420×0.12 ≈ 50 puan
+_TYT_SORU = 120      # TYT toplam soru
+_AYT_SORU = 80       # SAY/EA/SÖZ AYT toplam soru (~80)
+
+
+def _estimate_nets(score: float | None, score_type: str) -> dict | None:
+    """Taban puanından yaklaşık net (TYT + AYT). Tahminî — bkz. üst not."""
+    if not score:
+        return None
+    if score_type == "TYT":  # önlisans / TYT puanı → sadece TYT bloğu (max ~160)
+        f = max(0.0, min(1.0, (score - 100 - _OBP_KATKI) / 160))
+        return {"tyt": round(f * _TYT_SORU), "ayt": None}
+    f = max(0.0, min(1.0, (score - 100 - _OBP_KATKI) / 400))  # TYT160 + AYT240
+    return {"tyt": round(f * _TYT_SORU), "ayt": round(f * _AYT_SORU)}
 
 
 def _build_listing_context(intent: dict, rec_service: "RecommendationService") -> str:
@@ -390,6 +422,16 @@ def _build_listing_context(intent: dict, rec_service: "RecommendationService") -
             f"YÖNERGE: Kullanıcı SAYIM sordu — net cevap ver: elimizde bu bölüm için "
             f"toplam {result['total']} program var. Ardından birkaç örnek göster."
         )
+    if intent.get("is_net"):
+        lines.append(
+            "YÖNERGE: Kullanıcı KAÇ NET gerektiğini sordu. Her programın yanındaki "
+            "'~net' TAHMİNÎ değerini kullan (diploma ~85 / OBP ~50 puan katkısı ve "
+            "TYT-AYT'de dengeli-eşit başarı varsayımıyla hesaplandı). En zor ve daha "
+            "ulaşılabilir programlar için bir net ARALIĞI ver (ör. 'ODTÜ için ~TYT X+AYT Y, "
+            "daha ulaşılabilir programlar için ~TYT A+AYT B'). MUTLAKA belirt: bu TAHMİNÎDİR, "
+            "gerçek net dağılıma ve OBP'ne (diploma notu) göre değişir; kesin hesap için "
+            "Hesap sayfasını (net gir → puan gör) öner."
+        )
     if list_n:
         lines.append(
             f"YÖNERGE: Kullanıcı {list_n} tercihlik liste istedi ama PUAN/SIRA VERMEDİ. "
@@ -407,9 +449,15 @@ def _build_listing_context(intent: dict, rec_service: "RecommendationService") -
             burs = f" ({p['scholarship']})"
         uni = p["university_name"]
         city = "" if p["city"] and p["city"] in uni else f" ({p['city']})"
+        net_s = ""
+        if intent.get("is_net"):
+            est = _estimate_nets(p["base_score"], intent.get("score_type", "SAY"))
+            if est:
+                net_s = (f" | ~net: TYT {est['tyt']}"
+                         + (f"+AYT {est['ayt']}" if est["ayt"] is not None else ""))
         lines.append(
             f"• [{p['department_code']}] {p['department_name']}{burs} — {uni}{city} "
-            f"sıra: {rank_s} | taban: {score_s} | kontenjan: {p['quota'] or '?'}"
+            f"sıra: {rank_s} | taban: {score_s} | kontenjan: {p['quota'] or '?'}{net_s}"
         )
     return "\n".join(lines)
 
