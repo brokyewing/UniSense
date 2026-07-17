@@ -300,3 +300,35 @@ class TestNetEstimate:
 
     def test_estimate_nets_none_score(self):
         assert _estimate_nets(None, "SAY") is None
+
+
+class TestObpPersonalization:
+    def test_parse_obp_direct(self):
+        from unisense.application.services.ask_service import _parse_obp_katki
+        assert _parse_obp_katki("obp 450") == 54.0          # 450×0.12
+        assert _parse_obp_katki("obp'm 420") == 50.4        # ekli hal
+
+    def test_parse_diploma_note(self):
+        from unisense.application.services.ask_service import _parse_obp_katki
+        assert _parse_obp_katki("diploma notum 90") == 54.0  # 90×5×0.12
+        assert _parse_obp_katki("ortalamam 85") == 51.0
+
+    def test_no_obp_returns_none(self):
+        from unisense.application.services.ask_service import _parse_obp_katki
+        assert _parse_obp_katki("kaç net gerek") is None
+
+    def test_intent_carries_obp_when_net(self):
+        i = _extract_intent("diploma notum 90 bilgisayar mühendisliği için kaç net")
+        assert i is not None and i["is_net"] and i["obp_katki"] == 54.0
+
+    def test_higher_obp_needs_fewer_nets(self):
+        # Aynı taban, yüksek OBP → daha az net gerekir
+        az_diploma = _estimate_nets(534.0, "SAY", 30.0)   # düşük OBP
+        cok_diploma = _estimate_nets(534.0, "SAY", 60.0)  # yüksek OBP
+        assert cok_diploma["tyt"] <= az_diploma["tyt"]
+        assert cok_diploma["ayt"] <= az_diploma["ayt"]
+
+    def test_default_used_when_obp_none(self):
+        # obp_katki=None → varsayılan (~50) ile aynı sonuç
+        from unisense.application.services.ask_service import _OBP_KATKI
+        assert _estimate_nets(500.0, "SAY", None) == _estimate_nets(500.0, "SAY", _OBP_KATKI)
