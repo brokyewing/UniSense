@@ -299,6 +299,15 @@ export default function Search() {
         ctx.dgs_puan = prof.dgs.score
         if (prof.dgs.type) ctx.dgs_turu = prof.dgs.type
       }
+      // Tüm sınav profili → bot her sohbette kullanıcının tüm bilgilerine erişir
+      if (prof.tus?.score) ctx.tus_puan = prof.tus.score
+      if (prof.dus?.score) ctx.dus_puan = prof.dus.score
+      if (prof.lgs?.yuzdelik != null) ctx.lgs_yuzdelik = prof.lgs.yuzdelik
+      if (prof.ags?.net != null) ctx.ags_net = prof.ags.net
+      if (prof.preferredCities?.length) ctx.tercih_sehirler = prof.preferredCities.slice(0, 10)
+      if (prof.preferredUniType && prof.preferredUniType !== 'all') {
+        ctx.tercih_uni_turu = prof.preferredUniType
+      }
       setExamCtx(Object.keys(ctx).length ? ctx : null)
     }).catch(() => {})
   }, [user])

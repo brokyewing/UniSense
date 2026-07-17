@@ -420,3 +420,24 @@ class TestUserExamContextSchema:
         c = UserExamContext(yks_puan=430, yks_turu="SAY", yks_sira=65550)
         d = c.model_dump(exclude_none=True)
         assert d["yks_puan"] == 430 and d["yks_turu"] == "SAY" and d["yks_sira"] == 65550
+
+
+class TestProfileContext:
+    def test_profile_block_has_scores_and_no_deny_instruction(self):
+        from unisense.application.services.ask_service import _build_profile_context
+        b = _build_profile_context({"yks_puan": 430, "yks_turu": "SAY", "kpss_puan": 78})
+        assert "430" in b and "78" in b and "SAY" in b
+        assert "erişemem" in b.lower()  # YÖNERGE: 'erişemem DEME' talimatı var
+        assert "başarı sırası" in b  # tek tutarlı sıra üretildi
+
+    def test_profile_block_empty_when_no_data(self):
+        from unisense.application.services.ask_service import _build_profile_context
+        assert _build_profile_context({}) == ""
+        assert _build_profile_context(None) == ""
+
+    def test_schema_all_exam_fields(self):
+        from unisense.api.v1.schemas import UserExamContext
+        c = UserExamContext(yks_puan=430, tus_puan=55, lgs_yuzdelik=2.5,
+                            ags_net=60, tercih_sehirler=["ADANA"])
+        d = c.model_dump(exclude_none=True)
+        assert d["tus_puan"] == 55 and d["lgs_yuzdelik"] == 2.5 and d["ags_net"] == 60

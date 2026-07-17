@@ -22,6 +22,13 @@ class UserExamContext(BaseModel):
     kpss_duzey: str | None = Field(None, pattern="^(lisans|önlisans|ortaöğretim)$")
     dgs_puan: float | None = Field(None, ge=0, le=600)
     dgs_turu: str | None = Field(None, pattern="^(SAY|EA|SÖZ)$")
+    # Tüm sınav profili — chat'e tek blok olarak iletilir (KENDİ verisi)
+    tus_puan: float | None = Field(None, ge=0, le=100)
+    dus_puan: float | None = Field(None, ge=0, le=100)
+    lgs_yuzdelik: float | None = Field(None, ge=0, le=100)
+    ags_net: float | None = Field(None, ge=0, le=120)
+    tercih_sehirler: list[str] | None = Field(None, max_length=10)
+    tercih_uni_turu: str | None = Field(None, max_length=20)
 
 
 class AskRequest(BaseModel):
