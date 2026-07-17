@@ -503,12 +503,13 @@ export default function Search() {
       setMessages((m) => [...m, { role: 'bot', loading: true, _temp: true }])
     }
 
-    // Multi-turn için son 4 mesajı (yaklaşık 2 turn) history olarak ekle
-    // Yeni kullanıcı sorgusu HENÜZ messages'a girmemiş olabilir (logged-in için
-    // watchSessionMessages render edecek), o yüzden mevcut messages = öncesi
+    // Multi-turn için son 8 mesajı (~4 turn) history olarak ekle — aynı oturumda
+    // bağlam sürsün, bot eski mesajları hatırlasın. Yeni kullanıcı sorgusu HENÜZ
+    // messages'a girmemiş olabilir (logged-in için watchSessionMessages render
+    // edecek), o yüzden mevcut messages = öncesi.
     const recentHistory = messages
       .filter((m) => !m._temp && !m.loading && m.text)
-      .slice(-4)
+      .slice(-8)
       .map((m) => ({ role: m.role === 'bot' ? 'bot' : 'user', text: m.text }))
 
     try {
