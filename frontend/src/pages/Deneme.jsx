@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Loader2, Plus, Trash2, TrendingUp, Target, X, LineChart, ArrowRight } from 'lucide-react'
+import { Loader2, Plus, Trash2, TrendingUp, Target, X, LineChart, ArrowRight, Sparkles } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
@@ -46,13 +46,18 @@ export default function Deneme() {
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState('')
+  const [profil, setProfil] = useState(null)
+  const [koc, setKoc] = useState('')
+  const [kocLoading, setKocLoading] = useState(false)
 
-  // Profilden varsayılan tür + diploma
+  // Profilden varsayılan tür + diploma + koç için profil
   useEffect(() => {
     if (!user) return
     getUserProfile(user.uid).then((p) => {
       const pr = p?.profile || {}
+      setProfil(pr)
       if (['SAY', 'EA', 'SÖZ', 'DİL'].includes(pr.scoreType)) setType(pr.scoreType)
+      if (pr.diploma) setDiploma(String(pr.diploma))
     }).catch(() => {})
   }, [user])
 
@@ -117,6 +122,27 @@ export default function Deneme() {
       .sort((a, b) => a.oran - b.oran).slice(0, 3)
   }, [son])
 
+  async function kocIste() {
+    if (!sirali.length) return
+    setKocLoading(true); setKoc('')
+    const sonlar = sirali.slice(-5).map((d) => `${d.tarih}: ${Math.round(d.toplamNet)} net`).join(', ')
+    const zayifStr = zayif.map((z) => z.label).join(', ') || '—'
+    const q = `${type} öğrencisiyim, deneme netlerimi takip ediyorum. Son denemelerim: ${sonlar}. `
+      + `En zayıf 3 dersim: ${zayifStr}.${son?.sira ? ` Tahmini başarı sıram ~${son.sira}.` : ''} `
+      + `Bu verilere göre bana KISA, maddeler halinde uygulanabilir çalışma tavsiyesi ver: `
+      + `hangi konulara öncelik vermeliyim ve netimi nasıl artırabilirim?`
+    const uc = {}
+    if (profil?.score) { uc.yks_puan = profil.score; if (profil.scoreType) uc.yks_turu = profil.scoreType }
+    if (profil?.rank) uc.yks_sira = profil.rank
+    try {
+      const r = await apiFetch('/api/v1/ask', {
+        method: 'POST',
+        body: { query: q, ...(Object.keys(uc).length ? { user_context: uc } : {}) },
+      })
+      setKoc(r?.text || 'Tavsiye üretilemedi.')
+    } catch (e) { setKoc('Tavsiye alınamadı: ' + e.message) } finally { setKocLoading(false) }
+  }
+
   return (
     <>
       <BackgroundScene />
@@ -167,6 +193,32 @@ export default function Deneme() {
                   ))}
                 </div>
               </div>
+            )}
+          </div>
+        )}
+
+        {/* AI Koç — denemelerden kişisel tavsiye */}
+        {sirali.length > 0 && (
+          <div className="card">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="text-sm font-semibold text-white flex items-center gap-2">
+                <Sparkles size={16} className="text-accent-300" /> AI Koç
+              </div>
+              {user ? (
+                <button onClick={kocIste} disabled={kocLoading}
+                  className="btn-primary text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
+                  {kocLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} Tavsiye al
+                </button>
+              ) : (
+                <Link to="/giris" className="text-xs text-accent-300">Giriş yap →</Link>
+              )}
+            </div>
+            {!user ? (
+              <p className="text-xs text-slate-400">Giriş yaparsan koç, denemelerine ve zayıf konularına göre sana özel çalışma tavsiyesi verir.</p>
+            ) : koc ? (
+              <div className="text-[13.5px] text-slate-200 whitespace-pre-wrap leading-relaxed">{koc}</div>
+            ) : (
+              <p className="text-xs text-slate-500">Denemelerine ve zayıf konularına göre kişisel tavsiye için “Tavsiye al”a bas.</p>
             )}
           </div>
         )}
