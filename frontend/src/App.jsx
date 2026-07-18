@@ -224,6 +224,10 @@ export default function App() {
             </a>
           </span>
           <span className="text-slate-700">•</span>
+          <Link to="/lgs" className="text-slate-400 hover:text-accent-300 transition">LGS Robotu</Link>
+          <span className="text-slate-700">•</span>
+          <Link to="/tus" className="text-slate-400 hover:text-accent-300 transition">TUS/DUS Robotu</Link>
+          <span className="text-slate-700">•</span>
           <Link to="/gizlilik" className="text-slate-400 hover:text-accent-300 transition">
             KVKK / Gizlilik
           </Link>
