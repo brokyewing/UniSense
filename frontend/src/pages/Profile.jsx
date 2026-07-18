@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   User, Lock, GraduationCap, Camera, Check, Loader2,
@@ -13,7 +13,9 @@ import {
   changePassword,
   getUserProfile,
   getAuthProvider,
+  getIstatistik,
 } from '../firebase'
+import { hesaplaXP, seviyeBilgi, kazanilanRozetler } from '../lib/oyun'
 import BackgroundScene from '../components/three/BackgroundScene'
 
 const SCORE_TYPES = [
@@ -57,6 +59,9 @@ export default function Profile() {
           </div>
         </motion.div>
 
+        {/* Seviye kartı — tüm çalışma + uygulama süresine göre */}
+        <SeviyeKarti user={user} />
+
         {/* Tab nav */}
         <div className="card p-2 flex gap-1">
           <TabBtn active={tab === 'account'} onClick={() => setTab('account')} icon={User}>
@@ -77,6 +82,37 @@ export default function Profile() {
         </AnimatePresence>
       </div>
     </>
+  )
+}
+
+
+function SeviyeKarti({ user }) {
+  const [stats, setStats] = useState(null)
+  useEffect(() => { getIstatistik(user.uid).then(setStats).catch(() => {}) }, [user])
+  const xp = stats ? hesaplaXP(stats) : 0
+  const sv = seviyeBilgi(xp)
+  const rozet = stats ? kazanilanRozetler(stats).length : 0
+  const saat = Math.floor((stats?.kullanimDk || 0) / 60)
+  return (
+    <div className="card">
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-display font-bold text-xl shrink-0">
+          {sv.seviye}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between">
+            <div className="text-sm font-semibold text-white">Seviye {sv.seviye}</div>
+            <div className="text-[11px] text-slate-400">{sv.mevcut}/{sv.gereken} XP</div>
+          </div>
+          <div className="h-2 rounded-full bg-white/10 overflow-hidden mt-1.5">
+            <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-500" style={{ width: `${sv.oran}%` }} />
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1.5">
+            {sv.toplam} XP · {rozet} rozet{saat > 0 ? ` · ${saat} sa uygulamada` : ''} · <Link to="/pano" className="text-accent-300 hover:underline">Panom →</Link>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 

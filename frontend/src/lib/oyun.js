@@ -1,15 +1,17 @@
 // Oyunlaştırma — XP, seviye ve rozetler. Saf fonksiyonlar (test edilebilir).
 // XP, kullanıcının YAPTIĞI işlerden TÜRETİLİR (event kaydı yok) → geçmişe dönük de çalışır.
 
-export const XP_PER = { konu: 5, deneme: 20, kart: 3, yanlis: 5, dakika: 1 }
+// dakika: Pomodoro çalışma dakikası; kullanim: uygulamada geçirilen aktif dakika
+export const XP_PER = { konu: 5, deneme: 20, kart: 3, yanlis: 5, dakika: 1, kullanim: 1 }
 
-/** İstatistiklerden toplam XP. */
+/** İstatistiklerden toplam XP (yapılan işler + uygulamada geçen süre). */
 export function hesaplaXP(s = {}) {
   return (s.konuDone || 0) * XP_PER.konu
     + (s.denemeSayisi || 0) * XP_PER.deneme
     + (s.kartSayisi || 0) * XP_PER.kart
     + (s.yanlisSayisi || 0) * XP_PER.yanlis
     + Math.floor(s.sureDk || 0) * XP_PER.dakika
+    + Math.floor(s.kullanimDk || 0) * XP_PER.kullanim
 }
 
 /** Toplam XP → seviye + bu seviyedeki ilerleme. Her seviye biraz daha fazla XP ister. */
@@ -43,11 +45,13 @@ export function guestStats() {
   }
   const streak = j('unisense_streak', 'null') || {}
   const sure = j('unisense_sure', '{}')
+  const kullanim = j('unisense_kullanim', '{}')
   return {
     konuDone, denemeSayisi,
     kartSayisi: j('unisense_flashcards', '[]').length,
     yanlisSayisi: j('unisense_yanlis', '[]').length,
     streakLongest: streak.longest || 0,
     sureDk: sure.sureDk || 0, sureHafta: sure.sureHafta || {}, dersSure: sure.dersSure || {},
+    kullanimDk: kullanim.dk || 0,
   }
 }
