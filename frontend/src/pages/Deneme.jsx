@@ -5,7 +5,7 @@ import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
-import { getUserProfile, watchDenemeler, addDeneme, removeDeneme } from '../firebase'
+import { getUserProfile, watchDenemeler, addDeneme, removeDeneme, recordActivity } from '../firebase'
 import {
   TYT_FIELDS, AYT_FIELDS, denemeHesapla, diploma100ToObp,
 } from '../lib/yksHesap'
@@ -93,6 +93,7 @@ export default function Deneme() {
     try {
       if (user) await addDeneme(user.uid, deneme)
       else { const a = [...denemeler, { ...deneme, id: 'l' + Date.now() }]; saveLocal(a); setDenemeler(a) }
+      recordActivity(user?.uid).catch(() => {}) // günlük seri (streak)
       setGirdi({}); setAd(''); setShowForm(false)
       flash('✓ Deneme kaydedildi')
     } catch (e) { flash(e.message) } finally { setSaving(false) }

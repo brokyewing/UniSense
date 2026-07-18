@@ -4,7 +4,7 @@ import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
-import { getUserProfile, watchKonuIlerleme, setKonuIlerleme } from '../firebase'
+import { getUserProfile, watchKonuIlerleme, setKonuIlerleme, recordActivity } from '../firebase'
 
 const SINAVLAR = [
   { key: 'YKS', label: 'YKS' },
@@ -113,6 +113,7 @@ export default function Konular() {
       else next[key] = true
       saveChecked(sinav, next)
       if (user) setKonuIlerleme(user.uid, sinav, next).catch(() => {}) // bulut senkronu
+      recordActivity(user?.uid).catch(() => {}) // günlük seri (streak)
       return next
     })
   }

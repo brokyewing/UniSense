@@ -10,6 +10,7 @@
  */
 import { initializeApp } from 'firebase/app'
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
+import { serisiIsle, bugunStr, guncelSeri } from './lib/streak'
 import {
   getAuth,
   GoogleAuthProvider,
@@ -236,6 +237,40 @@ export async function addDeneme(uid, deneme) {
 export async function removeDeneme(uid, id) {
   if (!db || !uid) return
   await deleteDoc(doc(db, 'users', uid, 'denemeler', id))
+}
+
+// === Günlük çalışma serisi (streak) ===
+const SK = 'unisense_streak'
+const loadStreak = () => { try { return JSON.parse(localStorage.getItem(SK) || 'null') } catch { return null } }
+const saveStreak = (s) => { try { localStorage.setItem(SK, JSON.stringify(s)) } catch { /* noop */ } }
+
+/** Görüntüleme için güncel seri (localStorage anında; girişliyse buluttan tazele). */
+export async function getStreak(uid) {
+  let s = loadStreak()
+  if (uid && db) {
+    try {
+      const snap = await getDoc(doc(db, 'users', uid, 'aktivite', 'gunluk'))
+      if (snap.exists()) { s = snap.data(); saveStreak(s) }
+    } catch { /* buluta erişilemedi → localStorage */ }
+  }
+  return { current: guncelSeri(s), longest: s?.longest || 0 }
+}
+
+/** Bugün aktivite işle (konu/deneme). Günde 1 kez yazar; güncel seriyi döner. */
+export async function recordActivity(uid) {
+  const today = bugunStr()
+  if (localStorage.getItem(SK + '_last') === today) return guncelSeri(loadStreak())
+  let prev = loadStreak()
+  if (uid && db) { try { const snap = await getDoc(doc(db, 'users', uid, 'aktivite', 'gunluk')); if (snap.exists()) prev = snap.data() } catch { /* noop */ } }
+  const next = serisiIsle(prev, today)
+  saveStreak(next)
+  localStorage.setItem(SK + '_last', today)
+  if (uid && db && next.changed) {
+    setDoc(doc(db, 'users', uid, 'aktivite', 'gunluk'),
+      { current: next.current, longest: next.longest, lastDate: next.lastDate, updatedAt: serverTimestamp() },
+      { merge: true }).catch(() => {})
+  }
+  return next.current
 }
 
 /** Kullanıcının displayName/photoURL'ünü Auth + Firestore'da güncelle. */
