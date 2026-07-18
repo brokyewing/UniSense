@@ -1,20 +1,22 @@
 import { Link } from 'react-router-dom'
-import { ListTodo, LineChart, GraduationCap } from 'lucide-react'
+import { ListTodo, LineChart, GraduationCap, BookMarked } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import PushOptIn from '../components/PushOptIn'
 import Konular from './Konular'
 import Deneme from './Deneme'
+import Ozetler from './Ozetler'
 
-// Konu Takibi + Deneme Takibi tek "Çalışma" sekmesi altında birleşir (nav ferahlar).
-// /konular ve /deneme rotaları korunur (SEO/prerender/sitemap değişmez) — her biri
-// bu sarmalayıcıyı doğru sekmeyle render eder; sekmeler de o rotalara Link'ler.
+// Çalışma merkezi: Konular + Deneme + Özetler tek "Çalışma" sekmesi altında (nav ferah).
+// Her biri kendi rotasını korur (/konular, /deneme, /ozetler) → SEO/prerender değişmez;
+// sekmeler o rotalara Link. Yeni retention özellikleri de buraya segment olarak eklenir.
 const TABS = [
   { key: 'konular', label: 'Konular', to: '/konular', Icon: ListTodo },
   { key: 'deneme', label: 'Deneme', to: '/deneme', Icon: LineChart },
+  { key: 'ozetler', label: 'Özetler', to: '/ozetler', Icon: BookMarked },
 ]
 
 export default function Calisma({ tab = 'konular' }) {
-  const active = tab === 'deneme' ? 'deneme' : 'konular'
+  const active = TABS.some((t) => t.key === tab) ? tab : 'konular'
   return (
     <>
       <BackgroundScene />
@@ -42,7 +44,9 @@ export default function Calisma({ tab = 'konular' }) {
         </div>
         <PushOptIn />
       </div>
-      {active === 'konular' ? <Konular embedded /> : <Deneme embedded />}
+      {active === 'konular' && <Konular embedded />}
+      {active === 'deneme' && <Deneme embedded />}
+      {active === 'ozetler' && <Ozetler embedded />}
     </>
   )
 }
