@@ -6,10 +6,11 @@ import { apiFetch } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
 import { getUserProfile, watchKonuIlerleme, setKonuIlerleme, recordActivity } from '../firebase'
 
+// Sıra Deneme sayfasıyla AYNI olmalı (YKS·DGS·KPSS·LGS) — tutarlı sekme deneyimi
 const SINAVLAR = [
   { key: 'YKS', label: 'YKS' },
-  { key: 'KPSS', label: 'KPSS' },
   { key: 'DGS', label: 'DGS' },
+  { key: 'KPSS', label: 'KPSS' },
   { key: 'LGS', label: 'LGS' },
 ]
 
