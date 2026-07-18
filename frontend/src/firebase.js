@@ -245,6 +245,30 @@ export async function removeDeneme(uid, id) {
   await deleteDoc(doc(db, 'users', uid, 'denemeler', id))
 }
 
+// === Yanlış Defteri (bulut — her yanlış 1 doküman; metin tabanlı) ===
+/** Yanlışları en yeni→eski izle. Erişilemezse null → çağıran localStorage'a düşer. */
+export function watchYanlislar(uid, callback) {
+  if (!db || !uid) { callback([]); return () => {} }
+  const q = query(collection(db, 'users', uid, 'yanlislar'), orderBy('createdAt', 'desc'))
+  return onSnapshot(q, (snap) => callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }))), () => callback(null))
+}
+
+export async function addYanlis(uid, y) {
+  if (!db || !uid) return null
+  const ref = await addDoc(collection(db, 'users', uid, 'yanlislar'), { ...y, createdAt: serverTimestamp() })
+  return ref.id
+}
+
+export async function updateYanlis(uid, id, patch) {
+  if (!db || !uid) return
+  await updateDoc(doc(db, 'users', uid, 'yanlislar', id), { ...patch, updatedAt: serverTimestamp() })
+}
+
+export async function removeYanlis(uid, id) {
+  if (!db || !uid) return
+  await deleteDoc(doc(db, 'users', uid, 'yanlislar', id))
+}
+
 // === Günlük çalışma serisi (streak) ===
 const SK = 'unisense_streak'
 const loadStreak = () => { try { return JSON.parse(localStorage.getItem(SK) || 'null') } catch { return null } }

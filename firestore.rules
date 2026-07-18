@@ -127,6 +127,19 @@ service cloud.firestore {
           && strMax('ua', 300);
       }
 
+      // Yanlış Defteri — her yanlış 1 doküman (metin; foto Storage/Blaze gerektirir, yok)
+      match /yanlislar/{id} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(12)
+          && strMax('ders', 40)
+          && strMax('konu', 120)
+          && strMax('soru', 1000)
+          && strMax('neden', 1000)
+          && strMax('sinav', 8)
+          && strMax('nextReview', 20);
+      }
+
       // Deneme günlüğü — her deneme 1 doküman (ders net haritası + puan/sıra)
       match /denemeler/{id} {
         allow read, delete: if isOwner(uid);
