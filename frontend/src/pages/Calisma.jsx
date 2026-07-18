@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ListTodo, LineChart, GraduationCap } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
+import PushOptIn from '../components/PushOptIn'
 import Konular from './Konular'
 import Deneme from './Deneme'
 
@@ -39,6 +40,7 @@ export default function Calisma({ tab = 'konular' }) {
             })}
           </div>
         </div>
+        <PushOptIn />
       </div>
       {active === 'konular' ? <Konular embedded /> : <Deneme embedded />}
     </>

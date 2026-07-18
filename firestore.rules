@@ -117,6 +117,16 @@ service cloud.firestore {
           && strMax('lastDate', 20);
       }
 
+      // Push (FCM) token'ları — doküman ID = token (cihaz başına tek kayıt).
+      // Gönderici cron admin SDK ile okur (kuralları atlar); client kendi token'ını yazar.
+      match /pushTokens/{token} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(4)
+          && strMax('token', 400)
+          && strMax('ua', 300);
+      }
+
       // Deneme günlüğü — her deneme 1 doküman (ders net haritası + puan/sıra)
       match /denemeler/{id} {
         allow read, delete: if isOwner(uid);
