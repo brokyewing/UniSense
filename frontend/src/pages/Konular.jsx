@@ -50,7 +50,7 @@ function ProgressBar({ done, total }) {
   )
 }
 
-export default function Konular() {
+export default function Konular({ embedded = false }) {
   const { user } = useAuth()
   const [sinav, setSinav] = useState('YKS')
   const [data, setData] = useState(null)
@@ -127,19 +127,23 @@ export default function Konular() {
 
   return (
     <>
-      <BackgroundScene />
-      <Seo
-        title={`Konu Takibi — YKS, KPSS, DGS, LGS Konuları | UniSense`}
-        description="Sınavında çıkan tüm konuları ders ders takip et, çalıştıkça işaretle. YKS, KPSS, DGS ve LGS için ücretsiz konu kontrol listesi."
-        path="/konular"
-      />
+      {!embedded && <BackgroundScene />}
+      {!embedded && (
+        <Seo
+          title={`Konu Takibi — YKS, KPSS, DGS, LGS Konuları | UniSense`}
+          description="Sınavında çıkan tüm konuları ders ders takip et, çalıştıkça işaretle. YKS, KPSS, DGS ve LGS için ücretsiz konu kontrol listesi."
+          path="/konular"
+        />
+      )}
       <div className="max-w-3xl mx-auto space-y-5">
-        <div className="text-center">
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1 flex items-center justify-center gap-2">
-            <ListChecks className="text-emerald-300" /> Konu Takibi
-          </h1>
-          <p className="text-slate-400 text-sm">Sınavının tüm konularını çalıştıkça işaretle — ilerlemeni gör.</p>
-        </div>
+        {!embedded && (
+          <div className="text-center">
+            <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1 flex items-center justify-center gap-2">
+              <ListChecks className="text-emerald-300" /> Konu Takibi
+            </h1>
+            <p className="text-slate-400 text-sm">Sınavının tüm konularını çalıştıkça işaretle — ilerlemeni gör.</p>
+          </div>
+        )}
 
         {/* Sınav seçici */}
         <div className="flex justify-center">

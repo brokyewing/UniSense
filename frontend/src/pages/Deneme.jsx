@@ -41,7 +41,7 @@ function Spark({ points }) {
   )
 }
 
-export default function Deneme() {
+export default function Deneme({ embedded = false }) {
   const { user } = useAuth()
   const [sinav, setSinav] = useState('YKS')
   const [type, setType] = useState('SAY')
@@ -157,18 +157,22 @@ export default function Deneme() {
 
   return (
     <>
-      <BackgroundScene />
-      <Seo title="Deneme Takibi — Net & Puan | YKS · KPSS · LGS | UniSense"
-        description="YKS, KPSS ve LGS denemelerini kaydet: ders ders netini gir, tahmini puanını (ve YKS'de başarı sıranı + girebileceğin bölümleri) gör. Net trendini takip et — ücretsiz."
-        path="/deneme" />
+      {!embedded && <BackgroundScene />}
+      {!embedded && (
+        <Seo title="Deneme Takibi — Net & Puan | YKS · KPSS · LGS | UniSense"
+          description="YKS, KPSS ve LGS denemelerini kaydet: ders ders netini gir, tahmini puanını (ve YKS'de başarı sıranı + girebileceğin bölümleri) gör. Net trendini takip et — ücretsiz."
+          path="/deneme" />
+      )}
       {toast && <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl glass text-sm">{toast}</div>}
       <div className="max-w-3xl mx-auto space-y-5">
-        <div className="text-center">
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1 flex items-center justify-center gap-2">
-            <LineChart className="text-accent-300" /> Deneme Takibi
-          </h1>
-          <p className="text-slate-400 text-sm">Netini gir → tahmini puan{sinav === 'YKS' ? ', sıra ve girebileceğin bölümleri' : ''} gör. Trendini izle.</p>
-        </div>
+        {!embedded && (
+          <div className="text-center">
+            <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1 flex items-center justify-center gap-2">
+              <LineChart className="text-accent-300" /> Deneme Takibi
+            </h1>
+            <p className="text-slate-400 text-sm">Netini gir → tahmini puan{sinav === 'YKS' ? ', sıra ve girebileceğin bölümleri' : ''} gör. Trendini izle.</p>
+          </div>
+        )}
 
         {/* Sınav seçici — her sınavın denemeleri ayrı tutulur */}
         <div className="flex justify-center">
