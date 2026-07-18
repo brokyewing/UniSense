@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { LayoutDashboard, Play, Pause, RotateCcw, Trophy, Flame, Clock, ListChecks, LineChart, Layers, Sparkles, Loader2 } from 'lucide-react'
+import { LayoutDashboard, Play, Pause, RotateCcw, Trophy, Flame, Clock, ListChecks, LineChart, Layers, Sparkles, Loader2, Mail } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { useAuth } from '../contexts/AuthContext'
-import { getIstatistik, sureEkle, recordActivity, getUserProfile } from '../firebase'
+import { getIstatistik, sureEkle, recordActivity, getUserProfile, setEmailReminders } from '../firebase'
 import { apiFetch } from '../lib/api'
 import { hesaplaXP, seviyeBilgi, ROZETLER, kazanilanRozetler, guestStats } from '../lib/oyun'
 
@@ -31,6 +31,7 @@ export default function Pano({ embedded = false }) {
   const [toast, setToast] = useState('')
   const [gunSoru, setGunSoru] = useState('')
   const [gsLoading, setGsLoading] = useState(false)
+  const [emailOn, setEmailOn] = useState(false)
 
   const yukle = useCallback(async () => {
     setStats(user ? await getIstatistik(user.uid) : guestStats())
@@ -44,6 +45,18 @@ export default function Pano({ embedded = false }) {
       if (c && c.date === new Date().toISOString().slice(0, 10)) setGunSoru(c.text)
     } catch { /* noop */ }
   }, [])
+
+  // E-posta hatırlatma tercihini yükle (girişli)
+  useEffect(() => {
+    if (!user) return
+    getUserProfile(user.uid).then((p) => setEmailOn(!!p?.emailReminders)).catch(() => {})
+  }, [user])
+
+  async function emailToggle() {
+    const v = !emailOn
+    setEmailOn(v)
+    await setEmailReminders(user.uid, v).catch(() => setEmailOn(!v))
+  }
 
   async function gunSorusu() {
     if (!user) return
@@ -210,6 +223,20 @@ export default function Pano({ embedded = false }) {
             })}
           </div>
         </div>
+
+        {/* E-posta hatırlatma opt-in (girişli; KVKK — varsayılan kapalı) */}
+        {user && (
+          <div className="card !py-3 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-sm text-white flex items-center gap-2"><Mail size={15} className="text-sky-300" /> Haftalık e-posta hatırlatma</div>
+              <p className="text-[11px] text-slate-500 mt-0.5">Ara verdiğinde nazik bir hatırlatma e-postası gönderelim. İstediğin an kapatabilirsin.</p>
+            </div>
+            <button onClick={emailToggle} role="switch" aria-checked={emailOn}
+              className={`shrink-0 w-11 h-6 rounded-full transition relative ${emailOn ? 'bg-gradient-to-r from-brand-500 to-accent-500' : 'bg-white/15'}`}>
+              <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${emailOn ? 'left-[22px]' : 'left-0.5'}`} />
+            </button>
+          </div>
+        )}
       </div>
     </>
   )

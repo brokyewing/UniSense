@@ -408,6 +408,12 @@ export async function enablePush(uid) {
   return { ok: true }
 }
 
+/** Haftalık e-posta hatırlatma tercihini yaz (opt-in; KVKK — varsayılan kapalı). */
+export async function setEmailReminders(uid, on) {
+  if (!db || !uid) return
+  await setDoc(doc(db, 'users', uid), { emailReminders: !!on }, { merge: true }).catch(() => {})
+}
+
 /** Bu cihazın push kaydını kaldır (bildirimleri kapat). */
 export async function disablePush(uid) {
   if (!app || !db || !uid) return
