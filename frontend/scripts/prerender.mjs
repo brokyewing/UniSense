@@ -88,6 +88,7 @@ const STATIC_ROUTES = {
   '/bolum': { title: 'Bölüm Rehberi — Üniversite Bölümleri Tanıtımı | UniSense', description: 'Üniversite bölümleri ne iş yapar, hangi dersleri okur, mezunları nerede çalışır? Tanıtımlar + güncel taban puanları.' },
   '/konular': { title: 'Konu Takibi — YKS, KPSS, DGS, LGS Konuları | UniSense', description: 'Sınavının tüm konularını ders ders takip et, çalıştıkça işaretle. YKS, KPSS, DGS ve LGS için ücretsiz konu kontrol listesi.' },
   '/deneme': { title: 'Deneme Takibi — Net & Puan | YKS · DGS · KPSS · LGS | UniSense', description: "YKS, DGS, KPSS ve LGS denemelerini kaydet: ders ders netini gir, tahmini puanını (ve YKS'de başarı sıranı + girebileceğin bölümleri) gör. Net trendini takip et — ücretsiz." },
+  '/ozetler': { title: 'Formül ve Konu Özetleri — YKS Cheat Sheet | UniSense', description: 'TYT-AYT matematik, geometri, fizik ve kimya formülleri tek yerde. Aranabilir, çevrimdışı erişilebilir konu özetleri — ücretsiz.' },
   '/takvim': { title: `${TERCIH_YILI} Sınav Takvimi — YKS, LGS, DGS, KPSS, ALES, TUS | UniSense`, description: `${TERCIH_YILI} YKS, LGS, DGS, KPSS, ALES, TUS, DUS ve AGS sınav, sonuç ve tercih tarihleri — kaç gün kaldığıyla tek sayfada.` },
   '/lgs': { title: `LGS Tercih Robotu ${TERCIH_YILI} — Yüzdelik Dilimine Göre Lise Bul | UniSense`, description: 'LGS yüzdelik dilimini gir, girebileceğin Fen, Anadolu, Sosyal Bilimler ve İmam Hatip liselerini güvenli/tutar/riskli olarak gör — ücretsiz, tahminî.' },
   '/tus': { title: `TUS / DUS Tercih Robotu ${TERCIH_YILI} — Puanına Göre Uzmanlık Bul | UniSense`, description: 'TUS veya DUS puanını gir, geçen dönem ÖSYM taban puanlarına göre yerleşebileceğin uzmanlık dallarını ve kurumları güvenli/tutar/riskli olarak gör — ücretsiz, tahminî.' },
@@ -124,6 +125,30 @@ try {
   console.log(`[prerender] bölüm verisi okunamadı (${e.message}) — sadece statik rotalar prerender edildi`)
 }
 
+// --- Formül/özet kartları (/ozet/:slug) — her kart aranabilir SEO sayfası ---
+let ozetCount = 0
+try {
+  const ozetPath = resolve(__dirname, '../../backend/data/processed/ozet_kartlar.json')
+  const ozet = JSON.parse(readFileSync(ozetPath, 'utf-8'))
+  for (const k of (ozet.kartlar || [])) {
+    const path = `/ozet/${k.slug}`
+    const maddeler = (k.maddeler || []).map((m) => `<li>${esc(m)}</li>`).join('')
+    const contentHtml =
+      `<h1>${esc(k.baslik)}</h1><p>${esc(k.ders)} · ${esc(k.seviye)}</p>`
+      + `<p>${esc(k.ozet)}</p><ul>${maddeler}</ul>`
+    writePage(path, pageHtml({
+      title: `${k.baslik} — Formül Özeti | UniSense`,
+      description: `${k.ozet} ${k.ders} ${k.konu} formülleri — ücretsiz özet.`,
+      path,
+      contentHtml,
+    }))
+    sitemapUrls.push({ loc: SITE + path, priority: '0.6', changefreq: 'monthly' })
+    ozetCount++
+  }
+} catch (e) {
+  console.log(`[prerender] özet kartı verisi okunamadı (${e.message}) — /ozet sayfaları atlandı`)
+}
+
 // --- Dinamik sitemap ---
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -132,4 +157,4 @@ ${sitemapUrls.map((u) => `  <url><loc>${u.loc}</loc><lastmod>${now}</lastmod><ch
 `
 writeFileSync(resolve(DIST, 'sitemap.xml'), sitemap, 'utf-8')
 
-console.log(`[prerender] ✓ ${Object.keys(STATIC_ROUTES).length} statik rota + ${guideCount} bölüm sayfası + sitemap (${sitemapUrls.length} URL)`)
+console.log(`[prerender] ✓ ${Object.keys(STATIC_ROUTES).length} statik rota + ${guideCount} bölüm + ${ozetCount} özet sayfası + sitemap (${sitemapUrls.length} URL)`)

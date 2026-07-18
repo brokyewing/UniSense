@@ -421,6 +421,36 @@ def konular(request: Request, sinav: str | None = ApiQuery(None, max_length=8)) 
     return data
 
 
+_ozet_cache: dict | None = None
+
+
+def _load_ozet_kartlar() -> dict:
+    """Formül/özet kartları (data/processed/ozet_kartlar.json) — bir kez cache'lenir."""
+    global _ozet_cache
+    if _ozet_cache is None:
+        import json
+        from pathlib import Path
+
+        from unisense.core.config import get_settings
+        p = Path(get_settings().project_root) / "data" / "processed" / "ozet_kartlar.json"
+        _ozet_cache = json.load(open(p, encoding="utf-8"))
+    return _ozet_cache
+
+
+@router.get("/ozet-kartlar")
+@limiter.limit(DEFAULT_LIMIT)
+def ozet_kartlar(request: Request, ders: str | None = ApiQuery(None, max_length=30)) -> dict:
+    """Formül/özet kartları — tümü veya ?ders=Matematik/Geometri/Fizik/Kimya ile filtreli."""
+    data = _load_ozet_kartlar()
+    if ders:
+        d = ders.strip().lower()
+        kartlar = [k for k in data["kartlar"] if k.get("ders", "").lower() == d]
+        if not kartlar:
+            raise HTTPException(status_code=404, detail="Bu ders için özet kartı yok")
+        return {"surum": data["surum"], "not": data.get("not", ""), "kartlar": kartlar}
+    return data
+
+
 @router.post("/kpss/kadrolar", response_model=KpssKadroResponse)
 @limiter.limit(DEFAULT_LIMIT)
 def kpss_kadrolar(

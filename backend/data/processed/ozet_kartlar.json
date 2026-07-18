@@ -1,0 +1,189 @@
+{
+  "surum": 1,
+  "not": "Temel ve yüksek güvenilirlikte formül seçkisidir (MEB/ÖSYM müfredatı). Zamanla genişletilecektir; her zaman kendi kaynağınla teyit et.",
+  "kartlar": [
+    {
+      "slug": "carpanlara-ayirma-ozdeslikler",
+      "ders": "Matematik",
+      "seviye": "TYT-AYT",
+      "konu": "Çarpanlara Ayırma",
+      "baslik": "Çarpanlara Ayırma ve Özdeşlikler",
+      "ozet": "Sınavda en çok işe yarayan özdeşlikler ve çarpanlara ayırma kalıpları.",
+      "maddeler": [
+        "a² − b² = (a − b)(a + b)",
+        "(a + b)² = a² + 2ab + b²",
+        "(a − b)² = a² − 2ab + b²",
+        "(a + b)³ = a³ + 3a²b + 3ab² + b³",
+        "(a − b)³ = a³ − 3a²b + 3ab² − b³",
+        "a³ + b³ = (a + b)(a² − ab + b²)",
+        "a³ − b³ = (a − b)(a² + ab + b²)",
+        "a² + b² = (a + b)² − 2ab",
+        "x² + (m + n)x + m·n = (x + m)(x + n)"
+      ]
+    },
+    {
+      "slug": "ikinci-dereceden-denklemler",
+      "ders": "Matematik",
+      "seviye": "TYT-AYT",
+      "konu": "İkinci Dereceden Denklemler",
+      "baslik": "İkinci Dereceden Denklemler (ax² + bx + c = 0)",
+      "ozet": "Kök formülü, diskriminant ve kökler arası bağıntılar.",
+      "maddeler": [
+        "Kökler: x = (−b ± √(b² − 4ac)) / (2a)",
+        "Diskriminant: Δ = b² − 4ac",
+        "Δ > 0 → iki farklı reel kök",
+        "Δ = 0 → çift (eşit) kök",
+        "Δ < 0 → reel kök yok",
+        "Kökler toplamı: x₁ + x₂ = −b / a",
+        "Kökler çarpımı: x₁ · x₂ = c / a"
+      ]
+    },
+    {
+      "slug": "uslu-sayilar",
+      "ders": "Matematik",
+      "seviye": "TYT-AYT",
+      "konu": "Üslü Sayılar",
+      "baslik": "Üslü Sayılar Kuralları",
+      "ozet": "Üs alma işlemlerinin temel kuralları (a, b ≠ 0).",
+      "maddeler": [
+        "aᵐ · aⁿ = aᵐ⁺ⁿ",
+        "aᵐ ÷ aⁿ = aᵐ⁻ⁿ",
+        "(aᵐ)ⁿ = aᵐ·ⁿ",
+        "(a · b)ⁿ = aⁿ · bⁿ",
+        "(a / b)ⁿ = aⁿ / bⁿ",
+        "a⁰ = 1",
+        "a⁻ⁿ = 1 / aⁿ",
+        "a^(1/n) = ⁿ√a"
+      ]
+    },
+    {
+      "slug": "koklu-sayilar",
+      "ders": "Matematik",
+      "seviye": "TYT-AYT",
+      "konu": "Köklü Sayılar",
+      "baslik": "Köklü Sayılar Kuralları",
+      "ozet": "Kök alma işlemleri (a, b ≥ 0).",
+      "maddeler": [
+        "√a · √b = √(a · b)",
+        "√a ÷ √b = √(a / b), (b ≠ 0)",
+        "ⁿ√(aᵐ) = a^(m/n)",
+        "(√a)² = a",
+        "a√b + c√b = (a + c)√b"
+      ]
+    },
+    {
+      "slug": "mutlak-deger",
+      "ders": "Matematik",
+      "seviye": "TYT-AYT",
+      "konu": "Mutlak Değer",
+      "baslik": "Mutlak Değer Kuralları",
+      "ozet": "Mutlak değerin tanımı ve temel özellikleri.",
+      "maddeler": [
+        "|x| = x (x ≥ 0), |x| = −x (x < 0)",
+        "|x| ≥ 0 her zaman",
+        "|a · b| = |a| · |b|",
+        "|a / b| = |a| / |b|, (b ≠ 0)",
+        "|x| = a ⇒ x = a veya x = −a (a ≥ 0)",
+        "Üçgen eşitsizliği: |a + b| ≤ |a| + |b|"
+      ]
+    },
+    {
+      "slug": "logaritma",
+      "ders": "Matematik",
+      "seviye": "AYT",
+      "konu": "Logaritma",
+      "baslik": "Logaritma Kuralları",
+      "ozet": "Logaritmanın temel özellikleri (a > 0, a ≠ 1, x, y > 0).",
+      "maddeler": [
+        "log_a(x · y) = log_a x + log_a y",
+        "log_a(x / y) = log_a x − log_a y",
+        "log_a(xⁿ) = n · log_a x",
+        "log_a a = 1, log_a 1 = 0",
+        "Taban değiştirme: log_a x = (log_b x) / (log_b a)",
+        "a^(log_a x) = x",
+        "ln x = e tabanında logaritma, log x = 10 tabanında logaritma"
+      ]
+    },
+    {
+      "slug": "ucgende-temel-bagintilar",
+      "ders": "Geometri",
+      "seviye": "TYT-AYT",
+      "konu": "Üçgen",
+      "baslik": "Üçgende Temel Bağıntılar",
+      "ozet": "Üçgenin açı, alan ve kenar ilişkileri.",
+      "maddeler": [
+        "İç açılar toplamı = 180°",
+        "Dış açılar toplamı = 360°",
+        "Pisagor (dik üçgen): a² + b² = c² (c hipotenüs)",
+        "Alan = (taban × yükseklik) / 2",
+        "Alan = (1/2) · a · b · sin C (iki kenar ve aralarındaki açı)",
+        "Bir dış açı = komşu olmayan iki iç açının toplamı",
+        "Ağırlık merkezi kenarortayları 2:1 oranında böler"
+      ]
+    },
+    {
+      "slug": "alan-cevre-formulleri",
+      "ders": "Geometri",
+      "seviye": "TYT-AYT",
+      "konu": "Alan ve Çevre",
+      "baslik": "Alan ve Çevre Formülleri",
+      "ozet": "Temel geometrik şekillerin alan ve çevre formülleri.",
+      "maddeler": [
+        "Kare: Alan = a², Çevre = 4a",
+        "Dikdörtgen: Alan = a · b, Çevre = 2(a + b)",
+        "Paralelkenar: Alan = taban × yükseklik",
+        "Eşkenar dörtgen: Alan = (köşegen₁ × köşegen₂) / 2",
+        "Yamuk: Alan = ((alt taban + üst taban) / 2) × yükseklik",
+        "Daire: Alan = π · r², Çevre = 2 · π · r",
+        "Eşkenar üçgen: Alan = (a² · √3) / 4"
+      ]
+    },
+    {
+      "slug": "hareket-kinematik",
+      "ders": "Fizik",
+      "seviye": "TYT-AYT",
+      "konu": "Hareket",
+      "baslik": "Hareket (Kinematik) Formülleri",
+      "ozet": "Düzgün ve düzgün hızlanan hareket bağıntıları.",
+      "maddeler": [
+        "Ortalama sürat = alınan yol / geçen zaman",
+        "Ortalama hız = yer değiştirme / geçen zaman",
+        "Düzgün hızlanan hareket: v = v₀ + a · t",
+        "Yol: x = v₀ · t + (1/2) · a · t²",
+        "v² = v₀² + 2 · a · x",
+        "Yer çekimi ivmesi: g ≈ 10 m/s² (TYT kabulü)"
+      ]
+    },
+    {
+      "slug": "kuvvet-is-enerji",
+      "ders": "Fizik",
+      "seviye": "TYT-AYT",
+      "konu": "Kuvvet ve Enerji",
+      "baslik": "Kuvvet, İş ve Enerji",
+      "ozet": "Newton yasaları, iş ve enerji formülleri.",
+      "maddeler": [
+        "Newton 2. yasa: F = m · a",
+        "Ağırlık: G = m · g",
+        "İş: W = F · x · cos θ (kuvvet yönünde ise W = F · x)",
+        "Kinetik enerji: E_k = (1/2) · m · v²",
+        "Çekim potansiyel enerjisi: E_p = m · g · h",
+        "Güç: P = W / t"
+      ]
+    },
+    {
+      "slug": "mol-temel-kimya",
+      "ders": "Kimya",
+      "seviye": "TYT-AYT",
+      "konu": "Mol Kavramı",
+      "baslik": "Mol ve Temel Kimya Bağıntıları",
+      "ozet": "Mol, tanecik sayısı ve yoğunluk hesapları.",
+      "maddeler": [
+        "Mol sayısı: n = kütle / mol kütlesi = m / M",
+        "Avogadro sayısı: N_A = 6,02 × 10²³ tane/mol",
+        "Tanecik sayısı = n × N_A",
+        "Yoğunluk: d = kütle / hacim = m / V",
+        "Normal şartlarda (NŞA) 1 mol gaz = 22,4 litre"
+      ]
+    }
+  ]
+}
