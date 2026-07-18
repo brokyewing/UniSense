@@ -31,6 +31,12 @@ import {
   getDownloadURL,
 } from 'firebase/storage'
 import {
+  getMessaging,
+  getToken,
+  deleteToken,
+  isSupported as isMessagingSupported,
+} from 'firebase/messaging'
+import {
   getFirestore,
   doc,
   setDoc,
@@ -271,6 +277,64 @@ export async function recordActivity(uid) {
       { merge: true }).catch(() => {})
   }
   return next.current
+}
+
+// === PUSH BİLDİRİM (FCM) — günlük çalışma hatırlatması ===
+// VAPID key Firebase Console → Cloud Messaging → Web Push certificates'ten alınır.
+// Yoksa (yapılandırılmadıysa) push sessizce devre dışı — UI kartı da görünmez.
+const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY
+
+/** Push bu ortamda kullanılabilir mi? (tarayıcı desteği + VAPID key). UI'ı buna göre göster. */
+export async function pushAvailable() {
+  if (!app || !VAPID_KEY) return false
+  try { return await isMessagingSupported() } catch { return false }
+}
+
+/**
+ * Bildirim izni iste → FCM token al → Firestore'a kaydet. KULLANICI JESTİYLE çağrılmalı
+ * (Notification.requestPermission tarayıcı kuralı). Döner: {ok, reason}.
+ */
+export async function enablePush(uid) {
+  if (!app || !db || !uid) return { ok: false, reason: 'no-auth' }
+  if (!VAPID_KEY) return { ok: false, reason: 'no-vapid' }
+  if (!(await isMessagingSupported().catch(() => false))) return { ok: false, reason: 'unsupported' }
+  const perm = await Notification.requestPermission()
+  if (perm !== 'granted') return { ok: false, reason: 'denied' }
+  // FCM'in kendi SW'sini PUBLIC config ile (query param) kaydet — PWA sw.js'i ile
+  // ayrı scope, çakışmaz. SW config'i import.meta.env okuyamadığı için böyle geçilir.
+  const swReg = await navigator.serviceWorker.register(
+    `/firebase-messaging-sw.js?${new URLSearchParams({
+      apiKey: firebaseConfig.apiKey || '',
+      projectId: firebaseConfig.projectId || '',
+      messagingSenderId: firebaseConfig.messagingSenderId || '',
+      appId: firebaseConfig.appId || '',
+    }).toString()}`,
+  )
+  const messaging = getMessaging(app)
+  const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: swReg })
+  if (!token) return { ok: false, reason: 'no-token' }
+  // Token = doküman ID → aynı cihaz tek kayıt (duplikasyon yok)
+  await setDoc(doc(db, 'users', uid, 'pushTokens', token), {
+    token,
+    ua: (navigator.userAgent || '').slice(0, 300),
+    updatedAt: serverTimestamp(),
+  }, { merge: true })
+  return { ok: true }
+}
+
+/** Bu cihazın push kaydını kaldır (bildirimleri kapat). */
+export async function disablePush(uid) {
+  if (!app || !db || !uid) return
+  try {
+    if (await isMessagingSupported().catch(() => false)) {
+      const messaging = getMessaging(app)
+      const token = await getToken(messaging, { vapidKey: VAPID_KEY }).catch(() => null)
+      if (token) {
+        await deleteDoc(doc(db, 'users', uid, 'pushTokens', token)).catch(() => {})
+        await deleteToken(messaging).catch(() => {})
+      }
+    }
+  } catch { /* noop */ }
 }
 
 /** Kullanıcının displayName/photoURL'ünü Auth + Firestore'da güncelle. */
