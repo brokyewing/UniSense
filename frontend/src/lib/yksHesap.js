@@ -94,3 +94,57 @@ export function denemeHesapla(girdi, type, obp = 0) {
   const puan = placementScore(nets, type, obp)
   return { nets, dersNet, toplamNet: Math.round(toplamNet * 100) / 100, puan: Math.round(puan * 100) / 100 }
 }
+
+// === KPSS (GY+GK, net=D−Y/4, puan≈40+0.5×net) ve LGS (net=D−Y/3, MSP) ===
+export const KPSS_FIELDS = [
+  { id: 'kpss_gy', label: 'Genel Yetenek', max: 60 },
+  { id: 'kpss_gk', label: 'Genel Kültür', max: 60 },
+]
+export const LGS_FIELDS = [
+  { id: 'lgs_tr', label: 'Türkçe', max: 20, pen: 1 / 3, k: 4 },
+  { id: 'lgs_mat', label: 'Matematik', max: 20, pen: 1 / 3, k: 4 },
+  { id: 'lgs_fen', label: 'Fen Bilimleri', max: 20, pen: 1 / 3, k: 4 },
+  { id: 'lgs_ink', label: 'İnkılap Tarihi', max: 10, pen: 1 / 3, k: 1 },
+  { id: 'lgs_din', label: 'Din Kültürü', max: 10, pen: 1 / 3, k: 1 },
+  { id: 'lgs_ing', label: 'İngilizce', max: 10, pen: 1 / 3, k: 1 },
+]
+
+/** Sınava göre ders alanları. YKS için type (SAY/EA/SÖZ/DİL) gerekir. */
+export function denemeAlanlari(sinav, type = 'SAY') {
+  if (sinav === 'KPSS') return KPSS_FIELDS
+  if (sinav === 'LGS') return LGS_FIELDS
+  return [...TYT_FIELDS, ...(AYT_FIELDS[type] || [])]
+}
+
+/** Sınava göre net + puan. Döner: {dersNet, toplamNet, puan, puanTuru}. */
+export function denemeHesaplaSinav(sinav, type, girdi, obp = 0) {
+  const fields = denemeAlanlari(sinav, type)
+  const dersNet = {}
+  let toplamNet = 0
+  for (const f of fields) {
+    const g = girdi[f.id] || {}
+    const net = netOf(g.d, g.y, f.pen || YKS_PEN)
+    dersNet[f.id] = net
+    toplamNet += net
+  }
+  let puan = 0
+  let puanTuru = ''
+  if (sinav === 'KPSS') {
+    puan = toplamNet > 0 ? 40 + 0.5 * toplamNet : 0 // KPSS_BASE + KPSS_COEF×net
+    puanTuru = 'KPSS'
+  } else if (sinav === 'LGS') {
+    let w = 0
+    for (const f of fields) w += (dersNet[f.id] || 0) * (f.k || 1)
+    puan = w > 0 ? 100 + (w / 270) * 400 : 0 // MSP ≈ 100 + (ağırlıklı_net/270)×400
+    puanTuru = 'LGS · MSP'
+  } else {
+    puan = placementScore(dersNet, type, obp)
+    puanTuru = type
+  }
+  return {
+    dersNet,
+    toplamNet: Math.round(toplamNet * 100) / 100,
+    puan: Math.round(puan * 100) / 100,
+    puanTuru,
+  }
+}

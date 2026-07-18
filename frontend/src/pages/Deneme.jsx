@@ -7,13 +7,19 @@ import { apiFetch } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
 import { getUserProfile, watchDenemeler, addDeneme, removeDeneme, recordActivity } from '../firebase'
 import {
-  TYT_FIELDS, AYT_FIELDS, denemeHesapla, diploma100ToObp,
+  TYT_FIELDS, AYT_FIELDS, KPSS_FIELDS, LGS_FIELDS,
+  denemeAlanlari, denemeHesaplaSinav, diploma100ToObp,
 } from '../lib/yksHesap'
 
+const DENEME_SINAVLAR = ['YKS', 'KPSS', 'LGS']
 const TURLER = ['SAY', 'EA', 'SÖZ', 'DİL']
-const LS = 'unisense_deneme_YKS'
-const loadLocal = () => { try { return JSON.parse(localStorage.getItem(LS) || '[]') } catch { return [] } }
-const saveLocal = (a) => { try { localStorage.setItem(LS, JSON.stringify(a)) } catch { /* noop */ } }
+// Tüm sınavların ders etiketleri — geçmiş/zayıf ders gösterimi için
+const ALL_LABELS = Object.fromEntries(
+  [...TYT_FIELDS, ...AYT_FIELDS.SAY, ...AYT_FIELDS.EA, ...AYT_FIELDS.SÖZ, ...AYT_FIELDS.DİL,
+    ...KPSS_FIELDS, ...LGS_FIELDS].map((f) => [f.id, { label: f.label, max: f.max }]))
+const lsKey = (s) => 'unisense_deneme_' + s
+const loadLocal = (s) => { try { return JSON.parse(localStorage.getItem(lsKey(s)) || '[]') } catch { return [] } }
+const saveLocal = (s, a) => { try { localStorage.setItem(lsKey(s), JSON.stringify(a)) } catch { /* noop */ } }
 const bugun = () => new Date().toISOString().slice(0, 10)
 
 function Spark({ points }) {
@@ -37,6 +43,7 @@ function Spark({ points }) {
 
 export default function Deneme() {
   const { user } = useAuth()
+  const [sinav, setSinav] = useState('YKS')
   const [type, setType] = useState('SAY')
   const [diploma, setDiploma] = useState('85')
   const [tarih, setTarih] = useState(bugun())
@@ -56,24 +63,26 @@ export default function Deneme() {
     getUserProfile(user.uid).then((p) => {
       const pr = p?.profile || {}
       setProfil(pr)
+      if (['YKS', 'KPSS', 'LGS'].includes(pr.examTrack)) setSinav(pr.examTrack)
       if (['SAY', 'EA', 'SÖZ', 'DİL'].includes(pr.scoreType)) setType(pr.scoreType)
       if (pr.diploma) setDiploma(String(pr.diploma))
     }).catch(() => {})
   }, [user])
 
-  // Denemeleri yükle — girişli bulut, girişsiz localStorage
+  // Denemeleri yükle — sınav başına ayrı liste; girişli bulut, girişsiz localStorage
   useEffect(() => {
-    if (!user) { setDenemeler(loadLocal()); return }
-    return watchDenemeler(user.uid, 'YKS', (items) => {
-      if (items == null) { setDenemeler(loadLocal()); return }
-      setDenemeler(items); saveLocal(items)
+    setGirdi({})
+    if (!user) { setDenemeler(loadLocal(sinav)); return }
+    return watchDenemeler(user.uid, sinav, (items) => {
+      if (items == null) { setDenemeler(loadLocal(sinav)); return }
+      setDenemeler(items); saveLocal(sinav, items)
     })
-  }, [user])
+  }, [user, sinav])
 
-  const fields = useMemo(() => [...TYT_FIELDS, ...(AYT_FIELDS[type] || [])], [type])
+  const fields = useMemo(() => denemeAlanlari(sinav, type), [sinav, type])
   const canli = useMemo(
-    () => denemeHesapla(girdi, type, diploma100ToObp(diploma)),
-    [girdi, type, diploma],
+    () => denemeHesaplaSinav(sinav, type, girdi, diploma100ToObp(diploma)),
+    [sinav, type, girdi, diploma],
   )
 
   function setDY(id, k, v) {
@@ -84,20 +93,24 @@ export default function Deneme() {
   function flash(m) { setToast(m); setTimeout(() => setToast(''), 2500) }
 
   async function kaydet() {
-    if (canli.puan <= 100) { flash('En az bir AYT dersine net gir'); return }
+    const minPuan = sinav === 'KPSS' ? 40 : 100
+    if (canli.puan <= minPuan) { flash('Ders netlerini gir'); return }
     setSaving(true)
     let sira = null
-    try {
-      const r = await apiFetch(`/api/v1/hesap/siralama?puan=${canli.puan.toFixed(2)}&tur=${encodeURIComponent(type)}`)
-      sira = r?.tahmini_sira ?? null
-    } catch { /* sıra opsiyonel */ }
+    // Tahmini sıra sadece YKS'de (LGS yüzdelik, KPSS'de aday sırası verisi yok)
+    if (sinav === 'YKS') {
+      try {
+        const r = await apiFetch(`/api/v1/hesap/siralama?puan=${canli.puan.toFixed(2)}&tur=${encodeURIComponent(type)}`)
+        sira = r?.tahmini_sira ?? null
+      } catch { /* sıra opsiyonel */ }
+    }
     const deneme = {
-      sinav: 'YKS', type, tarih, ad: ad || `${type} Deneme`,
+      sinav, type: sinav === 'YKS' ? type : null, tarih, ad: ad || `${canli.puanTuru} Deneme`,
       dersNet: canli.dersNet, toplamNet: canli.toplamNet, puan: canli.puan, sira,
     }
     try {
       if (user) await addDeneme(user.uid, deneme)
-      else { const a = [...denemeler, { ...deneme, id: 'l' + Date.now() }]; saveLocal(a); setDenemeler(a) }
+      else { const a = [...denemeler, { ...deneme, id: 'l' + Date.now() }]; saveLocal(sinav, a); setDenemeler(a) }
       recordActivity(user?.uid).catch(() => {}) // günlük seri (streak)
       setGirdi({}); setAd(''); setShowForm(false)
       flash('✓ Deneme kaydedildi')
@@ -106,7 +119,7 @@ export default function Deneme() {
 
   async function sil(d) {
     if (user && !String(d.id).startsWith('l')) { await removeDeneme(user.uid, d.id).catch(() => {}) }
-    else { const a = denemeler.filter((x) => x.id !== d.id); saveLocal(a); setDenemeler(a) }
+    else { const a = denemeler.filter((x) => x.id !== d.id); saveLocal(sinav, a); setDenemeler(a) }
   }
 
   // İstatistik: son deneme, trend, en zayıf 3 ders
@@ -114,10 +127,8 @@ export default function Deneme() {
   const son = sirali[sirali.length - 1]
   const zayif = useMemo(() => {
     if (!son?.dersNet) return []
-    const allFields = [...TYT_FIELDS, ...AYT_FIELDS.SAY, ...AYT_FIELDS.EA, ...AYT_FIELDS.SÖZ, ...AYT_FIELDS.DİL]
-    const lab = Object.fromEntries(allFields.map((f) => [f.id, { label: f.label, max: f.max }]))
     return Object.entries(son.dersNet)
-      .map(([id, net]) => ({ id, net, ...(lab[id] || { label: id, max: 1 }) }))
+      .map(([id, net]) => ({ id, net, ...(ALL_LABELS[id] || { label: id, max: 1 }) }))
       .map((x) => ({ ...x, oran: x.net / x.max }))
       .sort((a, b) => a.oran - b.oran).slice(0, 3)
   }, [son])
@@ -127,7 +138,8 @@ export default function Deneme() {
     setKocLoading(true); setKoc('')
     const sonlar = sirali.slice(-5).map((d) => `${d.tarih}: ${Math.round(d.toplamNet)} net`).join(', ')
     const zayifStr = zayif.map((z) => z.label).join(', ') || '—'
-    const q = `${type} öğrencisiyim, deneme netlerimi takip ediyorum. Son denemelerim: ${sonlar}. `
+    const kim = sinav === 'YKS' ? `${type} (YKS)` : sinav
+    const q = `${kim} öğrencisiyim, deneme netlerimi takip ediyorum. Son denemelerim: ${sonlar}. `
       + `En zayıf 3 dersim: ${zayifStr}.${son?.sira ? ` Tahmini başarı sıram ~${son.sira}.` : ''} `
       + `Bu verilere göre bana KISA, maddeler halinde uygulanabilir çalışma tavsiyesi ver: `
       + `hangi konulara öncelik vermeliyim ve netimi nasıl artırabilirim?`
@@ -146,8 +158,8 @@ export default function Deneme() {
   return (
     <>
       <BackgroundScene />
-      <Seo title="Deneme Takibi — Net, Puan ve Tahmini Sıralama | UniSense"
-        description="YKS denemelerini kaydet: ders ders netini gir, tahmini puan + başarı sırası + o sırayla girebileceğin bölümleri gör. Net trendini takip et — ücretsiz."
+      <Seo title="Deneme Takibi — Net & Puan | YKS · KPSS · LGS | UniSense"
+        description="YKS, KPSS ve LGS denemelerini kaydet: ders ders netini gir, tahmini puanını (ve YKS'de başarı sıranı + girebileceğin bölümleri) gör. Net trendini takip et — ücretsiz."
         path="/deneme" />
       {toast && <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl glass text-sm">{toast}</div>}
       <div className="max-w-3xl mx-auto space-y-5">
@@ -155,7 +167,17 @@ export default function Deneme() {
           <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1 flex items-center justify-center gap-2">
             <LineChart className="text-accent-300" /> Deneme Takibi
           </h1>
-          <p className="text-slate-400 text-sm">Netini gir → tahmini puan, sıra ve girebileceğin bölümleri gör. Trendini izle.</p>
+          <p className="text-slate-400 text-sm">Netini gir → tahmini puan{sinav === 'YKS' ? ', sıra ve girebileceğin bölümleri' : ''} gör. Trendini izle.</p>
+        </div>
+
+        {/* Sınav seçici — her sınavın denemeleri ayrı tutulur */}
+        <div className="flex justify-center">
+          <div className="inline-flex gap-1 p-1 rounded-xl bg-white/5 border border-white/10">
+            {DENEME_SINAVLAR.map((s) => (
+              <button key={s} onClick={() => { setSinav(s); setShowForm(false) }}
+                className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition ${sinav === s ? 'bg-gradient-to-r from-brand-500 to-accent-500 text-white' : 'text-slate-300 hover:text-white'}`}>{s}</button>
+            ))}
+          </div>
         </div>
 
         {/* Özet + son deneme */}
@@ -235,28 +257,32 @@ export default function Deneme() {
               <button onClick={() => setShowForm(false)} className="text-slate-500 hover:text-white"><X size={16} /></button>
             </div>
             <div className="flex flex-wrap gap-2 items-end">
-              <div>
-                <label className="text-[11px] text-slate-400">Puan türü</label>
-                <div className="flex gap-1 mt-1">
-                  {TURLER.map((t) => (
-                    <button key={t} onClick={() => setType(t)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${type === t ? 'bg-gradient-to-r from-brand-500 to-accent-500 text-white' : 'bg-white/5 text-slate-300'}`}>{t}</button>
-                  ))}
+              {sinav === 'YKS' && (
+                <div>
+                  <label className="text-[11px] text-slate-400">Puan türü</label>
+                  <div className="flex gap-1 mt-1">
+                    {TURLER.map((t) => (
+                      <button key={t} onClick={() => setType(t)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${type === t ? 'bg-gradient-to-r from-brand-500 to-accent-500 text-white' : 'bg-white/5 text-slate-300'}`}>{t}</button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
               <div><label className="text-[11px] text-slate-400">Tarih</label>
                 <input type="date" value={tarih} onChange={(e) => setTarih(e.target.value)} className="input-glass block mt-1 text-sm" /></div>
-              <div><label className="text-[11px] text-slate-400">Diploma notu</label>
-                <input type="number" value={diploma} onChange={(e) => setDiploma(e.target.value)} placeholder="85" className="input-glass block mt-1 text-sm w-24" /></div>
+              {sinav === 'YKS' && (
+                <div><label className="text-[11px] text-slate-400">Diploma notu</label>
+                  <input type="number" value={diploma} onChange={(e) => setDiploma(e.target.value)} placeholder="85" className="input-glass block mt-1 text-sm w-24" /></div>
+              )}
               <div className="flex-1 min-w-[120px]"><label className="text-[11px] text-slate-400">Deneme adı (ops.)</label>
-                <input value={ad} onChange={(e) => setAd(e.target.value)} placeholder="3D Deneme 5" className="input-glass block mt-1 text-sm w-full" /></div>
+                <input value={ad} onChange={(e) => setAd(e.target.value)} placeholder="Deneme 5" className="input-glass block mt-1 text-sm w-full" /></div>
             </div>
 
             {/* Ders D/Y girişleri */}
             <div className="grid sm:grid-cols-2 gap-2">
               {fields.map((f) => {
                 const g = girdi[f.id] || {}
-                const net = ((parseFloat(g.d) || 0) - 0.25 * (parseFloat(g.y) || 0))
+                const net = ((parseFloat(g.d) || 0) - (f.pen || 0.25) * (parseFloat(g.y) || 0))
                 return (
                   <div key={f.id} className="flex items-center gap-2 bg-white/[0.03] border border-white/8 rounded-lg px-2.5 py-1.5">
                     <span className="text-[12px] text-slate-300 flex-1 truncate">{f.label} <span className="text-slate-600">/{f.max}</span></span>
@@ -273,7 +299,7 @@ export default function Deneme() {
                 <span className="text-slate-400">Toplam: </span>
                 <span className="font-mono text-white">{canli.toplamNet.toFixed(1)} net</span>
                 <span className="text-slate-500"> · </span>
-                <span className="font-mono gradient-text font-bold">{canli.puan > 100 ? canli.puan.toFixed(1) : '–'} puan</span>
+                <span className="font-mono gradient-text font-bold">{canli.puan > 0 ? canli.puan.toFixed(1) : '–'} {canli.puanTuru} puan</span>
               </div>
               <button onClick={kaydet} disabled={saving} className="btn-primary text-sm inline-flex items-center gap-1.5 disabled:opacity-50">
                 {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Kaydet
@@ -290,7 +316,7 @@ export default function Deneme() {
               <div key={d.id} className="card !py-2.5 flex items-center gap-3">
                 <div className="text-[11px] text-slate-500 font-mono w-20 shrink-0">{d.tarih}</div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm text-white truncate">{d.ad} <span className="text-[10px] text-slate-500">{d.type}</span></div>
+                  <div className="text-sm text-white truncate">{d.ad} <span className="text-[10px] text-slate-500">{d.type || d.sinav || sinav}</span></div>
                 </div>
                 <div className="text-right shrink-0 font-mono text-sm">
                   <span className="text-white">{d.puan?.toFixed(1)}</span>
