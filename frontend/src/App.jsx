@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import {
   Search, ListChecks,
   LogIn, LogOut, User, ChevronDown, Compass, Calculator, BookOpen, CalendarDays,
-  ListTodo, LineChart,
+  GraduationCap,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from './contexts/AuthContext'
@@ -24,7 +24,7 @@ const ROUTE_SEO = {
   '/pusula': { title: 'İlgi Pusulası — Sana Uygun Bölümü Bul | UniSense', description: 'Ne okuyacağına karar veremiyor musun? İlgi alanlarından yapay zekâ ile sana uygun üniversite bölümlerini keşfet.' },
   '/karsilastir': { title: 'Program Karşılaştırma — Taban, Trend, Kadro | UniSense', description: 'Üniversite programlarını yan yana karşılaştır: taban puan, 3 yıllık sıralama trendi, akademik kadro, ücret ve akreditasyon.' },
   '/konular': { title: 'Konu Takibi — YKS, KPSS, DGS, LGS Konuları | UniSense', description: 'Sınavının tüm konularını ders ders takip et, çalıştıkça işaretle. YKS, KPSS, DGS ve LGS için ücretsiz konu kontrol listesi.' },
-  '/deneme': { title: 'Deneme Takibi — Net, Puan ve Tahmini Sıralama | UniSense', description: 'YKS denemelerinin netini gir; tahmini puan, başarı sırası ve girebileceğin bölümleri gör. Net trendini takip et — ücretsiz.' },
+  '/deneme': { title: 'Deneme Takibi — Net & Puan | YKS · KPSS · LGS | UniSense', description: "YKS, KPSS ve LGS denemelerini kaydet: ders ders netini gir, tahmini puanını (ve YKS'de başarı sıranı + girebileceğin bölümleri) gör. Net trendini takip et — ücretsiz." },
   '/bolum': { title: 'Bölüm Rehberi — Üniversite Bölümleri Tanıtımı | UniSense', description: 'Üniversite bölümleri ne iş yapar, hangi dersleri okur, mezunları nerede çalışır? Tanıtımlar + güncel taban puanları.' },
   '/takvim': { title: `${TERCIH_YILI} Sınav Takvimi — YKS, LGS, DGS, KPSS, ALES, TUS | UniSense`, description: `${TERCIH_YILI} YKS, LGS, DGS, KPSS, ALES, TUS, DUS ve AGS sınav, sonuç ve tercih tarihleri — kaç gün kaldığıyla tek sayfada.` },
   '/lgs': { title: `LGS Tercih Robotu ${TERCIH_YILI} — Yüzdelik Dilimine Göre Lise Bul | UniSense`, description: 'LGS yüzdelik dilimini gir, girebileceğin Fen, Anadolu, Sosyal Bilimler ve İmam Hatip liselerini güvenli/tutar/riskli olarak gör — ücretsiz, tahminî.' },
@@ -67,8 +67,10 @@ export default function App() {
     return <>{seoEl}<Outlet /></>
   }
 
-  const navItem = (to, label, Icon) => {
-    const active = loc.pathname === to
+  const navItem = (to, label, Icon, activePaths) => {
+    const active = activePaths
+      ? activePaths.some((p) => loc.pathname === p)
+      : loc.pathname === to
     return (
       <Link
         to={to}
@@ -114,14 +116,14 @@ export default function App() {
             </div>
           </Link>
 
-          {/* Ana Sayfa nav'da yok — logo zaten anasayfaya götürür (6 sekme) */}
+          {/* Ana Sayfa nav'da yok — logo zaten anasayfaya götürür.
+              Konular + Deneme tek "Çalışma" sekmesinde birleşti (nav ferahladı). */}
           <nav className="flex items-center gap-1 min-w-0 overflow-x-auto no-scrollbar">
             {navItem('/oneriler', 'Tercih', ListChecks)}
             {navItem('/hesap', 'Hesap', Calculator)}
             {navItem('/arama', 'Sorgu', Search)}
             {navItem('/pusula', 'Pusula', Compass)}
-            {navItem('/konular', 'Konular', ListTodo)}
-            {navItem('/deneme', 'Deneme', LineChart)}
+            {navItem('/konular', 'Çalışma', GraduationCap, ['/konular', '/deneme'])}
             {navItem('/bolum', 'Bölümler', BookOpen)}
             {navItem('/takvim', 'Takvim', CalendarDays)}
           </nav>
