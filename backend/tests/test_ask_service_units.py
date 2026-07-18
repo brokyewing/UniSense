@@ -441,3 +441,12 @@ class TestProfileContext:
                             ags_net=60, tercih_sehirler=["ADANA"])
         d = c.model_dump(exclude_none=True)
         assert d["tus_puan"] == 55 and d["lgs_yuzdelik"] == 2.5 and d["ags_net"] == 60
+
+
+class TestKpssNet:
+    def test_kpss_net_reverse(self):
+        from unisense.application.services.ask_service import _estimate_kpss_net
+        assert _estimate_kpss_net(85) == 90   # 2×(85-40)
+        assert _estimate_kpss_net(70) == 60
+        assert _estimate_kpss_net(105) == 120  # tavan
+        assert _estimate_kpss_net(None) is None
