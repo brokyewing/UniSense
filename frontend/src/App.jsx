@@ -28,6 +28,7 @@ const ROUTE_SEO = {
   '/ozetler': { title: 'Formül ve Konu Özetleri — YKS Cheat Sheet | UniSense', description: 'TYT-AYT matematik, geometri, fizik ve kimya formülleri tek yerde. Aranabilir, çevrimdışı erişilebilir konu özetleri — ücretsiz.' },
   '/yanlislarim': { title: 'Yanlış Defteri | UniSense', noindex: true },
   '/kartlar': { title: 'Bilgi Kartları | UniSense', noindex: true },
+  '/pano': { title: 'Çalışma Panom | UniSense', noindex: true },
   '/bolum': { title: 'Bölüm Rehberi — Üniversite Bölümleri Tanıtımı | UniSense', description: 'Üniversite bölümleri ne iş yapar, hangi dersleri okur, mezunları nerede çalışır? Tanıtımlar + güncel taban puanları.' },
   '/takvim': { title: `${TERCIH_YILI} Sınav Takvimi — YKS, LGS, DGS, KPSS, ALES, TUS | UniSense`, description: `${TERCIH_YILI} YKS, LGS, DGS, KPSS, ALES, TUS, DUS ve AGS sınav, sonuç ve tercih tarihleri — kaç gün kaldığıyla tek sayfada.` },
   '/lgs': { title: `LGS Tercih Robotu ${TERCIH_YILI} — Yüzdelik Dilimine Göre Lise Bul | UniSense`, description: 'LGS yüzdelik dilimini gir, girebileceğin Fen, Anadolu, Sosyal Bilimler ve İmam Hatip liselerini güvenli/tutar/riskli olarak gör — ücretsiz, tahminî.' },
@@ -126,7 +127,7 @@ export default function App() {
             {navItem('/hesap', 'Hesap', Calculator)}
             {navItem('/arama', 'Sorgu', Search)}
             {navItem('/pusula', 'Pusula', Compass)}
-            {navItem('/konular', 'Çalışma', GraduationCap, ['/konular', '/deneme', '/ozetler', '/yanlislarim', '/kartlar'])}
+            {navItem('/konular', 'Çalışma', GraduationCap, ['/konular', '/deneme', '/ozetler', '/yanlislarim', '/kartlar', '/pano'])}
             {navItem('/bolum', 'Bölümler', BookOpen)}
             {navItem('/takvim', 'Takvim', CalendarDays)}
           </nav>

@@ -151,6 +151,12 @@ service cloud.firestore {
           && strMax('nextReview', 20);
       }
 
+      // Oyunlaştırma / çalışma süresi (Pomodoro) — tek "genel" dokümanı (sayaç haritaları)
+      match /istatistik/{doc} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && fieldCountMax(6);
+      }
+
       // Deneme günlüğü — her deneme 1 doküman (ders net haritası + puan/sıra)
       match /denemeler/{id} {
         allow read, delete: if isOwner(uid);

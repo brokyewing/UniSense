@@ -53,6 +53,7 @@ import {
   deleteDoc,
   serverTimestamp,
   writeBatch,
+  increment,
 } from 'firebase/firestore'
 
 // Sabitler
@@ -291,6 +292,43 @@ export async function updateKart(uid, id, patch) {
 export async function removeKart(uid, id) {
   if (!db || !uid) return
   await deleteDoc(doc(db, 'users', uid, 'kartlar', id))
+}
+
+// === Çalışma süresi (Pomodoro) + oyunlaştırma istatistiği ===
+/** Çalışma dakikası ekle (Pomodoro seansı bitince). Toplam + haftalık + ders bazlı. */
+export async function sureEkle(uid, dk, ders) {
+  if (!db || !uid || !dk) return
+  const today = new Date().toISOString().slice(0, 10)
+  const patch = {
+    sureDk: increment(dk),
+    sureHafta: { [today]: increment(dk) },
+    updatedAt: serverTimestamp(),
+  }
+  if (ders) patch.dersSure = { [ders]: increment(dk) }
+  await setDoc(doc(db, 'users', uid, 'istatistik', 'genel'), patch, { merge: true }).catch(() => {})
+}
+
+/** Girişli kullanıcının tüm çalışma istatistiğini topla (Pano için). */
+export async function getIstatistik(uid) {
+  const s = { konuDone: 0, denemeSayisi: 0, kartSayisi: 0, yanlisSayisi: 0, streakLongest: 0, sureDk: 0, sureHafta: {}, dersSure: {} }
+  if (!db || !uid) return s
+  try {
+    const [konu, den, kart, yan, akt, ist] = await Promise.all([
+      getDocs(collection(db, 'users', uid, 'konu_ilerleme')),
+      getDocs(collection(db, 'users', uid, 'denemeler')),
+      getDocs(collection(db, 'users', uid, 'kartlar')),
+      getDocs(collection(db, 'users', uid, 'yanlislar')),
+      getDoc(doc(db, 'users', uid, 'aktivite', 'gunluk')),
+      getDoc(doc(db, 'users', uid, 'istatistik', 'genel')),
+    ])
+    konu.forEach((d) => { s.konuDone += Object.keys(d.data().checked || {}).length })
+    s.denemeSayisi = den.size
+    s.kartSayisi = kart.size
+    s.yanlisSayisi = yan.size
+    if (akt.exists()) s.streakLongest = akt.data().longest || 0
+    if (ist.exists()) { const g = ist.data(); s.sureDk = g.sureDk || 0; s.sureHafta = g.sureHafta || {}; s.dersSure = g.dersSure || {} }
+  } catch { /* erişilemedi → boş istatistik */ }
+  return s
 }
 
 // === Günlük çalışma serisi (streak) ===
