@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Bell, BellRing, Loader2, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { pushAvailable, enablePush, disablePush } from '../firebase'
+import { track } from '../lib/analytics'
 
 // Günlük çalışma hatırlatması opt-in kartı. Yalnızca: girişli + tarayıcı destekli
 // + VAPID key yapılandırılmışsa görünür. Kapatılınca (dismiss) bir daha basmaz.
@@ -30,7 +31,7 @@ export default function PushOptIn() {
   async function ac() {
     setState('loading')
     const r = await enablePush(user.uid)
-    if (r.ok) { localStorage.setItem(LS_ON, '1'); setState('on') }
+    if (r.ok) { localStorage.setItem(LS_ON, '1'); setState('on'); track('push_acildi') }
     else if (r.reason === 'denied') setState('denied')
     else setState('idle')
   }

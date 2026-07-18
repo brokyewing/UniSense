@@ -6,6 +6,7 @@ import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
 import { getUserProfile, watchDenemeler, addDeneme, removeDeneme, recordActivity } from '../firebase'
+import { track } from '../lib/analytics'
 import {
   TYT_FIELDS, AYT_FIELDS, KPSS_FIELDS, LGS_FIELDS, DGS_FIELDS,
   denemeAlanlari, denemeHesaplaSinav, diploma100ToObp, gpa4ToAobp,
@@ -128,6 +129,7 @@ export default function Deneme({ embedded = false }) {
       if (user) await addDeneme(user.uid, deneme)
       else { const a = [...denemeler, { ...deneme, id: 'l' + Date.now() }]; saveLocal(sinav, a); setDenemeler(a) }
       recordActivity(user?.uid).catch(() => {}) // günlük seri (streak)
+      track('deneme_kaydedildi', { sinav })
       setGirdi({}); setAd(''); setShowForm(false)
       flash('✓ Deneme kaydedildi')
     } catch (e) { flash(e.message) } finally { setSaving(false) }
