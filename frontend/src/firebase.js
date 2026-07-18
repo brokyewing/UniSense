@@ -214,6 +214,30 @@ export async function setKonuIlerleme(uid, sinav, checked) {
   )
 }
 
+// === Deneme günlüğü (bulut — her deneme 1 doküman) ===
+/** Seçili sınavın denemelerini tarih sırasıyla izle. Erişilemezse null → çağıran localStorage. */
+export function watchDenemeler(uid, sinav, callback) {
+  if (!db || !uid) { callback([]); return () => {} }
+  const q = query(collection(db, 'users', uid, 'denemeler'), where('sinav', '==', sinav))
+  return onSnapshot(q, (snap) => {
+    const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+    items.sort((a, b) => (a.tarih || '').localeCompare(b.tarih || '')) // eski→yeni
+    callback(items)
+  }, () => callback(null))
+}
+
+export async function addDeneme(uid, deneme) {
+  if (!db || !uid) return null
+  const ref = await addDoc(collection(db, 'users', uid, 'denemeler'),
+    { ...deneme, createdAt: serverTimestamp() })
+  return ref.id
+}
+
+export async function removeDeneme(uid, id) {
+  if (!db || !uid) return
+  await deleteDoc(doc(db, 'users', uid, 'denemeler', id))
+}
+
 /** Kullanıcının displayName/photoURL'ünü Auth + Firestore'da güncelle. */
 export async function updateUserBasicInfo(user, { displayName, photoURL }) {
   if (!auth || !db) throw new Error('Firebase yok')
