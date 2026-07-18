@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { LayoutDashboard, Play, Pause, RotateCcw, Trophy, Flame, Clock, ListChecks, LineChart, Layers } from 'lucide-react'
+import { LayoutDashboard, Play, Pause, RotateCcw, Trophy, Flame, Clock, ListChecks, LineChart, Layers, Sparkles, Loader2 } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { useAuth } from '../contexts/AuthContext'
-import { getIstatistik, sureEkle, recordActivity } from '../firebase'
+import { getIstatistik, sureEkle, recordActivity, getUserProfile } from '../firebase'
+import { apiFetch } from '../lib/api'
 import { hesaplaXP, seviyeBilgi, ROZETLER, kazanilanRozetler, guestStats } from '../lib/oyun'
 
 const ODAK = 25 * 60
@@ -28,11 +29,37 @@ export default function Pano({ embedded = false }) {
   const [calisiyor, setCalisiyor] = useState(false)
   const [ders, setDers] = useState('')
   const [toast, setToast] = useState('')
+  const [gunSoru, setGunSoru] = useState('')
+  const [gsLoading, setGsLoading] = useState(false)
 
   const yukle = useCallback(async () => {
     setStats(user ? await getIstatistik(user.uid) : guestStats())
   }, [user])
   useEffect(() => { yukle() }, [yukle])
+
+  // Günün sorusu — günde 1 kez üretilip cache'lenir (kota dostu)
+  useEffect(() => {
+    try {
+      const c = JSON.parse(localStorage.getItem('unisense_gunsoru') || 'null')
+      if (c && c.date === new Date().toISOString().slice(0, 10)) setGunSoru(c.text)
+    } catch { /* noop */ }
+  }, [])
+
+  async function gunSorusu() {
+    if (!user) return
+    setGsLoading(true)
+    let track = 'YKS'
+    try { const p = await getUserProfile(user.uid); track = p?.profile?.examTrack || 'YKS' } catch { /* varsayılan */ }
+    const q = `${track} öğrencisi için bugüne özel 1 adet çoktan seçmeli pratik soru üret. `
+      + `A) B) C) D) şıkları, en sonunda "Cevap: X" ve tek cümlelik açıklama. Sadece soruyu ver, giriş cümlesi yazma.`
+    try {
+      const r = await apiFetch('/api/v1/ask', { method: 'POST', body: { query: q } })
+      const text = r?.text || 'Üretilemedi.'
+      setGunSoru(text)
+      localStorage.setItem('unisense_gunsoru', JSON.stringify({ date: new Date().toISOString().slice(0, 10), text }))
+      recordActivity(user.uid).catch(() => {})
+    } catch (e) { setGunSoru('Alınamadı: ' + e.message) } finally { setGsLoading(false) }
+  }
 
   // Sayaç
   useEffect(() => {
@@ -133,6 +160,26 @@ export default function Pano({ embedded = false }) {
             <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-500" style={{ width: `${sv.oran}%` }} />
           </div>
         </div>
+
+        {/* Günün Sorusu — AI üretimi, günde 1 (girişli) */}
+        {user && (
+          <div className="card">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="text-sm font-semibold text-white flex items-center gap-2"><Sparkles size={16} className="text-accent-300" /> Günün Sorusu</div>
+              <button onClick={gunSorusu} disabled={gsLoading} className="btn-primary text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
+                {gsLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} {gunSoru ? 'Yenile' : 'Getir'}
+              </button>
+            </div>
+            {gunSoru ? (
+              <div className="text-[13.5px] text-slate-200 whitespace-pre-wrap leading-relaxed">
+                {gunSoru}
+                <div className="text-[11px] text-amber-300/80 mt-2">🤖 AI üretimi — cevabı kendin teyit et.</div>
+              </div>
+            ) : (
+              <p className="text-xs text-slate-500">Bugüne özel bir pratik soru için “Getir”e bas.</p>
+            )}
+          </div>
+        )}
 
         {/* İstatistik özeti */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">

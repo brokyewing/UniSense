@@ -61,6 +61,8 @@ export default function Deneme({ embedded = false }) {
   const [profil, setProfil] = useState(null)
   const [koc, setKoc] = useState('')
   const [kocLoading, setKocLoading] = useState(false)
+  const [miniTest, setMiniTest] = useState('')
+  const [mtLoading, setMtLoading] = useState(false)
 
   // Profilden varsayılan tür + diploma + koç için profil
   useEffect(() => {
@@ -169,6 +171,20 @@ export default function Deneme({ embedded = false }) {
     } catch (e) { setKoc('Tavsiye alınamadı: ' + e.message) } finally { setKocLoading(false) }
   }
 
+  async function miniTestIste() {
+    if (!zayif.length) { flash('Önce birkaç deneme gir'); return }
+    setMtLoading(true); setMiniTest('')
+    const kim = turlerFor(sinav) ? `${type} (${sinav})` : sinav
+    const zayifStr = zayif.map((z) => z.label).join(', ')
+    const q = `${kim} öğrencisiyim. Zayıf derslerim: ${zayifStr}. Bu derslerden bana 5 adet çoktan seçmeli PRATİK soru üret. `
+      + `Her soruyu A) B) C) D) şıklarıyla yaz; her sorunun altına "Cevap: X" ve tek cümlelik açıklama ekle. `
+      + `Sadece soruları ver, giriş cümlesi yazma.`
+    try {
+      const r = await apiFetch('/api/v1/ask', { method: 'POST', body: { query: q } })
+      setMiniTest(r?.text || 'Üretilemedi.')
+    } catch (e) { setMiniTest('Alınamadı: ' + e.message) } finally { setMtLoading(false) }
+  }
+
   return (
     <>
       {!embedded && <BackgroundScene />}
@@ -245,20 +261,34 @@ export default function Deneme({ embedded = false }) {
                 <Sparkles size={16} className="text-accent-300" /> AI Koç
               </div>
               {user ? (
-                <button onClick={kocIste} disabled={kocLoading}
-                  className="btn-primary text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
-                  {kocLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} Tavsiye al
-                </button>
+                <div className="flex gap-1.5">
+                  <button onClick={kocIste} disabled={kocLoading}
+                    className="btn-primary text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
+                    {kocLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} Tavsiye
+                  </button>
+                  <button onClick={miniTestIste} disabled={mtLoading || !zayif.length}
+                    className="text-xs inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass glass-hover text-slate-200 disabled:opacity-50">
+                    {mtLoading ? <Loader2 size={13} className="animate-spin" /> : <Target size={13} />} Mini test
+                  </button>
+                </div>
               ) : (
                 <Link to="/giris" className="text-xs text-accent-300">Giriş yap →</Link>
               )}
             </div>
             {!user ? (
-              <p className="text-xs text-slate-400">Giriş yaparsan koç, denemelerine ve zayıf konularına göre sana özel çalışma tavsiyesi verir.</p>
-            ) : koc ? (
-              <div className="text-[13.5px] text-slate-200 whitespace-pre-wrap leading-relaxed">{koc}</div>
+              <p className="text-xs text-slate-400">Giriş yaparsan koç, denemelerine ve zayıf konularına göre sana özel tavsiye + zayıf derslerinden mini test verir.</p>
+            ) : koc || miniTest ? (
+              <div className="space-y-2">
+                {koc && <div className="text-[13.5px] text-slate-200 whitespace-pre-wrap leading-relaxed">{koc}</div>}
+                {miniTest && (
+                  <div className="text-[13.5px] text-slate-200 whitespace-pre-wrap leading-relaxed border-t border-white/5 pt-2">
+                    {miniTest}
+                    <div className="text-[11px] text-amber-300/80 mt-2">🤖 AI üretimi pratik — cevapları kendin teyit et.</div>
+                  </div>
+                )}
+              </div>
             ) : (
-              <p className="text-xs text-slate-500">Denemelerine ve zayıf konularına göre kişisel tavsiye için “Tavsiye al”a bas.</p>
+              <p className="text-xs text-slate-500">“Tavsiye” kişisel çalışma önerisi verir; “Mini test” zayıf derslerinden 5 pratik soru üretir.</p>
             )}
           </div>
         )}
