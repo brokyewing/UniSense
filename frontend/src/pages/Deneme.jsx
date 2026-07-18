@@ -7,16 +7,21 @@ import { apiFetch } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
 import { getUserProfile, watchDenemeler, addDeneme, removeDeneme, recordActivity } from '../firebase'
 import {
-  TYT_FIELDS, AYT_FIELDS, KPSS_FIELDS, LGS_FIELDS,
-  denemeAlanlari, denemeHesaplaSinav, diploma100ToObp,
+  TYT_FIELDS, AYT_FIELDS, KPSS_FIELDS, LGS_FIELDS, DGS_FIELDS,
+  denemeAlanlari, denemeHesaplaSinav, diploma100ToObp, gpa4ToAobp,
 } from '../lib/yksHesap'
 
-const DENEME_SINAVLAR = ['YKS', 'KPSS', 'LGS']
-const TURLER = ['SAY', 'EA', 'SÖZ', 'DİL']
+const DENEME_SINAVLAR = ['YKS', 'DGS', 'KPSS', 'LGS']
+// Puan türü olan sınavlar (YKS 4 tür, DGS 3 tür); KPSS/LGS'de tür yok
+const YKS_TURLER = ['SAY', 'EA', 'SÖZ', 'DİL']
+const DGS_TURLER = ['SAY', 'EA', 'SÖZ']
+const turlerFor = (s) => (s === 'YKS' ? YKS_TURLER : s === 'DGS' ? DGS_TURLER : null)
+// Diploma/GPA girişi olan sınavlar (YKS: 100'lük diploma→OBP, DGS: 4'lük GPA→AÖBP)
+const hasDiploma = (s) => s === 'YKS' || s === 'DGS'
 // Tüm sınavların ders etiketleri — geçmiş/zayıf ders gösterimi için
 const ALL_LABELS = Object.fromEntries(
   [...TYT_FIELDS, ...AYT_FIELDS.SAY, ...AYT_FIELDS.EA, ...AYT_FIELDS.SÖZ, ...AYT_FIELDS.DİL,
-    ...KPSS_FIELDS, ...LGS_FIELDS].map((f) => [f.id, { label: f.label, max: f.max }]))
+    ...KPSS_FIELDS, ...LGS_FIELDS, ...DGS_FIELDS].map((f) => [f.id, { label: f.label, max: f.max }]))
 const lsKey = (s) => 'unisense_deneme_' + s
 const loadLocal = (s) => { try { return JSON.parse(localStorage.getItem(lsKey(s)) || '[]') } catch { return [] } }
 const saveLocal = (s, a) => { try { localStorage.setItem(lsKey(s), JSON.stringify(a)) } catch { /* noop */ } }
@@ -63,11 +68,20 @@ export default function Deneme({ embedded = false }) {
     getUserProfile(user.uid).then((p) => {
       const pr = p?.profile || {}
       setProfil(pr)
-      if (['YKS', 'KPSS', 'LGS'].includes(pr.examTrack)) setSinav(pr.examTrack)
+      if (['YKS', 'DGS', 'KPSS', 'LGS'].includes(pr.examTrack)) setSinav(pr.examTrack)
       if (['SAY', 'EA', 'SÖZ', 'DİL'].includes(pr.scoreType)) setType(pr.scoreType)
       if (pr.diploma) setDiploma(String(pr.diploma))
     }).catch(() => {})
   }, [user])
+
+  // Sınav değiştir — tür ve diploma/GPA yeni sınava uyarlanır, form kapanır
+  function switchSinav(s) {
+    setSinav(s)
+    setShowForm(false)
+    const t = turlerFor(s)
+    if (t && !t.includes(type)) setType(t[0]) // DGS'de DİL yok → SAY'a düş
+    setDiploma(s === 'YKS' ? '85' : '') // YKS: 100'lük, DGS: 4'lük GPA (boş başla)
+  }
 
   // Denemeleri yükle — sınav başına ayrı liste; girişli bulut, girişsiz localStorage
   useEffect(() => {
@@ -81,7 +95,7 @@ export default function Deneme({ embedded = false }) {
 
   const fields = useMemo(() => denemeAlanlari(sinav, type), [sinav, type])
   const canli = useMemo(
-    () => denemeHesaplaSinav(sinav, type, girdi, diploma100ToObp(diploma)),
+    () => denemeHesaplaSinav(sinav, type, girdi, sinav === 'DGS' ? gpa4ToAobp(diploma) : diploma100ToObp(diploma)),
     [sinav, type, girdi, diploma],
   )
 
@@ -105,7 +119,7 @@ export default function Deneme({ embedded = false }) {
       } catch { /* sıra opsiyonel */ }
     }
     const deneme = {
-      sinav, type: sinav === 'YKS' ? type : null, tarih, ad: ad || `${canli.puanTuru} Deneme`,
+      sinav, type: turlerFor(sinav) ? type : null, tarih, ad: ad || `${canli.puanTuru} Deneme`,
       dersNet: canli.dersNet, toplamNet: canli.toplamNet, puan: canli.puan, sira,
     }
     try {
@@ -138,7 +152,7 @@ export default function Deneme({ embedded = false }) {
     setKocLoading(true); setKoc('')
     const sonlar = sirali.slice(-5).map((d) => `${d.tarih}: ${Math.round(d.toplamNet)} net`).join(', ')
     const zayifStr = zayif.map((z) => z.label).join(', ') || '—'
-    const kim = sinav === 'YKS' ? `${type} (YKS)` : sinav
+    const kim = turlerFor(sinav) ? `${type} (${sinav})` : sinav
     const q = `${kim} öğrencisiyim, deneme netlerimi takip ediyorum. Son denemelerim: ${sonlar}. `
       + `En zayıf 3 dersim: ${zayifStr}.${son?.sira ? ` Tahmini başarı sıram ~${son.sira}.` : ''} `
       + `Bu verilere göre bana KISA, maddeler halinde uygulanabilir çalışma tavsiyesi ver: `
@@ -159,8 +173,8 @@ export default function Deneme({ embedded = false }) {
     <>
       {!embedded && <BackgroundScene />}
       {!embedded && (
-        <Seo title="Deneme Takibi — Net & Puan | YKS · KPSS · LGS | UniSense"
-          description="YKS, KPSS ve LGS denemelerini kaydet: ders ders netini gir, tahmini puanını (ve YKS'de başarı sıranı + girebileceğin bölümleri) gör. Net trendini takip et — ücretsiz."
+        <Seo title="Deneme Takibi — Net & Puan | YKS · DGS · KPSS · LGS | UniSense"
+          description="YKS, DGS, KPSS ve LGS denemelerini kaydet: ders ders netini gir, tahmini puanını (ve YKS'de başarı sıranı + girebileceğin bölümleri) gör. Net trendini takip et — ücretsiz."
           path="/deneme" />
       )}
       {toast && <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl glass text-sm">{toast}</div>}
@@ -178,7 +192,7 @@ export default function Deneme({ embedded = false }) {
         <div className="flex justify-center">
           <div className="inline-flex gap-1 p-1 rounded-xl bg-white/5 border border-white/10">
             {DENEME_SINAVLAR.map((s) => (
-              <button key={s} onClick={() => { setSinav(s); setShowForm(false) }}
+              <button key={s} onClick={() => switchSinav(s)}
                 className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition ${sinav === s ? 'bg-gradient-to-r from-brand-500 to-accent-500 text-white' : 'text-slate-300 hover:text-white'}`}>{s}</button>
             ))}
           </div>
@@ -261,11 +275,11 @@ export default function Deneme({ embedded = false }) {
               <button onClick={() => setShowForm(false)} className="text-slate-500 hover:text-white"><X size={16} /></button>
             </div>
             <div className="flex flex-wrap gap-2 items-end">
-              {sinav === 'YKS' && (
+              {turlerFor(sinav) && (
                 <div>
                   <label className="text-[11px] text-slate-400">Puan türü</label>
                   <div className="flex gap-1 mt-1">
-                    {TURLER.map((t) => (
+                    {turlerFor(sinav).map((t) => (
                       <button key={t} onClick={() => setType(t)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${type === t ? 'bg-gradient-to-r from-brand-500 to-accent-500 text-white' : 'bg-white/5 text-slate-300'}`}>{t}</button>
                     ))}
@@ -274,9 +288,9 @@ export default function Deneme({ embedded = false }) {
               )}
               <div><label className="text-[11px] text-slate-400">Tarih</label>
                 <input type="date" value={tarih} onChange={(e) => setTarih(e.target.value)} className="input-glass block mt-1 text-sm" /></div>
-              {sinav === 'YKS' && (
-                <div><label className="text-[11px] text-slate-400">Diploma notu</label>
-                  <input type="number" value={diploma} onChange={(e) => setDiploma(e.target.value)} placeholder="85" className="input-glass block mt-1 text-sm w-24" /></div>
+              {hasDiploma(sinav) && (
+                <div><label className="text-[11px] text-slate-400">{sinav === 'DGS' ? "Önlisans not ort. (4'lük)" : 'Diploma notu'}</label>
+                  <input type="number" step={sinav === 'DGS' ? '0.01' : '1'} value={diploma} onChange={(e) => setDiploma(e.target.value)} placeholder={sinav === 'DGS' ? '3.20' : '85'} className="input-glass block mt-1 text-sm w-24" /></div>
               )}
               <div className="flex-1 min-w-[120px]"><label className="text-[11px] text-slate-400">Deneme adı (ops.)</label>
                 <input value={ad} onChange={(e) => setAd(e.target.value)} placeholder="Deneme 5" className="input-glass block mt-1 text-sm w-full" /></div>

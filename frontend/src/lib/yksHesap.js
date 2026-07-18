@@ -109,10 +109,30 @@ export const LGS_FIELDS = [
   { id: 'lgs_ing', label: 'İngilizce', max: 10, pen: 1 / 3, k: 1 },
 ]
 
-/** Sınava göre ders alanları. YKS için type (SAY/EA/SÖZ/DİL) gerekir. */
+// === DGS (önlisans → lisans; 50 Sayısal + 50 Sözel, net=D−Y/4, üç puan türü) ===
+export const DGS_FIELDS = [
+  { id: 'dgs_say', label: 'DGS Sayısal', max: 50 },
+  { id: 'dgs_soz', label: 'DGS Sözel (Türkçe)', max: 50 },
+]
+// Puan türüne göre ağırlık (Hesap.jsx ile BİREBİR): sayısalcıya SAY testi ağır basar.
+export const DGS_COEF_BY_TYPE = {
+  SAY: { dgs_say: 4.0, dgs_soz: 2.6 },
+  EA: { dgs_say: 3.3, dgs_soz: 3.3 },
+  SÖZ: { dgs_say: 2.6, dgs_soz: 4.0 },
+}
+
+/** Önlisans GPA (4'lük, 0-4) → AÖBP (0-50; DGS yerleştirmeye eklenir). */
+export function gpa4ToAobp(gpa4) {
+  const d = parseFloat(gpa4)
+  if (!d || d < 0 || d > 4) return 0
+  return d * 25 * 0.5 // 4.00 → 50
+}
+
+/** Sınava göre ders alanları. YKS/DGS için type gerekir. */
 export function denemeAlanlari(sinav, type = 'SAY') {
   if (sinav === 'KPSS') return KPSS_FIELDS
   if (sinav === 'LGS') return LGS_FIELDS
+  if (sinav === 'DGS') return DGS_FIELDS
   return [...TYT_FIELDS, ...(AYT_FIELDS[type] || [])]
 }
 
@@ -137,6 +157,10 @@ export function denemeHesaplaSinav(sinav, type, girdi, obp = 0) {
     for (const f of fields) w += (dersNet[f.id] || 0) * (f.k || 1)
     puan = w > 0 ? 100 + (w / 270) * 400 : 0 // MSP ≈ 100 + (ağırlıklı_net/270)×400
     puanTuru = 'LGS · MSP'
+  } else if (sinav === 'DGS') {
+    const w = weightedSum(dersNet, DGS_COEF_BY_TYPE[type] || DGS_COEF_BY_TYPE.SAY)
+    puan = w > 0 ? 100 + w + obp : 0 // obp burada AÖBP (0-50)
+    puanTuru = `DGS ${type}`
   } else {
     puan = placementScore(dersNet, type, obp)
     puanTuru = type
