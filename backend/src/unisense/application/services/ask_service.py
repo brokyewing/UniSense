@@ -667,6 +667,17 @@ def _detect_bolum_in_query(query: str) -> str:
     return ""
 
 
+def _estimate_kpss_net(puan: float | None) -> int | None:
+    """KPSS puanından yaklaşık toplam GY+GK net (TERSİNE, tahminî).
+
+    KPSS puanı ≈ 40 + 0.5×(GY+GK net) → net ≈ 2×(puan−40). GY+GK toplam 120 soru.
+    Gerçek puan standart-sapma normalizasyonuyla hesaplanır → yaklaşık.
+    """
+    if not puan:
+        return None
+    return max(0, min(120, round(2 * (puan - 40))))
+
+
 def _build_kpss_context(query: str, user_context: dict | None = None) -> str:
     """KPSS sorusu → aktif dönem kadroları + geçmiş tabanlarla context."""
     from unisense.core.di import get_kpss_service
@@ -674,6 +685,7 @@ def _build_kpss_context(query: str, user_context: dict | None = None) -> str:
 
     uc = user_context or {}
     qf = fold_tr(query)
+    is_net = bool(_NET_RE.search(qf))  # "kaç net gerekir" — taban→net tahmini
     # Puan: önce sorgudan, yoksa profilden (KPSS aralığı 40-105)
     puan = uc.get("kpss_puan")
     m = _KPSS_PUAN_RE.search(qf)
@@ -719,11 +731,23 @@ def _build_kpss_context(query: str, user_context: dict | None = None) -> str:
                         "atamaları KPSS-ÖABT ile MEB üzerinden yapılır ve AŞAĞIDAKİ "
                         "listede YER ALMAZ. Aşağıdakiler ilgili alandan mezunların "
                         "başvurabileceği B grubu memur kadrolarıdır (öğretmenlik değil).")
+    if is_net:
+        hedef = f" '{puan}' KPSS puanına ulaşmak için ~{_estimate_kpss_net(puan)}/120 net gerekir." if puan else ""
+        lines.append(
+            "YÖNERGE: Kullanıcı KAÇ NET sordu. Kadroların yanındaki '~net' TAHMİNÎ "
+            "değeri kullan (KPSS puanı ≈ 40 + 0.5×net; GY+GK toplam 120 soru)." + hedef
+            + " MUTLAKA belirt: tahminîdir, soru zorluğu ve aday ortalamasına göre "
+            "değişir; kesin hesap için Hesap sayfası (net gir → puan gör).")
     for it in r["items"]:
         taban = f"geçen dönem taban {it['gecmis_taban']:.2f}" if it["gecmis_taban"] else "geçmiş taban yok"
         kosul = " ⚠ ÖZEL KOŞUL VAR" if it.get("ozel_kosullar") else ""
+        net_s = ""
+        if is_net and it.get("gecmis_taban"):
+            n = _estimate_kpss_net(it["gecmis_taban"])
+            if n is not None:
+                net_s = f" | ~net: {n}/120"
         lines.append(f"• [{it['kadro_kodu']}] {it['unvan']} — {it['kurum']} ({it['il']}) "
-                     f"kontenjan {it['kontenjan']}, {taban}, {it['eslesme']}{kosul}")
+                     f"kontenjan {it['kontenjan']}, {taban}, {it['eslesme']}{kosul}{net_s}")
     lines.append("")
     lines.append("NOT: B grubu merkezi yerleştirme kadroları. A grubu (uzman yrd/müfettiş) "
                  "kurum sınavlarıyla, ÖĞRETMEN atamaları ise KPSS-ÖABT ile MEB üzerinden "
