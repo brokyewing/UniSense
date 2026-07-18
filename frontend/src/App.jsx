@@ -8,6 +8,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from './contexts/AuthContext'
 import { apiFetch } from './lib/api'
+import { initAnalytics, identify, capturePageview } from './lib/analytics'
 import ThemeToggle from './components/ThemeToggle'
 import Logo from './components/Logo'
 import Seo from './components/Seo'
@@ -51,7 +52,12 @@ export default function App() {
   // Fire-and-forget — hatayı yut, UI'yi hiç etkilemesin.
   useEffect(() => {
     apiFetch('/api/v1/health').catch(() => {})
+    initAnalytics() // VITE_POSTHOG_KEY yoksa no-op
   }, [])
+
+  // Analitik: rota değişiminde pageview + girişte kullanıcıyı tanımla (dormant değilse)
+  useEffect(() => { capturePageview(loc.pathname) }, [loc.pathname])
+  useEffect(() => { if (user?.uid) identify(user.uid) }, [user])
 
   // /bolum* sayfaları kendi <Seo>'sunu basar (dinamik başlık) — App burada basmaz,
   // yoksa parent effect child'ı ezip yanlış başlık kalır.

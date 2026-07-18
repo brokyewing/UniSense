@@ -5,6 +5,7 @@ import Seo from '../components/Seo'
 import { useAuth } from '../contexts/AuthContext'
 import { getIstatistik, sureEkle, recordActivity, getUserProfile, setEmailReminders } from '../firebase'
 import { apiFetch } from '../lib/api'
+import { track } from '../lib/analytics'
 import { hesaplaXP, seviyeBilgi, ROZETLER, kazanilanRozetler, guestStats } from '../lib/oyun'
 
 const ODAK = 25 * 60
@@ -90,6 +91,7 @@ export default function Pano({ embedded = false }) {
       if (user) sureEkle(user.uid, dk, ders.trim()).catch(() => {})
       else guestSureEkle(dk, ders.trim())
       recordActivity(user?.uid).catch(() => {})
+      track('pomodoro_tamamlandi', { ders: ders.trim() || null })
       setToast('🎉 25 dk odak tamam! Kısa mola.')
       setTimeout(() => setToast(''), 2500)
       setMod('mola'); setKalan(MOLA)
