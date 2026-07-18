@@ -1,10 +1,11 @@
 // Oyunlaştırma — XP, seviye ve rozetler. Saf fonksiyonlar (test edilebilir).
 // XP, kullanıcının YAPTIĞI işlerden TÜRETİLİR (event kaydı yok) → geçmişe dönük de çalışır.
 
-// dakika: Pomodoro çalışma dakikası; kullanim: uygulamada geçirilen aktif dakika
-export const XP_PER = { konu: 5, deneme: 20, kart: 3, yanlis: 5, dakika: 1, kullanim: 1 }
+// dakika: Pomodoro çalışma dakikası; kullanim: uygulamada geçirilen aktif dakika;
+// soru: Günün Sorusu'nu doğru bilme
+export const XP_PER = { konu: 5, deneme: 20, kart: 3, yanlis: 5, dakika: 1, kullanim: 1, soru: 10 }
 
-/** İstatistiklerden toplam XP (yapılan işler + uygulamada geçen süre). */
+/** İstatistiklerden toplam XP (yapılan işler + uygulamada geçen süre + doğru cevaplar). */
 export function hesaplaXP(s = {}) {
   return (s.konuDone || 0) * XP_PER.konu
     + (s.denemeSayisi || 0) * XP_PER.deneme
@@ -12,6 +13,7 @@ export function hesaplaXP(s = {}) {
     + (s.yanlisSayisi || 0) * XP_PER.yanlis
     + Math.floor(s.sureDk || 0) * XP_PER.dakika
     + Math.floor(s.kullanimDk || 0) * XP_PER.kullanim
+    + (s.dogruCevap || 0) * XP_PER.soru
 }
 
 /** Toplam XP → seviye + bu seviyedeki ilerleme. Her seviye biraz daha fazla XP ister. */
@@ -53,5 +55,6 @@ export function guestStats() {
     streakLongest: streak.longest || 0,
     sureDk: sure.sureDk || 0, sureHafta: sure.sureHafta || {}, dersSure: sure.dersSure || {},
     kullanimDk: kullanim.dk || 0,
+    dogruCevap: Number(localStorage.getItem('unisense_dogru') || 0),
   }
 }

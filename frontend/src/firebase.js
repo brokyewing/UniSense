@@ -315,9 +315,16 @@ export async function kullanimEkle(uid, dk) {
     { kullanimDk: increment(dk), updatedAt: serverTimestamp() }, { merge: true }).catch(() => {})
 }
 
+/** Günün Sorusu'nu doğru bilince +1 (XP'ye katkı). */
+export async function dogruCevapEkle(uid) {
+  if (!db || !uid) return
+  await setDoc(doc(db, 'users', uid, 'istatistik', 'genel'),
+    { dogruCevap: increment(1), updatedAt: serverTimestamp() }, { merge: true }).catch(() => {})
+}
+
 /** Girişli kullanıcının tüm çalışma istatistiğini topla (Pano için). */
 export async function getIstatistik(uid) {
-  const s = { konuDone: 0, denemeSayisi: 0, kartSayisi: 0, yanlisSayisi: 0, streakLongest: 0, sureDk: 0, sureHafta: {}, dersSure: {}, kullanimDk: 0 }
+  const s = { konuDone: 0, denemeSayisi: 0, kartSayisi: 0, yanlisSayisi: 0, streakLongest: 0, sureDk: 0, sureHafta: {}, dersSure: {}, kullanimDk: 0, dogruCevap: 0 }
   if (!db || !uid) return s
   try {
     const [konu, den, kart, yan, akt, ist] = await Promise.all([
@@ -333,7 +340,7 @@ export async function getIstatistik(uid) {
     s.kartSayisi = kart.size
     s.yanlisSayisi = yan.size
     if (akt.exists()) s.streakLongest = akt.data().longest || 0
-    if (ist.exists()) { const g = ist.data(); s.sureDk = g.sureDk || 0; s.sureHafta = g.sureHafta || {}; s.dersSure = g.dersSure || {}; s.kullanimDk = g.kullanimDk || 0 }
+    if (ist.exists()) { const g = ist.data(); s.sureDk = g.sureDk || 0; s.sureHafta = g.sureHafta || {}; s.dersSure = g.dersSure || {}; s.kullanimDk = g.kullanimDk || 0; s.dogruCevap = g.dogruCevap || 0 }
   } catch { /* erişilemedi → boş istatistik */ }
   return s
 }

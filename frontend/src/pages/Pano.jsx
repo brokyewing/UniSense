@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { LayoutDashboard, Play, Pause, RotateCcw, Trophy, Flame, Clock, ListChecks, LineChart, Layers, Sparkles, Loader2, Mail } from 'lucide-react'
+import { LayoutDashboard, Play, Pause, RotateCcw, Trophy, Flame, Clock, ListChecks, LineChart, Layers, Sparkles, Loader2, Mail, Check } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { useAuth } from '../contexts/AuthContext'
-import { getIstatistik, sureEkle, recordActivity, getUserProfile, setEmailReminders } from '../firebase'
+import { getIstatistik, sureEkle, recordActivity, getUserProfile, setEmailReminders, dogruCevapEkle } from '../firebase'
 import { apiFetch } from '../lib/api'
 import { track } from '../lib/analytics'
 import { hesaplaXP, seviyeBilgi, ROZETLER, kazanilanRozetler, guestStats } from '../lib/oyun'
@@ -22,6 +22,20 @@ function guestSureEkle(dk, ders) {
   localStorage.setItem('unisense_sure', JSON.stringify(s))
 }
 
+// AI cevabından çoktan seçmeli soruyu ayrıştır (JSON). Bozuksa null → ham metin gösterilir.
+function parseSoru(text) {
+  try {
+    const m = String(text).match(/\{[\s\S]*\}/)
+    if (!m) return null
+    const o = JSON.parse(m[0])
+    const sec = o.secenekler || {}
+    if (!o.soru || !sec.A || !sec.B || !sec.C || !sec.D || !o.dogru) return null
+    const dogru = String(o.dogru).trim().toUpperCase().charAt(0)
+    if (!'ABCD'.includes(dogru)) return null
+    return { ders: o.ders || '', soru: String(o.soru), secenekler: { A: sec.A, B: sec.B, C: sec.C, D: sec.D }, dogru, aciklama: o.aciklama || '' }
+  } catch { return null }
+}
+
 export default function Pano({ embedded = false }) {
   const { user } = useAuth()
   const [stats, setStats] = useState(null)
@@ -30,7 +44,9 @@ export default function Pano({ embedded = false }) {
   const [calisiyor, setCalisiyor] = useState(false)
   const [ders, setDers] = useState('')
   const [toast, setToast] = useState('')
-  const [gunSoru, setGunSoru] = useState('')
+  const [soru, setSoru] = useState(null)       // {ders, soru, secenekler, dogru, aciklama}
+  const [soruHam, setSoruHam] = useState('')   // ayrıştırılamazsa ham metin (fallback)
+  const [secildi, setSecildi] = useState(null) // seçilen şık (A/B/C/D)
   const [gsLoading, setGsLoading] = useState(false)
   const [emailOn, setEmailOn] = useState(false)
 
@@ -39,11 +55,14 @@ export default function Pano({ embedded = false }) {
   }, [user])
   useEffect(() => { yukle() }, [yukle])
 
-  // Günün sorusu — günde 1 kez üretilip cache'lenir (kota dostu)
+  // Günün sorusu — bugünkü soruyu + cevap durumunu cache'ten yükle
   useEffect(() => {
     try {
       const c = JSON.parse(localStorage.getItem('unisense_gunsoru') || 'null')
-      if (c && c.date === new Date().toISOString().slice(0, 10)) setGunSoru(c.text)
+      if (c && c.date === new Date().toISOString().slice(0, 10)) {
+        if (c.soru) { setSoru(c.soru); setSecildi(c.secildi || null) }
+        else if (c.ham) setSoruHam(c.ham)
+      }
     } catch { /* noop */ }
   }, [])
 
@@ -61,18 +80,50 @@ export default function Pano({ embedded = false }) {
 
   async function gunSorusu() {
     if (!user) return
-    setGsLoading(true)
-    let track = 'YKS'
-    try { const p = await getUserProfile(user.uid); track = p?.profile?.examTrack || 'YKS' } catch { /* varsayılan */ }
-    const q = `${track} öğrencisi için bugüne özel 1 adet çoktan seçmeli pratik soru üret. `
-      + `A) B) C) D) şıkları, en sonunda "Cevap: X" ve tek cümlelik açıklama. Sadece soruyu ver, giriş cümlesi yazma.`
+    // Günlük fetch limiti — hem Gemini kotasını hem XP-farm'ı sınırlar
+    const bugun = new Date().toISOString().slice(0, 10)
+    let sayac = { date: bugun, n: 0 }
+    try { const c = JSON.parse(localStorage.getItem('unisense_gunsoru_sayi') || 'null'); if (c && c.date === bugun) sayac = c } catch { /* noop */ }
+    if (sayac.n >= 10) { setToast('Bugünlük soru limitine ulaştın — yarın devam! 🌙'); setTimeout(() => setToast(''), 2500); return }
+    localStorage.setItem('unisense_gunsoru_sayi', JSON.stringify({ date: bugun, n: sayac.n + 1 }))
+    setGsLoading(true); setSoru(null); setSoruHam(''); setSecildi(null)
+    const q = 'YKS öğrencisi için SADECE şu derslerden birinden akademik bir çoktan seçmeli soru üret: '
+      + 'Matematik, Türkçe, Fizik, Kimya, Biyoloji, Tarih, Coğrafya, Felsefe, Din Kültürü. '
+      + 'Soru tamamen KONU BİLGİSİNE dayalı olsun; üniversite/tercih/taban puan/sıralama/endeks verisiyle İLGİSİZ olmalı. '
+      + 'Sana verilen bağlamı YOK SAY, kendi genel bilginle üret. '
+      + 'SADECE şu JSON formatını döndür, öncesinde/sonrasında HİÇBİR metin, kaynak veya açıklama yazma: '
+      + '{"ders":"Matematik","soru":"...","secenekler":{"A":"...","B":"...","C":"...","D":"..."},"dogru":"B","aciklama":"..."}'
     try {
       const r = await apiFetch('/api/v1/ask', { method: 'POST', body: { query: q } })
-      const text = r?.text || 'Üretilemedi.'
-      setGunSoru(text)
-      localStorage.setItem('unisense_gunsoru', JSON.stringify({ date: new Date().toISOString().slice(0, 10), text }))
+      const text = r?.text || ''
+      const parsed = parseSoru(text)
+      if (parsed) {
+        setSoru(parsed)
+        localStorage.setItem('unisense_gunsoru', JSON.stringify({ date: bugun, soru: parsed, secildi: null }))
+      } else {
+        setSoruHam(text || 'Üretilemedi.')
+        localStorage.setItem('unisense_gunsoru', JSON.stringify({ date: bugun, ham: text }))
+      }
       recordActivity(user.uid).catch(() => {})
-    } catch (e) { setGunSoru('Alınamadı: ' + e.message) } finally { setGsLoading(false) }
+    } catch (e) { setSoruHam('Alınamadı: ' + e.message) } finally { setGsLoading(false) }
+  }
+
+  function cevapla(harf) {
+    if (secildi || !soru) return
+    setSecildi(harf)
+    try {
+      const bugun = new Date().toISOString().slice(0, 10)
+      localStorage.setItem('unisense_gunsoru', JSON.stringify({ date: bugun, soru, secildi: harf }))
+    } catch { /* noop */ }
+    if (harf === soru.dogru) {
+      if (user) dogruCevapEkle(user.uid).catch(() => {})
+      else { try { localStorage.setItem('unisense_dogru', String(Number(localStorage.getItem('unisense_dogru') || 0) + 1)) } catch { /* noop */ } }
+      track('gunun_soru_dogru', { ders: soru.ders })
+      setToast('🎉 Doğru! +10 XP'); setTimeout(() => setToast(''), 2500)
+      yukle() // XP'yi tazele
+    } else {
+      track('gunun_soru_yanlis', { ders: soru.ders })
+    }
   }
 
   // Sayaç
@@ -176,22 +227,54 @@ export default function Pano({ embedded = false }) {
           </div>
         </div>
 
-        {/* Günün Sorusu — AI üretimi, günde 1 (girişli) */}
+        {/* Günün Sorusu — YKS derslerinden interaktif; doğru bilirsen +10 XP */}
         {user && (
           <div className="card">
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="text-sm font-semibold text-white flex items-center gap-2"><Sparkles size={16} className="text-accent-300" /> Günün Sorusu</div>
               <button onClick={gunSorusu} disabled={gsLoading} className="btn-primary text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
-                {gsLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} {gunSoru ? 'Yenile' : 'Getir'}
+                {gsLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} {(soru || soruHam) ? 'Yeni soru' : 'Getir'}
               </button>
             </div>
-            {gunSoru ? (
-              <div className="text-[13.5px] text-slate-200 whitespace-pre-wrap leading-relaxed">
-                {gunSoru}
-                <div className="text-[11px] text-amber-300/80 mt-2">🤖 AI üretimi — cevabı kendin teyit et.</div>
+            {soru ? (
+              <div>
+                {soru.ders && <div className="text-[10px] uppercase tracking-wider text-accent-300/80 mb-1">{soru.ders}</div>}
+                <div className="text-[14px] text-white whitespace-pre-wrap mb-3">{soru.soru}</div>
+                <div className="space-y-1.5">
+                  {['A', 'B', 'C', 'D'].map((harf) => {
+                    const dogruSik = harf === soru.dogru
+                    let cls = 'bg-white/[0.03] border-white/8 text-slate-200 hover:bg-white/5'
+                    if (secildi) {
+                      if (dogruSik) cls = 'bg-emerald-500/15 border-emerald-500/40 text-emerald-200'
+                      else if (secildi === harf) cls = 'bg-rose-500/15 border-rose-500/40 text-rose-200'
+                      else cls = 'bg-white/[0.02] border-white/8 text-slate-500'
+                    }
+                    return (
+                      <button key={harf} onClick={() => cevapla(harf)} disabled={!!secildi}
+                        className={`w-full text-left text-[13.5px] px-3 py-2 rounded-lg border flex items-center gap-2 transition ${cls}`}>
+                        <span className="font-bold shrink-0">{harf})</span>
+                        <span className="flex-1">{soru.secenekler[harf]}</span>
+                        {secildi && dogruSik && <Check size={15} className="shrink-0 text-emerald-400" />}
+                      </button>
+                    )
+                  })}
+                </div>
+                {secildi && (
+                  <div className="mt-3 text-[13px] bg-white/[0.03] border border-white/8 rounded-lg px-3 py-2">
+                    <span className={secildi === soru.dogru ? 'text-emerald-300 font-semibold' : 'text-rose-300 font-semibold'}>
+                      {secildi === soru.dogru ? '✓ Doğru! +10 XP' : `✗ Yanlış — doğru cevap: ${soru.dogru}`}
+                    </span>
+                    {soru.aciklama && <div className="text-slate-400 mt-1">{soru.aciklama}</div>}
+                    <div className="text-[11px] text-amber-300/80 mt-1.5">🤖 AI üretimi — kesinlik için teyit et.</div>
+                  </div>
+                )}
+              </div>
+            ) : soruHam ? (
+              <div className="text-[13.5px] text-slate-200 whitespace-pre-wrap leading-relaxed">{soruHam}
+                <div className="text-[11px] text-amber-300/80 mt-2">🤖 AI üretimi — teyit et.</div>
               </div>
             ) : (
-              <p className="text-xs text-slate-500">Bugüne özel bir pratik soru için “Getir”e bas.</p>
+              <p className="text-xs text-slate-500">YKS derslerinden bir soru için “Getir”e bas — cevabı işaretle, doğru bilirsen <b className="text-amber-300/90">+10 XP</b>.</p>
             )}
           </div>
         )}
