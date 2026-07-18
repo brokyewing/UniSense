@@ -109,6 +109,14 @@ service cloud.firestore {
           && fieldCountMax(3);
       }
 
+      // Günlük aktivite / seri (streak) — tek "gunluk" dokümanı
+      match /aktivite/{doc} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(6)
+          && strMax('lastDate', 20);
+      }
+
       // Deneme günlüğü — her deneme 1 doküman (ders net haritası + puan/sıra)
       match /denemeler/{id} {
         allow read, delete: if isOwner(uid);

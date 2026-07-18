@@ -6,6 +6,7 @@ import {
   BookOpen, Compass, Calculator, CalendarDays, ArrowRight,
 } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
+import StreakBadge from '../components/StreakBadge'
 import { apiFetch } from '../lib/api'
 import { TERCIH_YILI } from '../lib/donem'
 
@@ -202,6 +203,11 @@ export default function Home() {
               Puan Hesapla
             </Link>
           </motion.div>
+        </section>
+
+        {/* Günlük çalışma serisi */}
+        <section>
+          <StreakBadge />
         </section>
 
         {/* Yaklaşan sınavlar */}
