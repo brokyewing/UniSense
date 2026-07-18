@@ -65,6 +65,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/deneme" element={<Calisma tab="deneme" />} />
               <Route path="/ozetler" element={<Calisma tab="ozetler" />} />
               <Route path="/ozet/:slug" element={<OzetDetay />} />
+              <Route path="/yanlislarim" element={<Calisma tab="yanlis" />} />
               <Route path="/lgs" element={<LGS />} />
               <Route path="/tus" element={<TusDus />} />
               {LEGACY_ROUTES.map(([from, to]) => (

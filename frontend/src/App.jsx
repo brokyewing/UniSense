@@ -26,6 +26,7 @@ const ROUTE_SEO = {
   '/konular': { title: 'Konu Takibi — YKS, KPSS, DGS, LGS Konuları | UniSense', description: 'Sınavının tüm konularını ders ders takip et, çalıştıkça işaretle. YKS, KPSS, DGS ve LGS için ücretsiz konu kontrol listesi.' },
   '/deneme': { title: 'Deneme Takibi — Net & Puan | YKS · DGS · KPSS · LGS | UniSense', description: "YKS, DGS, KPSS ve LGS denemelerini kaydet: ders ders netini gir, tahmini puanını (ve YKS'de başarı sıranı + girebileceğin bölümleri) gör. Net trendini takip et — ücretsiz." },
   '/ozetler': { title: 'Formül ve Konu Özetleri — YKS Cheat Sheet | UniSense', description: 'TYT-AYT matematik, geometri, fizik ve kimya formülleri tek yerde. Aranabilir, çevrimdışı erişilebilir konu özetleri — ücretsiz.' },
+  '/yanlislarim': { title: 'Yanlış Defteri | UniSense', noindex: true },
   '/bolum': { title: 'Bölüm Rehberi — Üniversite Bölümleri Tanıtımı | UniSense', description: 'Üniversite bölümleri ne iş yapar, hangi dersleri okur, mezunları nerede çalışır? Tanıtımlar + güncel taban puanları.' },
   '/takvim': { title: `${TERCIH_YILI} Sınav Takvimi — YKS, LGS, DGS, KPSS, ALES, TUS | UniSense`, description: `${TERCIH_YILI} YKS, LGS, DGS, KPSS, ALES, TUS, DUS ve AGS sınav, sonuç ve tercih tarihleri — kaç gün kaldığıyla tek sayfada.` },
   '/lgs': { title: `LGS Tercih Robotu ${TERCIH_YILI} — Yüzdelik Dilimine Göre Lise Bul | UniSense`, description: 'LGS yüzdelik dilimini gir, girebileceğin Fen, Anadolu, Sosyal Bilimler ve İmam Hatip liselerini güvenli/tutar/riskli olarak gör — ücretsiz, tahminî.' },
@@ -124,7 +125,7 @@ export default function App() {
             {navItem('/hesap', 'Hesap', Calculator)}
             {navItem('/arama', 'Sorgu', Search)}
             {navItem('/pusula', 'Pusula', Compass)}
-            {navItem('/konular', 'Çalışma', GraduationCap, ['/konular', '/deneme', '/ozetler'])}
+            {navItem('/konular', 'Çalışma', GraduationCap, ['/konular', '/deneme', '/ozetler', '/yanlislarim'])}
             {navItem('/bolum', 'Bölümler', BookOpen)}
             {navItem('/takvim', 'Takvim', CalendarDays)}
           </nav>

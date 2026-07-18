@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom'
-import { ListTodo, LineChart, GraduationCap, BookMarked } from 'lucide-react'
+import { ListTodo, LineChart, GraduationCap, BookMarked, NotebookPen } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import PushOptIn from '../components/PushOptIn'
 import Konular from './Konular'
 import Deneme from './Deneme'
 import Ozetler from './Ozetler'
+import YanlisDefteri from './YanlisDefteri'
 
 // Çalışma merkezi: Konular + Deneme + Özetler tek "Çalışma" sekmesi altında (nav ferah).
 // Her biri kendi rotasını korur (/konular, /deneme, /ozetler) → SEO/prerender değişmez;
@@ -13,6 +14,7 @@ const TABS = [
   { key: 'konular', label: 'Konular', to: '/konular', Icon: ListTodo },
   { key: 'deneme', label: 'Deneme', to: '/deneme', Icon: LineChart },
   { key: 'ozetler', label: 'Özetler', to: '/ozetler', Icon: BookMarked },
+  { key: 'yanlis', label: 'Defter', to: '/yanlislarim', Icon: NotebookPen },
 ]
 
 export default function Calisma({ tab = 'konular' }) {
@@ -47,6 +49,7 @@ export default function Calisma({ tab = 'konular' }) {
       {active === 'konular' && <Konular embedded />}
       {active === 'deneme' && <Deneme embedded />}
       {active === 'ozetler' && <Ozetler embedded />}
+      {active === 'yanlis' && <YanlisDefteri embedded />}
     </>
   )
 }
