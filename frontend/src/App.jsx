@@ -133,13 +133,13 @@ export default function App() {
           {/* Ana Sayfa nav'da yok — logo zaten anasayfaya götürür.
               Konular + Deneme tek "Çalışma" sekmesinde birleşti (nav ferahladı). */}
           <nav className="flex items-center gap-1 min-w-0 overflow-x-auto no-scrollbar">
+            {navItem('/konular', 'Çalışma', GraduationCap, ['/konular', '/deneme', '/ozetler', '/yanlislarim', '/kartlar', '/pano'])}
+            {navItem('/arama', 'Sorgu', Search)}
             {navItem('/oneriler', 'Tercih', ListChecks)}
             {navItem('/hesap', 'Hesap', Calculator)}
-            {navItem('/arama', 'Sorgu', Search)}
-            {navItem('/pusula', 'Pusula', Compass)}
-            {navItem('/konular', 'Çalışma', GraduationCap, ['/konular', '/deneme', '/ozetler', '/yanlislarim', '/kartlar', '/pano'])}
-            {navItem('/bolum', 'Bölümler', BookOpen)}
             {navItem('/takvim', 'Takvim', CalendarDays)}
+            {navItem('/bolum', 'Bölümler', BookOpen)}
+            {navItem('/pusula', 'Pusula', Compass)}
           </nav>
 
           {/* Sağ taraf — theme toggle profil avatarına yakın */}
