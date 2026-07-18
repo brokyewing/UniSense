@@ -269,6 +269,30 @@ export async function removeYanlis(uid, id) {
   await deleteDoc(doc(db, 'users', uid, 'yanlislar', id))
 }
 
+// === Bilgi kartları (flashcard — düz model, deste alanıyla gruplu) ===
+/** Kartları en yeni→eski izle. Erişilemezse null → çağıran localStorage'a düşer. */
+export function watchKartlar(uid, callback) {
+  if (!db || !uid) { callback([]); return () => {} }
+  const q = query(collection(db, 'users', uid, 'kartlar'), orderBy('createdAt', 'desc'))
+  return onSnapshot(q, (snap) => callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }))), () => callback(null))
+}
+
+export async function addKart(uid, k) {
+  if (!db || !uid) return null
+  const ref = await addDoc(collection(db, 'users', uid, 'kartlar'), { ...k, createdAt: serverTimestamp() })
+  return ref.id
+}
+
+export async function updateKart(uid, id, patch) {
+  if (!db || !uid) return
+  await updateDoc(doc(db, 'users', uid, 'kartlar', id), { ...patch, updatedAt: serverTimestamp() })
+}
+
+export async function removeKart(uid, id) {
+  if (!db || !uid) return
+  await deleteDoc(doc(db, 'users', uid, 'kartlar', id))
+}
+
 // === Günlük çalışma serisi (streak) ===
 const SK = 'unisense_streak'
 const loadStreak = () => { try { return JSON.parse(localStorage.getItem(SK) || 'null') } catch { return null } }

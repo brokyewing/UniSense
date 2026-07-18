@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom'
-import { ListTodo, LineChart, GraduationCap, BookMarked, NotebookPen } from 'lucide-react'
+import { ListTodo, LineChart, GraduationCap, BookMarked, NotebookPen, Layers } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import PushOptIn from '../components/PushOptIn'
 import Konular from './Konular'
 import Deneme from './Deneme'
 import Ozetler from './Ozetler'
 import YanlisDefteri from './YanlisDefteri'
+import Kartlar from './Kartlar'
 
 // Çalışma merkezi: Konular + Deneme + Özetler tek "Çalışma" sekmesi altında (nav ferah).
 // Her biri kendi rotasını korur (/konular, /deneme, /ozetler) → SEO/prerender değişmez;
@@ -15,6 +16,7 @@ const TABS = [
   { key: 'deneme', label: 'Deneme', to: '/deneme', Icon: LineChart },
   { key: 'ozetler', label: 'Özetler', to: '/ozetler', Icon: BookMarked },
   { key: 'yanlis', label: 'Defter', to: '/yanlislarim', Icon: NotebookPen },
+  { key: 'kartlar', label: 'Kartlar', to: '/kartlar', Icon: Layers },
 ]
 
 export default function Calisma({ tab = 'konular' }) {
@@ -30,15 +32,15 @@ export default function Calisma({ tab = 'konular' }) {
           <p className="text-slate-400 text-sm">Konularını işaretle, denemelerini kaydet — ilerlemeni tek yerde takip et.</p>
         </div>
         <div className="flex justify-center">
-          <div className="inline-flex gap-1 p-1 rounded-xl bg-white/5 border border-white/10">
+          <div className="inline-flex gap-1 p-1 rounded-xl bg-white/5 border border-white/10 max-w-full overflow-x-auto no-scrollbar">
             {TABS.map((t) => {
               const on = active === t.key
               return (
                 <Link key={t.key} to={t.to}
-                  className={`px-5 py-2 rounded-lg text-sm font-semibold inline-flex items-center gap-2 transition ${
+                  className={`shrink-0 px-3.5 py-2 rounded-lg text-sm font-semibold inline-flex items-center gap-1.5 transition ${
                     on ? 'bg-gradient-to-r from-brand-500 to-accent-500 text-white' : 'text-slate-300 hover:text-white'
                   }`}>
-                  <t.Icon size={16} /> {t.label}
+                  <t.Icon size={15} /> {t.label}
                 </Link>
               )
             })}
@@ -50,6 +52,7 @@ export default function Calisma({ tab = 'konular' }) {
       {active === 'deneme' && <Deneme embedded />}
       {active === 'ozetler' && <Ozetler embedded />}
       {active === 'yanlis' && <YanlisDefteri embedded />}
+      {active === 'kartlar' && <Kartlar embedded />}
     </>
   )
 }
