@@ -193,6 +193,27 @@ export async function updateUserProfile(uid, profile) {
   await setDoc(doc(db, 'users', uid), { profile, updatedAt: serverTimestamp() }, { merge: true })
 }
 
+// === Konu takip ilerlemesi (bulut senkronu — sınav başına 1 doküman) ===
+/** Realtime izle: checked haritasını verir; erişilemezse (kural/App Check) null → çağıran localStorage'a düşer. */
+export function watchKonuIlerleme(uid, sinav, callback) {
+  if (!db || !uid) { callback(null); return () => {} }
+  return onSnapshot(
+    doc(db, 'users', uid, 'konu_ilerleme', sinav),
+    (snap) => callback(snap.exists() ? (snap.data().checked || {}) : {}),
+    () => callback(null),  // izin/erişim hatası → null (localStorage'a düş)
+  )
+}
+
+/** Tüm checked haritasını yaz (küçük; her tik'te tam harita — deleteField karmaşası yok). */
+export async function setKonuIlerleme(uid, sinav, checked) {
+  if (!db || !uid) return
+  await setDoc(
+    doc(db, 'users', uid, 'konu_ilerleme', sinav),
+    { checked, updatedAt: serverTimestamp() },
+    { merge: true },
+  )
+}
+
 /** Kullanıcının displayName/photoURL'ünü Auth + Firestore'da güncelle. */
 export async function updateUserBasicInfo(user, { displayName, photoURL }) {
   if (!auth || !db) throw new Error('Firebase yok')
