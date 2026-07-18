@@ -392,6 +392,35 @@ def hesap_siralama(
     return SiralamaResponse(**r)
 
 
+_konular_cache: dict | None = None
+
+
+def _load_konular() -> dict:
+    """Konu takip verisi (data/processed/konular.json) — bir kez yüklenip cache'lenir."""
+    global _konular_cache
+    if _konular_cache is None:
+        import json
+        from pathlib import Path
+
+        from unisense.core.config import get_settings
+        p = Path(get_settings().project_root) / "data" / "processed" / "konular.json"
+        _konular_cache = json.load(open(p, encoding="utf-8"))
+    return _konular_cache
+
+
+@router.get("/konular")
+@limiter.limit(DEFAULT_LIMIT)
+def konular(request: Request, sinav: str | None = ApiQuery(None, max_length=8)) -> dict:
+    """Konu takip listesi — tüm sınavlar veya ?sinav=YKS/KPSS/DGS/LGS ile tek sınav."""
+    data = _load_konular()
+    if sinav:
+        s = data["sinavlar"].get(sinav.upper())
+        if not s:
+            raise HTTPException(status_code=404, detail="Bu sınav için konu verisi yok")
+        return {"surum": data["surum"], "sinav": sinav.upper(), **s}
+    return data
+
+
 @router.post("/kpss/kadrolar", response_model=KpssKadroResponse)
 @limiter.limit(DEFAULT_LIMIT)
 def kpss_kadrolar(
