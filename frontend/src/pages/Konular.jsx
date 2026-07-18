@@ -4,7 +4,7 @@ import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
-import { getUserProfile } from '../firebase'
+import { getUserProfile, watchKonuIlerleme, setKonuIlerleme } from '../firebase'
 
 const SINAVLAR = [
   { key: 'YKS', label: 'YKS' },
@@ -69,16 +69,34 @@ export default function Konular() {
     }).catch(() => {})
   }, [user, userPicked])
 
-  // Seçili sınavın konularını + kayıtlı tikleri yükle
+  // Seçili sınavın konularını yükle
   useEffect(() => {
     setLoading(true)
     setError('')
-    setChecked(loadChecked(sinav))
     apiFetch(`/api/v1/konular?sinav=${sinav}`)
       .then(setData)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
   }, [sinav])
+
+  // Tikleri yükle: localStorage anında + girişliyse Firestore bulut senkronu.
+  // Bulut erişilemezse (kural/App Check/offline) localStorage'a düşer — asla kırılmaz.
+  useEffect(() => {
+    const local = loadChecked(sinav)
+    setChecked(local)
+    if (!user) return
+    return watchKonuIlerleme(user.uid, sinav, (cloud) => {
+      if (cloud == null) return // erişilemedi → localStorage kalsın
+      if (Object.keys(cloud).length === 0 && Object.keys(local).length > 0) {
+        // Bulut boş ama cihazda veri var → bir kez yukarı taşı (migration)
+        setKonuIlerleme(user.uid, sinav, local).catch(() => {})
+        setChecked(local)
+      } else {
+        setChecked(cloud)
+        saveChecked(sinav, cloud) // cihaza da yansıt
+      }
+    })
+  }, [user, sinav])
 
   const bl = useMemo(() => bloklar(data), [data])
   const toplam = useMemo(() => bl.reduce((s, b) => s + b.konular.length, 0), [bl])
@@ -94,6 +112,7 @@ export default function Konular() {
       if (next[key]) delete next[key]
       else next[key] = true
       saveChecked(sinav, next)
+      if (user) setKonuIlerleme(user.uid, sinav, next).catch(() => {}) // bulut senkronu
       return next
     })
   }
@@ -102,6 +121,7 @@ export default function Konular() {
     if (!confirm(`${sinav} işaretlerini sıfırlamak istediğine emin misin?`)) return
     setChecked({})
     saveChecked(sinav, {})
+    if (user) setKonuIlerleme(user.uid, sinav, {}).catch(() => {})
   }
 
   return (

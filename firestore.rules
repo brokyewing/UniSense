@@ -100,6 +100,15 @@ service cloud.firestore {
           && strMax('dil', 100);
       }
 
+      // Konu takip ilerlemesi — sınav başına 1 doküman (checked haritası).
+      // Doküman ID'si 4 sınavla sınırlı → sınırsız doküman üretimi engellenir.
+      match /konu_ilerleme/{sinav} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && sinav in ['YKS', 'KPSS', 'DGS', 'LGS']
+          && fieldCountMax(3);
+      }
+
       // Sorgu geçmişi — sadece ekleme + okuma + silme (değiştirilemez log)
       match /queries/{qid} {
         allow read, delete: if isOwner(uid);
