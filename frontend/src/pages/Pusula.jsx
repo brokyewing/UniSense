@@ -173,9 +173,11 @@ function CardsMode({ onResult }) {
             <div className="font-semibold text-rose-200">İlgi listesi yüklenemedi</div>
             <div className="text-sm text-rose-200/80 mt-1">{error}</div>
             <div className="text-xs text-slate-400 mt-3">
-              Backend'in <code className="px-1 rounded bg-black/30">localhost:8002</code>
-              {' '}üzerinde çalıştığından emin ol; gerekirse <code className="px-1 rounded bg-black/30">start.bat</code>
-              {' '}ile yeniden başlat.
+              {import.meta.env.DEV ? (
+                <>Backend'in <code className="px-1 rounded bg-black/30">localhost:8002</code> üzerinde çalıştığından emin ol.</>
+              ) : (
+                'Sunucuya ulaşılamadı — birkaç saniye sonra tekrar dene.'
+              )}
             </div>
           </div>
         </div>

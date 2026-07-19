@@ -129,4 +129,13 @@ class Settings(BaseSettings):
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    return Settings()  # type: ignore[call-arg]
+    s = Settings()  # type: ignore[call-arg]
+    # Production'da auth kapalıysa yüksek sesle uyar (env unutulur/typo olursa /ask
+    # sessizce auth'suz açılırdı). RAISE ETME — validator'da hata Settings'i çökertir.
+    if s.is_production and not s.security_require_auth:
+        import logging
+        logging.getLogger("unisense").error(
+            "GÜVENLİK: app_env=production ama SECURITY_REQUIRE_AUTH kapalı — "
+            "kimlik doğrulama zorlanmıyor! Ortam değişkenini kontrol et."
+        )
+    return s

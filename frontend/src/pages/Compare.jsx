@@ -24,9 +24,12 @@ function fmtScore(v) {
   return v == null ? '—' : Number(v).toFixed(2)
 }
 
-function fmtFee(v) {
-  if (!v) return 'Devlet (ücretsiz)'
-  return v.toLocaleString('tr-TR') + ' ₺/yıl'
+function fmtFee(it) {
+  const v = it?.fee_try
+  if (v) return v.toLocaleString('tr-TR') + ' ₺/yıl'
+  // Ücret boş: yalnız DEVLET üniversitesiyse ücretsiz; vakıf/özelde veri yok demektir
+  const t = (it?.university_type || '').toLowerCase()
+  return t.includes('devlet') ? 'Devlet (ücretsiz)' : '—'
 }
 
 
@@ -280,7 +283,7 @@ export default function Compare() {
                 <Row label="Süre"              items={items} fmt={(it) => it.duration_years ? `${it.duration_years} yıl` : '—'} />
                 <Row label="Eğitim dili"       items={items} fmt={(it) => it.education_language || '—'} />
                 <Row label="Burs"               items={items} fmt={(it) => it.scholarship || '—'} />
-                <Row label="Ücret"              items={items} fmt={(it) => fmtFee(it.fee_try)} diffField="fee_try" diffs={diffs} />
+                <Row label="Ücret"              items={items} fmt={(it) => fmtFee(it)} diffField="fee_try" diffs={diffs} />
                 <Row label="Akreditasyon"      items={items} fmt={(it) => it.accreditation || '—'} />
                 <Row label="Min başarı sırası" items={items} fmt={(it) => it.min_basari_sirasi_kosul || '—'} />
                 {/* DGS (dikey geçiş) — kod eşleşen programlarda; DGS'li kullanıcı

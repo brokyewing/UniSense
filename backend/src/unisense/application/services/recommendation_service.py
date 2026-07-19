@@ -324,13 +324,17 @@ class RecommendationService:
                 notes=f"{st} puan türünde sıralama verisi bulunamadı.",
             )
 
-        # Kullanıcının sıralaması yoksa, puanından tahmin et
+        # Kullanıcının sıralaması yoksa, puanından tahmin et.
+        # LLM context'i (_build_profile_context) tahmini_sira() kullandığından burada da
+        # AYNI interpolasyonu kullan — yoksa iki ayrı "senin sıran" değeri çıkıyordu.
         user_rank = profile.rank
         if user_rank is None and profile.score is not None:
-            # Yakın puanlı programdan tahmin et
-            sorted_by_score = sorted(candidates, key=lambda r: abs(r["base_score"] - profile.score))
-            if sorted_by_score:
-                user_rank = sorted_by_score[0]["base_rank"]
+            est = tahmini_sira(profile.score, st)
+            user_rank = est.get("tahmini_sira") if est else None
+            if user_rank is None:  # interpolasyon veremezse en yakın programın sırasına düş
+                sorted_by_score = sorted(candidates, key=lambda r: abs(r["base_score"] - profile.score))
+                if sorted_by_score:
+                    user_rank = sorted_by_score[0]["base_rank"]
 
         if user_rank is None:
             return RecommendationList(

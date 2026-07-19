@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Loader2, Plus, Trash2, TrendingUp, Target, X, LineChart, ArrowRight, Sparkles } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { getUserProfile, watchDenemeler, addDeneme, removeDeneme, recordActivity, getKonuIlerleme } from '../firebase'
 import { track } from '../lib/analytics'
 import { konuLocal, eksikKonular } from '../lib/konu'
+import { tasimaGerekli, damgala } from '../lib/bulutTasima'
 import {
   TYT_FIELDS, AYT_FIELDS, KPSS_FIELDS, LGS_FIELDS, DGS_FIELDS,
   denemeAlanlari, denemeHesaplaSinav, diploma100ToObp, gpa4ToAobp,
@@ -98,27 +99,31 @@ export default function Deneme({ embedded = false }) {
   }
 
   // Denemeleri yükle — sınav başına ayrı liste; girişli bulut, girişsiz localStorage
-  const tasindi = useRef({}) // guest→bulut migration'ı sınav başına 1 kez (duplike önlemi)
   useEffect(() => {
     setGirdi({})
     if (!user) { setDenemeler(loadLocal(sinav)); return }
+    const key = lsKey(sinav)
     return watchDenemeler(user.uid, sinav, (items) => {
       if (items == null) { setDenemeler(loadLocal(sinav)); return }
       const local = loadLocal(sinav)
-      if (items.length === 0 && local.length > 0 && !tasindi.current[sinav]) {
-        // Bulut boş ama cihazda misafir verisi var → bir kez yukarı taşı (Konular deseni).
-        // null/yerel alanları temizle — rules type:null gibi alanları reddeder.
-        tasindi.current[sinav] = true
+      if (tasimaGerekli(key, items.length === 0, local.length > 0)) {
+        // Yalnız SAHİPSİZ (gerçek misafir) veri taşınır — ayna damgası bunu güvence altına alır.
+        // Alanları kırp + null/yerel alanları at (rules type:null / uzun ad'ı reddeder).
         for (const d of local) {
-          const temiz = { sinav: d.sinav || sinav, tarih: d.tarih || '', ad: d.ad || 'Deneme', dersNet: d.dersNet || {}, toplamNet: d.toplamNet || 0, puan: d.puan || 0 }
-          if (typeof d.type === 'string') temiz.type = d.type
+          const temiz = {
+            sinav: d.sinav || sinav, tarih: String(d.tarih || '').slice(0, 20),
+            ad: String(d.ad || 'Deneme').slice(0, 120),
+            dersNet: d.dersNet || {}, toplamNet: d.toplamNet || 0, puan: d.puan || 0,
+          }
+          if (typeof d.type === 'string') temiz.type = d.type.slice(0, 8)
           if (typeof d.sira === 'number') temiz.sira = d.sira
           addDeneme(user.uid, temiz).catch(() => {})
         }
+        damgala(key, user.uid)
         setDenemeler(local)
         return
       }
-      setDenemeler(items); saveLocal(sinav, items)
+      setDenemeler(items); saveLocal(sinav, items); damgala(key, user.uid)
     })
   }, [user, sinav])
 

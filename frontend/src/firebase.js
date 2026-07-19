@@ -54,6 +54,7 @@ import {
   serverTimestamp,
   writeBatch,
   increment,
+  deleteField,
 } from 'firebase/firestore'
 
 // Sabitler
@@ -320,11 +321,12 @@ export async function sureEkle(uid, dk, ders) {
   await setDoc(doc(db, 'users', uid, 'istatistik', 'genel'), patch, { merge: true }).catch(() => {})
 }
 
-/** Uygulamada geçirilen aktif dakikayı ekle (seviye/XP'ye katkı sağlar). */
+/** Uygulamada geçirilen aktif dakikayı ekle (seviye/XP'ye katkı sağlar).
+ * Hatayı YUTMAZ — çağıran (usage.js) başarısızlıkta dakikaları geri ekler. */
 export async function kullanimEkle(uid, dk) {
   if (!db || !uid || !dk) return
   await setDoc(doc(db, 'users', uid, 'istatistik', 'genel'),
-    { kullanimDk: increment(dk), updatedAt: serverTimestamp() }, { merge: true }).catch(() => {})
+    { kullanimDk: increment(dk), updatedAt: serverTimestamp() }, { merge: true })
 }
 
 /** Girişli kullanıcının tüm çalışma istatistiğini topla (Pano için). */
@@ -346,27 +348,24 @@ export async function getIstatistik(uid) {
     s.yanlisSayisi = yan.size
     if (akt.exists()) s.streakLongest = akt.data().longest || 0
     if (ist.exists()) { const g = ist.data(); s.sureDk = g.sureDk || 0; s.sureHafta = g.sureHafta || {}; s.dersSure = g.dersSure || {}; s.kullanimDk = g.kullanimDk || 0; s.dogruCevap = g.dogruCevap || 0 }
-    // sureHafta günde 1 anahtar biriktirir; rules mapKeysMax(800) tavanına yıllar
-    // içinde meşru kullanıcı da takılmasın diye 60'ı aşınca son 30 gün'e budanır
-    // (UI zaten yalnız son 7 günü kullanıyor). updateDoc alanı KOMPLE değiştirir.
+    // Budama: sadece ESKİ anahtarları deleteField ile sil (tam-harita yazımı, eş
+    // zamanlı sureEkle/kullanimEkle increment'ini ezerdi — deleteField yalnız o
+    // anahtara dokunur, increment'lerle çakışmaz).
+    const ref = doc(db, 'users', uid, 'istatistik', 'genel')
+    const budamalar = {}
+    // sureHafta günde 1 anahtar; 60'ı aşınca son 30 gün kalır (UI zaten son 7 günü kullanır)
     const gunler = Object.keys(s.sureHafta)
     if (gunler.length > 60) {
-      const sonGunler = gunler.sort().slice(-30)
-      const budanmis = {}
-      for (const g of sonGunler) budanmis[g] = s.sureHafta[g]
-      updateDoc(doc(db, 'users', uid, 'istatistik', 'genel'), { sureHafta: budanmis }).catch(() => {})
-      s.sureHafta = budanmis
+      const tut = new Set(gunler.sort().slice(-30))
+      for (const g of gunler) if (!tut.has(g)) { budamalar[`sureHafta.${g}`] = deleteField(); delete s.sureHafta[g] }
     }
-    // dersSure de serbest-metin anahtar biriktirir (mapKeysMax 60 tavanı) —
-    // 40'ı aşınca en çok dakika toplayan 30 ders kalır (XP toplamı sureDk'de, etkilenmez)
+    // dersSure serbest-metin anahtar; 40'ı aşınca en çok dakikalı 30 ders kalır
     const dersler = Object.keys(s.dersSure)
     if (dersler.length > 40) {
-      const enCok = dersler.sort((a, b) => (s.dersSure[b] || 0) - (s.dersSure[a] || 0)).slice(0, 30)
-      const kalan = {}
-      for (const d2 of enCok) kalan[d2] = s.dersSure[d2]
-      updateDoc(doc(db, 'users', uid, 'istatistik', 'genel'), { dersSure: kalan }).catch(() => {})
-      s.dersSure = kalan
+      const tut = new Set(dersler.sort((a, b) => (s.dersSure[b] || 0) - (s.dersSure[a] || 0)).slice(0, 30))
+      for (const d2 of dersler) if (!tut.has(d2)) { budamalar[`dersSure.${d2}`] = deleteField(); delete s.dersSure[d2] }
     }
+    if (Object.keys(budamalar).length) updateDoc(ref, budamalar).catch(() => {})
   } catch { /* erişilemedi → boş istatistik */ }
   return s
 }
