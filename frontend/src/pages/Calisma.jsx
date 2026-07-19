@@ -15,7 +15,7 @@ import Pano from './Pano'
 // h1/alt: prerender edilen sayfa başlığıyla UYUMLU olsun (SEO — anahtar kelime eşleşir).
 const TABS = [
   { key: 'konular', label: 'Konular', to: '/konular', Icon: ListTodo, renk: 'text-emerald-300', h1: 'Konu Takibi', alt: 'Sınavının tüm konularını çalıştıkça işaretle — ilerlemeni gör.' },
-  { key: 'deneme', label: 'Deneme', to: '/deneme', Icon: LineChart, renk: 'text-accent-300', h1: 'Deneme Takibi', alt: 'Netini gir → tahmini puanını ve net trendini gör.' },
+  { key: 'deneme', label: 'Çalışmalarım', to: '/deneme', Icon: LineChart, renk: 'text-accent-300', h1: 'Çalışmalarım', alt: 'Denemelerini ve konu konu çözdüğün soruları kaydet — AI Koç ikisini de okur.' },
   { key: 'ozetler', label: 'Özetler', to: '/ozetler', Icon: BookMarked, renk: 'text-amber-300', h1: 'Formül Özetleri', alt: 'Sık kullanılan formülleri hızlıca gözden geçir.' },
   { key: 'yanlis', label: 'Defter', to: '/yanlislarim', Icon: NotebookPen, renk: 'text-rose-300', h1: 'Yanlış Defteri', alt: 'Yanlışını kaydet, sebebini yaz — aralıklı tekrarla öğren.' },
   { key: 'kartlar', label: 'Kartlar', to: '/kartlar', Icon: Layers, renk: 'text-violet-300', h1: 'Bilgi Kartları', alt: 'Soru-cevap kartları oluştur, aralıklı tekrarla ezberle.' },

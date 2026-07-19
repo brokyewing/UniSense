@@ -259,6 +259,29 @@ export async function removeDeneme(uid, id) {
   await deleteDoc(doc(db, 'users', uid, 'denemeler', id))
 }
 
+// === Çözülen soru kaydı (konu bazında — Çalışmalarım) ===
+export function watchSoruKayit(uid, sinav, callback) {
+  if (!db || !uid) { callback([]); return () => {} }
+  // orderBy YOK (where+orderBy bileşik indeks isterdi) → client-side sort
+  const q = query(collection(db, 'users', uid, 'soru_kayit'), where('sinav', '==', sinav))
+  return onSnapshot(q, (snap) => {
+    const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+    items.sort((a, b) => (b.tarih || '').localeCompare(a.tarih || '')) // yeni→eski
+    callback(items)
+  }, () => callback(null))
+}
+
+export async function addSoruKayit(uid, s) {
+  if (!db || !uid) return null
+  const ref = await addDoc(collection(db, 'users', uid, 'soru_kayit'), { ...s, createdAt: serverTimestamp() })
+  return ref.id
+}
+
+export async function removeSoruKayit(uid, id) {
+  if (!db || !uid) return
+  await deleteDoc(doc(db, 'users', uid, 'soru_kayit', id))
+}
+
 // === Yanlış Defteri (bulut — her yanlış 1 doküman; metin tabanlı) ===
 /** Yanlışları en yeni→eski izle. Erişilemezse null → çağıran localStorage'a düşer. */
 export function watchYanlislar(uid, callback) {

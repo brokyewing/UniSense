@@ -26,7 +26,7 @@ const ROUTE_SEO = {
   '/pusula': { title: 'İlgi Pusulası — Sana Uygun Bölümü Bul | UniSense', description: 'Ne okuyacağına karar veremiyor musun? İlgi alanlarından yapay zekâ ile sana uygun üniversite bölümlerini keşfet.' },
   '/karsilastir': { title: 'Program Karşılaştırma — Taban, Trend, Kadro | UniSense', description: 'Üniversite programlarını yan yana karşılaştır: taban puan, 3 yıllık sıralama trendi, akademik kadro, ücret ve akreditasyon.' },
   '/konular': { title: 'Konu Takibi — YKS, KPSS, DGS, LGS Konuları | UniSense', description: 'Sınavının tüm konularını ders ders takip et, çalıştıkça işaretle. YKS, KPSS, DGS ve LGS için ücretsiz konu kontrol listesi.' },
-  '/deneme': { title: 'Deneme Takibi — Net & Puan | YKS · DGS · KPSS · LGS | UniSense', description: "YKS, DGS, KPSS ve LGS denemelerini kaydet: ders ders netini gir, tahmini puanını (ve YKS'de başarı sıranı + girebileceğin bölümleri) gör. Net trendini takip et — ücretsiz." },
+  '/deneme': { title: 'Çalışmalarım — Deneme & Çözülen Soru Takibi | UniSense', description: 'Denemelerini ve konu konu çözdüğün soruları tek yerde kaydet; AI Koç netlerine ve soru çözümüne göre hangi konuya odaklanman gerektiğini söyler — ücretsiz.' },
   '/ozetler': { title: 'Formül ve Konu Özetleri — YKS Cheat Sheet | UniSense', description: 'TYT-AYT matematik, geometri, fizik ve kimya formülleri tek yerde. Aranabilir, çevrimdışı erişilebilir konu özetleri — ücretsiz.' },
   '/yanlislarim': { title: 'Yanlış Defteri | UniSense', noindex: true },
   '/kartlar': { title: 'Bilgi Kartları | UniSense', noindex: true },
