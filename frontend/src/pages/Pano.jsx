@@ -109,7 +109,7 @@ export default function Pano({ embedded = false }) {
   const ozet = [
     { Icon: ListChecks, renk: 'text-emerald-300', ad: 'Konu', deger: stats?.konuDone ?? 0 },
     { Icon: LineChart, renk: 'text-accent-300', ad: 'Deneme', deger: stats?.denemeSayisi ?? 0 },
-    { Icon: Layers, renk: 'text-violet-300', ad: 'Kart', deger: stats?.kartSayisi ?? 0 },
+    { Icon: Layers, renk: 'text-violet-300', ad: 'Çözülen soru', deger: stats?.soruCozulen ?? 0 },
     { Icon: Flame, renk: 'text-rose-300', ad: 'En uzun seri', deger: `${stats?.streakLongest ?? 0} gün` },
     { Icon: Clock, renk: 'text-amber-300', ad: 'Bu hafta', deger: saat(buHaftaDk) },
     { Icon: Clock, renk: 'text-sky-300', ad: 'Toplam süre', deger: saat(stats?.sureDk ?? 0) },

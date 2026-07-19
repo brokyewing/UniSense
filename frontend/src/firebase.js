@@ -377,20 +377,20 @@ export async function kullanimEkle(uid, dk) {
 
 /** Girişli kullanıcının tüm çalışma istatistiğini topla (Pano için). */
 export async function getIstatistik(uid) {
-  const s = { konuDone: 0, denemeSayisi: 0, kartSayisi: 0, yanlisSayisi: 0, streakLongest: 0, sureDk: 0, sureHafta: {}, dersSure: {}, kullanimDk: 0, dogruCevap: 0 }
+  const s = { konuDone: 0, denemeSayisi: 0, soruCozulen: 0, yanlisSayisi: 0, streakLongest: 0, sureDk: 0, sureHafta: {}, dersSure: {}, kullanimDk: 0, dogruCevap: 0 }
   if (!db || !uid) return s
   try {
-    const [konu, den, kart, yan, akt, ist] = await Promise.all([
+    const [konu, den, soru, yan, akt, ist] = await Promise.all([
       getDocs(collection(db, 'users', uid, 'konu_ilerleme')),
       getDocs(collection(db, 'users', uid, 'denemeler')),
-      getDocs(collection(db, 'users', uid, 'kartlar')),
+      getDocs(collection(db, 'users', uid, 'soru_kayit')),
       getDocs(collection(db, 'users', uid, 'yanlislar')),
       getDoc(doc(db, 'users', uid, 'aktivite', 'gunluk')),
       getDoc(doc(db, 'users', uid, 'istatistik', 'genel')),
     ])
     konu.forEach((d) => { s.konuDone += Object.keys(d.data().checked || {}).length })
     s.denemeSayisi = den.size
-    s.kartSayisi = kart.size
+    soru.forEach((d) => { s.soruCozulen += d.data().cozulen || 0 }) // çözülen soru toplamı
     s.yanlisSayisi = yan.size
     if (akt.exists()) s.streakLongest = akt.data().longest || 0
     if (ist.exists()) { const g = ist.data(); s.sureDk = g.sureDk || 0; s.sureHafta = g.sureHafta || {}; s.dersSure = g.dersSure || {}; s.kullanimDk = g.kullanimDk || 0; s.dogruCevap = g.dogruCevap || 0 }
