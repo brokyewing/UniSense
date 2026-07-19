@@ -10,6 +10,13 @@ import { hesaplaXP, seviyeBilgi, ROZETLER, kazanilanRozetler, guestStats } from 
 
 const ODAK = 25 * 60
 const MOLA = 5 * 60
+// Günün Sorusu — sınav yoluna göre ders seti (profildeki examTrack'e göre)
+const SORU_DERSLERI = {
+  YKS: 'Matematik, Türkçe, Fizik, Kimya, Biyoloji, Tarih, Coğrafya, Felsefe, Din Kültürü',
+  DGS: 'Matematik (sayısal akıl yürütme) veya Türkçe (sözel akıl yürütme)',
+  KPSS: 'Genel Yetenek (Matematik, Türkçe) veya Genel Kültür (Tarih, Coğrafya, Vatandaşlık)',
+  LGS: 'Türkçe, Matematik, Fen Bilimleri, T.C. İnkılap Tarihi, Din Kültürü veya İngilizce',
+}
 const mmss = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 
 function guestSureEkle(dk, ders) {
@@ -87,8 +94,10 @@ export default function Pano({ embedded = false }) {
     if (sayac.n >= 10) { setToast('Bugünlük soru limitine ulaştın — yarın devam! 🌙'); setTimeout(() => setToast(''), 2500); return }
     localStorage.setItem('unisense_gunsoru_sayi', JSON.stringify({ date: bugun, n: sayac.n + 1 }))
     setGsLoading(true); setSoru(null); setSoruHam(''); setSecildi(null)
-    const q = 'YKS öğrencisi için SADECE şu derslerden birinden akademik bir çoktan seçmeli soru üret: '
-      + 'Matematik, Türkçe, Fizik, Kimya, Biyoloji, Tarih, Coğrafya, Felsefe, Din Kültürü. '
+    let track = 'YKS'
+    try { const p = await getUserProfile(user.uid); track = SORU_DERSLERI[p?.profile?.examTrack] ? p.profile.examTrack : 'YKS' } catch { /* varsayılan YKS */ }
+    const q = `${track} sınavına hazırlanan bir öğrenci için SADECE şu derslerden birinden akademik bir çoktan seçmeli soru üret: `
+      + `${SORU_DERSLERI[track]}. `
       + 'Soru tamamen KONU BİLGİSİNE dayalı olsun; üniversite/tercih/taban puan/sıralama/endeks verisiyle İLGİSİZ olmalı. '
       + 'Sana verilen bağlamı YOK SAY, kendi genel bilginle üret. '
       + 'SADECE şu JSON formatını döndür, öncesinde/sonrasında HİÇBİR metin, kaynak veya açıklama yazma: '
@@ -274,7 +283,7 @@ export default function Pano({ embedded = false }) {
                 <div className="text-[11px] text-amber-300/80 mt-2">🤖 AI üretimi — teyit et.</div>
               </div>
             ) : (
-              <p className="text-xs text-slate-500">YKS derslerinden bir soru için “Getir”e bas — cevabı işaretle, doğru bilirsen <b className="text-amber-300/90">+10 XP</b>.</p>
+              <p className="text-xs text-slate-500">Sınavının derslerinden bir soru için “Getir”e bas — cevabı işaretle, doğru bilirsen <b className="text-amber-300/90">+10 XP</b>.</p>
             )}
           </div>
         )}

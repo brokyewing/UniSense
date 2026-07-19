@@ -4,15 +4,33 @@ import { BookMarked, Search, Loader2, ArrowUpRight } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
+import { useAuth } from '../contexts/AuthContext'
+import { getUserProfile } from '../firebase'
 
-// Formül / konu özeti kartları — ders bazlı, aranabilir. Her kartın kalıcı SEO
-// sayfası var (/ozet/:slug). Veri: backend /api/v1/ozet-kartlar (statik JSON).
+const SINAVLAR = ['YKS', 'DGS', 'KPSS', 'LGS']
+
+// Bir kartın hangi sınavlara uygun olduğu (ders + seviyeden türetilir).
+function kartSinavlari(k) {
+  if (k.seviye === 'AYT') return ['YKS'] // yalnız YKS-AYT (ör. logaritma)
+  switch (k.ders) {
+    case 'Matematik': return ['YKS', 'DGS', 'KPSS', 'LGS']
+    case 'Geometri': return ['YKS', 'KPSS', 'DGS', 'LGS']
+    case 'Fizik':
+    case 'Kimya': return ['YKS', 'LGS']
+    default: return ['YKS']
+  }
+}
+
+// Formül / konu özeti kartları — sınav yoluna (examTrack) göre + aranabilir.
+// Her kartın kalıcı SEO sayfası var (/ozet/:slug). Veri: /api/v1/ozet-kartlar.
 export default function Ozetler({ embedded = false }) {
+  const { user } = useAuth()
   const [kartlar, setKartlar] = useState([])
   const [notLine, setNotLine] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [q, setQ] = useState('')
+  const [sinav, setSinav] = useState('YKS')
 
   useEffect(() => {
     apiFetch('/api/v1/ozet-kartlar')
@@ -21,12 +39,21 @@ export default function Ozetler({ embedded = false }) {
       .finally(() => setLoading(false))
   }, [])
 
+  // Varsayılan sınav = profildeki examTrack (kullanıcı seçiciden değiştirebilir)
+  useEffect(() => {
+    if (!user) return
+    getUserProfile(user.uid).then((p) => {
+      const t = p?.profile?.examTrack
+      if (SINAVLAR.includes(t)) setSinav(t)
+    }).catch(() => {})
+  }, [user])
+
   const filtered = useMemo(() => {
     const t = q.trim().toLowerCase()
-    if (!t) return kartlar
-    return kartlar.filter((k) =>
-      [k.baslik, k.ders, k.konu, ...(k.maddeler || [])].join(' ').toLowerCase().includes(t))
-  }, [kartlar, q])
+    return kartlar
+      .filter((k) => kartSinavlari(k).includes(sinav))
+      .filter((k) => !t || [k.baslik, k.ders, k.konu, ...(k.maddeler || [])].join(' ').toLowerCase().includes(t))
+  }, [kartlar, q, sinav])
 
   const byDers = useMemo(() => {
     const m = {}
@@ -52,6 +79,16 @@ export default function Ozetler({ embedded = false }) {
           </div>
         )}
 
+        {/* Sınav seçici — profildeki alana göre açılır */}
+        <div className="flex justify-center">
+          <div className="inline-flex gap-1 p-1 rounded-xl bg-white/5 border border-white/10">
+            {SINAVLAR.map((s) => (
+              <button key={s} onClick={() => setSinav(s)}
+                className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition ${sinav === s ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white' : 'text-slate-300 hover:text-white'}`}>{s}</button>
+            ))}
+          </div>
+        </div>
+
         <div className="relative">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
           <input value={q} onChange={(e) => setQ(e.target.value)}
@@ -64,7 +101,9 @@ export default function Ozetler({ embedded = false }) {
         ) : error ? (
           <div className="card text-center text-rose-300">⚠️ {error}</div>
         ) : filtered.length === 0 ? (
-          <div className="card text-center py-8 text-sm text-slate-400">"{q}" için sonuç yok.</div>
+          <div className="card text-center py-8 text-sm text-slate-400">
+            {q ? `"${q}" için sonuç yok.` : `${sinav} için formül özeti henüz eklenmedi — çok yakında.`}
+          </div>
         ) : (
           Object.entries(byDers).map(([ders, ks]) => (
             <div key={ders} className="space-y-2">
