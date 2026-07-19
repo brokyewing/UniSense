@@ -20,6 +20,7 @@ import LGS from './pages/LGS.jsx'
 import TusDus from './pages/TusDus.jsx'
 import Calisma from './pages/Calisma.jsx'
 import OzetDetay from './pages/OzetDetay.jsx'
+import Siralama from './pages/Siralama.jsx'
 import { AuthProvider } from './contexts/AuthContext.jsx'
 import { ThemeProvider } from './contexts/ThemeContext.jsx'
 import './index.css'
@@ -56,6 +57,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/giris" element={<Login />} />
               <Route path="/tercih" element={<TercihList />} />
               <Route path="/profil" element={<Profile />} />
+              <Route path="/siralama" element={<Siralama />} />
               <Route path="/pusula" element={<Pusula />} />
               <Route path="/hesap" element={<Hesap />} />
               <Route path="/gizlilik" element={<Privacy />} />

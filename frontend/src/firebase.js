@@ -11,6 +11,7 @@
 import { initializeApp } from 'firebase/app'
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
 import { serisiIsle, bugunStr, guncelSeri } from './lib/streak'
+import { adDenetle } from './lib/adFiltre'
 import {
   getAuth,
   GoogleAuthProvider,
@@ -55,6 +56,7 @@ import {
   writeBatch,
   increment,
   deleteField,
+  getCountFromServer,
 } from 'firebase/firestore'
 
 // Sabitler
@@ -414,6 +416,61 @@ export async function getIstatistik(uid) {
     if (Object.keys(budamalar).length) updateDoc(ref, budamalar).catch(() => {})
   } catch { /* erişilemedi → boş istatistik */ }
   return s
+}
+
+// === Sıralama (opt-in liderlik tablosu — takma ad) ===
+// Üst düzey 'siralama/{uid}' koleksiyonu: giriş yapan herkes OKUR, kişi yalnız
+// KENDİ dokümanını yazar/siler. Doküman VARSA kullanıcı katılmıştır (opt-in).
+// E-posta / gerçek ad ASLA tutulmaz — sadece takma ad + seviye + xp.
+// XP istemcide hesaplandığından değer tavanları anti-abuse amaçlıdır (Cloud Function yok).
+
+/** Kullanıcının sıralama dokümanı (katıldıysa) → {ad,seviye,xp}; yoksa/erişilemezse null. */
+export async function siralamaBenim(uid) {
+  if (!db || !uid) return null
+  try {
+    const snap = await getDoc(doc(db, 'siralama', uid))
+    return snap.exists() ? snap.data() : null
+  } catch { return null }
+}
+
+/** Sıralamaya katıl ya da takma adı/skoru güncelle. Temizlenmiş adı döner. */
+export async function siralamaKaydet(uid, ad, seviye, xp) {
+  if (!db) throw new Error('Firebase yok')
+  const temizAd = String(ad || '').replace(/\s+/g, ' ').trim().slice(0, 24)
+  if (temizAd.length < 2) throw new Error('Takma ad en az 2 karakter olmalı')
+  const uygunsuz = adDenetle(temizAd) // küfür / taklit filtresi
+  if (uygunsuz) throw new Error(uygunsuz)
+  await setDoc(doc(db, 'siralama', uid), {
+    ad: temizAd,
+    seviye: Math.max(1, Math.min(500, Math.floor(seviye || 1))),
+    xp: Math.max(0, Math.min(100000000, Math.floor(xp || 0))),
+    guncel: serverTimestamp(),
+  })
+  return temizAd
+}
+
+/** Sıralamadan ayrıl — dokümanı sil. */
+export async function siralamaCik(uid) {
+  if (!db) throw new Error('Firebase yok')
+  await deleteDoc(doc(db, 'siralama', uid))
+}
+
+/** En yüksek xp'li ilk n kullanıcı → [{uid,ad,seviye,xp}]. */
+export async function siralamaListe(n = 100) {
+  if (!db) return []
+  try {
+    const snap = await getDocs(query(collection(db, 'siralama'), orderBy('xp', 'desc'), limit(n)))
+    return snap.docs.map((d) => ({ uid: d.id, ...d.data() }))
+  } catch { return [] }
+}
+
+/** Verilen xp'nin genel sırası (1 = en yüksek). İlk 100 dışındakiler için de çalışır. */
+export async function siralamaSira(xp) {
+  if (!db) return null
+  try {
+    const snap = await getCountFromServer(query(collection(db, 'siralama'), where('xp', '>', Math.floor(xp || 0))))
+    return snap.data().count + 1
+  } catch { return null }
 }
 
 // === Günlük çalışma serisi (streak) ===
