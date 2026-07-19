@@ -36,7 +36,9 @@ jobs:
         working-directory: backend
         run: |
           mkdir -p data/embeddings
-          curl -fsSL -o data/embeddings/static_model.npz \
+          # --retry: HF ara sıra 5xx/timeout verir; geçici düşüşte CI kırmızı yakmasın
+          curl -fsSL --retry 4 --retry-delay 5 --retry-all-errors --connect-timeout 30 \
+            -o data/embeddings/static_model.npz \
             "https://huggingface.co/datasets/BrokyEwing/unisense-index/resolve/main/static_model.npz"
 
       - name: Lint (ruff)
