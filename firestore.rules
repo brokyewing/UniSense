@@ -44,9 +44,14 @@ service cloud.firestore {
         && strMax('displayName', 100)
         && strMax('email', 200)
         // email yazılıyorsa auth token'ındaki e-postayla AYNI olmalı — başkasının
-        // adresi yazılıp e-posta hatırlatma cron'una hedef gösterilemesin
+        // adresi yazılıp e-posta hatırlatma cron'una hedef gösterilemesin.
+        // İstisna: DEĞER DEĞİŞMİYORSA serbest (update'te request.resource.data
+        // dokümanın gelecek TAM halidir — email'e dokunmayan profil yazımları ve
+        // auth e-postası sonradan değişen eski hesaplar kilitlenmesin).
         && (!('email' in request.resource.data)
-            || request.resource.data.email == request.auth.token.email)
+            || request.resource.data.email == request.auth.token.email
+            || (resource != null && 'email' in resource.data
+                && request.resource.data.email == resource.data.email))
         && strMax('photoURL', 1000);
 
       // Tercih listesi (max 24 sıra — sayı sınırı client'ta, boyut sınırı burada)

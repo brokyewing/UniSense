@@ -357,6 +357,16 @@ export async function getIstatistik(uid) {
       updateDoc(doc(db, 'users', uid, 'istatistik', 'genel'), { sureHafta: budanmis }).catch(() => {})
       s.sureHafta = budanmis
     }
+    // dersSure de serbest-metin anahtar biriktirir (mapKeysMax 60 tavanı) —
+    // 40'ı aşınca en çok dakika toplayan 30 ders kalır (XP toplamı sureDk'de, etkilenmez)
+    const dersler = Object.keys(s.dersSure)
+    if (dersler.length > 40) {
+      const enCok = dersler.sort((a, b) => (s.dersSure[b] || 0) - (s.dersSure[a] || 0)).slice(0, 30)
+      const kalan = {}
+      for (const d2 of enCok) kalan[d2] = s.dersSure[d2]
+      updateDoc(doc(db, 'users', uid, 'istatistik', 'genel'), { dersSure: kalan }).catch(() => {})
+      s.dersSure = kalan
+    }
   } catch { /* erişilemedi → boş istatistik */ }
   return s
 }
