@@ -237,6 +237,29 @@ service cloud.firestore {
       }
     }
 
+    // === Sıralama (opt-in liderlik tablosu) ===
+    // Giriş yapan HERKES okur (tabloyu görmek için); kişi yalnız KENDİ dokümanını
+    // yazar/siler. Yalnız takma ad + seviye + xp tutulur — e-posta/gerçek ad YOK.
+    // XP istemcide hesaplandığından değer tavanları anti-abuse amaçlı (Cloud Function yok).
+    match /siralama/{uid} {
+      allow read: if request.auth != null;
+      allow delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && fieldCountMax(4)
+        && request.resource.data.ad is string
+        && request.resource.data.ad.size() >= 2
+        && request.resource.data.ad.size() <= 24
+        // Taklit koruması (ASCII; Türkçe katlama + küfür istemci filtresinde) —
+        // yetkili/marka adıyla kayıt engellenir.
+        && !request.resource.data.ad.lower().matches('.*(admin|unisense|moderator|official).*')
+        && request.resource.data.seviye is number
+        && request.resource.data.seviye >= 1
+        && request.resource.data.seviye <= 500
+        && request.resource.data.xp is number
+        && request.resource.data.xp >= 0
+        && request.resource.data.xp <= 100000000;
+    }
+
     // Herhangi bir başka koleksiyona genel erişim YOK
     match /{document=**} {
       allow read, write: if false;

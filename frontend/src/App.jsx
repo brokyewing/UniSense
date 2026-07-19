@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import {
   Search, ListChecks,
   LogIn, LogOut, User, ChevronDown, Compass, Calculator, BookOpen, CalendarDays,
-  GraduationCap,
+  GraduationCap, Trophy,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from './contexts/AuthContext'
@@ -37,6 +37,7 @@ const ROUTE_SEO = {
   '/gizlilik': { title: 'Gizlilik ve KVKK | UniSense', description: 'UniSense gizlilik politikası ve KVKK aydınlatma metni.' },
   '/tercih': { title: 'Tercih Listem | UniSense', noindex: true },
   '/profil': { title: 'Sınav Profilim | UniSense', noindex: true },
+  '/siralama': { title: 'Sıralama | UniSense', noindex: true },
   '/giris': { title: 'Giriş | UniSense', noindex: true },
 }
 
@@ -191,6 +192,13 @@ export default function App() {
                       className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/5 hover:text-white transition"
                     >
                       <User size={14} /> Profilim
+                    </Link>
+                    <Link
+                      to="/siralama"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/5 hover:text-white transition"
+                    >
+                      <Trophy size={14} /> Sıralama
                     </Link>
                     <div className="my-1 border-t border-white/5" />
                     <button
