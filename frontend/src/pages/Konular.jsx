@@ -5,6 +5,7 @@ import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
 import { getUserProfile, watchKonuIlerleme, setKonuIlerleme, recordActivity } from '../firebase'
+import { tasimaGerekli, damgala } from '../lib/bulutTasima'
 
 // Sıra Deneme sayfasıyla AYNI olmalı (YKS·DGS·KPSS·LGS) — tutarlı sekme deneyimi
 const SINAVLAR = [
@@ -83,19 +84,22 @@ export default function Konular({ embedded = false }) {
   // Tikleri yükle: localStorage anında + girişliyse Firestore bulut senkronu.
   // Bulut erişilemezse (kural/App Check/offline) localStorage'a düşer — asla kırılmaz.
   useEffect(() => {
-    const local = loadChecked(sinav)
-    setChecked(local)
+    const key = LS_KEY(sinav)
+    setChecked(loadChecked(sinav))
     if (!user) return
     return watchKonuIlerleme(user.uid, sinav, (cloud) => {
       if (cloud == null) return // erişilemedi → localStorage kalsın
-      if (Object.keys(cloud).length === 0 && Object.keys(local).length > 0) {
-        // Bulut boş ama cihazda veri var → bir kez yukarı taşı (migration)
+      const local = loadChecked(sinav) // her snapshot'ta TAZE oku (bayat closure kullanma)
+      if (tasimaGerekli(key, Object.keys(cloud).length === 0, Object.keys(local).length > 0)) {
+        // Yalnız SAHİPSİZ (gerçek misafir) veri taşınır — ayna damgası re-migration'ı önler
         setKonuIlerleme(user.uid, sinav, local).catch(() => {})
+        damgala(key, user.uid)
         setChecked(local)
-      } else {
-        setChecked(cloud)
-        saveChecked(sinav, cloud) // cihaza da yansıt
+        return
       }
+      setChecked(cloud)
+      saveChecked(sinav, cloud) // cihaza da yansıt
+      damgala(key, user.uid) // bu ayna artık bu kullanıcıya ait → silinen tik geri gelmez
     })
   }, [user, sinav])
 
