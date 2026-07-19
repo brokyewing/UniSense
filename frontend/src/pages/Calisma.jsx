@@ -1,12 +1,11 @@
 import { Link } from 'react-router-dom'
-import { ListTodo, LineChart, BookMarked, NotebookPen, Layers, LayoutDashboard } from 'lucide-react'
+import { ListTodo, LineChart, BookMarked, NotebookPen, LayoutDashboard } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import PushOptIn from '../components/PushOptIn'
 import Konular from './Konular'
 import Deneme from './Deneme'
 import Ozetler from './Ozetler'
-import YanlisDefteri from './YanlisDefteri'
-import Kartlar from './Kartlar'
+import Notlar from './Notlar'
 import Pano from './Pano'
 
 // Çalışma merkezi: Konular + Deneme + Özetler tek "Çalışma" sekmesi altında (nav ferah).
@@ -17,8 +16,7 @@ const TABS = [
   { key: 'konular', label: 'Konular', to: '/konular', Icon: ListTodo, renk: 'text-emerald-300', h1: 'Konu Takibi', alt: 'Sınavının tüm konularını çalıştıkça işaretle — ilerlemeni gör.' },
   { key: 'deneme', label: 'Çalışmalarım', to: '/deneme', Icon: LineChart, renk: 'text-accent-300', h1: 'Çalışmalarım', alt: 'Denemelerini ve konu konu çözdüğün soruları kaydet — AI Koç ikisini de okur.' },
   { key: 'ozetler', label: 'Özetler', to: '/ozetler', Icon: BookMarked, renk: 'text-amber-300', h1: 'Formül Özetleri', alt: 'Sık kullanılan formülleri hızlıca gözden geçir.' },
-  { key: 'yanlis', label: 'Defter', to: '/yanlislarim', Icon: NotebookPen, renk: 'text-rose-300', h1: 'Yanlış Defteri', alt: 'Yanlışını kaydet, sebebini yaz — aralıklı tekrarla öğren.' },
-  { key: 'kartlar', label: 'Kartlar', to: '/kartlar', Icon: Layers, renk: 'text-violet-300', h1: 'Bilgi Kartları', alt: 'Soru-cevap kartları oluştur, aralıklı tekrarla ezberle.' },
+  { key: 'notlar', label: 'Notlar', to: '/notlar', Icon: NotebookPen, renk: 'text-rose-300', h1: 'Notlarım', alt: 'Yapacaklarını ve aklındakileri not et — işaretleyerek takip et.' },
   { key: 'pano', label: 'Pano', to: '/pano', Icon: LayoutDashboard, renk: 'text-sky-300', h1: 'Çalışma Panom', alt: 'Pomodoro ile çalış, ilerlemeni ve rozetlerini gör.' },
 ]
 
@@ -55,8 +53,7 @@ export default function Calisma({ tab = 'konular' }) {
       {active === 'konular' && <Konular embedded />}
       {active === 'deneme' && <Deneme embedded />}
       {active === 'ozetler' && <Ozetler embedded />}
-      {active === 'yanlis' && <YanlisDefteri embedded />}
-      {active === 'kartlar' && <Kartlar embedded />}
+      {active === 'notlar' && <Notlar embedded />}
       {active === 'pano' && <Pano embedded />}
     </>
   )

@@ -33,6 +33,8 @@ const LEGACY_ROUTES = [
   ['/profile', '/profil'],
   ['/privacy', '/gizlilik'],
   ['/compare', '/karsilastir'],
+  ['/yanlislarim', '/notlar'], // Yanlış Defteri → Notlar (yeniden adlandırıldı)
+  ['/kartlar', '/deneme'],     // Bilgi Kartları kaldırıldı → Çalışmalarım
 ]
 
 function LegacyRedirect({ to }) {
@@ -65,8 +67,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/deneme" element={<Calisma tab="deneme" />} />
               <Route path="/ozetler" element={<Calisma tab="ozetler" />} />
               <Route path="/ozet/:slug" element={<OzetDetay />} />
-              <Route path="/yanlislarim" element={<Calisma tab="yanlis" />} />
-              <Route path="/kartlar" element={<Calisma tab="kartlar" />} />
+              <Route path="/notlar" element={<Calisma tab="notlar" />} />
               <Route path="/pano" element={<Calisma tab="pano" />} />
               <Route path="/lgs" element={<LGS />} />
               <Route path="/tus" element={<TusDus />} />
