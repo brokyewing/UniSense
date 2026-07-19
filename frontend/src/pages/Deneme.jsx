@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Loader2, Plus, Trash2, TrendingUp, Target, X, LineChart, ArrowRight, Sparkles } from 'lucide-react'
+import { Loader2, Plus, Trash2, TrendingUp, Target, X, LineChart, ArrowRight } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
@@ -60,19 +60,15 @@ export default function Deneme({ embedded = false }) {
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState('')
-  const [profil, setProfil] = useState(null)
-  const [koc, setKoc] = useState('')
-  const [kocLoading, setKocLoading] = useState(false)
   const [miniTest, setMiniTest] = useState('')
   const [mtLoading, setMtLoading] = useState(false)
   const [konuData, setKonuData] = useState(null)
 
-  // Profilden varsayılan tür + diploma + koç için profil
+  // Profilden varsayılan sınav + tür + diploma
   useEffect(() => {
     if (!user) return
     getUserProfile(user.uid).then((p) => {
       const pr = p?.profile || {}
-      setProfil(pr)
       if (['YKS', 'DGS', 'KPSS', 'LGS'].includes(pr.examTrack)) setSinav(pr.examTrack)
       if (['SAY', 'EA', 'SÖZ', 'DİL'].includes(pr.scoreType)) setType(pr.scoreType)
       if (pr.diploma) setDiploma(String(pr.diploma))
@@ -169,39 +165,8 @@ export default function Deneme({ embedded = false }) {
 
   const kimDeyisi = () => (turlerFor(sinav) ? `${type} (${sinav})` : sinav)
 
-  // user_context yalnız ilgili sınavın verisini gönderir (DGS'de YKS puanı GİTMESİN)
-  function trackUc() {
-    const uc = {}
-    if (sinav === 'YKS') {
-      if (profil?.score) { uc.yks_puan = profil.score; if (profil.scoreType) uc.yks_turu = profil.scoreType }
-      if (profil?.rank) uc.yks_sira = profil.rank
-    }
-    // DGS/KPSS/LGS: deneme puanı zaten prompt metninde; yanlış YKS bağlamı geçmesin
-    return uc
-  }
-
-  // NOT: /ask query max 500 karakter — prompt'lar kısa + değişken veri sınırlı tutulur.
-  async function kocIste() {
-    if (!sirali.length) return
-    setKocLoading(true); setKoc('')
-    const sonlar = sirali.slice(-3).map((d) => `${Math.round(d.toplamNet)} net`).join(', ')
-    const zayifStr = zayif.map((z) => z.label).join(', ') || '—'
-    const eksik = konuDurum?.eksik?.slice(0, 4).map((e) => e.konu).join(', ') || ''
-    let q = `${kimDeyisi()} öğrencisiyim (${sinav}). Son deneme netlerim: ${sonlar}. Zayıf derslerim: ${zayifStr}.`
-      + (eksik ? ` İşaretlemediğim konular: ${eksik}.` : '')
-      + ` Bu ${sinav} verilerine göre KISA, maddeler halinde çalışma tavsiyesi ver: öncelik ve net artışı.`
-    if (q.length > 490) q = q.slice(0, 490)
-    const uc = trackUc()
-    try {
-      const r = await apiFetch('/api/v1/ask', {
-        method: 'POST',
-        body: { query: q, ...(Object.keys(uc).length ? { user_context: uc } : {}) },
-      })
-      setKoc(r?.text || 'Tavsiye üretilemedi.')
-    } catch (e) { setKoc('Tavsiye alınamadı: ' + e.message) } finally { setKocLoading(false) }
-  }
-
   // Mini test: seçili sınavın İŞARETLENMEMİŞ konularından; hepsi bitmişse rastgele
+  // NOT: /ask query max 500 karakter — prompt kısa + değişken veri sınırlı.
   async function miniTestIste() {
     setMtLoading(true); setMiniTest('')
     const secili = konuDurum?.eksik?.length ? rastgeleSec(konuDurum.eksik, 4) : []
@@ -284,42 +249,31 @@ export default function Deneme({ embedded = false }) {
           </div>
         )}
 
-        {/* AI Koç — denemelerden kişisel tavsiye */}
+        {/* AI Mini Test — işaretlemediğin konulardan pratik soru */}
         {sirali.length > 0 && (
           <div className="card">
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="text-sm font-semibold text-white flex items-center gap-2">
-                <Sparkles size={16} className="text-accent-300" /> AI Koç
+                <Target size={16} className="text-accent-300" /> AI Mini Test
               </div>
               {user ? (
-                <div className="flex gap-1.5">
-                  <button onClick={kocIste} disabled={kocLoading}
-                    className="btn-primary text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
-                    {kocLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} Tavsiye
-                  </button>
-                  <button onClick={miniTestIste} disabled={mtLoading}
-                    className="text-xs inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass glass-hover text-slate-200 disabled:opacity-50">
-                    {mtLoading ? <Loader2 size={13} className="animate-spin" /> : <Target size={13} />} Mini test
-                  </button>
-                </div>
+                <button onClick={miniTestIste} disabled={mtLoading}
+                  className="btn-primary text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
+                  {mtLoading ? <Loader2 size={13} className="animate-spin" /> : <Target size={13} />} Soru üret
+                </button>
               ) : (
                 <Link to="/giris" className="text-xs text-accent-300">Giriş yap →</Link>
               )}
             </div>
             {!user ? (
-              <p className="text-xs text-slate-400">Giriş yaparsan koç, denemelerine ve zayıf konularına göre sana özel tavsiye + zayıf derslerinden mini test verir.</p>
-            ) : koc || miniTest ? (
-              <div className="space-y-2">
-                {koc && <div className="text-[13.5px] text-slate-200 whitespace-pre-wrap leading-relaxed">{koc}</div>}
-                {miniTest && (
-                  <div className="text-[13.5px] text-slate-200 whitespace-pre-wrap leading-relaxed border-t border-white/5 pt-2">
-                    {miniTest}
-                    <div className="text-[11px] text-amber-300/80 mt-2">🤖 AI üretimi pratik — cevapları kendin teyit et.</div>
-                  </div>
-                )}
+              <p className="text-xs text-slate-400">Giriş yaparsan işaretlemediğin konulardan 5 pratik soru üretilir.</p>
+            ) : miniTest ? (
+              <div className="text-[13.5px] text-slate-200 whitespace-pre-wrap leading-relaxed">
+                {miniTest}
+                <div className="text-[11px] text-amber-300/80 mt-2">🤖 AI üretimi pratik — cevapları kendin teyit et.</div>
               </div>
             ) : (
-              <p className="text-xs text-slate-500">“Tavsiye” kişisel çalışma önerisi verir; “Mini test” zayıf derslerinden 5 pratik soru üretir.</p>
+              <p className="text-xs text-slate-500">İşaretlemediğin konulardan 5 pratik soru için “Soru üret”e bas.</p>
             )}
           </div>
         )}
