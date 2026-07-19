@@ -491,6 +491,7 @@ function YksTab({ user }) {
   const [interests, setInterests] = useState([])
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [msg, setMsg] = useState(null)
 
   useEffect(() => {
@@ -516,7 +517,10 @@ function YksTab({ user }) {
         if (p.lgs?.yuzdelik != null) setLgsYuzdelik(String(p.lgs.yuzdelik))
         if (p.ags?.net != null) setAgsNet(String(p.ags.net))
       } catch (e) {
+        // Yükleme başarısızsa (offline/rules/App Check) formu BOŞ varsayılanlarla
+        // açıp Kaydet'e izin verirsek merge:true null'ları yazıp mevcut profili siler.
         console.warn(e)
+        if (!cancelled) setLoadError(true)
       } finally {
         setLoading(false)
       }
@@ -529,6 +533,7 @@ function YksTab({ user }) {
   }
 
   async function handleSave() {
+    if (loadError) { setMsg({ type: 'error', text: 'Profil yüklenemedi — kaydetmeden sayfayı yenile (mevcut verin silinmesin).' }); return }
     setSaving(true)
     setMsg(null)
     try {

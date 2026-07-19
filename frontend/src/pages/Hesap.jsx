@@ -614,13 +614,17 @@ export default function Hesap() {
           updatedAt: Date.now(),
         },
       }
-      // Eğer tab AYT türü ve hesap geçerliyse, profile.scoreType ve score'u güncelle
+      // Eğer tab AYT türü ve hesap geçerliyse, profile.scoreType ve score'u güncelle.
+      // rank'ı da SIFIRLA: yeni puana eski sıra yapışık kalırsa backend rank'ı puana
+      // ÖNCELEDİĞİ için yanlış öneri çıkıyordu; null → puandan tahmin edilir.
       if (['SAY', 'EA', 'SÖZ', 'DİL'].includes(tab) && result.finalScore > 100) {
         profilePatch.scoreType = tab
         profilePatch.score = parseFloat(result.finalScore.toFixed(2))
+        profilePatch.rank = null
       } else if (tab === 'TYT' && result.finalScore > 100) {
         profilePatch.scoreType = 'TYT'
         profilePatch.score = parseFloat(result.finalScore.toFixed(2))
+        profilePatch.rank = null
       } else if (tab === 'KPSS' && result.finalScore > KPSS_BASE) {
         // KPSS puanı profile ayrı alanda tutulur (YKS scoreType'ı bozmaz)
         profilePatch.kpss = {

@@ -51,8 +51,10 @@ def _tr_lower(s: str) -> str:
 
 # Sıralama patternleri (büyükten küçüğe spesiflik)
 _RANK_PATTERNS = [
-    # "300.000 sıra", "100.000 sıralama"
-    (re.compile(r"(\d{1,3}\.\d{3})\b"),
+    # "300.000 sıra", "1.250.000 sıralama" — noktalı sayıyı TAM yakala (1-2 grup) VE
+    # "sıra" bağlamı ZORUNLU. Eski desen bağlamsızdı: "450.512 puan"ı sıra (450512)
+    # sanıyor, "1.250.000"da leftmost "1.250"i alıp sırayı 1250 yapıyordu.
+    (re.compile(r"\b(\d{1,3}(?:\.\d{3}){1,2})\s*\.?\s*(?:sıra|sıralam)"),
      lambda m: int(m.group(1).replace(".", ""))),
     # "300 bin", "300bin", "100K", "300 k"
     (re.compile(r"\b(\d{1,3})\s*(?:bin|k)\b"),
@@ -461,8 +463,10 @@ def _estimate_nets(
     if not score:
         return None
     katki = obp_katki if obp_katki is not None else _OBP_KATKI
-    if score_type == "TYT":  # önlisans / TYT puanı → sadece TYT bloğu (max ~160)
-        f = max(0.0, min(1.0, (score - 100 - katki) / 160))
+    if score_type == "TYT":  # önlisans / TYT puanı → TYT-only puanı 100-500 ölçekli
+        # (net katkısı ~400: katsayılar 3.3-3.4). ESKİ /160 lisans TYT-bloğu katkısıydı
+        # → yüksek TYT tabanları için "120/120 net" gibi imkânsız değer çıkarıyordu.
+        f = max(0.0, min(1.0, (score - 100 - katki) / 400))
         return {"tyt": round(f * _TYT_SORU), "ayt": None}
     f = max(0.0, min(1.0, (score - 100 - katki) / 400))  # TYT160 + AYT240
     return {"tyt": round(f * _TYT_SORU), "ayt": round(f * _AYT_SORU)}
@@ -765,11 +769,13 @@ def _build_dgs_context(query: str, user_context: dict | None = None) -> str:
     uc = user_context or {}
     qf = fold_tr(query)
     puan = uc.get("dgs_puan")
-    for m in re.finditer(r"\b(\d{3}(?:[.,]\d{1,3})?)\b", qf):
-        v = float(m.group(1).replace(",", "."))
+    # 'puan' bağlamı ZORUNLU — aksi halde kontenjan/soru sayısı/yıl gibi 3-haneli
+    # sayı puan sanılıp profildeki gerçek dgs_puan'ı EZİYORDU.
+    mp = re.search(r"\b(\d{3}(?:[.,]\d{1,3})?)\s*puan", qf)
+    if mp:
+        v = float(mp.group(1).replace(",", "."))
         if 140 <= v <= 500:
             puan = v
-            break
     pt = ("EA" if re.search(r"\bea\b|esit", qf)
           else "SÖZ" if re.search(r"\bsoz(el)?\b", qf)
           else "SAY" if re.search(r"\bsay(isal)?\b", qf)
@@ -1075,8 +1081,9 @@ class AskService:
             )
             llm_ok = True
         except Exception as e:  # noqa: BLE001
+            # Ham exception (model adı/kota/kaynak yolu vb.) kullanıcı balonuna SIZMASIN
             logger.warning("llm_failed", error=str(e)[:200])
-            text = f"⚠️ Şu an cevap üretemedim: {str(e)[:120]}"
+            text = "⚠️ Şu an cevap üretemedim, lütfen birazdan tekrar dene."
 
         # Cevabı önbelleğe yaz (sadece başarılı LLM cevabı için, hata mesajını cache'leme)
         if llm_ok and text:

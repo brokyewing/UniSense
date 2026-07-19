@@ -85,6 +85,7 @@ export function TusRobot() {
   const [toast, setToast] = useState('')
   // Stale-response koruması: bul() beklerken sınav değişirse eski yanıt basılmasın
   const sinavRef = useRef(sinav)
+  const autoDolduRef = useRef(false) // puan otomatik mi dolduruldu (elle yazımı ayırt et)
   sinavRef.current = sinav
 
   // Profildeki TUS/DUS puanını otomatik doldur (diğer sınavlarla tutarlı) —
@@ -98,10 +99,13 @@ export function TusRobot() {
     return () => { cancelled = true }
   }, [user])
   useEffect(() => {
+    // TUS↔DUS geçişinde otomatik-dolan puanı yeni sınavın profil puanıyla DEĞİŞTİR
+    // (eskiden TUS puanı DUS sekmesine taşınıyordu); elle yazılmış değere dokunma.
     const score = sinav === 'DUS' ? profil?.dus?.score : profil?.tus?.score
-    if (score == null) return
     setPuan((prev) => {
-      if (prev) return prev
+      if (prev && !autoDolduRef.current) return prev // kullanıcı elle yazdı → koru
+      if (score == null) { autoDolduRef.current = false; setAutoNot(''); return '' }
+      autoDolduRef.current = true
       setAutoNot(`${sinav} puanın profilinden geldi`)
       return String(score)
     })
@@ -210,7 +214,7 @@ export function TusRobot() {
                 {sinav} puanın <span className="text-slate-500">(K/T, ör. 55.40)</span>
               </label>
               <input type="number" min="0" max="100" step="0.01" value={puan}
-                onChange={(e) => { setPuan(e.target.value); setAutoNot('') }} placeholder="ör. 55.40"
+                onChange={(e) => { setPuan(e.target.value); setAutoNot(''); autoDolduRef.current = false }} placeholder="ör. 55.40"
                 className="input-glass w-full" />
               {autoNot && <div className="text-[10px] text-accent-300 mt-1">✨ {autoNot}</div>}
             </div>

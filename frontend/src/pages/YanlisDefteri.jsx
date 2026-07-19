@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { NotebookPen, Plus, Trash2, X, Check, RotateCcw, Loader2, ChevronDown, ChevronUp } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
@@ -6,6 +6,7 @@ import Seo from '../components/Seo'
 import { useAuth } from '../contexts/AuthContext'
 import { watchYanlislar, addYanlis, updateYanlis, removeYanlis, recordActivity } from '../firebase'
 import { sonrakiTekrar, tekrarZamani, bugunStr } from '../lib/tekrar'
+import { tasimaGerekli, damgala } from '../lib/bulutTasima'
 
 const LS = 'unisense_yanlis'
 const loadLocal = () => { try { return JSON.parse(localStorage.getItem(LS) || '[]') } catch { return [] } }
@@ -22,15 +23,13 @@ export default function YanlisDefteri({ embedded = false }) {
   const [acik, setAcik] = useState(null)
   const [f, setF] = useState({ ders: '', konu: '', soru: '', neden: '' })
 
-  const tasindi = useRef(false) // guest→bulut migration bir kez (duplike önlemi)
   useEffect(() => {
     if (!user) { setListe(loadLocal()); return }
     return watchYanlislar(user.uid, (items) => {
       if (items == null) { setListe(loadLocal()); return }
       const local = loadLocal()
-      if (items.length === 0 && local.length > 0 && !tasindi.current) {
-        // Bulut boş ama cihazda misafir yanlışları var → yukarı taşı (silme YOK)
-        tasindi.current = true
+      if (tasimaGerekli(LS, items.length === 0, local.length > 0)) {
+        // Yalnız SAHİPSİZ (gerçek misafir) yanlışlar taşınır — ayna damgası ortak cihazda sızıntıyı önler
         for (const y of local) {
           addYanlis(user.uid, {
             ders: String(y.ders || '').slice(0, 40), konu: String(y.konu || '').slice(0, 120),
@@ -38,10 +37,11 @@ export default function YanlisDefteri({ embedded = false }) {
             box: y.box || 1, nextReview: String(y.nextReview || '').slice(0, 20),
           }).catch(() => {})
         }
+        damgala(LS, user.uid)
         setListe(local)
         return
       }
-      setListe(items); saveLocal(items)
+      setListe(items); saveLocal(items); damgala(LS, user.uid)
     })
   }, [user])
 

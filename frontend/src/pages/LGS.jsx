@@ -234,7 +234,9 @@ export function LgsRobot() {
           pansiyon: pansiyon || null,
         },
       })
-      setData(res)
+      // Aramada KULLANILAN filtreleri de sakla — özet satırı bunlardan render edilir
+      // (form sonradan değişirse özet ekrandaki sonuçlarla çelişmesin).
+      setData({ ...res, _iller: tumTurkiye ? [] : secliIller, _tekIl: tekIl, _ilce: (tekIl && ilce) ? ilce : null })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -373,8 +375,8 @@ export function LgsRobot() {
             <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
               <div className="text-center text-xs text-slate-400">
                 <strong className="text-white">%{data.yuzdelik}</strong> yüzdelik dilimiyle
-                {secliIller.length && !secliIller.includes('__ALL__')
-                  ? <> <strong className="text-white">{tekIl && ilce ? `${tekIl} / ${ilce}` : secliIller.join(', ')}</strong>'da</>
+                {data._iller && data._iller.length
+                  ? <> <strong className="text-white">{data._tekIl && data._ilce ? `${data._tekIl} / ${data._ilce}` : data._iller.join(', ')}</strong>'da</>
                   : ' Türkiye genelinde'}{' '}
                 <span className="text-emerald-300">{data.sayilar.guvenli}</span> güvenli ·{' '}
                 <span className="text-amber-300">{data.sayilar.tutar}</span> tutar ·{' '}

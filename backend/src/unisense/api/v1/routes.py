@@ -386,7 +386,10 @@ def hesap_siralama(
     """
     from unisense.application.services.recommendation_service import tahmini_sira
 
-    r = tahmini_sira(puan, tur.upper())
+    # Türkçe-güvenli normalize: 'dil'.upper() ASCII'de 'DIL' üretir ama anahtar 'DİL'
+    # (ScoreType.DIL='DİL') → veri MEVCUTKEN 404 verirdi. 'i'→'İ' önce çevrilir.
+    tur_norm = tur.replace("i", "İ").replace("ı", "I").upper()
+    r = tahmini_sira(puan, tur_norm)
     if r is None:
         raise HTTPException(status_code=404, detail="Bu puan türü için sıralama verisi yok")
     return SiralamaResponse(**r)

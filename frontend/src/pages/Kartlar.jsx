@@ -6,6 +6,7 @@ import Seo from '../components/Seo'
 import { useAuth } from '../contexts/AuthContext'
 import { watchKartlar, addKart, updateKart, removeKart, recordActivity } from '../firebase'
 import { sm2, tekrarZamani, bugunStr } from '../lib/tekrar'
+import { tasimaGerekli, damgala } from '../lib/bulutTasima'
 
 const LS = 'unisense_flashcards'
 const loadLocal = () => { try { return JSON.parse(localStorage.getItem(LS) || '[]') } catch { return [] } }
@@ -21,15 +22,13 @@ export default function Kartlar({ embedded = false }) {
   const [acik, setAcik] = useState(null)
   const [sesh, setSesh] = useState(null) // { deste, queue:[id], i, flipped, done }
 
-  const tasindi = useRef(false) // guest→bulut migration bir kez (duplike önlemi)
   useEffect(() => {
     if (!user) { setKartlar(loadLocal()); return }
     return watchKartlar(user.uid, (items) => {
       if (items == null) { setKartlar(loadLocal()); return }
       const local = loadLocal()
-      if (items.length === 0 && local.length > 0 && !tasindi.current) {
-        // Bulut boş ama cihazda misafir kartları var → yukarı taşı (silme YOK)
-        tasindi.current = true
+      if (tasimaGerekli(LS, items.length === 0, local.length > 0)) {
+        // Yalnız SAHİPSİZ (gerçek misafir) kartlar taşınır — ayna damgası ortak cihazda sızıntıyı önler
         for (const k of local) {
           addKart(user.uid, {
             deste: String(k.deste || 'Genel').slice(0, 80), on: String(k.on || '').slice(0, 500),
@@ -37,10 +36,11 @@ export default function Kartlar({ embedded = false }) {
             interval: k.interval ?? 0, nextReview: String(k.nextReview || '').slice(0, 20),
           }).catch(() => {})
         }
+        damgala(LS, user.uid)
         setKartlar(local)
         return
       }
-      setKartlar(items); saveLocal(items)
+      setKartlar(items); saveLocal(items); damgala(LS, user.uid)
     })
   }, [user])
 
