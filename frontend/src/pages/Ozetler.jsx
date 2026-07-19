@@ -9,16 +9,24 @@ import { getUserProfile } from '../firebase'
 
 const SINAVLAR = ['YKS', 'DGS', 'KPSS', 'LGS']
 
-// Bir kartın hangi sınavlara uygun olduğu (ders + seviyeden türetilir).
+// Her kartın hangi sınavlara uygun olduğu — MÜFREDAT DÜZEYİNE göre, kart bazında.
+// (ders'e göre türetmek yanlıştı: Kinematik/Mol lise-TYT konusu, LGS 8. sınıf Fen'de yok.)
+const KART_SINAVLARI = {
+  'carpanlara-ayirma-ozdeslikler': ['YKS', 'DGS', 'KPSS', 'LGS'], // özdeşlikler 8. sınıfta var
+  'uslu-sayilar': ['YKS', 'DGS', 'KPSS', 'LGS'],                  // üslü ifadeler 8. sınıf
+  'koklu-sayilar': ['YKS', 'DGS', 'KPSS', 'LGS'],                 // kareköklü ifadeler 8. sınıf
+  'ucgende-temel-bagintilar': ['YKS', 'DGS', 'KPSS', 'LGS'],      // Pisagor/üçgen 8. sınıf
+  'alan-cevre-formulleri': ['YKS', 'DGS', 'KPSS', 'LGS'],         // temel geometri
+  'ikinci-dereceden-denklemler': ['YKS', 'DGS', 'KPSS'],          // lise konusu (LGS'de yok)
+  'mutlak-deger': ['YKS', 'DGS', 'KPSS'],                         // lise konusu
+  'logaritma': ['YKS'],                                           // AYT
+  'hareket-kinematik': ['YKS'],                                   // TYT fizik (LGS Fen'de değil)
+  'kuvvet-is-enerji': ['YKS'],                                    // TYT fizik
+  'mol-temel-kimya': ['YKS'],                                     // TYT kimya
+}
+// Haritada yoksa (ileride eklenen kart): JSON'daki sinavlar alanı, o da yoksa YKS.
 function kartSinavlari(k) {
-  if (k.seviye === 'AYT') return ['YKS'] // yalnız YKS-AYT (ör. logaritma)
-  switch (k.ders) {
-    case 'Matematik': return ['YKS', 'DGS', 'KPSS', 'LGS']
-    case 'Geometri': return ['YKS', 'KPSS', 'DGS', 'LGS']
-    case 'Fizik':
-    case 'Kimya': return ['YKS', 'LGS']
-    default: return ['YKS']
-  }
+  return KART_SINAVLARI[k.slug] || (Array.isArray(k.sinavlar) && k.sinavlar.length ? k.sinavlar : ['YKS'])
 }
 
 // Formül / konu özeti kartları — sınav yoluna (examTrack) göre + aranabilir.
