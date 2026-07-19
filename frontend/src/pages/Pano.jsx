@@ -12,10 +12,10 @@ const ODAK = 25 * 60
 const MOLA = 5 * 60
 // Günün Sorusu — sınav yoluna göre ders seti (profildeki examTrack'e göre)
 const SORU_DERSLERI = {
-  YKS: 'Matematik, Türkçe, Fizik, Kimya, Biyoloji, Tarih, Coğrafya, Felsefe, Din Kültürü',
-  DGS: 'Matematik (sayısal akıl yürütme) veya Türkçe (sözel akıl yürütme)',
-  KPSS: 'Genel Yetenek (Matematik, Türkçe) veya Genel Kültür (Tarih, Coğrafya, Vatandaşlık)',
-  LGS: 'Türkçe, Matematik, Fen Bilimleri, T.C. İnkılap Tarihi, Din Kültürü veya İngilizce',
+  YKS: 'Matematik, Türkçe, Fizik, Kimya, Biyoloji, Tarih, Coğrafya, Felsefe, Din',
+  DGS: 'Matematik veya Türkçe (sayısal/sözel)',
+  KPSS: 'Matematik, Türkçe, Tarih, Coğrafya, Vatandaşlık',
+  LGS: 'Türkçe, Matematik, Fen, İnkılap Tarihi, Din, İngilizce',
 }
 const mmss = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 
@@ -96,12 +96,11 @@ export default function Pano({ embedded = false }) {
     setGsLoading(true); setSoru(null); setSoruHam(''); setSecildi(null)
     let track = 'YKS'
     try { const p = await getUserProfile(user.uid); track = SORU_DERSLERI[p?.profile?.examTrack] ? p.profile.examTrack : 'YKS' } catch { /* varsayılan YKS */ }
-    const q = `${track} sınavına hazırlanan bir öğrenci için SADECE şu derslerden birinden akademik bir çoktan seçmeli soru üret: `
-      + `${SORU_DERSLERI[track]}. `
-      + 'Soru tamamen KONU BİLGİSİNE dayalı olsun; üniversite/tercih/taban puan/sıralama/endeks verisiyle İLGİSİZ olmalı. '
-      + 'Sana verilen bağlamı YOK SAY, kendi genel bilginle üret. '
-      + 'SADECE şu JSON formatını döndür, öncesinde/sonrasında HİÇBİR metin, kaynak veya açıklama yazma: '
-      + '{"ders":"Matematik","soru":"...","secenekler":{"A":"...","B":"...","C":"...","D":"..."},"dogru":"B","aciklama":"..."}'
+    // NOT: /ask query max 500 karakter — prompt kısa tutulmalı (yoksa 422).
+    const q = `${track} için ${SORU_DERSLERI[track]} derslerinden 1 çoktan seçmeli konu sorusu üret. `
+      + 'Üniversite/tercih/taban puan verisi KULLANMA, kendi bilginle. '
+      + 'Yalnızca şu JSON\'u ver, başka hiçbir metin yazma: '
+      + '{"ders":"...","soru":"...","secenekler":{"A":"...","B":"...","C":"...","D":"..."},"dogru":"B","aciklama":"..."}'
     try {
       const r = await apiFetch('/api/v1/ask', { method: 'POST', body: { query: q } })
       const text = r?.text || ''

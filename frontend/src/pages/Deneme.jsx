@@ -180,19 +180,17 @@ export default function Deneme({ embedded = false }) {
     return uc
   }
 
+  // NOT: /ask query max 500 karakter — prompt'lar kısa + değişken veri sınırlı tutulur.
   async function kocIste() {
     if (!sirali.length) return
     setKocLoading(true); setKoc('')
-    const sonlar = sirali.slice(-5).map((d) => `${d.tarih}: ${Math.round(d.toplamNet)} net`).join(', ')
+    const sonlar = sirali.slice(-3).map((d) => `${Math.round(d.toplamNet)} net`).join(', ')
     const zayifStr = zayif.map((z) => z.label).join(', ') || '—'
-    const konuNotu = konuDurum
-      ? ` Konu takibimde ${konuDurum.yapilan}/${konuDurum.toplam} konu işaretli. `
-        + (konuDurum.eksik.length ? `Henüz çalışmadığım konulardan bazıları: ${konuDurum.eksik.slice(0, 8).map((e) => `${e.ders}-${e.konu}`).join(', ')}.` : 'Tüm konuları işaretledim.')
-      : ''
-    const q = `${kimDeyisi()} öğrencisiyim, ${sinav} denemelerimi takip ediyorum. Son denemelerim: ${sonlar}. `
-      + `En zayıf 3 dersim: ${zayifStr}.${son?.sira ? ` Tahmini başarı sıram ~${son.sira}.` : ''}${konuNotu} `
-      + `SADECE ${sinav} sınavına göre, deneme geçmişim ve işaretlemediğim konuları dikkate alarak `
-      + `KISA, maddeler halinde uygulanabilir çalışma tavsiyesi ver: hangi konulara öncelik vermeliyim ve netimi nasıl artırabilirim?`
+    const eksik = konuDurum?.eksik?.slice(0, 4).map((e) => e.konu).join(', ') || ''
+    let q = `${kimDeyisi()} öğrencisiyim (${sinav}). Son deneme netlerim: ${sonlar}. Zayıf derslerim: ${zayifStr}.`
+      + (eksik ? ` İşaretlemediğim konular: ${eksik}.` : '')
+      + ` Bu ${sinav} verilerine göre KISA, maddeler halinde çalışma tavsiyesi ver: öncelik ve net artışı.`
+    if (q.length > 490) q = q.slice(0, 490)
     const uc = trackUc()
     try {
       const r = await apiFetch('/api/v1/ask', {
@@ -206,16 +204,14 @@ export default function Deneme({ embedded = false }) {
   // Mini test: seçili sınavın İŞARETLENMEMİŞ konularından; hepsi bitmişse rastgele
   async function miniTestIste() {
     setMtLoading(true); setMiniTest('')
-    const eksik = konuDurum?.eksik || []
-    const secili = eksik.length ? rastgeleSec(eksik, 5) : []
-    const kaynak = secili.length
-      ? `şu işaretlemediğim konulardan: ${secili.map((e) => `${e.ders}-${e.konu}`).join(', ')}`
-      : `${sinav} müfredatındaki rastgele konulardan`
-    const q = `${kimDeyisi()} öğrencisiyim. SADECE ${sinav} sınavına uygun, ${kaynak} bana 5 adet çoktan seçmeli PRATİK soru üret. `
-      + `Her soruyu A) B) C) D) şıklarıyla yaz; her sorunun altına "Cevap: X" ve tek cümlelik açıklama ekle. `
-      + `Üniversite/tercih/taban puan verisiyle ilgisiz, tamamen konu bilgisine dayalı olsun. Sadece soruları ver, giriş cümlesi yazma.`
+    const secili = konuDurum?.eksik?.length ? rastgeleSec(konuDurum.eksik, 4) : []
+    let kaynak = secili.length ? secili.map((e) => e.konu).join(', ') : `${sinav} müfredatı`
+    if (kaynak.length > 160) kaynak = kaynak.slice(0, 160)
+    let q = `${kimDeyisi()} için ${sinav} sınavına uygun, şu konulardan 5 çoktan seçmeli pratik soru üret: ${kaynak}. `
+      + `Her soru A) B) C) D) şıklı; altında "Cevap: X" + kısa açıklama. Konu bilgisine dayalı, sadece sorular.`
+    if (q.length > 490) q = q.slice(0, 490)
     try {
-      const r = await apiFetch('/api/v1/ask', { method: 'POST', body: { query: q, ...(Object.keys(trackUc()).length ? { user_context: trackUc() } : {}) } })
+      const r = await apiFetch('/api/v1/ask', { method: 'POST', body: { query: q } })
       setMiniTest(r?.text || 'Üretilemedi.')
     } catch (e) { setMiniTest('Alınamadı: ' + e.message) } finally { setMtLoading(false) }
   }
