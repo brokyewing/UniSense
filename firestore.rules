@@ -193,6 +193,17 @@ service cloud.firestore {
           && strMax('tarih', 20);
       }
 
+      // Çözülen soru kaydı — konu bazında (Çalışmalarım). ders+konu Konular listesinden
+      match /soru_kayit/{id} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(8)
+          && strMax('sinav', 8)
+          && strMax('ders', 60)
+          && strMax('konu', 120)
+          && strMax('tarih', 20);
+      }
+
       // Sorgu geçmişi — sadece ekleme + okuma + silme (değiştirilemez log)
       match /queries/{qid} {
         allow read, delete: if isOwner(uid);

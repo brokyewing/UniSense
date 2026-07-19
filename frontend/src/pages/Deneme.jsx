@@ -5,9 +5,12 @@ import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
-import { getUserProfile, watchDenemeler, addDeneme, removeDeneme, recordActivity, getKonuIlerleme } from '../firebase'
+import {
+  getUserProfile, watchDenemeler, addDeneme, removeDeneme, recordActivity, getKonuIlerleme,
+  watchSoruKayit, addSoruKayit, removeSoruKayit,
+} from '../firebase'
 import { track } from '../lib/analytics'
-import { konuLocal, eksikKonular } from '../lib/konu'
+import { konuLocal, eksikKonular, konuBloklari } from '../lib/konu'
 import { tasimaGerekli, damgala } from '../lib/bulutTasima'
 import {
   TYT_FIELDS, AYT_FIELDS, KPSS_FIELDS, LGS_FIELDS, DGS_FIELDS,
@@ -28,6 +31,10 @@ const ALL_LABELS = Object.fromEntries(
 const lsKey = (s) => 'unisense_deneme_' + s
 const loadLocal = (s) => { try { return JSON.parse(localStorage.getItem(lsKey(s)) || '[]') } catch { return [] } }
 const saveLocal = (s, a) => { try { localStorage.setItem(lsKey(s), JSON.stringify(a)) } catch { /* noop */ } }
+// Çözülen soru kaydı — sınav başına ayrı
+const soruKey = (s) => 'unisense_soru_' + s
+const loadSoru = (s) => { try { return JSON.parse(localStorage.getItem(soruKey(s)) || '[]') } catch { return [] } }
+const saveSoru = (s, a) => { try { localStorage.setItem(soruKey(s), JSON.stringify(a)) } catch { /* noop */ } }
 // yerel tarih (UTC değil — gece 00-03 TR'de önceki güne kaymasın)
 const bugun = () => {
   const d = new Date()
@@ -63,7 +70,10 @@ export default function Deneme({ embedded = false }) {
   const [ad, setAd] = useState('')
   const [girdi, setGirdi] = useState({}) // {fieldId: {d, y}}
   const [denemeler, setDenemeler] = useState([])
+  const [soruKayit, setSoruKayit] = useState([])
   const [showForm, setShowForm] = useState(false)
+  const [showSoru, setShowSoru] = useState(false)
+  const [soruF, setSoruF] = useState({ blokIdx: '', konu: '', cozulen: '', dogru: '' })
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState('')
   const [profil, setProfil] = useState(null)
@@ -91,7 +101,7 @@ export default function Deneme({ embedded = false }) {
   // Sınav değiştir — tür ve diploma/GPA yeni sınava uyarlanır, form kapanır
   function switchSinav(s) {
     setSinav(s)
-    setShowForm(false)
+    setShowForm(false); setShowSoru(false)
     setKoc('') // önceki sınavın tavsiyesi yeni sekmede kalmasın
     const t = turlerFor(s)
     if (t && !t.includes(type)) setType(t[0]) // DGS'de DİL yok → SAY'a düş
@@ -127,7 +137,28 @@ export default function Deneme({ embedded = false }) {
     })
   }, [user, sinav])
 
-  // Seçili sınavın konu listesi (koç tavsiyesi için) — sınav değişince yenile
+  // Çözülen soru kaydını yükle — sınav başına ayrı; girişli bulut, girişsiz localStorage
+  useEffect(() => {
+    if (!user) { setSoruKayit(loadSoru(sinav)); return }
+    const key = soruKey(sinav)
+    return watchSoruKayit(user.uid, sinav, (items) => {
+      if (items == null) { setSoruKayit(loadSoru(sinav)); return }
+      const local = loadSoru(sinav)
+      if (tasimaGerekli(key, items.length === 0, local.length > 0)) {
+        for (const s of local) {
+          addSoruKayit(user.uid, {
+            sinav: s.sinav || sinav, ders: String(s.ders || '').slice(0, 60),
+            konu: String(s.konu || '').slice(0, 120), cozulen: s.cozulen || 0,
+            dogru: s.dogru || 0, tarih: String(s.tarih || '').slice(0, 20),
+          }).catch(() => {})
+        }
+        damgala(key, user.uid); setSoruKayit(local); return
+      }
+      setSoruKayit(items); saveSoru(sinav, items); damgala(key, user.uid)
+    })
+  }, [user, sinav])
+
+  // Seçili sınavın konu listesi (koç tavsiyesi + soru kaydı konu seçimi için)
   useEffect(() => {
     setKonuData(null)
     apiFetch(`/api/v1/konular?sinav=${sinav}`).then(setKonuData).catch(() => {})
@@ -142,6 +173,18 @@ export default function Deneme({ embedded = false }) {
     return () => { live = false }
   }, [user, sinav])
   const konuDurum = useMemo(() => (konuData ? eksikKonular(konuData, konuChecked) : null), [konuData, konuChecked])
+  // Konu bloklarını (grup·ders + konular) soru kaydı seçimi için hazırla
+  const bloklar = useMemo(() => konuBloklari(konuData), [konuData])
+  // Konu bazında soru çözüm özeti (birden çok kayıt toplanır) — gösterim + AI koç
+  const soruOzet = useMemo(() => {
+    const m = {}
+    for (const s of soruKayit) {
+      const k = `${s.ders || ''}|${s.konu || ''}`
+      if (!m[k]) m[k] = { ders: s.ders, konu: s.konu, cozulen: 0, dogru: 0 }
+      m[k].cozulen += s.cozulen || 0; m[k].dogru += s.dogru || 0
+    }
+    return Object.values(m).sort((a, b) => b.cozulen - a.cozulen)
+  }, [soruKayit])
 
   const fields = useMemo(() => denemeAlanlari(sinav, type), [sinav, type])
   const canli = useMemo(
@@ -198,6 +241,31 @@ export default function Deneme({ embedded = false }) {
     else { const a = denemeler.filter((x) => x.id !== d.id); saveLocal(sinav, a); setDenemeler(a) }
   }
 
+  // Çözülen soru kaydı ekle — ders/konu Konular listesinden, çözülen + doğru
+  async function soruEkle() {
+    const blok = bloklar[parseInt(soruF.blokIdx, 10)]
+    const cozulen = parseInt(soruF.cozulen, 10) || 0
+    const dogru = Math.min(parseInt(soruF.dogru, 10) || 0, cozulen)
+    if (!blok || !soruF.konu) { flash('Ders ve konu seç'); return }
+    if (cozulen <= 0) { flash('Çözülen soru sayısını gir'); return }
+    const ders = blok.grup ? `${blok.grup} ${blok.ders}` : blok.ders
+    const kayit = { sinav, ders, konu: soruF.konu, cozulen, dogru, tarih }
+    setSaving(true)
+    try {
+      if (user) await addSoruKayit(user.uid, kayit)
+      else { const a = [{ ...kayit, id: 'l' + Date.now(), createdAt: Date.now() }, ...soruKayit]; saveSoru(sinav, a); setSoruKayit(a) }
+      recordActivity(user?.uid).catch(() => {})
+      track('soru_kaydedildi', { sinav })
+      setSoruF({ blokIdx: soruF.blokIdx, konu: '', cozulen: '', dogru: '' }); setShowSoru(false)
+      flash('✓ Soru kaydı eklendi')
+    } catch (e) { flash(e.message) } finally { setSaving(false) }
+  }
+
+  async function soruSil(s) {
+    if (user && !String(s.id).startsWith('l')) { await removeSoruKayit(user.uid, s.id).catch(() => {}) }
+    else { const a = soruKayit.filter((x) => x.id !== s.id); saveSoru(sinav, a); setSoruKayit(a) }
+  }
+
   // İstatistik: son deneme, trend, en zayıf 3 ders
   const sirali = useMemo(() => [...denemeler].sort((a, b) => (a.tarih || '').localeCompare(b.tarih || '')), [denemeler])
   const son = sirali[sirali.length - 1]
@@ -224,14 +292,21 @@ export default function Deneme({ embedded = false }) {
   // AI Koç — deneme geçmişi + zayıf ders + işaretlenmemiş konulara göre tavsiye.
   // NOT: /ask query max 500 karakter — prompt kısa + değişken veri sınırlı.
   async function kocIste() {
-    if (!sirali.length) return
+    if (!sirali.length && !soruKayit.length) return
     setKocLoading(true); setKoc('')
-    const sonlar = sirali.slice(-3).map((d) => `${Math.round(d.toplamNet)} net`).join(', ')
-    const zayifStr = zayif.map((z) => z.label).join(', ') || '—'
-    const eksik = konuDurum?.eksik?.slice(0, 4).map((e) => e.konu).join(', ') || ''
-    let q = `${kimDeyisi()} öğrencisiyim (${sinav}). Son deneme netlerim: ${sonlar}. Zayıf derslerim: ${zayifStr}.`
-      + (eksik ? ` İşaretlemediğim konular: ${eksik}.` : '')
-      + ` Bu ${sinav} verilerine göre KISA, maddeler halinde çalışma tavsiyesi ver: öncelik ve net artışı.`
+    const parcalar = [`${kimDeyisi()} öğrencisiyim (${sinav}).`]
+    if (sirali.length) {
+      const sonlar = sirali.slice(-3).map((d) => `${Math.round(d.toplamNet)} net`).join(', ')
+      const zayifStr = zayif.map((z) => z.label).join(', ') || '—'
+      parcalar.push(`Son deneme netlerim: ${sonlar}. Zayıf derslerim: ${zayifStr}.`)
+    }
+    // Çok soru çözüp doğruluğu düşük konular → AI "bu konudan daha çöz / tekrar et" desin
+    const dusukSoru = soruOzet.filter((o) => o.cozulen >= 5 && o.dogru / o.cozulen < 0.6)
+      .slice(0, 3).map((o) => `${o.konu} %${Math.round((o.dogru / o.cozulen) * 100)}`).join(', ')
+    if (dusukSoru) parcalar.push(`Çözdüğüm ama doğruluğum düşük konular: ${dusukSoru}.`)
+    const eksik = konuDurum?.eksik?.slice(0, 3).map((e) => e.konu).join(', ') || ''
+    if (eksik) parcalar.push(`Hiç çalışmadığım konular: ${eksik}.`)
+    let q = `${parcalar.join(' ')} Bu ${sinav} verilerine göre KISA maddeler halinde çalışma tavsiyesi ver: hangi konudan daha çok soru çözmeliyim, öncelik ve net artışı.`
     if (q.length > 490) q = q.slice(0, 490)
     const uc = trackUc()
     try {
@@ -247,8 +322,8 @@ export default function Deneme({ embedded = false }) {
     <>
       {!embedded && <BackgroundScene />}
       {!embedded && (
-        <Seo title="Deneme Takibi — Net & Puan | YKS · DGS · KPSS · LGS | UniSense"
-          description="YKS, DGS, KPSS ve LGS denemelerini kaydet: ders ders netini gir, tahmini puanını (ve YKS'de başarı sıranı + girebileceğin bölümleri) gör. Net trendini takip et — ücretsiz."
+        <Seo title="Çalışmalarım — Deneme & Çözülen Soru Takibi | UniSense"
+          description="Denemelerini ve konu konu çözdüğün soruları tek yerde kaydet; AI Koç netlerine ve soru çözümüne göre hangi konuya odaklanman gerektiğini söyler — ücretsiz."
           path="/deneme" />
       )}
       {toast && <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl glass text-sm">{toast}</div>}
@@ -256,9 +331,9 @@ export default function Deneme({ embedded = false }) {
         {!embedded && (
           <div className="text-center">
             <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1 flex items-center justify-center gap-2">
-              <LineChart className="text-accent-300" /> Deneme Takibi
+              <LineChart className="text-accent-300" /> Çalışmalarım
             </h1>
-            <p className="text-slate-400 text-sm">Netini gir → tahmini puan{sinav === 'YKS' ? ', sıra ve girebileceğin bölümleri' : ''} gör. Trendini izle.</p>
+            <p className="text-slate-400 text-sm">Denemelerini ve konu konu çözdüğün soruları kaydet — AI Koç ikisini de okur.</p>
           </div>
         )}
 
@@ -311,8 +386,8 @@ export default function Deneme({ embedded = false }) {
           </div>
         )}
 
-        {/* AI Koç — deneme geçmişi + zayıf ders + konulara göre kişisel tavsiye */}
-        {sirali.length > 0 && (
+        {/* AI Koç — deneme + çözülen soru + konulara göre kişisel tavsiye */}
+        {(sirali.length > 0 || soruKayit.length > 0) && (
           <div className="card">
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="text-sm font-semibold text-white flex items-center gap-2">
@@ -328,21 +403,29 @@ export default function Deneme({ embedded = false }) {
               )}
             </div>
             {!user ? (
-              <p className="text-xs text-slate-400">Giriş yaparsan koç, denemelerine ve zayıf konularına göre sana özel çalışma tavsiyesi verir.</p>
+              <p className="text-xs text-slate-400">Giriş yaparsan koç; denemelerine, çözdüğün sorulara ve zayıf konularına göre sana özel çalışma tavsiyesi verir.</p>
             ) : koc ? (
               <div className="text-[13.5px] text-slate-200 whitespace-pre-wrap leading-relaxed">{koc}</div>
             ) : (
-              <p className="text-xs text-slate-500">Denemelerine, zayıf derslerine ve işaretlemediğin konulara göre kişisel tavsiye için “Tavsiye al”a bas.</p>
+              <p className="text-xs text-slate-500">Deneme + soru çözümü + işaretlemediğin konulara göre “hangi konudan daha çok çöz” tavsiyesi için “Tavsiye al”a bas.</p>
             )}
           </div>
         )}
 
-        {/* Yeni deneme */}
-        {!showForm ? (
-          <button onClick={() => setShowForm(true)} className="btn-primary w-full inline-flex items-center justify-center gap-2">
-            <Plus size={16} /> Yeni deneme ekle
-          </button>
-        ) : (
+        {/* Ekleme butonları — Deneme veya Çözdüğüm soru */}
+        {!showForm && !showSoru && (
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => { setShowForm(true); setShowSoru(false) }} className="btn-primary inline-flex items-center justify-center gap-2">
+              <Plus size={16} /> Deneme ekle
+            </button>
+            <button onClick={() => { setShowSoru(true); setShowForm(false) }} className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl glass glass-hover text-slate-100 text-sm font-semibold">
+              <Plus size={16} /> Çözdüğüm soru
+            </button>
+          </div>
+        )}
+
+        {/* Deneme formu */}
+        {showForm && (
           <div className="card space-y-3">
             <div className="flex items-center justify-between">
               <div className="font-semibold text-white text-sm">Yeni deneme</div>
@@ -402,7 +485,90 @@ export default function Deneme({ embedded = false }) {
           </div>
         )}
 
-        {/* Geçmiş */}
+        {/* Çözdüğüm soru formu — ders/konu Konular listesinden */}
+        {showSoru && (
+          <div className="card space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="font-semibold text-white text-sm">Çözdüğüm soru</div>
+              <button onClick={() => setShowSoru(false)} className="text-slate-500 hover:text-white"><X size={16} /></button>
+            </div>
+            {bloklar.length === 0 ? (
+              <p className="text-xs text-slate-500">Konu listesi yükleniyor…</p>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[11px] text-slate-400">Ders</label>
+                    <select value={soruF.blokIdx} onChange={(e) => setSoruF({ ...soruF, blokIdx: e.target.value, konu: '' })}
+                      className="input-glass block mt-1 text-sm w-full">
+                      <option value="">Seç…</option>
+                      {bloklar.map((b, i) => <option key={i} value={i}>{b.grup ? `${b.grup} · ${b.ders}` : b.ders}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-400">Konu</label>
+                    <select value={soruF.konu} onChange={(e) => setSoruF({ ...soruF, konu: e.target.value })}
+                      disabled={soruF.blokIdx === ''} className="input-glass block mt-1 text-sm w-full disabled:opacity-50">
+                      <option value="">Seç…</option>
+                      {(bloklar[parseInt(soruF.blokIdx, 10)]?.konular || []).map((k) => <option key={k} value={k}>{k}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 items-end">
+                  <div><label className="text-[11px] text-slate-400">Çözülen</label>
+                    <input type="number" min="0" value={soruF.cozulen} onChange={(e) => setSoruF({ ...soruF, cozulen: e.target.value })} placeholder="40" className="input-glass block mt-1 text-sm w-20" /></div>
+                  <div><label className="text-[11px] text-slate-400">Doğru</label>
+                    <input type="number" min="0" value={soruF.dogru} onChange={(e) => setSoruF({ ...soruF, dogru: e.target.value })} placeholder="30" className="input-glass block mt-1 text-sm w-20" /></div>
+                  <div><label className="text-[11px] text-slate-400">Tarih</label>
+                    <input type="date" value={tarih} onChange={(e) => setTarih(e.target.value)} className="input-glass block mt-1 text-sm" /></div>
+                  <button onClick={soruEkle} disabled={saving} className="btn-primary text-sm inline-flex items-center gap-1.5 disabled:opacity-50 ml-auto">
+                    {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Kaydet
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Çözdüğüm sorular — konu bazında toplam + doğruluk */}
+        {soruOzet.length > 0 && (
+          <div className="space-y-2">
+            <div className="text-[11px] uppercase tracking-wider text-slate-500">Çözdüğüm sorular (konu bazında)</div>
+            {soruOzet.map((o, i) => {
+              const oran = o.cozulen ? Math.round((o.dogru / o.cozulen) * 100) : 0
+              const renk = oran >= 70 ? 'text-emerald-300' : oran >= 50 ? 'text-amber-300' : 'text-rose-300'
+              return (
+                <div key={i} className="card !py-2.5 flex items-center gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm text-white truncate">{o.konu} <span className="text-[10px] text-slate-500">{o.ders}</span></div>
+                  </div>
+                  <div className="text-right shrink-0 font-mono text-sm">
+                    <span className="text-white">{o.dogru}/{o.cozulen}</span>
+                    <span className={`text-xs ${renk}`}> · %{oran}</span>
+                  </div>
+                </div>
+              )
+            })}
+            <div className="text-[10px] text-slate-600 px-1">Silmek için: aynı konuya yeni kayıt eklersen toplanır. Tek tek silme geçmiş listesinden.</div>
+          </div>
+        )}
+
+        {/* Soru kaydı geçmişi (tekil kayıtlar — silinebilir) */}
+        {soruKayit.length > 0 && (
+          <div className="space-y-2">
+            <div className="text-[11px] uppercase tracking-wider text-slate-500">Soru kayıtları ({soruKayit.length})</div>
+            {soruKayit.map((s) => (
+              <div key={s.id} className="card !py-2 flex items-center gap-3">
+                <div className="text-[11px] text-slate-500 font-mono w-20 shrink-0">{s.tarih}</div>
+                <div className="min-w-0 flex-1"><div className="text-sm text-white truncate">{s.konu} <span className="text-[10px] text-slate-500">{s.ders}</span></div></div>
+                <div className="text-right shrink-0 font-mono text-xs text-slate-300">{s.dogru}/{s.cozulen}</div>
+                <button onClick={() => soruSil(s)} className="text-slate-600 hover:text-rose-400 shrink-0"><Trash2 size={14} /></button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Deneme geçmişi */}
         {sirali.length > 0 && (
           <div className="space-y-2">
             <div className="text-[11px] uppercase tracking-wider text-slate-500">Geçmiş ({sirali.length})</div>
@@ -423,9 +589,9 @@ export default function Deneme({ embedded = false }) {
           </div>
         )}
 
-        {sirali.length === 0 && !showForm && (
+        {sirali.length === 0 && soruKayit.length === 0 && !showForm && !showSoru && (
           <div className="card text-center py-8 text-sm text-slate-400">
-            Henüz deneme yok. İlk denemeni ekle — net trendini ve tahmini sıranı takip et. 📈
+            Henüz kaydın yok. <b className="text-white">Deneme ekle</b> ile net/puan takip et, ya da <b className="text-white">Çözdüğüm soru</b> ile konu konu çözümünü not et — AI Koç ikisini de okur. 📈
           </div>
         )}
 
