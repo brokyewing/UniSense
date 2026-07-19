@@ -7,6 +7,7 @@ import { apiFetch } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
 import { getUserProfile, watchDenemeler, addDeneme, removeDeneme, recordActivity } from '../firebase'
 import { track } from '../lib/analytics'
+import { konuLocal, eksikKonular, rastgeleSec } from '../lib/konu'
 import {
   TYT_FIELDS, AYT_FIELDS, KPSS_FIELDS, LGS_FIELDS, DGS_FIELDS,
   denemeAlanlari, denemeHesaplaSinav, diploma100ToObp, gpa4ToAobp,
@@ -64,6 +65,7 @@ export default function Deneme({ embedded = false }) {
   const [kocLoading, setKocLoading] = useState(false)
   const [miniTest, setMiniTest] = useState('')
   const [mtLoading, setMtLoading] = useState(false)
+  const [konuData, setKonuData] = useState(null)
 
   // Profilden varsayılan tür + diploma + koç için profil
   useEffect(() => {
@@ -95,6 +97,13 @@ export default function Deneme({ embedded = false }) {
       setDenemeler(items); saveLocal(sinav, items)
     })
   }, [user, sinav])
+
+  // Seçili sınavın konu listesi (koç tavsiyesi + mini-test için) — sınav değişince yenile
+  useEffect(() => {
+    setKonuData(null)
+    apiFetch(`/api/v1/konular?sinav=${sinav}`).then(setKonuData).catch(() => {})
+  }, [sinav])
+  const konuDurum = useMemo(() => (konuData ? eksikKonular(konuData, konuLocal(sinav)) : null), [konuData, sinav])
 
   const fields = useMemo(() => denemeAlanlari(sinav, type), [sinav, type])
   const canli = useMemo(
@@ -151,19 +160,33 @@ export default function Deneme({ embedded = false }) {
       .sort((a, b) => a.oran - b.oran).slice(0, 3)
   }, [son])
 
+  const kimDeyisi = () => (turlerFor(sinav) ? `${type} (${sinav})` : sinav)
+
+  // user_context yalnız ilgili sınavın verisini gönderir (DGS'de YKS puanı GİTMESİN)
+  function trackUc() {
+    const uc = {}
+    if (sinav === 'YKS') {
+      if (profil?.score) { uc.yks_puan = profil.score; if (profil.scoreType) uc.yks_turu = profil.scoreType }
+      if (profil?.rank) uc.yks_sira = profil.rank
+    }
+    // DGS/KPSS/LGS: deneme puanı zaten prompt metninde; yanlış YKS bağlamı geçmesin
+    return uc
+  }
+
   async function kocIste() {
     if (!sirali.length) return
     setKocLoading(true); setKoc('')
     const sonlar = sirali.slice(-5).map((d) => `${d.tarih}: ${Math.round(d.toplamNet)} net`).join(', ')
     const zayifStr = zayif.map((z) => z.label).join(', ') || '—'
-    const kim = turlerFor(sinav) ? `${type} (${sinav})` : sinav
-    const q = `${kim} öğrencisiyim, deneme netlerimi takip ediyorum. Son denemelerim: ${sonlar}. `
-      + `En zayıf 3 dersim: ${zayifStr}.${son?.sira ? ` Tahmini başarı sıram ~${son.sira}.` : ''} `
-      + `Bu verilere göre bana KISA, maddeler halinde uygulanabilir çalışma tavsiyesi ver: `
-      + `hangi konulara öncelik vermeliyim ve netimi nasıl artırabilirim?`
-    const uc = {}
-    if (profil?.score) { uc.yks_puan = profil.score; if (profil.scoreType) uc.yks_turu = profil.scoreType }
-    if (profil?.rank) uc.yks_sira = profil.rank
+    const konuNotu = konuDurum
+      ? ` Konu takibimde ${konuDurum.yapilan}/${konuDurum.toplam} konu işaretli. `
+        + (konuDurum.eksik.length ? `Henüz çalışmadığım konulardan bazıları: ${konuDurum.eksik.slice(0, 8).map((e) => `${e.ders}-${e.konu}`).join(', ')}.` : 'Tüm konuları işaretledim.')
+      : ''
+    const q = `${kimDeyisi()} öğrencisiyim, ${sinav} denemelerimi takip ediyorum. Son denemelerim: ${sonlar}. `
+      + `En zayıf 3 dersim: ${zayifStr}.${son?.sira ? ` Tahmini başarı sıram ~${son.sira}.` : ''}${konuNotu} `
+      + `SADECE ${sinav} sınavına göre, deneme geçmişim ve işaretlemediğim konuları dikkate alarak `
+      + `KISA, maddeler halinde uygulanabilir çalışma tavsiyesi ver: hangi konulara öncelik vermeliyim ve netimi nasıl artırabilirim?`
+    const uc = trackUc()
     try {
       const r = await apiFetch('/api/v1/ask', {
         method: 'POST',
@@ -173,16 +196,19 @@ export default function Deneme({ embedded = false }) {
     } catch (e) { setKoc('Tavsiye alınamadı: ' + e.message) } finally { setKocLoading(false) }
   }
 
+  // Mini test: seçili sınavın İŞARETLENMEMİŞ konularından; hepsi bitmişse rastgele
   async function miniTestIste() {
-    if (!zayif.length) { flash('Önce birkaç deneme gir'); return }
     setMtLoading(true); setMiniTest('')
-    const kim = turlerFor(sinav) ? `${type} (${sinav})` : sinav
-    const zayifStr = zayif.map((z) => z.label).join(', ')
-    const q = `${kim} öğrencisiyim. Zayıf derslerim: ${zayifStr}. Bu derslerden bana 5 adet çoktan seçmeli PRATİK soru üret. `
+    const eksik = konuDurum?.eksik || []
+    const secili = eksik.length ? rastgeleSec(eksik, 5) : []
+    const kaynak = secili.length
+      ? `şu işaretlemediğim konulardan: ${secili.map((e) => `${e.ders}-${e.konu}`).join(', ')}`
+      : `${sinav} müfredatındaki rastgele konulardan`
+    const q = `${kimDeyisi()} öğrencisiyim. SADECE ${sinav} sınavına uygun, ${kaynak} bana 5 adet çoktan seçmeli PRATİK soru üret. `
       + `Her soruyu A) B) C) D) şıklarıyla yaz; her sorunun altına "Cevap: X" ve tek cümlelik açıklama ekle. `
-      + `Sadece soruları ver, giriş cümlesi yazma.`
+      + `Üniversite/tercih/taban puan verisiyle ilgisiz, tamamen konu bilgisine dayalı olsun. Sadece soruları ver, giriş cümlesi yazma.`
     try {
-      const r = await apiFetch('/api/v1/ask', { method: 'POST', body: { query: q } })
+      const r = await apiFetch('/api/v1/ask', { method: 'POST', body: { query: q, ...(Object.keys(trackUc()).length ? { user_context: trackUc() } : {}) } })
       setMiniTest(r?.text || 'Üretilemedi.')
     } catch (e) { setMiniTest('Alınamadı: ' + e.message) } finally { setMtLoading(false) }
   }
@@ -268,7 +294,7 @@ export default function Deneme({ embedded = false }) {
                     className="btn-primary text-xs inline-flex items-center gap-1.5 disabled:opacity-50">
                     {kocLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} Tavsiye
                   </button>
-                  <button onClick={miniTestIste} disabled={mtLoading || !zayif.length}
+                  <button onClick={miniTestIste} disabled={mtLoading}
                     className="text-xs inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass glass-hover text-slate-200 disabled:opacity-50">
                     {mtLoading ? <Loader2 size={13} className="animate-spin" /> : <Target size={13} />} Mini test
                   </button>
