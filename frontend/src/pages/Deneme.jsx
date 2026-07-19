@@ -111,9 +111,16 @@ export default function Deneme({ embedded = false }) {
     [sinav, type, girdi, diploma],
   )
 
-  function setDY(id, k, v) {
-    const n = v === '' ? '' : Math.max(0, parseInt(v, 10) || 0)
-    setGirdi((p) => ({ ...p, [id]: { ...p[id], [k]: n } }))
+  // D/Y girişi — Hesap gibi: D+Y o dersin soru sayısını (max) AŞAMAZ
+  function setDY(field, k, v) {
+    if (v === '') { setGirdi((p) => ({ ...p, [field.id]: { ...p[field.id], [k]: '' } })); return }
+    const raw = Math.max(0, parseInt(v, 10) || 0)
+    setGirdi((p) => {
+      const cur = p[field.id] || {}
+      const other = k === 'd' ? (parseInt(cur.y, 10) || 0) : (parseInt(cur.d, 10) || 0)
+      const capped = Math.max(0, Math.min(raw, field.max - other)) // D+Y ≤ max
+      return { ...p, [field.id]: { ...cur, [k]: capped } }
+    })
   }
 
   function flash(m) { setToast(m); setTimeout(() => setToast(''), 2500) }
@@ -358,13 +365,15 @@ export default function Deneme({ embedded = false }) {
             <div className="grid sm:grid-cols-2 gap-2">
               {fields.map((f) => {
                 const g = girdi[f.id] || {}
-                const net = ((parseFloat(g.d) || 0) - (f.pen || 0.25) * (parseFloat(g.y) || 0))
+                const dNum = parseInt(g.d, 10) || 0
+                const yNum = parseInt(g.y, 10) || 0
+                const net = (dNum - (f.pen || 0.25) * yNum)
                 return (
                   <div key={f.id} className="flex items-center gap-2 bg-white/[0.03] border border-white/8 rounded-lg px-2.5 py-1.5">
                     <span className="text-[12px] text-slate-300 flex-1 truncate">{f.label} <span className="text-slate-600">/{f.max}</span></span>
-                    <input type="number" min="0" max={f.max} value={g.d ?? ''} onChange={(e) => setDY(f.id, 'd', e.target.value)} placeholder="D" className="input-glass w-12 text-center text-sm !py-1" />
-                    <input type="number" min="0" max={f.max} value={g.y ?? ''} onChange={(e) => setDY(f.id, 'y', e.target.value)} placeholder="Y" className="input-glass w-12 text-center text-sm !py-1" />
-                    <span className="text-[11px] font-mono w-10 text-right text-accent-300">{net ? net.toFixed(1) : '–'}</span>
+                    <input type="number" min="0" max={f.max - yNum} value={g.d ?? ''} onChange={(e) => setDY(f, 'd', e.target.value)} placeholder="D" title={`En fazla ${f.max - yNum} doğru`} className="input-glass w-12 text-center text-sm !py-1" />
+                    <input type="number" min="0" max={f.max - dNum} value={g.y ?? ''} onChange={(e) => setDY(f, 'y', e.target.value)} placeholder="Y" title={`En fazla ${f.max - dNum} yanlış`} className="input-glass w-12 text-center text-sm !py-1" />
+                    <span className="text-[11px] font-mono w-10 text-right text-accent-300">{(dNum || yNum) ? net.toFixed(1) : '–'}</span>
                   </div>
                 )
               })}
