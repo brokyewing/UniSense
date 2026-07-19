@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Layers, Plus, Trash2, X, Loader2, Play, RotateCw, ChevronDown, ChevronUp, Check } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
@@ -21,10 +21,25 @@ export default function Kartlar({ embedded = false }) {
   const [acik, setAcik] = useState(null)
   const [sesh, setSesh] = useState(null) // { deste, queue:[id], i, flipped, done }
 
+  const tasindi = useRef(false) // guest→bulut migration bir kez (duplike önlemi)
   useEffect(() => {
     if (!user) { setKartlar(loadLocal()); return }
     return watchKartlar(user.uid, (items) => {
       if (items == null) { setKartlar(loadLocal()); return }
+      const local = loadLocal()
+      if (items.length === 0 && local.length > 0 && !tasindi.current) {
+        // Bulut boş ama cihazda misafir kartları var → yukarı taşı (silme YOK)
+        tasindi.current = true
+        for (const k of local) {
+          addKart(user.uid, {
+            deste: String(k.deste || 'Genel').slice(0, 80), on: String(k.on || '').slice(0, 500),
+            arka: String(k.arka || '').slice(0, 1000), ef: k.ef ?? 2.5, rep: k.rep ?? 0,
+            interval: k.interval ?? 0, nextReview: String(k.nextReview || '').slice(0, 20),
+          }).catch(() => {})
+        }
+        setKartlar(local)
+        return
+      }
       setKartlar(items); saveLocal(items)
     })
   }, [user])
@@ -70,12 +85,17 @@ export default function Kartlar({ embedded = false }) {
     setSesh({ deste, queue: due.map((k) => k.id), i: 0, flipped: false, done: 0 })
   }
 
+  const puanlaniyor = useRef(false) // hızlı çift tık aynı karta 2× SM-2 uygulamasın
   async function puanla(kalite) {
-    const id = sesh.queue[sesh.i]
-    const kart = kartlar.find((k) => k.id === id)
-    if (kart) await persistUpdate(id, sm2(kart, kalite))
-    recordActivity(user?.uid).catch(() => {})
-    setSesh((s) => ({ ...s, i: s.i + 1, flipped: false, done: s.done + 1 }))
+    if (puanlaniyor.current) return
+    puanlaniyor.current = true
+    try {
+      const id = sesh.queue[sesh.i]
+      const kart = kartlar.find((k) => k.id === id)
+      if (kart) await persistUpdate(id, sm2(kart, kalite))
+      recordActivity(user?.uid).catch(() => {})
+      setSesh((s) => ({ ...s, i: s.i + 1, flipped: false, done: s.done + 1 }))
+    } finally { puanlaniyor.current = false }
   }
 
   // === Çalışma (tekrar) oturumu ===
@@ -156,10 +176,10 @@ export default function Kartlar({ embedded = false }) {
               <div className="font-semibold text-white text-sm">Yeni kart</div>
               <button onClick={() => setShowForm(false)} className="text-slate-500 hover:text-white"><X size={16} /></button>
             </div>
-            <input value={f.deste} onChange={(e) => setF({ ...f, deste: e.target.value })} placeholder="Deste (ör. İngilizce Kelime)" className="input-glass text-sm w-full" list="deste-list" />
+            <input value={f.deste} onChange={(e) => setF({ ...f, deste: e.target.value })} placeholder="Deste (ör. İngilizce Kelime)" maxLength={80} className="input-glass text-sm w-full" list="deste-list" />
             <datalist id="deste-list">{desteler.map((d) => <option key={d.deste} value={d.deste} />)}</datalist>
-            <textarea value={f.on} onChange={(e) => setF({ ...f, on: e.target.value })} rows={2} placeholder="Ön yüz (soru / kelime)" className="input-glass text-sm w-full resize-none" />
-            <textarea value={f.arka} onChange={(e) => setF({ ...f, arka: e.target.value })} rows={2} placeholder="Arka yüz (cevap / anlam)" className="input-glass text-sm w-full resize-none" />
+            <textarea value={f.on} onChange={(e) => setF({ ...f, on: e.target.value })} rows={2} maxLength={500} placeholder="Ön yüz (soru / kelime)" className="input-glass text-sm w-full resize-none" />
+            <textarea value={f.arka} onChange={(e) => setF({ ...f, arka: e.target.value })} rows={2} maxLength={1000} placeholder="Arka yüz (cevap / anlam)" className="input-glass text-sm w-full resize-none" />
             <div className="flex justify-end">
               <button onClick={ekle} disabled={saving} className="btn-primary text-sm inline-flex items-center gap-1.5 disabled:opacity-50">
                 {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Kaydet

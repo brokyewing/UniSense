@@ -127,7 +127,7 @@ export default function Ozetler({ embedded = false }) {
                       className="shrink-0 text-slate-500 hover:text-amber-300"><ArrowUpRight size={16} /></Link>
                   </div>
                   <ul className="mt-2.5 space-y-1">
-                    {k.maddeler.map((m, i) => (
+                    {(k.maddeler || []).map((m, i) => (
                       <li key={i} className="text-[13px] font-mono text-slate-200 bg-white/[0.03] border border-white/8 rounded-lg px-2.5 py-1.5">{m}</li>
                     ))}
                   </ul>

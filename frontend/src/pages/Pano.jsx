@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { LayoutDashboard, Play, Pause, RotateCcw, Trophy, Flame, Clock, ListChecks, LineChart, Layers, Mail } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
@@ -14,7 +14,9 @@ const mmss = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s %
 function guestSureEkle(dk, ders) {
   let s
   try { s = JSON.parse(localStorage.getItem('unisense_sure') || '{}') } catch { s = {} }
-  const today = new Date().toISOString().slice(0, 10)
+  const p = (n) => String(n).padStart(2, '0')
+  const d = new Date()
+  const today = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}` // yerel gün
   s.sureDk = (s.sureDk || 0) + dk
   s.sureHafta = s.sureHafta || {}; s.sureHafta[today] = (s.sureHafta[today] || 0) + dk
   if (ders) { s.dersSure = s.dersSure || {}; s.dersSure[ders] = (s.dersSure[ders] || 0) + dk }
@@ -48,12 +50,28 @@ export default function Pano({ embedded = false }) {
     await setEmailReminders(user.uid, v).catch(() => setEmailOn(!v))
   }
 
-  // Sayaç
+  // Sayaç — DUVAR SAATİNE göre (tick saymak arka plan sekmesinde kısılıyordu:
+  // Chrome 5 dk sonra dakikada 1 tick verir, 25 dk'lık blok fiilen dururdu)
+  const bitisRef = useRef(null)
   useEffect(() => {
-    if (!calisiyor) return undefined
-    const t = setInterval(() => setKalan((k) => Math.max(0, k - 1)), 1000)
+    if (!calisiyor) { bitisRef.current = null; return undefined }
+    bitisRef.current = Date.now() + kalan * 1000
+    const t = setInterval(() => {
+      setKalan(Math.max(0, Math.round((bitisRef.current - Date.now()) / 1000)))
+    }, 1000)
     return () => clearInterval(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- kalan yalnız başlangıçta okunur
   }, [calisiyor])
+
+  // Pomodoro aktifken uygulama-süresi sayacı (usage.js) dursun — aynı dakika
+  // hem sureDk hem kullanimDk olarak 2× XP saymasın
+  useEffect(() => {
+    try {
+      if (calisiyor && mod === 'odak') sessionStorage.setItem('unisense_pomodoro_on', '1')
+      else sessionStorage.removeItem('unisense_pomodoro_on')
+    } catch { /* noop */ }
+    return () => { try { sessionStorage.removeItem('unisense_pomodoro_on') } catch { /* noop */ } }
+  }, [calisiyor, mod])
 
   // Blok bitti
   useEffect(() => {

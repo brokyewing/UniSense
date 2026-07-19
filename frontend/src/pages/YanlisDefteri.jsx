@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { NotebookPen, Plus, Trash2, X, Check, RotateCcw, Loader2, ChevronDown, ChevronUp } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
@@ -22,10 +22,25 @@ export default function YanlisDefteri({ embedded = false }) {
   const [acik, setAcik] = useState(null)
   const [f, setF] = useState({ ders: '', konu: '', soru: '', neden: '' })
 
+  const tasindi = useRef(false) // guest→bulut migration bir kez (duplike önlemi)
   useEffect(() => {
     if (!user) { setListe(loadLocal()); return }
     return watchYanlislar(user.uid, (items) => {
       if (items == null) { setListe(loadLocal()); return }
+      const local = loadLocal()
+      if (items.length === 0 && local.length > 0 && !tasindi.current) {
+        // Bulut boş ama cihazda misafir yanlışları var → yukarı taşı (silme YOK)
+        tasindi.current = true
+        for (const y of local) {
+          addYanlis(user.uid, {
+            ders: String(y.ders || '').slice(0, 40), konu: String(y.konu || '').slice(0, 120),
+            soru: String(y.soru || '').slice(0, 1000), neden: String(y.neden || '').slice(0, 1000),
+            box: y.box || 1, nextReview: String(y.nextReview || '').slice(0, 20),
+          }).catch(() => {})
+        }
+        setListe(local)
+        return
+      }
       setListe(items); saveLocal(items)
     })
   }, [user])
@@ -108,12 +123,12 @@ export default function YanlisDefteri({ embedded = false }) {
               <button onClick={() => setShowForm(false)} className="text-slate-500 hover:text-white"><X size={16} /></button>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <input value={f.ders} onChange={(e) => setF({ ...f, ders: e.target.value })} placeholder="Ders (ör. Matematik)" className="input-glass text-sm" />
-              <input value={f.konu} onChange={(e) => setF({ ...f, konu: e.target.value })} placeholder="Konu (ör. Türev)" className="input-glass text-sm" />
+              <input value={f.ders} onChange={(e) => setF({ ...f, ders: e.target.value })} placeholder="Ders (ör. Matematik)" maxLength={40} className="input-glass text-sm" />
+              <input value={f.konu} onChange={(e) => setF({ ...f, konu: e.target.value })} placeholder="Konu (ör. Türev)" maxLength={120} className="input-glass text-sm" />
             </div>
-            <textarea value={f.soru} onChange={(e) => setF({ ...f, soru: e.target.value })} rows={2}
+            <textarea value={f.soru} onChange={(e) => setF({ ...f, soru: e.target.value })} rows={2} maxLength={1000}
               placeholder="Soru / neyi yanlış yaptın? (kısa açıklama)" className="input-glass text-sm w-full resize-none" />
-            <textarea value={f.neden} onChange={(e) => setF({ ...f, neden: e.target.value })} rows={2}
+            <textarea value={f.neden} onChange={(e) => setF({ ...f, neden: e.target.value })} rows={2} maxLength={1000}
               placeholder="Neden yanlış yaptın / doğru yaklaşım nedir? (kendi notun)" className="input-glass text-sm w-full resize-none" />
             <div className="flex justify-end">
               <button onClick={ekle} disabled={saving} className="btn-primary text-sm inline-flex items-center gap-1.5 disabled:opacity-50">

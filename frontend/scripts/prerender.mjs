@@ -15,7 +15,9 @@ const DIST = resolve(__dirname, '../dist')
 const SITE = 'https://www.unisense.com.tr'
 // Tercih dönemi yılı — src/lib/donem.js ile AYNI formül (build anında hesaplanır)
 const TERCIH_YILI = (() => { const d = new Date(); return d.getMonth() >= 8 ? d.getFullYear() + 1 : d.getFullYear() })()
-const TITLE_ANCHOR = `<title>UniSense — ${TERCIH_YILI} Tercih Robotu | YKS, DGS, KPSS</title>`
+// index.html'deki title'ı YIL'a bağlı tam-eşleşmeyle aramak kırılgandı (yıl dönünce
+// sessiz no-op → tüm meta enjeksiyonu kaybolur). Regex her <title>'ı yakalar.
+const TITLE_RE = /<title>[\s\S]*?<\/title>/
 
 if (!existsSync(resolve(DIST, 'index.html'))) {
   console.log('[prerender] dist/index.html yok — build çalışmamış, atlanıyor')
@@ -62,7 +64,12 @@ function pageHtml({ title, description, path, contentHtml = '', noindex = false 
     `<meta property="og:url" content="${url}" />`,
     `<meta name="robots" content="${noindex ? 'noindex, nofollow' : 'index, follow'}" />`,
   ].join('\n    ')
-  let html = template.replace(TITLE_ANCHOR, head)
+  if (!TITLE_RE.test(template)) {
+    // Sessiz no-op yerine build'i kır — meta'sız 100+ sayfa yayınlamak en kötü sonuç
+    console.error('[prerender] HATA: dist/index.html içinde <title> bulunamadı — meta enjekte edilemiyor')
+    process.exit(1)
+  }
+  let html = template.replace(TITLE_RE, head)
   if (contentHtml) {
     // Crawler'lar için içerik #root'a gömülür; React mount'ta client-render ile değişir
     html = html.replace('<div id="root"></div>', `<div id="root">${contentHtml}</div>`)

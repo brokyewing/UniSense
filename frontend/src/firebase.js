@@ -167,7 +167,9 @@ async function ensureUserDoc(user, examTrack) {
   if (!snap.exists()) {
     await setDoc(ref, {
       uid: user.uid,
-      email: user.email,
+      // email null olabilir (e-postasız sağlayıcı) — null yazmak rules strMax'ına
+      // takılır ve TÜM girişi patlatırdı; alan yalnız doluysa yazılır
+      ...(user.email ? { email: user.email } : {}),
       displayName: user.displayName || '',
       photoURL: user.photoURL || '',
       createdAt: serverTimestamp(),
@@ -212,13 +214,23 @@ export function watchKonuIlerleme(uid, sinav, callback) {
   )
 }
 
-/** Tüm checked haritasını yaz (küçük; her tik'te tam harita — deleteField karmaşası yok). */
+/** Konu ilerlemesini bir kez oku (Deneme AI Koç için). Hata → null (çağıran localStorage'a düşer). */
+export async function getKonuIlerleme(uid, sinav) {
+  if (!db || !uid) return null
+  try {
+    const snap = await getDoc(doc(db, 'users', uid, 'konu_ilerleme', sinav))
+    return snap.exists() ? (snap.data().checked || {}) : {}
+  } catch { return null }
+}
+
+/** Tüm checked haritasını yaz (küçük; her tik'te tam harita — deleteField karmaşası yok).
+ * merge KULLANMA: merge map'leri derin birleştirir → kaldırılan tik buluttan silinmez,
+ * snapshot eski anahtarla döner ve tik geri gelirdi. Doküman zaten 2 alandan ibaret. */
 export async function setKonuIlerleme(uid, sinav, checked) {
   if (!db || !uid) return
   await setDoc(
     doc(db, 'users', uid, 'konu_ilerleme', sinav),
     { checked, updatedAt: serverTimestamp() },
-    { merge: true },
   )
 }
 
@@ -298,7 +310,7 @@ export async function removeKart(uid, id) {
 /** Çalışma dakikası ekle (Pomodoro seansı bitince). Toplam + haftalık + ders bazlı. */
 export async function sureEkle(uid, dk, ders) {
   if (!db || !uid || !dk) return
-  const today = new Date().toISOString().slice(0, 10)
+  const today = bugunStr() // yerel gün — UTC kayması olmasın
   const patch = {
     sureDk: increment(dk),
     sureHafta: { [today]: increment(dk) },
@@ -313,13 +325,6 @@ export async function kullanimEkle(uid, dk) {
   if (!db || !uid || !dk) return
   await setDoc(doc(db, 'users', uid, 'istatistik', 'genel'),
     { kullanimDk: increment(dk), updatedAt: serverTimestamp() }, { merge: true }).catch(() => {})
-}
-
-/** Günün Sorusu'nu doğru bilince +1 (XP'ye katkı). */
-export async function dogruCevapEkle(uid) {
-  if (!db || !uid) return
-  await setDoc(doc(db, 'users', uid, 'istatistik', 'genel'),
-    { dogruCevap: increment(1), updatedAt: serverTimestamp() }, { merge: true }).catch(() => {})
 }
 
 /** Girişli kullanıcının tüm çalışma istatistiğini topla (Pano için). */
@@ -341,6 +346,17 @@ export async function getIstatistik(uid) {
     s.yanlisSayisi = yan.size
     if (akt.exists()) s.streakLongest = akt.data().longest || 0
     if (ist.exists()) { const g = ist.data(); s.sureDk = g.sureDk || 0; s.sureHafta = g.sureHafta || {}; s.dersSure = g.dersSure || {}; s.kullanimDk = g.kullanimDk || 0; s.dogruCevap = g.dogruCevap || 0 }
+    // sureHafta günde 1 anahtar biriktirir; rules mapKeysMax(800) tavanına yıllar
+    // içinde meşru kullanıcı da takılmasın diye 60'ı aşınca son 30 gün'e budanır
+    // (UI zaten yalnız son 7 günü kullanıyor). updateDoc alanı KOMPLE değiştirir.
+    const gunler = Object.keys(s.sureHafta)
+    if (gunler.length > 60) {
+      const sonGunler = gunler.sort().slice(-30)
+      const budanmis = {}
+      for (const g of sonGunler) budanmis[g] = s.sureHafta[g]
+      updateDoc(doc(db, 'users', uid, 'istatistik', 'genel'), { sureHafta: budanmis }).catch(() => {})
+      s.sureHafta = budanmis
+    }
   } catch { /* erişilemedi → boş istatistik */ }
   return s
 }
@@ -400,8 +416,10 @@ export async function enablePush(uid) {
   if (!(await isMessagingSupported().catch(() => false))) return { ok: false, reason: 'unsupported' }
   const perm = await Notification.requestPermission()
   if (perm !== 'granted') return { ok: false, reason: 'denied' }
-  // FCM'in kendi SW'sini PUBLIC config ile (query param) kaydet — PWA sw.js'i ile
-  // ayrı scope, çakışmaz. SW config'i import.meta.env okuyamadığı için böyle geçilir.
+  // FCM'in kendi SW'sini PUBLIC config ile (query param) kaydet.
+  // scope AYRI olmak ZORUNDA: scope'suz kayıt '/' olur ve PWA sw.js'i ile aynı
+  // scope'ta birbirlerini ezerler (push açıldıktan sonraki yüklemede main.jsx
+  // sw.js'i geri yazar → arka plan bildirimleri ölürdü).
   const swReg = await navigator.serviceWorker.register(
     `/firebase-messaging-sw.js?${new URLSearchParams({
       apiKey: firebaseConfig.apiKey || '',
@@ -409,6 +427,7 @@ export async function enablePush(uid) {
       messagingSenderId: firebaseConfig.messagingSenderId || '',
       appId: firebaseConfig.appId || '',
     }).toString()}`,
+    { scope: '/firebase-cloud-messaging-push-scope' },
   )
   const messaging = getMessaging(app)
   const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: swReg })
@@ -422,10 +441,11 @@ export async function enablePush(uid) {
   return { ok: true }
 }
 
-/** Haftalık e-posta hatırlatma tercihini yaz (opt-in; KVKK — varsayılan kapalı). */
+/** Haftalık e-posta hatırlatma tercihini yaz (opt-in; KVKK — varsayılan kapalı).
+ * Hata YUTULMAZ — çağıran (Pano toggle) başarısız yazımda düğmeyi geri alır. */
 export async function setEmailReminders(uid, on) {
-  if (!db || !uid) return
-  await setDoc(doc(db, 'users', uid), { emailReminders: !!on }, { merge: true }).catch(() => {})
+  if (!db || !uid) throw new Error('giriş gerekli')
+  await setDoc(doc(db, 'users', uid), { emailReminders: !!on }, { merge: true })
 }
 
 /** Bu cihazın push kaydını kaldır (bildirimleri kapat). */

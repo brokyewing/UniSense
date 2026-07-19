@@ -28,6 +28,14 @@ service cloud.firestore {
             && request.resource.data[field].size() <= n);
     }
 
+    // Alan varsa map tipinde ve anahtar sayısı sınırda olmalı
+    // (fieldCountMax yalnız üst düzeyi sayar — iç map anahtarları şişirilemesin)
+    function mapKeysMax(field, n) {
+      return !(field in request.resource.data)
+        || (request.resource.data[field] is map
+            && request.resource.data[field].keys().size() <= n);
+    }
+
     // Kullanıcı profil dokümanı
     match /users/{uid} {
       allow read, delete: if isOwner(uid);
@@ -35,6 +43,10 @@ service cloud.firestore {
         && fieldCountMax(12)
         && strMax('displayName', 100)
         && strMax('email', 200)
+        // email yazılıyorsa auth token'ındaki e-postayla AYNI olmalı — başkasının
+        // adresi yazılıp e-posta hatırlatma cron'una hedef gösterilemesin
+        && (!('email' in request.resource.data)
+            || request.resource.data.email == request.auth.token.email)
         && strMax('photoURL', 1000);
 
       // Tercih listesi (max 24 sıra — sayı sınırı client'ta, boyut sınırı burada)
@@ -62,7 +74,7 @@ service cloud.firestore {
       match /kpss_tercih/{kadroKodu} {
         allow read, delete: if isOwner(uid);
         allow create, update: if isOwner(uid)
-          && fieldCountMax(12)
+          && fieldCountMax(14)
           && strMax('kurum', 300)
           && strMax('unvan', 200)
           && strMax('il', 100);
@@ -106,7 +118,8 @@ service cloud.firestore {
         allow read, delete: if isOwner(uid);
         allow create, update: if isOwner(uid)
           && sinav in ['YKS', 'KPSS', 'DGS', 'LGS']
-          && fieldCountMax(3);
+          && fieldCountMax(3)
+          && mapKeysMax('checked', 1500); // konu sayısının çok üstü — şişirme tavanı
       }
 
       // Günlük aktivite / seri (streak) — tek "gunluk" dokümanı
@@ -151,10 +164,17 @@ service cloud.firestore {
           && strMax('nextReview', 20);
       }
 
-      // Oyunlaştırma / çalışma süresi (Pomodoro/XP) — tek "genel" dokümanı (sayaç haritaları)
+      // Oyunlaştırma / çalışma süresi (Pomodoro/XP) — tek "genel" dokümanı.
+      // ID sabitlenir (wildcard sınırsız doküman üretimine izin veriyordu) ve
+      // iç map anahtarları sınırlanır (fieldCountMax üst düzeyi sayar; dersSure/
+      // sureHafta anahtar enjeksiyonuyla doküman 1MB'a şişirilebiliyordu).
       match /istatistik/{doc} {
         allow read, delete: if isOwner(uid);
-        allow create, update: if isOwner(uid) && fieldCountMax(8);
+        allow create, update: if isOwner(uid)
+          && doc == 'genel'
+          && fieldCountMax(8)
+          && mapKeysMax('dersSure', 60)
+          && mapKeysMax('sureHafta', 800);
       }
 
       // Deneme günlüğü — her deneme 1 doküman (ders net haritası + puan/sıra)
