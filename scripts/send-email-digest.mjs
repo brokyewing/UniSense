@@ -31,7 +31,8 @@ for (const d of snap.docs) {
   const u = d.data()
   if (!u.email) continue
   const akt = await db.collection('users').doc(d.id).collection('aktivite').doc('gunluk').get()
-  if (!akt.exists()) continue
+  // Admin SDK'da .exists PROPERTY'dir (client SDK'daki gibi fonksiyon DEĞİL)
+  if (!akt.exists) continue
   const last = akt.data().lastDate
   if (!last) continue
   const gunFark = Math.round((new Date(today) - new Date(last)) / 864e5)

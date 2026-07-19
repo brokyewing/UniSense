@@ -9,6 +9,10 @@ export const YKS_PEN = 0.25 // 4 yanlış 1 doğru götürür
 export const TYT_PLACEMENT_COEF = {
   tyt_tr: 1.32, tyt_sos: 1.36, tyt_mat: 1.32, tyt_fen: 1.36, // TYT bloğu max ≈160
 }
+// SADECE TYT puanı için katsayılar (max 100+400=500) — Hesap.jsx TYT_COEF ile birebir
+export const TYT_SCORE_COEF = {
+  tyt_tr: 3.3, tyt_sos: 3.4, tyt_mat: 3.3, tyt_fen: 3.4,
+}
 export const AYT_COEF = {
   SAY: { ayt_mat: 3.0, ayt_fiz: 2.85, ayt_kim: 3.07, ayt_biy: 3.07 },
   EA: { ayt_mat: 3.0, ayt_edb: 3.0, ayt_tar1: 2.8, ayt_cog1: 3.33 },
@@ -150,12 +154,17 @@ export function denemeHesaplaSinav(sinav, type, girdi, obp = 0) {
   let puan = 0
   let puanTuru = ''
   if (sinav === 'KPSS') {
-    puan = toplamNet > 0 ? 40 + 0.5 * toplamNet : 0 // KPSS_BASE + KPSS_COEF×net
+    // Hesap.jsx kpssScore ile aynı eşik: GY veya GK'den biri > 0 ise hesapla
+    const gy = dersNet.kpss_gy || 0
+    const gk = dersNet.kpss_gk || 0
+    puan = (gy > 0 || gk > 0) ? 40 + 0.5 * (gy + gk) : 0 // KPSS_BASE + KPSS_COEF×net
     puanTuru = 'KPSS'
   } else if (sinav === 'LGS') {
     let w = 0
-    for (const f of fields) w += (dersNet[f.id] || 0) * (f.k || 1)
-    puan = w > 0 ? 100 + (w / 270) * 400 : 0 // MSP ≈ 100 + (ağırlıklı_net/270)×400
+    let herhangi = false
+    for (const f of fields) { const n = dersNet[f.id] || 0; if (n !== 0) herhangi = true; w += n * (f.k || 1) }
+    // Hesap.jsx lgsScore ile aynı: net girildiyse MSP en az 100'e kırpılır
+    puan = herhangi ? Math.max(100, 100 + (w / 270) * 400) : 0
     puanTuru = 'LGS · MSP'
   } else if (sinav === 'DGS') {
     const w = weightedSum(dersNet, DGS_COEF_BY_TYPE[type] || DGS_COEF_BY_TYPE.SAY)
@@ -164,6 +173,11 @@ export function denemeHesaplaSinav(sinav, type, girdi, obp = 0) {
   } else {
     puan = placementScore(dersNet, type, obp)
     puanTuru = type
+    if (puan <= 0) {
+      // AYT girilmemiş → TYT-only deneme (en yaygın tür): TYT puanı hesapla
+      const tyt = weightedSum(dersNet, TYT_SCORE_COEF)
+      if (tyt > 0) { puan = 100 + tyt; puanTuru = 'TYT' }
+    }
   }
   return {
     dersNet,

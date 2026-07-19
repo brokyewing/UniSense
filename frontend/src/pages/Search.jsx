@@ -547,12 +547,22 @@ export default function Search() {
       }
 
       if (sid && user) {
-        await addSessionMessage(user.uid, sid, botMsg)
-        // Loading temp'i sil — watchSessionMessages gerçek halini getirecek
-        setMessages((m) => m.filter((x) => !x._temp))
-        // Session başlığını ilk mesajdan sonra güncelle
-        if (messages.length === 0) {
-          await updateSessionTitle(user.uid, sid, text)
+        try {
+          // text rules sınırına (strMax 10000) kırpılır — aşan cevap yazımı reddettirmesin
+          await addSessionMessage(user.uid, sid, { ...botMsg, text: String(botMsg.text).slice(0, 10000) })
+          // Loading temp'i sil — watchSessionMessages gerçek halini getirecek
+          setMessages((m) => m.filter((x) => !x._temp))
+          // Session başlığını ilk mesajdan sonra güncelle
+          if (messages.length === 0) {
+            await updateSessionTitle(user.uid, sid, text).catch(() => {})
+          }
+        } catch {
+          // Kayıt başarısız (rules/offline) olsa bile ALINMIŞ cevabı ekranda göster —
+          // önceden dış catch'e düşüp yanıltıcı 'sunucuya ulaşılamadı' basılıyordu
+          setMessages((m) => [
+            ...m.filter((x) => !x._temp),
+            { role: 'bot', text: botMsg.text, docs: botMsg.docs, latency: botMsg.latency_ms },
+          ])
         }
       } else {
         setMessages((m) => [

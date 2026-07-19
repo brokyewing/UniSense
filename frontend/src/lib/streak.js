@@ -2,7 +2,13 @@
 // "Çalışma günü" = kullanıcı o gün en az bir aktivite yaptı (konu işaretledi /
 // deneme ekledi). Ardışık günler seriyi büyütür, bir gün atlanınca sıfırlanır.
 
-export const bugunStr = () => new Date().toISOString().slice(0, 10)
+// YEREL tarih (toISOString UTC döndürür — TR'de 00:00-03:00 arası çalışma
+// önceki güne yazılır, gece çalışan öğrencinin serisi yanlış kırılırdı)
+const pad2 = (n) => String(n).padStart(2, '0')
+export const bugunStr = () => {
+  const d = new Date()
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+}
 
 function gunFarki(a, b) {
   const da = new Date(a + 'T00:00:00'), db = new Date(b + 'T00:00:00')

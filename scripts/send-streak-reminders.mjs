@@ -29,6 +29,7 @@ const dun = dayStr(Date.now() - 864e5)
 const snap = await db.collectionGroup('aktivite').get()
 let hedef = 0
 let gonderilen = 0
+const silinecekler = []
 
 for (const d of snap.docs) {
   if (d.id !== 'gunluk') continue
@@ -56,15 +57,19 @@ for (const d of snap.docs) {
   })
   gonderilen += res.successCount
 
-  // Geçersiz/expired token'ları temizle
+  // Geçersiz/expired token'ları temizle — delete'ler biriktirilir, çıkıştan ÖNCE beklenir
+  // (fire-and-forget + process.exit, gRPC yazmalarını kesiyordu → temizlik hiç çalışmıyordu)
   res.responses.forEach((r, i) => {
     if (r.success) return
     const code = r.error?.code || ''
     if (code.includes('registration-token-not-registered') || code.includes('invalid-argument')) {
-      db.collection('users').doc(uid).collection('pushTokens').doc(tokens[i]).delete().catch(() => {})
+      silinecekler.push(
+        db.collection('users').doc(uid).collection('pushTokens').doc(tokens[i]).delete().catch(() => {}),
+      )
     }
   })
 }
 
-console.log(`[streak-reminder] today=${today} · ${hedef} kullanıcı hedeflendi · ${gonderilen} bildirim gönderildi`)
+await Promise.allSettled(silinecekler)
+console.log(`[streak-reminder] today=${today} · ${hedef} kullanıcı hedeflendi · ${gonderilen} bildirim gönderildi · ${silinecekler.length} ölü token silindi`)
 process.exit(0)

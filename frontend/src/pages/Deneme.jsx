@@ -1,11 +1,11 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Loader2, Plus, Trash2, TrendingUp, Target, X, LineChart, ArrowRight, Sparkles } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
-import { getUserProfile, watchDenemeler, addDeneme, removeDeneme, recordActivity } from '../firebase'
+import { getUserProfile, watchDenemeler, addDeneme, removeDeneme, recordActivity, getKonuIlerleme } from '../firebase'
 import { track } from '../lib/analytics'
 import { konuLocal, eksikKonular } from '../lib/konu'
 import {
@@ -27,7 +27,12 @@ const ALL_LABELS = Object.fromEntries(
 const lsKey = (s) => 'unisense_deneme_' + s
 const loadLocal = (s) => { try { return JSON.parse(localStorage.getItem(lsKey(s)) || '[]') } catch { return [] } }
 const saveLocal = (s, a) => { try { localStorage.setItem(lsKey(s), JSON.stringify(a)) } catch { /* noop */ } }
-const bugun = () => new Date().toISOString().slice(0, 10)
+// yerel tarih (UTC değil — gece 00-03 TR'de önceki güne kaymasın)
+const bugun = () => {
+  const d = new Date()
+  const p = (n) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
+}
 
 function Spark({ points }) {
   const pts = points.filter((p) => p != null)
@@ -71,9 +76,14 @@ export default function Deneme({ embedded = false }) {
     getUserProfile(user.uid).then((p) => {
       const pr = p?.profile || {}
       setProfil(pr)
-      if (['YKS', 'DGS', 'KPSS', 'LGS'].includes(pr.examTrack)) setSinav(pr.examTrack)
-      if (['SAY', 'EA', 'SÖZ', 'DİL'].includes(pr.scoreType)) setType(pr.scoreType)
-      if (pr.diploma) setDiploma(String(pr.diploma))
+      // switchSinav ile AYNI uyarlama — aksi halde DGS profilinde 100'lük diploma
+      // 4'lük GPA alanına sızıyor (AÖBP sessizce 0 oluyordu) ve DİL türü DGS'e taşıyordu
+      const s = ['YKS', 'DGS', 'KPSS', 'LGS'].includes(pr.examTrack) ? pr.examTrack : 'YKS'
+      setSinav(s)
+      const t = turlerFor(s)
+      if (t) setType(t.includes(pr.scoreType) ? pr.scoreType : t[0])
+      if (s === 'YKS' && pr.diploma) setDiploma(String(pr.diploma))
+      else if (s !== 'YKS') setDiploma('')
     }).catch(() => {})
   }, [user])
 
@@ -81,27 +91,52 @@ export default function Deneme({ embedded = false }) {
   function switchSinav(s) {
     setSinav(s)
     setShowForm(false)
+    setKoc('') // önceki sınavın tavsiyesi yeni sekmede kalmasın
     const t = turlerFor(s)
     if (t && !t.includes(type)) setType(t[0]) // DGS'de DİL yok → SAY'a düş
     setDiploma(s === 'YKS' ? '85' : '') // YKS: 100'lük, DGS: 4'lük GPA (boş başla)
   }
 
   // Denemeleri yükle — sınav başına ayrı liste; girişli bulut, girişsiz localStorage
+  const tasindi = useRef({}) // guest→bulut migration'ı sınav başına 1 kez (duplike önlemi)
   useEffect(() => {
     setGirdi({})
     if (!user) { setDenemeler(loadLocal(sinav)); return }
     return watchDenemeler(user.uid, sinav, (items) => {
       if (items == null) { setDenemeler(loadLocal(sinav)); return }
+      const local = loadLocal(sinav)
+      if (items.length === 0 && local.length > 0 && !tasindi.current[sinav]) {
+        // Bulut boş ama cihazda misafir verisi var → bir kez yukarı taşı (Konular deseni).
+        // null/yerel alanları temizle — rules type:null gibi alanları reddeder.
+        tasindi.current[sinav] = true
+        for (const d of local) {
+          const temiz = { sinav: d.sinav || sinav, tarih: d.tarih || '', ad: d.ad || 'Deneme', dersNet: d.dersNet || {}, toplamNet: d.toplamNet || 0, puan: d.puan || 0 }
+          if (typeof d.type === 'string') temiz.type = d.type
+          if (typeof d.sira === 'number') temiz.sira = d.sira
+          addDeneme(user.uid, temiz).catch(() => {})
+        }
+        setDenemeler(local)
+        return
+      }
       setDenemeler(items); saveLocal(sinav, items)
     })
   }, [user, sinav])
 
-  // Seçili sınavın konu listesi (koç tavsiyesi + mini-test için) — sınav değişince yenile
+  // Seçili sınavın konu listesi (koç tavsiyesi için) — sınav değişince yenile
   useEffect(() => {
     setKonuData(null)
     apiFetch(`/api/v1/konular?sinav=${sinav}`).then(setKonuData).catch(() => {})
   }, [sinav])
-  const konuDurum = useMemo(() => (konuData ? eksikKonular(konuData, konuLocal(sinav)) : null), [konuData, sinav])
+  // Konu işaretleri: girişli → bulut (bu cihazda Konular hiç açılmamış olabilir),
+  // erişilemezse/girişsiz → localStorage
+  const [konuChecked, setKonuChecked] = useState({})
+  useEffect(() => {
+    let live = true
+    if (!user) { setKonuChecked(konuLocal(sinav)); return undefined }
+    getKonuIlerleme(user.uid, sinav).then((c) => { if (live) setKonuChecked(c ?? konuLocal(sinav)) })
+    return () => { live = false }
+  }, [user, sinav])
+  const konuDurum = useMemo(() => (konuData ? eksikKonular(konuData, konuChecked) : null), [konuData, konuChecked])
 
   const fields = useMemo(() => denemeAlanlari(sinav, type), [sinav, type])
   const canli = useMemo(
@@ -128,16 +163,20 @@ export default function Deneme({ embedded = false }) {
     if (canli.puan <= minPuan) { flash('Ders netlerini gir'); return }
     setSaving(true)
     let sira = null
-    // Tahmini sıra sadece YKS'de (LGS yüzdelik, KPSS'de aday sırası verisi yok)
-    if (sinav === 'YKS') {
+    // Tahmini sıra sadece YKS yerleştirme puanında (TYT-only/LGS/KPSS'de sıra verisi yok)
+    if (sinav === 'YKS' && canli.puanTuru === type) {
       try {
         const r = await apiFetch(`/api/v1/hesap/siralama?puan=${canli.puan.toFixed(2)}&tur=${encodeURIComponent(type)}`)
         sira = r?.tahmini_sira ?? null
       } catch { /* sıra opsiyonel */ }
     }
+    // DİKKAT: null alan YAZMA — firestore.rules strMax('type') alan mevcutsa string
+    // şartı koşar; type:null yazmak KPSS/LGS create'ini reddettiriyordu.
     const deneme = {
-      sinav, type: turlerFor(sinav) ? type : null, tarih, ad: ad || `${canli.puanTuru} Deneme`,
-      dersNet: canli.dersNet, toplamNet: canli.toplamNet, puan: canli.puan, sira,
+      sinav, tarih, ad: ad || `${canli.puanTuru} Deneme`,
+      ...(turlerFor(sinav) ? { type } : {}),
+      dersNet: canli.dersNet, toplamNet: canli.toplamNet, puan: canli.puan,
+      ...(sira != null ? { sira } : {}),
     }
     try {
       if (user) await addDeneme(user.uid, deneme)
@@ -323,7 +362,7 @@ export default function Deneme({ embedded = false }) {
                   <input type="number" step={sinav === 'DGS' ? '0.01' : '1'} value={diploma} onChange={(e) => setDiploma(e.target.value)} placeholder={sinav === 'DGS' ? '3.20' : '85'} className="input-glass block mt-1 text-sm w-24" /></div>
               )}
               <div className="flex-1 min-w-[120px]"><label className="text-[11px] text-slate-400">Deneme adı (ops.)</label>
-                <input value={ad} onChange={(e) => setAd(e.target.value)} placeholder="Deneme 5" className="input-glass block mt-1 text-sm w-full" /></div>
+                <input value={ad} onChange={(e) => setAd(e.target.value)} placeholder="Deneme 5" maxLength={120} className="input-glass block mt-1 text-sm w-full" /></div>
             </div>
 
             {/* Ders D/Y girişleri */}

@@ -30,13 +30,17 @@ export default function PushOptIn() {
 
   async function ac() {
     setState('loading')
-    const r = await enablePush(user.uid)
-    if (r.ok) { localStorage.setItem(LS_ON, '1'); setState('on'); track('push_acildi') }
-    else if (r.reason === 'denied') setState('denied')
-    else setState('idle')
+    try {
+      // enablePush fırlatabilir (SW register hatası, FCM 'push service error', rules
+      // reddi) — yakalanmazsa buton sonsuza dek spinner'da kalıyordu
+      const r = await enablePush(user.uid)
+      if (r.ok) { localStorage.setItem(LS_ON, '1'); setState('on'); track('push_acildi') }
+      else if (r.reason === 'denied') setState('denied')
+      else setState('idle')
+    } catch { setState('idle') }
   }
   async function kapat() {
-    await disablePush(user.uid)
+    await disablePush(user.uid).catch(() => {})
     localStorage.removeItem(LS_ON)
     setState('idle')
   }
