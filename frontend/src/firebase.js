@@ -306,6 +306,29 @@ export async function removeYanlis(uid, id) {
   await deleteDoc(doc(db, 'users', uid, 'yanlislar', id))
 }
 
+// === Notlar (yapacaklar / serbest not) ===
+export function watchNotlar(uid, callback) {
+  if (!db || !uid) { callback([]); return () => {} }
+  const q = query(collection(db, 'users', uid, 'notlar'), orderBy('createdAt', 'desc'))
+  return onSnapshot(q, (snap) => callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }))), () => callback(null))
+}
+
+export async function addNot(uid, n) {
+  if (!db || !uid) return null
+  const ref = await addDoc(collection(db, 'users', uid, 'notlar'), { ...n, createdAt: serverTimestamp() })
+  return ref.id
+}
+
+export async function updateNot(uid, id, patch) {
+  if (!db || !uid) return
+  await updateDoc(doc(db, 'users', uid, 'notlar', id), patch)
+}
+
+export async function removeNot(uid, id) {
+  if (!db || !uid) return
+  await deleteDoc(doc(db, 'users', uid, 'notlar', id))
+}
+
 // === Bilgi kartları (flashcard — düz model, deste alanıyla gruplu) ===
 /** Kartları en yeni→eski izle. Erişilemezse null → çağıran localStorage'a düşer. */
 export function watchKartlar(uid, callback) {
