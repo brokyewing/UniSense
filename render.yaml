@@ -24,6 +24,13 @@ services:
     autoDeploy: true
     healthCheckPath: /api/v1/health
 
+    # Yalnız backend'i (veya deploy'u) etkileyen değişikliklerde deploy et.
+    # Frontend-only push'lar (Vercel'e giden) Render backend'ini YENİDEN deploy
+    # ETMESİN → gereksiz "unisense-api failed to deploy" kırmızıları biter.
+    buildFilter:
+      ignoredPaths:
+        - frontend/**
+
     envVars:
       - key: APP_ENV
         value: production
