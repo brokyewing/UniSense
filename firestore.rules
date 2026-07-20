@@ -212,6 +212,30 @@ service cloud.firestore {
           && strMax('tarih', 20);
       }
 
+      // Çalışma planlayıcısı (Planım) — tekil ayar + hafta başına görev dokümanı.
+      match /plan_config/{doc} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && doc == 'genel'
+          && fieldCountMax(8)
+          && strMax('track', 8);
+      }
+      // plan_gorev/{id} — GÖREV BAŞINA doküman (hafta alanıyla filtrelenir). Dizi-içi
+      // string uzunluğu kuralla sınırlanamadığı için (soru_kayit/notlar gibi) her görev
+      // ayrı doküman → strMax ile doküman-şişirme DoS'u önlenir.
+      match /plan_gorev/{id} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(14)
+          && strMax('hafta', 8)
+          && strMax('tarih', 20)
+          && strMax('title', 140)
+          && strMax('ders', 60)
+          && strMax('konu', 120)
+          && strMax('source', 10)
+          && strMax('tur', 10);
+      }
+
       // Sorgu geçmişi — sadece ekleme + okuma + silme (değiştirilemez log)
       match /queries/{qid} {
         allow read, delete: if isOwner(uid);
