@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
-import { ListTodo, LineChart, BookMarked, NotebookPen, LayoutDashboard } from 'lucide-react'
+import { ListTodo, LineChart, CalendarRange, BookMarked, NotebookPen, LayoutDashboard } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import PushOptIn from '../components/PushOptIn'
 import Konular from './Konular'
 import Deneme from './Deneme'
+import Planim from './Planim'
 import Ozetler from './Ozetler'
 import Notlar from './Notlar'
 import Pano from './Pano'
@@ -15,6 +16,7 @@ import Pano from './Pano'
 const TABS = [
   { key: 'konular', label: 'Konular', to: '/konular', Icon: ListTodo, renk: 'text-emerald-300', h1: 'Konu Takibi', alt: 'Sınavının tüm konularını çalıştıkça işaretle — ilerlemeni gör.' },
   { key: 'deneme', label: 'Çalışmalarım', to: '/deneme', Icon: LineChart, renk: 'text-accent-300', h1: 'Çalışmalarım', alt: 'Denemelerini ve konu konu çözdüğün soruları kaydet — AI Koç ikisini de okur.' },
+  { key: 'planim', label: 'Planım', to: '/planim', Icon: CalendarRange, renk: 'text-teal-300', h1: 'Planım', alt: 'Haftanı planla, günlük görevlerini bitir — AI geri kalınca planı yeniden düzenler.' },
   { key: 'ozetler', label: 'Özetler', to: '/ozetler', Icon: BookMarked, renk: 'text-amber-300', h1: 'Formül Özetleri', alt: 'Sık kullanılan formülleri hızlıca gözden geçir.' },
   { key: 'notlar', label: 'Notlar', to: '/notlar', Icon: NotebookPen, renk: 'text-rose-300', h1: 'Notlarım', alt: 'Yapacaklarını ve aklındakileri not et — işaretleyerek takip et.' },
   { key: 'pano', label: 'Pano', to: '/pano', Icon: LayoutDashboard, renk: 'text-sky-300', h1: 'Çalışma Panom', alt: 'Pomodoro ile çalış, ilerlemeni ve rozetlerini gör.' },
@@ -52,6 +54,7 @@ export default function Calisma({ tab = 'konular' }) {
       </div>
       {active === 'konular' && <Konular embedded />}
       {active === 'deneme' && <Deneme embedded />}
+      {active === 'planim' && <Planim embedded />}
       {active === 'ozetler' && <Ozetler embedded />}
       {active === 'notlar' && <Notlar embedded />}
       {active === 'pano' && <Pano embedded />}

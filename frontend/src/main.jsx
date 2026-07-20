@@ -67,6 +67,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/takvim" element={<Takvim />} />
               <Route path="/konular" element={<Calisma tab="konular" />} />
               <Route path="/deneme" element={<Calisma tab="deneme" />} />
+              <Route path="/planim" element={<Calisma tab="planim" />} />
               <Route path="/ozetler" element={<Calisma tab="ozetler" />} />
               <Route path="/ozet/:slug" element={<OzetDetay />} />
               <Route path="/notlar" element={<Calisma tab="notlar" />} />

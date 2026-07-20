@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Link } from 'react-router-dom'
-import { NotebookPen, Plus, Trash2, Check, Loader2 } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { NotebookPen, Plus, Trash2, Check, Loader2, CalendarPlus } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { useAuth } from '../contexts/AuthContext'
@@ -14,6 +14,7 @@ const saveLocal = (a) => { try { localStorage.setItem(LS, JSON.stringify(a)) } c
 // Yapacaklar / serbest not — girişli bulut (notlar), girişsiz localStorage.
 export default function Notlar({ embedded = false }) {
   const { user } = useAuth()
+  const nav = useNavigate()
   const [notlar, setNotlar] = useState([])
   const [metin, setMetin] = useState('')
   const [saving, setSaving] = useState(false)
@@ -123,6 +124,10 @@ export default function Notlar({ embedded = false }) {
                   <Check size={13} />
                 </button>
                 <div className={`flex-1 min-w-0 text-sm whitespace-pre-wrap break-words ${n.tamamlandi ? 'text-slate-500 line-through' : 'text-slate-100'}`}>{n.metin}</div>
+                {!n.tamamlandi && (
+                  <button onClick={() => nav('/planim', { state: { gorev: n.metin } })} title="Plana görev olarak ekle"
+                    className="shrink-0 text-slate-600 hover:text-teal-300"><CalendarPlus size={14} /></button>
+                )}
                 <button onClick={() => sil(n)} className="shrink-0 text-slate-600 hover:text-rose-400"><Trash2 size={14} /></button>
               </div>
             ))}

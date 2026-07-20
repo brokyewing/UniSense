@@ -28,6 +28,7 @@ const ROUTE_SEO = {
   '/konular': { title: 'Konu Takibi — YKS, KPSS, DGS, LGS Konuları | UniSense', description: 'Sınavının tüm konularını ders ders takip et, çalıştıkça işaretle. YKS, KPSS, DGS ve LGS için ücretsiz konu kontrol listesi.' },
   '/deneme': { title: 'Çalışmalarım — Deneme & Çözülen Soru Takibi | UniSense', description: 'Denemelerini ve konu konu çözdüğün soruları tek yerde kaydet; AI Koç netlerine ve soru çözümüne göre hangi konuya odaklanman gerektiğini söyler — ücretsiz.' },
   '/ozetler': { title: 'Formül ve Konu Özetleri — YKS Cheat Sheet | UniSense', description: 'TYT-AYT matematik, geometri, fizik ve kimya formülleri tek yerde. Aranabilir, çevrimdışı erişilebilir konu özetleri — ücretsiz.' },
+  '/planim': { title: 'Planım — AI Çalışma Planlayıcısı | UniSense', noindex: true },
   '/notlar': { title: 'Notlarım | UniSense', noindex: true },
   '/pano': { title: 'Çalışma Panom | UniSense', noindex: true },
   '/bolum': { title: 'Bölüm Rehberi — Üniversite Bölümleri Tanıtımı | UniSense', description: 'Üniversite bölümleri ne iş yapar, hangi dersleri okur, mezunları nerede çalışır? Tanıtımlar + güncel taban puanları.' },
@@ -133,7 +134,7 @@ export default function App() {
           {/* Ana Sayfa nav'da yok — logo zaten anasayfaya götürür.
               Konular + Deneme tek "Çalışma" sekmesinde birleşti (nav ferahladı). */}
           <nav className="flex items-center gap-1 min-w-0 overflow-x-auto no-scrollbar">
-            {navItem('/konular', 'Çalışma', GraduationCap, ['/konular', '/deneme', '/ozetler', '/notlar', '/pano'])}
+            {navItem('/konular', 'Çalışma', GraduationCap, ['/konular', '/deneme', '/planim', '/ozetler', '/notlar', '/pano'])}
             {navItem('/arama', 'Sorgu', Search)}
             {navItem('/oneriler', 'Tercih', ListChecks)}
             {navItem('/hesap', 'Hesap', Calculator)}

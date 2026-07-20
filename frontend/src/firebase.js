@@ -377,23 +377,104 @@ export async function kullanimEkle(uid, dk) {
     { kullanimDk: increment(dk), updatedAt: serverTimestamp() }, { merge: true })
 }
 
+// === Çalışma planlayıcısı (Planım) ===
+// plan_config/genel — tekil ayar; plan_gorev/{id} — GÖREV BAŞINA doküman (hafta alanı
+// ile filtrelenir). Diğer koleksiyonlarla (soru_kayit/notlar) aynı model: strMax kural
+// sınırları görev başına uygulanabilsin → doküman-şişirme DoS'u engellensin.
+// Girişsiz kullanıcı localStorage'da hafta başına dizi tutar (Planim.jsx migration yapar).
+
+/** Planlayıcı ayarını oku (yoksa/erişilemezse null). */
+export async function getPlanConfig(uid) {
+  if (!db || !uid) return null
+  try {
+    const s = await getDoc(doc(db, 'users', uid, 'plan_config', 'genel'))
+    return s.exists() ? s.data() : null
+  } catch { return null }
+}
+
+/** Planlayıcı ayarını yaz (merge). */
+export async function setPlanConfig(uid, cfg) {
+  if (!db || !uid) return
+  await setDoc(doc(db, 'users', uid, 'plan_config', 'genel'),
+    { ...cfg, updatedAt: serverTimestamp() }, { merge: true })
+}
+
+/** Bir haftanın görevlerini izle (hafta alanına göre) → dizi; erişilemezse null. */
+export function watchPlanGorevler(uid, hafta, callback) {
+  if (!db || !uid) { callback([]); return () => {} }
+  const q = query(collection(db, 'users', uid, 'plan_gorev'), where('hafta', '==', hafta))
+  return onSnapshot(q, (snap) => callback(snap.docs.map((d) => ({ id: d.id, ...d.data() }))), () => callback(null))
+}
+
+/** Tek görev ekle (yeni doküman id döner). */
+export async function addPlanGorev(uid, task) {
+  if (!db || !uid) return null
+  const rest = { ...task }; delete rest.id
+  const ref = await addDoc(collection(db, 'users', uid, 'plan_gorev'), { ...rest, createdAt: serverTimestamp() })
+  return ref.id
+}
+
+/** Çok görevi tek batch'te ekle ("Haftayı planla" — az yazma). */
+export async function addPlanGorevler(uid, tasks) {
+  if (!db || !uid || !tasks.length) return
+  const batch = writeBatch(db)
+  for (const t of tasks) {
+    const rest = { ...t }; delete rest.id
+    batch.set(doc(collection(db, 'users', uid, 'plan_gorev')), { ...rest, createdAt: serverTimestamp() })
+  }
+  await batch.commit()
+}
+
+/** Bir görevi güncelle (tamamla / tarih taşı). */
+export async function updatePlanGorev(uid, id, patch) {
+  if (!db || !uid || !id) return
+  await updateDoc(doc(db, 'users', uid, 'plan_gorev', id), patch)
+}
+
+/** Bir görevi sil. */
+export async function removePlanGorev(uid, id) {
+  if (!db || !uid || !id) return
+  await deleteDoc(doc(db, 'users', uid, 'plan_gorev', id))
+}
+
+/** Konu ilerlemesini (checked haritası) tek seferde oku — Planım doğrudan açılınca hidrasyon. */
+export async function getKonuChecked(uid, sinav) {
+  if (!db || !uid) return {}
+  try {
+    const s = await getDoc(doc(db, 'users', uid, 'konu_ilerleme', sinav))
+    return s.exists() ? (s.data().checked || {}) : {}
+  } catch { return {} }
+}
+
+/** Bir sınavın çözülen-soru kayıtlarını oku — Planım hidrasyonu (öneri + scheduler için). */
+export async function getSoruList(uid, sinav) {
+  if (!db || !uid) return []
+  try {
+    const snap = await getDocs(collection(db, 'users', uid, 'soru_kayit'))
+    return snap.docs.map((d) => d.data()).filter((r) => !sinav || r.sinav === sinav)
+  } catch { return [] }
+}
+
 /** Girişli kullanıcının tüm çalışma istatistiğini topla (Pano için). */
 export async function getIstatistik(uid) {
-  const s = { konuDone: 0, denemeSayisi: 0, soruCozulen: 0, yanlisSayisi: 0, streakLongest: 0, sureDk: 0, sureHafta: {}, dersSure: {}, kullanimDk: 0, dogruCevap: 0 }
+  const s = { konuDone: 0, denemeSayisi: 0, soruCozulen: 0, yanlisSayisi: 0, streakLongest: 0, sureDk: 0, sureHafta: {}, dersSure: {}, kullanimDk: 0, dogruCevap: 0, planGorev: 0 }
   if (!db || !uid) return s
   try {
-    const [konu, den, soru, yan, akt, ist] = await Promise.all([
+    const [konu, den, soru, yan, akt, ist, plan] = await Promise.all([
       getDocs(collection(db, 'users', uid, 'konu_ilerleme')),
       getDocs(collection(db, 'users', uid, 'denemeler')),
       getDocs(collection(db, 'users', uid, 'soru_kayit')),
       getDocs(collection(db, 'users', uid, 'yanlislar')),
       getDoc(doc(db, 'users', uid, 'aktivite', 'gunluk')),
       getDoc(doc(db, 'users', uid, 'istatistik', 'genel')),
+      getDocs(collection(db, 'users', uid, 'plan_gorev')),
     ])
     konu.forEach((d) => { s.konuDone += Object.keys(d.data().checked || {}).length })
     s.denemeSayisi = den.size
     soru.forEach((d) => { s.soruCozulen += d.data().cozulen || 0 }) // çözülen soru toplamı
     s.yanlisSayisi = yan.size
+    // planGorev tamamlanan görevlerden TÜRETİLİR (misafir guestStats ile aynı — uncheck'te de tutarlı)
+    plan.forEach((d) => { if (d.data().status === 'done') s.planGorev += 1 })
     if (akt.exists()) s.streakLongest = akt.data().longest || 0
     if (ist.exists()) { const g = ist.data(); s.sureDk = g.sureDk || 0; s.sureHafta = g.sureHafta || {}; s.dersSure = g.dersSure || {}; s.kullanimDk = g.kullanimDk || 0; s.dogruCevap = g.dogruCevap || 0 }
     // Budama: sadece ESKİ anahtarları deleteField ile sil (tam-harita yazımı, eş
