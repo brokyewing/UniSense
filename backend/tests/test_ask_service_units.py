@@ -442,6 +442,24 @@ class TestProfileContext:
         d = c.model_dump(exclude_none=True)
         assert d["tus_puan"] == 55 and d["lgs_yuzdelik"] == 2.5 and d["ags_net"] == 60
 
+    def test_study_progress_in_profile_block(self):
+        from unisense.application.services.ask_service import _build_profile_context
+        b = _build_profile_context({
+            "calisma_toplam_konu": 120, "calisma_kalan_konu": 78,
+            "calisma_zayif": ["türev", "optik"],
+        })
+        assert "120" in b and "78" in b  # kalan/toplam yansır
+        assert "42" in b  # bitti = 120-78
+        assert "türev" in b and "optik" in b  # zayıf konular
+        assert "plan" in b.lower()  # planlama yönergesi eklendi
+
+    def test_study_schema_fields_and_clamps(self):
+        from unisense.api.v1.schemas import UserExamContext
+        c = UserExamContext(calisma_kalan_konu=50, calisma_toplam_konu=100,
+                            calisma_zayif=["a", "b", "c"])
+        d = c.model_dump(exclude_none=True)
+        assert d["calisma_kalan_konu"] == 50 and len(d["calisma_zayif"]) == 3
+
 
 class TestKpssNet:
     def test_kpss_net_reverse(self):

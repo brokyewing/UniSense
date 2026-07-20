@@ -210,3 +210,63 @@ export function parseDirektif(text) {
     }
   } catch { return null }
 }
+
+/** Hedef cümlesi LLM cevabından {gunSayisi, gunlukSoru, tavsiye} ayıkla | null. */
+export function parseHedef(text) {
+  if (!text) return null
+  try {
+    const m = String(text).match(/\{[\s\S]*\}/)
+    if (!m) return null
+    const o = JSON.parse(m[0])
+    const gun = Number(o.gunSayisi ?? o.gun ?? o.days)
+    const soru = Number(o.gunlukSoru ?? o.soru ?? o.perDay)
+    if (!Number.isFinite(gun) || gun < 1) return null
+    return {
+      gunSayisi: Math.max(1, Math.min(365, Math.round(gun))),
+      gunlukSoru: Number.isFinite(soru) && soru > 0 ? Math.max(5, Math.min(1000, Math.round(soru))) : null,
+      tavsiye: typeof o.tavsiye === 'string' ? o.tavsiye.slice(0, 300) : '',
+    }
+  } catch { return null }
+}
+
+/**
+ * Ufuk planı: TÜM eksik/zayıf konuları `gunSayisi` güne deterministik dağıtır.
+ * Her görev kendi `hafta` alanını taşır (çok-haftalık). `gunlukSoru` verilirse günlük
+ * blok sayısı (~20 soru/görev) ve görev başına soru ondan türetilir. Konu havuzu
+ * gün sayısını doldurmazsa döner (pekiştirme/tekrar) — böylece hedef tempo korunur.
+ */
+export function ufukPlanla({ konuData, checked, soruOzet = [], gunSayisi = 30, gunlukSoru, gunlukBlok, baslangic = isoGun() }) {
+  const havuzListe = havuz(konuData, checked, soruOzet)
+  if (!havuzListe.length || gunSayisi < 1) return []
+  let blok = gunlukBlok
+  let soruPer = 20
+  if (gunlukSoru) {
+    blok = Math.max(1, Math.min(12, Math.round(gunlukSoru / 20)))
+    soruPer = Math.max(5, Math.round(gunlukSoru / blok))
+  }
+  blok = Math.max(1, Math.min(12, Math.round(blok || 4)))
+  const baslik = (c) => (c.tur === 'tekrar' ? `${c.konu} — tekrar & ${soruPer} soru` : `${c.konu} — ${soruPer} soru`)
+  const tasks = []
+  const start = new Date(baslangic + 'T00:00:00')
+  const gun = Math.min(365, Math.round(gunSayisi))
+  let hi = 0
+  for (let g = 0; g < gun; g++) {
+    const d = new Date(start)
+    d.setDate(start.getDate() + g)
+    const tarih = isoGun(d)
+    const wk = isoHafta(d)
+    const doluluk = new Set() // gün içi aynı konuyu tekrar koyma
+    let konulan = 0
+    let deneme = 0
+    while (konulan < blok && deneme < havuzListe.length) {
+      const c = havuzListe[hi % havuzListe.length]
+      hi++; deneme++
+      if (doluluk.has(c.konu)) continue
+      doluluk.add(c.konu)
+      tasks.push({ ...gorevYap({ id: `u-${g}-${konulan}`, ders: c.ders, konu: c.konu, title: baslik(c), tarih, source: 'auto', tur: c.tur }), hafta: wk })
+      konulan++
+      deneme = 0
+    }
+  }
+  return tasks
+}

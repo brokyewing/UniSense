@@ -16,6 +16,7 @@ import {
   getUserProfile,
 } from '../firebase'
 import { apiFetch } from '../lib/api'
+import { eksikKonular } from '../lib/konu'
 
 function Avatar({ kind, photoURL }) {
   if (kind === 'user') {
@@ -280,7 +281,7 @@ export default function Search() {
   // puan yazmaya gerek kalmaz, backend profildekini kullanır
   useEffect(() => {
     if (!user) { setExamCtx(null); return }
-    getUserProfile(user.uid).then((p) => {
+    getUserProfile(user.uid).then(async (p) => {
       const prof = p?.profile || {}
       const ctx = {}
       if (prof.examTrack) ctx.exam_track = prof.examTrack
@@ -307,6 +308,26 @@ export default function Search() {
       if (prof.preferredCities?.length) ctx.tercih_sehirler = prof.preferredCities.slice(0, 10)
       if (prof.preferredUniType && prof.preferredUniType !== 'all') {
         ctx.tercih_uni_turu = prof.preferredUniType
+      }
+      // Çalışma ilerlemesi → AI "bana X günde plan yap" sorularında gerçek veriye dayanır
+      const track = prof.examTrack
+      if (track && ['YKS', 'DGS', 'KPSS', 'LGS'].includes(track)) {
+        try {
+          const checked = JSON.parse(localStorage.getItem('unisense_konu_v1_' + track) || '{}')
+          const konuData = await apiFetch(`/api/v1/konular?sinav=${track}`)
+          const { toplam, eksik } = eksikKonular(konuData, checked)
+          if (toplam) { ctx.calisma_toplam_konu = toplam; ctx.calisma_kalan_konu = eksik.length }
+        } catch { /* konu verisi alınamadı → atla */ }
+        try {
+          const m = new Map()
+          for (const r of JSON.parse(localStorage.getItem('unisense_soru_' + track) || '[]')) {
+            const k = r.konu || r.ders; if (!k) continue
+            const o = m.get(k) || { konu: k, c: 0, d: 0 }
+            o.c += r.cozulen || 0; o.d += r.dogru || 0; m.set(k, o)
+          }
+          const zayif = [...m.values()].filter((o) => o.c >= 5 && o.d / o.c < 0.6).slice(0, 6).map((o) => o.konu)
+          if (zayif.length) ctx.calisma_zayif = zayif
+        } catch { /* noop */ }
       }
       setExamCtx(Object.keys(ctx).length ? ctx : null)
     }).catch(() => {})
