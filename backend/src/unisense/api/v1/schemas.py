@@ -13,7 +13,7 @@ class ChatTurn(BaseModel):
 
 class UserExamContext(BaseModel):
     """Profilden gelen sınav puanları — YKS/KPSS/DGS sorularında otomatik kullanılır."""
-    exam_track: str | None = Field(None, pattern="^(YKS|DGS|KPSS)$")
+    exam_track: str | None = Field(None, pattern="^(YKS|DGS|KPSS|LGS)$")
     # YKS: "puanıma göre X kazanabilir miyim" için profildeki puan/sıra/tür
     yks_puan: float | None = Field(None, ge=0, le=600)
     yks_turu: str | None = Field(None, pattern="^(SAY|EA|SÖZ|DİL|TYT)$")
@@ -29,6 +29,10 @@ class UserExamContext(BaseModel):
     ags_net: float | None = Field(None, ge=0, le=120)
     tercih_sehirler: list[str] | None = Field(None, max_length=10)
     tercih_uni_turu: str | None = Field(None, max_length=20)
+    # Çalışma ilerlemesi (Konu Takibi + Çalışmalarım) — "bana plan yap" tarzı sorular için
+    calisma_kalan_konu: int | None = Field(None, ge=0, le=5000)
+    calisma_toplam_konu: int | None = Field(None, ge=0, le=5000)
+    calisma_zayif: list[str] | None = Field(None, max_length=6)
 
 
 class AskRequest(BaseModel):

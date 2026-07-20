@@ -910,6 +910,17 @@ def _build_profile_context(uc: dict | None) -> str:
         rows.append(f"Tercih ettiği şehirler: {', '.join(uc['tercih_sehirler'])}")
     if uc.get("tercih_uni_turu") and uc.get("tercih_uni_turu") != "all":
         rows.append(f"Üniversite tercihi: {uc['tercih_uni_turu']}")
+    # Çalışma ilerlemesi — "bana X günde plan yap" tarzı sorular buna dayanır
+    kalan = uc.get("calisma_kalan_konu")
+    toplam = uc.get("calisma_toplam_konu")
+    if kalan is not None and toplam:
+        bitti = max(0, toplam - kalan)
+        rows.append(f"Çalışma ilerlemesi: {toplam} konudan {bitti} işaretlendi, {kalan} konu kaldı")
+    elif kalan is not None:
+        rows.append(f"Çalışılacak {kalan} konu kaldı")
+    zayif = uc.get("calisma_zayif")
+    if zayif:
+        rows.append("Zayıf/eksik konular: " + ", ".join(str(z)[:40] for z in zayif[:6]))
     if not rows:
         return ""
     return (
@@ -918,7 +929,10 @@ def _build_profile_context(uc: dict | None) -> str:
         + "\nYÖNERGE: Bu, kullanıcının profilinden SANA verilen KENDİ verisidir. "
         "'puanım/sıralamam/kazanabilir miyim' gibi ifadelerde bunu DOĞRUDAN kullan. "
         "ASLA 'kişisel verine erişemem' deme — erişimin var, yukarıda listeli. Sıra "
-        "sorulursa yukarıdaki TEK sırayı kullan (farklı sıra uydurma, tutarlı ol)."
+        "sorulursa yukarıdaki TEK sırayı kullan (farklı sıra uydurma, tutarlı ol). "
+        "Çalışma planı/program istenirse (ör. 'X günde tüm konular', 'günde N soru') "
+        "yukarıdaki kalan konu sayısı ve zayıf konuları temel al; gerçekçi günlük "
+        "dağılım öner ve Planım sekmesinden otomatik plan kurabileceğini hatırlat."
     )
 
 

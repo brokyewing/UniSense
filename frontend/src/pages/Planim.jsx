@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useLocation, Link } from 'react-router-dom'
-import { CalendarRange, Plus, Check, Loader2, Sparkles, Wand2, Trash2, Settings2, CheckCircle2 } from 'lucide-react'
+import { CalendarRange, Plus, Check, Loader2, Sparkles, Wand2, Trash2, Settings2, CheckCircle2, Target } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
@@ -14,6 +14,7 @@ import { konuLocal } from '../lib/konu'
 import {
   isoGun, isoHafta, gunFark, oneriler, haftaPlanla, carryForward,
   uyumYuzde, gecikmeYuzde, tekrarTarihleri, TEKRAR_ARALIK, kompaktOzet, parseDirektif, gorevYap,
+  ufukPlanla, parseHedef,
 } from '../lib/planlayici'
 
 const SINAVLAR = ['YKS', 'DGS', 'KPSS', 'LGS']
@@ -65,6 +66,8 @@ export default function Planim({ embedded = false }) {
   const [toast, setToast] = useState('')
   const [ai, setAi] = useState({ loading: false, text: '', oncelik: null })
   const [ayar, setAyar] = useState(false) // ayar panelini aç
+  const [hedefMetin, setHedefMetin] = useState('')
+  const [hedefAI, setHedefAI] = useState({ loading: false, text: '' })
 
   const flash = useCallback((m) => { setToast(m); setTimeout(() => setToast(''), 2200) }, [])
 
@@ -240,6 +243,49 @@ export default function Planim({ embedded = false }) {
     setAi({ loading: false, text: '', oncelik: null }); flash('✓ Plan güncellendi')
   }
 
+  // Serbest hedef → AI yorumlar {gunSayisi, gunlukSoru} → ufuk planı tüm konuları N güne dağıtır
+  async function hedefPlanla() {
+    const g = hedefMetin.trim()
+    if (!g) return
+    if (!konuData) { flash('Konu listesi yükleniyor…'); return }
+    setHedefAI({ loading: true, text: '' })
+    const q = `Öğrenci çalışma hedefi: "${g.slice(0, 140)}". Sınav: ${track}. SADECE şu JSON: {"gunSayisi":<toplam kaç gün>,"gunlukSoru":<günde kaç soru, belirtilmediyse 0>,"tavsiye":"1 kısa cümle Türkçe"}`.slice(0, 490)
+    const cagir = () => apiFetch('/api/v1/ask', { method: 'POST', body: { query: q } }).then((r) => r?.text || '')
+    let hedef = null
+    try {
+      let text = await cagir()
+      hedef = parseHedef(text)
+      if (!hedef) { text = await cagir(); hedef = parseHedef(text) } // retry=1
+    } catch { /* AI erişilemedi → aşağıda regex fallback */ }
+    // Fallback: AI çözemezse cümledeki sayıları yakala (uygulama LLM'siz de çalışsın)
+    if (!hedef) {
+      const gm = g.match(/(\d{1,3})\s*g[üu]n/i)
+      const sm = g.match(/(\d{1,4})\s*soru/i)
+      if (gm) hedef = { gunSayisi: Math.min(365, +gm[1]), gunlukSoru: sm ? Math.min(1000, +sm[1]) : null, tavsiye: '' }
+    }
+    if (!hedef) { setHedefAI({ loading: false, text: 'Hedefi anlayamadım. Örn: "50 günde tüm konular, günde 100 soru".' }); return }
+    const yeni = ufukPlanla({ konuData, checked, soruOzet, gunSayisi: hedef.gunSayisi, gunlukSoru: hedef.gunlukSoru, baslangic: bugun })
+    if (!yeni.length) { setHedefAI({ loading: false, text: 'Planlanacak konu bulunamadı — önce Konu Takibi\'nden konularını işaretle.' }); return }
+    if (user) {
+      // Bu haftanın otomatik görevlerini temizle (görünür çift-plan olmasın) + hepsini batch yaz
+      for (const t of tasks.filter((t) => t.status !== 'done' && t.source !== 'manual')) removePlanGorev(user.uid, t.id).catch(() => {})
+      addPlanGorevler(user.uid, yeni).catch(() => {}) // her görev zaten hafta alanlı → çok-haftalık
+    } else {
+      // Haftaya göre grupla; her haftanın auto'sunu değiştir (manual/done korunur)
+      const gruplar = {}
+      for (const t of yeni) (gruplar[t.hafta] = gruplar[t.hafta] || []).push(t)
+      for (const [wk, list] of Object.entries(gruplar)) {
+        const cur = loadJSON(WK_LS(wk), '[]').filter((t) => t.status === 'done' || t.source === 'manual')
+        const merged = [...cur, ...list.map((t, i) => ({ ...t, id: `u-${wk}-${i}` }))]
+        saveJSON(WK_LS(wk), merged)
+        if (wk === hafta) setTasks(merged)
+      }
+    }
+    setHedefMetin('')
+    setHedefAI({ loading: false, text: `✓ ${hedef.gunSayisi} güne ${yeni.length} görev dağıtıldı${hedef.gunlukSoru ? ` (günde ~${hedef.gunlukSoru} soru)` : ''}.${hedef.tavsiye ? ' ' + hedef.tavsiye : ''}` })
+    flash('✓ Plan oluşturuldu')
+  }
+
   function sil(t) {
     if (user) removePlanGorev(user.uid, t.id).catch(() => {})
     else guestSave(tasks.filter((x) => x.id !== t.id))
@@ -337,6 +383,23 @@ export default function Planim({ embedded = false }) {
           </div>
         </div>
       )}
+
+      {/* Hedefle planla — serbest hedef → AI → tüm konuları N güne dağıt */}
+      <div className="card space-y-2">
+        <div className="text-sm font-semibold text-white flex items-center gap-1.5"><Target size={15} className="text-teal-300" /> Hedefle planla</div>
+        <p className="text-[12px] text-slate-400">Hedefini yaz; AI tüm konuları o tempoya göre günlere dağıtsın.</p>
+        <div className="flex gap-2">
+          <input value={hedefMetin} onChange={(e) => setHedefMetin(e.target.value)} maxLength={140}
+            onKeyDown={(e) => { if (e.key === 'Enter') hedefPlanla() }}
+            placeholder="ör. 50 günde tüm konular, günde 100 soru"
+            className="input-glass text-sm flex-1" />
+          <button onClick={hedefPlanla} disabled={hedefAI.loading || !hedefMetin.trim()}
+            className="btn-primary text-sm inline-flex items-center gap-1 disabled:opacity-50">
+            {hedefAI.loading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />} Planla
+          </button>
+        </div>
+        {hedefAI.text && <p className="text-[12px] text-teal-200 whitespace-pre-wrap">{hedefAI.text}</p>}
+      </div>
 
       {/* Bugün ne çalışayım? */}
       {oneriListe.length > 0 && (
