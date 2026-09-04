@@ -28,8 +28,8 @@ import sys
 import time
 from pathlib import Path
 
-from yokatlas_py.http_client import HttpClient
 from yokatlas_py.config import Settings
+from yokatlas_py.http_client import HttpClient
 
 if sys.platform == "win32":
     import io as _io

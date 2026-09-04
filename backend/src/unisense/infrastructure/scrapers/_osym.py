@@ -74,7 +74,7 @@ def discover(s: requests.Session, pattern: str) -> list[tuple[str, str]]:
     seen: set[str] = set()
     for m in re.finditer(r'href="(/[^"]+)"', html):
         slug = m.group(1)
-        if slug in seen or not re.search(pattern, slug, re.I):
+        if slug in seen or not re.search(pattern, slug, re.IGNORECASE):
             continue
         seen.add(slug)
         out.append((slug, BASE + slug))

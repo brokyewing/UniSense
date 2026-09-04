@@ -90,7 +90,7 @@ def require_user(
 
     try:
         claims = _verify_token(token, settings.firebase_project_id)
-    except Exception as e:  # noqa: BLE001 — expired/invalid/imza hepsi 401
+    except Exception as e:
         client_ip = request.client.host if request.client else "?"
         logger.warning("auth_token_invalid", ip=client_ip, error=str(e)[:120])
         raise AuthenticationError("Geçersiz veya süresi dolmuş oturum") from None

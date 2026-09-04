@@ -36,7 +36,7 @@ def _summary(content: str, limit: int = 200) -> str:
     """İçerikten kısa özet (katalog kartı + meta description için)."""
     text = re.sub(r"[*#>_`]", "", content or "")
     text = re.sub(r"[\U0001F000-\U0001FAFF☀-➿]", "", text)  # emoji temizle
-    m = re.search(r"Bölüm Nedir[:\s]*(.+)", text, re.S)
+    m = re.search(r"Bölüm Nedir[:\s]*(.+)", text, re.DOTALL)
     body = m.group(1) if m else text
     body = " ".join(body.split())
     return body[:limit].rstrip() + ("…" if len(body) > limit else "")

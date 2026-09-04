@@ -15,10 +15,10 @@ import sys
 import time
 from pathlib import Path
 
-import chromadb  # noqa: E402
+import chromadb
 
-from unisense.core.config import get_settings  # noqa: E402
-from unisense.infrastructure.embeddings import embed_texts  # noqa: E402
+from unisense.core.config import get_settings
+from unisense.infrastructure.embeddings import embed_texts
 
 if sys.platform == "win32":
     import io as _io
@@ -38,7 +38,7 @@ def _collection_dim(collection) -> int | None:
         embs = peek.get("embeddings")
         if embs is not None and len(embs) > 0:
             return len(embs[0])
-    except Exception:  # noqa: BLE001
+    except Exception:
         pass
     return None
 

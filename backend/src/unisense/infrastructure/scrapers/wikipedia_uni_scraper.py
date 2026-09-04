@@ -18,7 +18,9 @@ import time
 from pathlib import Path
 
 import requests
-from ._guard import ScrapeGuardError, check as guard_check
+
+from ._guard import ScrapeGuardError
+from ._guard import check as guard_check
 
 if sys.platform == "win32":
     import io as _io
@@ -90,7 +92,7 @@ def _direct_title_check(query: str) -> str | None:
         r = requests.get(WIKI_API, params=params, headers=HEADERS, timeout=10)
         r.raise_for_status()
         pages = r.json().get("query", {}).get("pages", {})
-        for _, page in pages.items():
+        for page in pages.values():
             if "missing" in page:
                 return None
             title = page.get("title", "")
@@ -122,7 +124,7 @@ def fetch_extract(title: str) -> str | None:
                 continue
             r.raise_for_status()
             pages = r.json().get("query", {}).get("pages", {})
-            for _, page in pages.items():
+            for page in pages.values():
                 if "missing" in page:
                     return None
                 return page.get("extract", "")
@@ -171,9 +173,8 @@ SKIP_HEADINGS = {
 def is_useful(text: str) -> bool:
     if len(text) < 100:
         return False
-    if text.count("|") > len(text) / 30:
-        return False
-    return True
+    # Tablo/şablon artığı: pipe yoğunluğu yüksekse metin sayılmaz
+    return text.count("|") <= len(text) / 30
 
 
 def turkish_lower(s: str) -> str:

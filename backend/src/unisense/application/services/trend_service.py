@@ -74,7 +74,7 @@ def _load_history() -> dict[str, list[dict]]:
                         "yerlesen": h.get("yerlesen"),
                         "score_type": r.get("score_type"),
                     })
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             logger.warning("trend_load_current_failed", error=str(e)[:200])
 
     # 2) Geçmiş yıllar (varsa)
@@ -92,12 +92,12 @@ def _load_history() -> dict[str, list[dict]]:
                     "quota": r.get("quota"),
                     "score_type": r.get("score_type"),
                 })
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             logger.warning("trend_load_history_failed", error=str(e)[:200])
 
     # Yıla göre sırala (en eski → en yeni)
-    for code in out:
-        out[code].sort(key=lambda x: x.get("year") or 0)
+    for kayitlar in out.values():
+        kayitlar.sort(key=lambda x: x.get("year") or 0)
 
     return out
 

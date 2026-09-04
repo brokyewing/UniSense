@@ -16,9 +16,11 @@ import sys
 import time
 from pathlib import Path
 
-from yokatlas_py.http_client import HttpClient
 from yokatlas_py.config import Settings
-from ._guard import ScrapeGuardError, check as guard_check
+from yokatlas_py.http_client import HttpClient
+
+from ._guard import ScrapeGuardError
+from ._guard import check as guard_check
 
 # Encoding fix for Windows console
 if sys.platform == "win32":

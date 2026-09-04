@@ -23,7 +23,7 @@ import json
 import re
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import requests
@@ -62,7 +62,7 @@ def _clean(html_fragment: str) -> str:
 
 def _split_years(td_html: str) -> list[str]:
     """<br> ile ayrılmış çok yıllı hücreyi parçalara böler (ilk = en güncel yıl)."""
-    parts = re.split(r"<br\s*/?>", td_html, flags=re.I)
+    parts = re.split(r"<br\s*/?>", td_html, flags=re.IGNORECASE)
     return [_clean(p) for p in parts if _clean(p)]
 
 
@@ -108,8 +108,8 @@ def parse_il(html: str, il_slug: str) -> list[dict]:
     """Bir il sayfasının tablo satırlarını normalize edilmiş kayıtlara çevirir."""
     liseler: list[dict] = []
     # Veri satırları: içinde 9 td olan tr'ler
-    for tr in re.findall(r"<tr[^>]*>.*?</tr>", html, re.S):
-        tds = re.findall(r"<td[^>]*>(.*?)</td>", tr, re.S)
+    for tr in re.findall(r"<tr[^>]*>.*?</tr>", html, re.DOTALL):
+        tds = re.findall(r"<td[^>]*>(.*?)</td>", tr, re.DOTALL)
         if len(tds) < 9:
             continue
         okul = _clean(tds[1])
@@ -120,7 +120,7 @@ def parse_il(html: str, il_slug: str) -> list[dict]:
         il = il_ilce[0] if il_ilce else il_slug.upper()
         ilce = il_ilce[1] if len(il_ilce) > 1 else ""
         # Öğretim türü / dil (td3): "İngilizce - Kız/Erkek" + <small>4 yıl</small>
-        dil = _clean(re.sub(r"<small>.*?</small>", "", tds[3], flags=re.S))
+        dil = _clean(re.sub(r"<small>.*?</small>", "", tds[3], flags=re.DOTALL))
         # Çok yıllı sütunlar
         yillar = _split_years(tds[4])
         tabanlar = _split_years(tds[5])
@@ -194,7 +194,7 @@ def scrape() -> dict:
             kayitlar = parse_il(r.text, slug)
             all_liseler.extend(kayitlar)
             print(f"[{i:2}/81] {slug:16} {len(kayitlar):4} lise")
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             basarisiz.append(slug)
             print(f"[{i:2}/81] {slug:16} HATA: {type(e).__name__}: {e}")
         time.sleep(0.7)  # kibar gecikme
@@ -203,14 +203,14 @@ def scrape() -> dict:
         try:
             eski = json.loads(OUT.read_text(encoding="utf-8")).get("liseler", [])
             _merge_history(all_liseler, eski)
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             print(f"  ⚠️ arşiv birleştirme atlandı: {e}")
     # En güncel yılı tespit et (trend'lerdeki max yıl) — metinler yıla göre üretilir,
     # böylece yıllık cron'da elle güncelleme gerekmez
     yillar = [t["yil"] for lise in all_liseler for t in lise["trend"]]
     guncel_yil = max(yillar) if yillar else None
     return {
-        "guncelleme": datetime.now(timezone.utc).strftime("%Y-%m"),
+        "guncelleme": datetime.now(UTC).strftime("%Y-%m"),
         "kaynak": "MEB e-Okul taban puan verisi (tabanpuanlari.tr üzerinden derlendi)",
         "not": (
             f"Yüzdelik dilim Türkiye geneli, geçen yıl (LGS {guncel_yil}) verisidir ve TAHMİNÎDİR — "
@@ -249,7 +249,7 @@ def main() -> None:
                 print(f"\n⛔ {data['toplam']} < önceki {onceki}×0.9 — şüpheli daralma; "
                       f"{OUT.name} GÜNCELLENMEDİ")
                 sys.exit(1)
-        except Exception:  # noqa: BLE001, S110
+        except Exception:
             pass
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")

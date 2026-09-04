@@ -19,7 +19,9 @@ from pathlib import Path
 
 import fitz
 import requests
-from ._guard import ScrapeGuardError, check as guard_check
+
+from ._guard import ScrapeGuardError
+from ._guard import check as guard_check
 
 if sys.platform == "win32":
     import io as _io
@@ -50,7 +52,7 @@ def _discover_kilavuz(s: requests.Session) -> tuple[str, str]:
         best = None
         for m in re.finditer(
             r'href="(/TR,\d+/kpss-?(20\d\d)(\d)-[^"]*tercih-kilavuzu[^"]*\.html)"',
-            html, re.I,
+            html, re.IGNORECASE,
         ):
             key = (int(m.group(2)), int(m.group(3)))  # (yıl, dönem) — en yenisi
             if best is None or key > best[0]:
@@ -59,7 +61,7 @@ def _discover_kilavuz(s: requests.Session) -> tuple[str, str]:
         # Keşfedilen, bilinen dönemden YENİYSE kullan; eskiyse bilinene düş
         if best and best[0] > known:
             return best[1], best[2]
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"   ⚠️ kılavuz keşfi atlandı ({str(e)[:60]})")
     return DONEM, KILAVUZ_PAGE
 
@@ -67,7 +69,7 @@ def _discover_kilavuz(s: requests.Session) -> tuple[str, str]:
 def _find_kilavuz_pdfs(s: requests.Session, page_url: str) -> tuple[dict, dict]:
     """Kılavuz sayfasından tablo + nitelik PDF linklerini çıkar."""
     html = s.get(page_url, timeout=60).text
-    urls = re.findall(r'href="(https://dokuman\.osym\.gov\.tr/[^"]*\.pdf)"', html, re.I)
+    urls = re.findall(r'href="(https://dokuman\.osym\.gov\.tr/[^"]*\.pdf)"', html, re.IGNORECASE)
     tablolar, nitelikler, ekler = {}, {}, {}
     for u in dict.fromkeys(urls):
         fname = u.rsplit("/", 1)[-1].lower()

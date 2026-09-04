@@ -51,7 +51,7 @@ SOURCE_PAGES = {
 # sayısal bilgiler" duyuruları taranır — yeni dönem (2026/1, 2026/2...)
 # yayınlandığında elle URL eklemeye gerek kalmaz (aylık cron çağırır).
 DISCOVER_URL = "https://www.osym.gov.tr/arama?_Dil=1&aranan=kpss+yerlestirme+sonuclarina+iliskin+sayisal"
-_DONEM_RE = re.compile(r"kpss-?(20\d\d)(\d)[^0-9]", re.I)
+_DONEM_RE = re.compile(r"kpss-?(20\d\d)(\d)[^0-9]", re.IGNORECASE)
 
 
 def _discover_pages(s: requests.Session) -> dict[str, str]:
@@ -69,7 +69,7 @@ def _discover_pages(s: requests.Session) -> dict[str, str]:
     # Önce onları koyup setdefault etmek, canlı adresi ölü adresle gölgelerdi.
     pages: dict[str, str] = {}
     for slug, url in found:
-        m = re.search(r"kpss-?(20\d\d)(\d)", slug, re.I)
+        m = re.search(r"kpss-?(20\d\d)(\d)", slug, re.IGNORECASE)
         if m:
             pages[f"{m.group(1)}/{m.group(2)}"] = url
     # Keşfedilemeyen dönemler için son çare
@@ -111,7 +111,7 @@ def _find_pdfs(s: requests.Session, page_url: str) -> dict[str, str]:
     # "...-en-kucuk-ve-en-buyuk-puanlar-<duzey>-*.pdf" → ikisini de yakala.
     urls = re.findall(
         r'href="(https://dokuman\.osym\.gov\.tr/[^"]*'
-        r'(?:minmax|en-kucuk-ve-en-buyuk)[^"]*\.pdf)"', html, re.I)
+        r'(?:minmax|en-kucuk-ve-en-buyuk)[^"]*\.pdf)"', html, re.IGNORECASE)
     out = {}
     for u in dict.fromkeys(urls):
         low = u.lower()

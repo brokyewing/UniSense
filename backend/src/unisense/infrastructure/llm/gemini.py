@@ -116,7 +116,7 @@ class GeminiProvider:
                             logger.info("gemini_multi_turn", turns=len(history))
                         return text
                     raise UpstreamError("Gemini boş cevap döndü")
-                except Exception as e:  # noqa: BLE001
+                except Exception as e:
                     msg = str(e)
                     last_error = e
                     if "429" in msg or "quota" in msg.lower() or "RESOURCE_EXHAUSTED" in msg:

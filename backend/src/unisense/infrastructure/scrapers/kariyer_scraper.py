@@ -25,7 +25,13 @@ Hat B (özel sektör) canlı adaptörler — API anahtarlı, env'den okunur:
   Desenler career-ops providers/jooble.mjs + careerjet.mjs'ten alındı.
 
 Kayıt şeması (liste, guard uyumlu):
-  {id, hat, kaynak, baslik, kurum, sehir, tarih, url, ozet, detay, ilk_gorulme}
+  {id, hat, kaynak, baslik, kurum, sehir, tarih, url, ozet, detay, ilk_gorulme,
+   bolumler: [coklu etiket — cift taraflı: bir ilan birden çok bölüme girer]}
+
+Bölüm etiketleme: başlık+açıklama fold'lanıp BÖLÜM_ANAHTAR ile taranır (LLM yok,
+deterministik). Tek platformdan GENİŞ çekim (bölüm-agnostik sorgular) + yerelde
+etiketleme: Jooble 4 sorgu×5 sayfa (~20 istek/gün, kota 500), Careerjet
+3 sorgu×3 sayfa. Kayıtlar 30 günlük kayan pencerede tutulur (budama _merge'de).
 
 Çıktı: data/processed/kariyer_ilanlar.json (liste)
 Kullanım: python -m unisense.infrastructure.scrapers.kariyer_scraper
@@ -38,7 +44,7 @@ import os
 import re
 import sys
 import time
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import fitz  # PyMuPDF
@@ -136,7 +142,7 @@ def scrape() -> list[dict]:
         for url in pdfler:
             try:
                 sonuc = _pdf_metni(session, url)
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 print(f"  ⚠️ {gun} {url.rsplit('/', 1)[-1]} indirilemedi: {type(e).__name__}")
                 atlanan += 1
                 continue
@@ -173,14 +179,48 @@ def scrape() -> list[dict]:
 
 # === Hat B: Jooble + Careerjet (API anahtarlı) ===
 
+# Geniş çekim: bölüm-agnostik sorgular, etiketleme yerelde yapılır.
 _HATB_JOOBLE_SORGULAR = [
-    ("yazılım geliştirici", "Türkiye"),
-    ("bilgisayar mühendisi", "Türkiye"),
+    ("mühendis", "Türkiye"),
+    ("yazılım", "Türkiye"),
+    ("teknik", "Türkiye"),
+    ("bilgisayar", "Türkiye"),
 ]
-_HATB_CJ_SORGULAR = ["yazılım", "bilgisayar mühendisi"]
-_HATB_SAYFA = 2          # kota dostu: Jooble varsayılan anahtarı 500 istek
+_HATB_CJ_SORGULAR = ["mühendis", "yazılım", "tekniker"]
+_HATB_SAYFA_JOOBLE = 5
+_HATB_SAYFA_CJ = 3
+SAKLA_GUN = 30  # kayan pencere: daha eskiler _merge'de budanır
 _CJ_UC = "http://public.api.careerjet.net/search"  # HTTPS yok (sağlayıcı tarafı)
 _CJ_REFERER = os.environ.get("CAREERJET_REFERER", "http://localhost/")
+
+
+# Bölüm anahtarları ÖNceden fold'lu (ascii) yazılır; metin fold_tr ile eşleşir.
+# Kaynak: PDF nitelik kodları (4531/4533/4611) + yaygın mühendislik bölümleri.
+BÖLÜM_ANAHTAR: dict[str, list[str]] = {
+    "bilgisayar": ["bilgisayar muhendis", "computer engineer", "bilgisayar programc"],
+    "yazilim": ["yazilim muhendis", "yazilim gelistir", "software engineer",
+                "software developer", "frontend developer", "backend developer",
+                "full stack", "mobil uygulama", "ios developer", "android developer"],
+    "elektrik_elektronik": ["elektrik", "elektronik", "haberlesme", "telekomunikasyon"],
+    "endustri": ["endustri muhendis", "industrial engineer", "uretim muhendis",
+                 "uretim planlama", "yalin uretim"],
+    "makine": ["makine muhendis", "mechanical engineer", "mekanik bakim", "hvac"],
+    "mekatronik": ["mekatronik", "robotik", "otomasyon", "plc", "gomulu sistem", "embedded"],
+    "insaat": ["insaat muhendis", "civil engineer", "santiye", "yapi denetim", "statik proje"],
+    "yapay_zeka_veri": ["yapay zeka", "machine learning", "veri bilim", "data scientist",
+                        "veri analist", "derin ogrenme", "buyuk veri"],
+    "siber": ["siber guvenlik", "bilgi guvenligi", "sizma testi", "penetration", "soc analist"],
+    "ag_sistem": ["sistem muhendis", "network", "ag yonetim", "devops", "bulut",
+                  "cloud engineer", "veritabani", "database", "sistem admin"],
+    "tekniker": ["tekniker", "teknisyen"],
+    "isletme": ["isletme", "iktisat", "muhasebe", "finans uzman", "bankacilik"],
+}
+
+
+def _bolum_etiketle(fold_metin: str) -> list[str]:
+    """Çift taraflı etiket: uyan TÜM bölümler döner (tekil değil)."""
+    return [bolum for bolum, anahtarlar in BÖLÜM_ANAHTAR.items()
+            if any(a in fold_metin for a in anahtarlar)]
 
 
 def _temizle_ham(s: str) -> str:
@@ -193,6 +233,7 @@ def _jooble_normalize(job: dict, bugun: str) -> dict | None:
     if not baslik or not link.startswith("http"):
         return None
     jid = str(job.get("id") or hashlib.sha1(link.encode()).hexdigest()[:12])
+    ozet = _temizle_ham(job.get("snippet") or "")[:500]
     return {
         "id": f"jooble-{jid}",
         "hat": "ozel",
@@ -202,9 +243,10 @@ def _jooble_normalize(job: dict, bugun: str) -> dict | None:
         "sehir": (job.get("location") or "").strip(),
         "tarih": (job.get("updated") or bugun)[:10],
         "url": link,
-        "ozet": _temizle_ham(job.get("snippet") or "")[:500],
+        "ozet": ozet,
         "detay": {"maas": (job.get("salary") or "").strip(), "tur": (job.get("type") or "").strip()},
         "ilk_gorulme": bugun,
+        "bolumler": _bolum_etiketle(fold_tr(f"{baslik} {ozet}")),
     }
 
 
@@ -213,6 +255,7 @@ def _careerjet_normalize(job: dict, bugun: str) -> dict | None:
     link = (job.get("url") or "").strip()
     if not baslik or not link.startswith("http"):
         return None
+    ozet = _temizle_ham(job.get("description") or "")[:500]
     return {
         "id": f"cj-{hashlib.sha1(link.encode()).hexdigest()[:12]}",
         "hat": "ozel",
@@ -222,9 +265,10 @@ def _careerjet_normalize(job: dict, bugun: str) -> dict | None:
         "sehir": (job.get("locations") or "").strip(),
         "tarih": (job.get("date") or bugun)[:10],
         "url": link,
-        "ozet": _temizle_ham(job.get("description") or "")[:500],
+        "ozet": ozet,
         "detay": {"maas": (job.get("salary") or "").strip(), "site": (job.get("site") or "").strip()},
         "ilk_gorulme": bugun,
+        "bolumler": _bolum_etiketle(fold_tr(f"{baslik} {ozet}")),
     }
 
 
@@ -235,14 +279,14 @@ def _scrape_hatb(session: requests.Session) -> list[dict]:
     jooble_key = os.environ.get("JOOBLE_API_KEY", "").strip()
     if jooble_key:
         for keywords, location in _HATB_JOOBLE_SORGULAR:
-            for page in range(1, _HATB_SAYFA + 1):
+            for page in range(1, _HATB_SAYFA_JOOBLE + 1):
                 try:
                     r = session.post(f"https://tr.jooble.org/api/{jooble_key}",
                                      json={"keywords": keywords, "location": location, "page": page},
                                      timeout=REQUEST_TIMEOUT)
                     r.raise_for_status()
                     jobs = r.json().get("jobs") or []
-                except Exception as e:  # noqa: BLE001
+                except Exception as e:
                     print(f"  ⚠️ jooble '{keywords}' s.{page}: {type(e).__name__}")
                     break
                 if not jobs:
@@ -258,7 +302,7 @@ def _scrape_hatb(session: requests.Session) -> list[dict]:
     cj_affid = os.environ.get("CAREERJET_API_KEY", "").strip()
     if cj_affid:
         for keywords in _HATB_CJ_SORGULAR:
-            for page in range(1, _HATB_SAYFA + 1):
+            for page in range(1, _HATB_SAYFA_CJ + 1):
                 try:
                     r = session.get(_CJ_UC, params={
                         "locale_code": "tr_TR", "keywords": keywords, "location": "",
@@ -268,7 +312,7 @@ def _scrape_hatb(session: requests.Session) -> list[dict]:
                     }, headers={"Referer": _CJ_REFERER}, timeout=REQUEST_TIMEOUT)
                     r.raise_for_status()
                     data = r.json()
-                except Exception as e:  # noqa: BLE001
+                except Exception as e:
                     print(f"  ⚠️ careerjet '{keywords}' s.{page}: {type(e).__name__}")
                     break
                 if not isinstance(data, dict) or data.get("type") != "JOBS":
@@ -291,14 +335,31 @@ def _scrape_hatb(session: requests.Session) -> list[dict]:
 
 
 def _merge(yeni: list[dict], eski: list[dict]) -> list[dict]:
-    """id'ye göre birleştir: eski kaydın ilk_gorulme'si korunur, gerisi güncellenir."""
+    """id'ye göre birleştir: eski kaydın ilk_gorulme'si korunur, gerisi güncellenir.
+
+    30 günlük kayan pencere: tarihi (yoksa ilk_gorulme'si) SAKLA_GUN'den eski
+    kayıtlar budanır — dosya şişmez, guard tabanı güncel kalır. Tarihsiz kayıt
+    cezalandırılmaz (her zaman korunur).
+    """
+    bugun = date.today()
     eski_map = {x.get("id"): x for x in eski if x.get("id")}
     birlesik: list[dict] = []
+    budanan = 0
     for k in yeni:
         onceki = eski_map.get(k["id"])
         if onceki and onceki.get("ilk_gorulme"):
             k = {**k, "ilk_gorulme": onceki["ilk_gorulme"]}
+        ref = (k.get("tarih") or k.get("ilk_gorulme") or "")[:10]
+        try:
+            yas = (bugun - date.fromisoformat(ref)).days if ref else 0
+        except ValueError:
+            yas = 0
+        if yas > SAKLA_GUN:
+            budanan += 1
+            continue
         birlesik.append(k)
+    if budanan:
+        print(f"  ✂ {budanan} kayıt 30 günden eski — budandı")
     return birlesik
 
 
@@ -310,7 +371,7 @@ def main() -> None:
         sys.stdout = _io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     try:
         yeni = scrape()
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"\n⛔ RG erişilemedi ({type(e).__name__}: {e}) — {OUT.name} GÜNCELLENMEDİ")
         sys.exit(1)
     eski: list[dict] = []
@@ -318,7 +379,7 @@ def main() -> None:
         try:
             data = json.loads(OUT.read_text(encoding="utf-8"))
             eski = data if isinstance(data, list) else []
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             print(f"  ⚠️ mevcut dosya okunamadı: {e}")
     birlesik = _merge(yeni, eski)
     try:
@@ -326,7 +387,7 @@ def main() -> None:
     except ScrapeGuardError as e:
         print(f"\n⛔ {e}")
         sys.exit(1)
-    print(f"  guncelleme: {datetime.now(timezone.utc).strftime('%Y-%m-%d')} "
+    print(f"  guncelleme: {datetime.now(UTC).strftime('%Y-%m-%d')} "
           f"| kayit: {len(birlesik)}")
 
 

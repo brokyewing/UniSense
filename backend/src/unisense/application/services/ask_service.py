@@ -126,7 +126,7 @@ _CITY_SUFFIX = (r"(?:'?(?:da|de|ta|te|dan|den|tan|ten|daki|deki|taki|teki"
 
 
 # 81 il — sorgudan şehir tespiti için (geo.REGIONS'tan düzleştirilmiş)
-def _city_patterns() -> list[tuple["re.Pattern[str]", str]]:
+def _city_patterns() -> list[tuple[re.Pattern[str], str]]:
     from unisense.core.text import fold_tr
     from unisense.domain.geo import REGIONS
 
@@ -140,7 +140,7 @@ def _city_patterns() -> list[tuple["re.Pattern[str]", str]]:
     return pats
 
 
-_CITY_PATTERNS: list[tuple["re.Pattern[str]", str]] | None = None
+_CITY_PATTERNS: list[tuple[re.Pattern[str], str]] | None = None
 
 
 # "X bölümü NEREDE/HANGİ üniversitede var?" kalıpları — bölüm tespit
@@ -159,39 +159,39 @@ _WHERE_PATTERNS = [
 # RAG top_k=12 ile sayım yapılamaz; yapısal veriden gerçek toplam gerekir
 _COUNT_RE = re.compile(
     r"ka(ç|c)\s*(tane|adet|program|b(ö|o)l(ü|u)m|(ü|u)niversite|kod)|"
-    r"toplam\s+ka(ç|c)|say(ı|i)s(ı|i)\s+(ka(ç|c)|nedir|ne)", re.I)
+    r"toplam\s+ka(ç|c)|say(ı|i)s(ı|i)\s+(ka(ç|c)|nedir|ne)", re.IGNORECASE)
 
 # "24 tane tercih yap" / "tercih listesi oluştur" — N tercihlik liste isteği
-_TERCIH_N_RE = re.compile(r"(\d{1,2})\s*(?:tane|adet)?\s*tercih", re.I)
+_TERCIH_N_RE = re.compile(r"(\d{1,2})\s*(?:tane|adet)?\s*tercih", re.IGNORECASE)
 _TERCIH_LIST_RE = re.compile(
-    r"tercih\s*(listesi|yap|olu(ş|s)tur|haz(ı|i)rla|ver|et)", re.I)
+    r"tercih\s*(listesi|yap|olu(ş|s)tur|haz(ı|i)rla|ver|et)", re.IGNORECASE)
 
 # "kaç net yapmalıyım" — bölümün tabanına ulaşmak için tahmini net.
 # 'internet' vb. eşleşmesin diye net'te \b sınırı.
 _NET_RE = re.compile(
     r"\bka(ç|c)\s*net\b|\bnet\s*(yap|gerek|laz(ı|i)m|olmal|yeter|at(ı|i)|istiyor)",
-    re.I)
+    re.IGNORECASE)
 
 # Takip (refinement) mesajı işaretleri — "tüm illerde bak", "peki", "diğerleri"...
 # Tek başına konu içermeyen bu mesajlar önceki soruyla birleştirilir (bağlam).
 _FOLLOWUP_RE = re.compile(
     r"\b(t(ü|u)m(ü|u)?|hepsi(ni)?|b(ü|u)t(ü|u)n|di(ğ|g)er(ler(i|ini)?)?|ba(ş|s)ka|"
     r"peki|bunlar(dan|ı)?|hangi(leri|si)?|ayn(ı|i)|(ş|s)ehir|il(ç|c)e|iller|"
-    r"o zaman|bi(r)?\s*de|de\s*bak|da\s*bak|nas(ı|i)l)\b", re.I)
+    r"o zaman|bi(r)?\s*de|de\s*bak|da\s*bak|nas(ı|i)l)\b", re.IGNORECASE)
 
 # Kullanıcı KENDİ puanını kastediyor mu — "puanıma göre", "kazanabilir miyim",
 # "girer/yeter/tutar mıyım". Profildeki YKS puanını devreye almak için.
 _SELF_SCORE_RE = re.compile(
     r"puan(ı|i)m|s(ı|i)ra(la)?m|kazan(abil|(ı|i)r\s*m)|gir(er|ebilir)\s*m|"
-    r"yeter\s*m|tutar\s*m|yazabil|(ş|s)ans(ı|i)m|nereye\s*gir|benim\s*puan", re.I)
+    r"yeter\s*m|tutar\s*m|yazabil|(ş|s)ans(ı|i)m|nereye\s*gir|benim\s*puan", re.IGNORECASE)
 
 # OBP / diploma notu — net tahminini kişiselleştirmek için (yoksa varsayılan ~50).
 #   "obp 450" / "obp'm 420"   → OBP doğrudan (0-500), katkı = OBP×0.12
 #   "diploma notum 90" / "ortalamam 85" → not (0-100), OBP = not×5, katkı = not×0.6
 # "obp 450", "obp'm 420", "obpm: 400" — ek/tırnak/işaret araya girebilir
-_OBP_RE = re.compile(r"\bobp[^\d]{0,6}(\d{2,3}(?:[.,]\d+)?)", re.I)
+_OBP_RE = re.compile(r"\bobp[^\d]{0,6}(\d{2,3}(?:[.,]\d+)?)", re.IGNORECASE)
 _DIPLOMA_RE = re.compile(
-    r"(?:diploma|ortalama|not\s*ortalam\w*)[^\d]{0,12}(\d{1,3}(?:[.,]\d+)?)", re.I)
+    r"(?:diploma|ortalama|not\s*ortalam\w*)[^\d]{0,12}(\d{1,3}(?:[.,]\d+)?)", re.IGNORECASE)
 
 
 @lru_cache(maxsize=1)
@@ -339,7 +339,7 @@ def _extract_intent(query: str) -> dict | None:
     try:
         from unisense.application.services.recommendation_service import detect_universities
         universities = detect_universities(query)
-    except Exception:  # noqa: BLE001 — veri dosyası yoksa (test ortamı) sessiz geç
+    except Exception:
         pass
 
     # Bölüm tespit edildiyse sayım/tercih-listesi/nerede soruları da yapısal
@@ -421,7 +421,7 @@ def _rankings_year() -> int:
         rankings, _, _ = _load_data()
         years = {r.get("year") for r in rankings[:500] if r.get("year")}
         return max(years) if years else 2025
-    except Exception:  # noqa: BLE001
+    except Exception:
         return 2025
 
 
@@ -472,7 +472,7 @@ def _estimate_nets(
     return {"tyt": round(f * _TYT_SORU), "ayt": round(f * _AYT_SORU)}
 
 
-def _build_listing_context(intent: dict, rec_service: "RecommendationService") -> str:
+def _build_listing_context(intent: dict, rec_service: RecommendationService) -> str:
     """Sıra/puan VERİLMEDEN sorulan envanter soruları için program listesi.
 
     Örn: "İstanbul'daki tıp fakülteleri kaç puan, kontenjan kaç?"
@@ -589,16 +589,16 @@ def _build_listing_context(intent: dict, rec_service: "RecommendationService") -
 # === KPSS / DGS sorgu yönlendirmesi ===
 # DİKKAT: tek başına "kadro" YKS bağlamında da geçer ("akademik kadro") —
 # sadece kpss/memur/atanma kelimeleri yönlendirir
-_KPSS_RE = re.compile(r"\bkpss\b|\bmemur(lug|luk|iyet|u|a)?\b|\batan(ma|abilir|(ı|i)r(ı|i)m)", re.I)
+_KPSS_RE = re.compile(r"\bkpss\b|\bmemur(lug|luk|iyet|u|a)?\b|\batan(ma|abilir|(ı|i)r(ı|i)m)", re.IGNORECASE)
 # Sınav adı geçmeyen genel yerleştirme soruları — kullanıcının profil
 # yolu (exam_track) DGS/KPSS ise o kanala yönlendirilir
 _GENERIC_PLACEMENT_RE = re.compile(
     r"nereye\s+(girebilir|yerle(ş|s))|hangi\s+(b(ö|o)l(ü|u)m|program|kadro)|"
-    r"\byerle(ş|s)(ebilir|irim|me)\b|puan(ı|i)mla", re.I)
+    r"\byerle(ş|s)(ebilir|irim|me)\b|puan(ı|i)mla", re.IGNORECASE)
 _DGS_RE = re.compile(
     r"\bdgs\b|dikey\s*ge(ç|c)i(ş|s)|"
     # önlisans mezununun "hangi lisansa geçerim" tipi soruları (BULGU #10)
-    r"(ö|o)n\s*lisans.*(lisans|ge(ç|c))|lisansa\s+ge(ç|c)", re.I)
+    r"(ö|o)n\s*lisans.*(lisans|ge(ç|c))|lisansa\s+ge(ç|c)", re.IGNORECASE)
 _KPSS_PUAN_RE = re.compile(r"\b(\d{2,3}(?:[.,]\d{1,3})?)\s*(?:kpss\s*)?puan")
 
 # KPSS/DGS bölüm çıkarımında tier-3'te elenecek sorgu kelimeleri (fold'lu).
@@ -623,7 +623,7 @@ _BOLUM_STOPWORDS = frozenset({
 # Toplam/istatistik sorusu ("kaç kişilik açıldı", "toplam kontenjan/kadro")
 _KPSS_AGG_RE = re.compile(
     r"topla(m|mda)|ka(ç|c)\s*(ki(ş|s)i|kadro|kontenjan|adet|memur)|"
-    r"ka(ç|c)\s*ki(ş|s)ilik|kontenjan|ka(ç|c)\s*al(ı|i)m", re.I)
+    r"ka(ç|c)\s*ki(ş|s)ilik|kontenjan|ka(ç|c)\s*al(ı|i)m", re.IGNORECASE)
 
 
 def _detect_city_in_query(qf: str) -> str | None:
@@ -720,14 +720,14 @@ def _build_kpss_context(query: str, user_context: dict | None = None) -> str:
         f"{d} {v['kadro']} kadro/{v['kontenjan']} kişi"
         for d, v in dz.items())
     lines = [f"=== KPSS {donem} MERKEZİ YERLEŞTİRME (B GRUBU) KADROLARI ===",
-             f"DÖNEM GENELİ: toplam {ozet['toplam_kadro']} kadro, "
-             f"{ozet['toplam_kontenjan']} kişilik kontenjan "
-             f"({ozet['kurum_sayisi']} kurum, {ozet['il_sayisi']} il). "
-             f"Düzey kırılımı: {dz_str}.",
-             f"Filtre: düzey={duzey}, bölüm={bolum or 'tümü'}, "
-             f"il={il or 'tümü'}, puan={puan or '?'}",
-             f"Bu filtreye uyan: {r['total']} kadro / "
-             f"{r.get('toplam_kontenjan', 0)} kişilik (ilk 15 örnek)", ""]
+             (f"DÖNEM GENELİ: toplam {ozet['toplam_kadro']} kadro, "
+              f"{ozet['toplam_kontenjan']} kişilik kontenjan "
+              f"({ozet['kurum_sayisi']} kurum, {ozet['il_sayisi']} il). "
+              f"Düzey kırılımı: {dz_str}."),
+             (f"Filtre: düzey={duzey}, bölüm={bolum or 'tümü'}, "
+              f"il={il or 'tümü'}, puan={puan or '?'}"),
+             (f"Bu filtreye uyan: {r['total']} kadro / "
+              f"{r.get('toplam_kontenjan', 0)} kişilik (ilk 15 örnek)"), ""]
     # Öğretmenlik niyeti (BULGU #21): aşağıdaki B grubu kadrolar öğretmenlik
     # DEĞİL — LLM'i baştan uyar ki 'matematik' filtresini yanlış yorumlamasın
     if re.search(r"(ö|o)(ğ|g)retmen", qf):
@@ -786,8 +786,8 @@ def _build_dgs_context(query: str, user_context: dict | None = None) -> str:
 
     r = get_dgs_service().program_ara(puan_turu=pt, puan=puan, bolum=bolum, il=il, limit=15)
     lines = [f"=== DGS LİSANS GEÇİŞ PROGRAMLARI ({r.get('yil', _rankings_year())} tabanları) ===",
-             f"Filtre: puan türü={pt}, puan={puan or '?'}, "
-             f"bölüm={bolum or 'tümü'}, il={il or 'tümü'}",
+             (f"Filtre: puan türü={pt}, puan={puan or '?'}, "
+              f"bölüm={bolum or 'tümü'}, il={il or 'tümü'}"),
              f"Uyan program sayısı: {r['total']} (ilk 15)", ""]
     for it in r["items"]:
         taban = f"taban {it['min_puan']:.2f}" if it["min_puan"] else "geçen yıl boş"
@@ -798,7 +798,7 @@ def _build_dgs_context(query: str, user_context: dict | None = None) -> str:
     return "\n".join(lines)
 
 
-def _build_recommendation_context(intent: dict, rec_service: "RecommendationService") -> str:
+def _build_recommendation_context(intent: dict, rec_service: RecommendationService) -> str:
     """Intent → recommendation servisi → kısa context string."""
     # Sıra/puan yoksa bu bir envanter sorusu — kişisel öneri yerine liste dön
     if intent.get("rank") is None and intent.get("score") is None:
@@ -822,7 +822,7 @@ def _build_recommendation_context(intent: dict, rec_service: "RecommendationServ
     )
     # Geo flagleri profile attach et — RecommendationService bunları okuyacak
     geo_flags = intent.get("geo_flags") or []
-    setattr(profile, "_geo_flags", geo_flags)
+    profile._geo_flags = geo_flags
     result = rec_service.recommend(profile)
 
     lines = [f"=== TERCİH ÖNERİLERİ (sıra bazlı, taban verisi {_rankings_year()}) ==="]
@@ -888,7 +888,7 @@ def _build_profile_context(uc: dict | None) -> str:
                 )
                 est = tahmini_sira(float(yks_p), tur)
                 sira = est["tahmini_sira"] if est else None
-            except Exception:  # noqa: BLE001
+            except Exception:
                 sira = None
         rows.append(f"YKS: {yks_p} puan ({tur})"
                     + (f", ~{sira:,}. başarı sırası" if sira else ""))
@@ -943,7 +943,7 @@ class AskService:
         self,
         retrieval: RetrievalService,
         llm: LLMProvider,
-        recommendation: "RecommendationService | None" = None,
+        recommendation: RecommendationService | None = None,
     ) -> None:
         self._retrieval = retrieval
         self._llm = llm
@@ -994,7 +994,7 @@ class AskService:
             elif uc_track == "DGS" and _GENERIC_PLACEMENT_RE.search(rt):
                 sinav_context = _build_dgs_context(rt, user_context)
                 logger.info("dgs_intent_routed", via="exam_track")
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             logger.warning("sinav_context_failed", error=str(e)[:200])
 
         # 1. Intent kontrolü — sıra/puan tabanlı sorgu mu? (bağlamsal metinle)
@@ -1032,7 +1032,7 @@ class AskService:
                     uni_types=intent.get("uni_types"),
                     departments=intent.get("departments"),
                 )
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 logger.warning("intent_build_failed", error=str(e)[:200])
 
         # 2. Retrieval (RAG chunks)
@@ -1094,7 +1094,7 @@ class AskService:
                 history=history_dicts if history_dicts else None,
             )
             llm_ok = True
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             # Ham exception (model adı/kota/kaynak yolu vb.) kullanıcı balonuna SIZMASIN
             logger.warning("llm_failed", error=str(e)[:200])
             text = "⚠️ Şu an cevap üretemedim, lütfen birazdan tekrar dene."

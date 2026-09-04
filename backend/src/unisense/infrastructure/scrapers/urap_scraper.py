@@ -14,8 +14,9 @@ if sys.platform == "win32":
     sys.stdout = _io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 import fitz  # PyMuPDF
-from ._guard import ScrapeGuardError, check as guard_check
 
+from ._guard import ScrapeGuardError
+from ._guard import check as guard_check
 
 # Üni adı pattern: "İSTANBUL TEKNİK ÜNİVERSİTESİ", "KOÇ ÜNİVERSİTESİ"
 # vb. — sonunda ÜNİVERSİTESİ var
