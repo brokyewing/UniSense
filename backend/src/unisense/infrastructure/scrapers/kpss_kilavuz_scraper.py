@@ -19,6 +19,7 @@ from pathlib import Path
 
 import fitz
 import requests
+from ._guard import ScrapeGuardError, check as guard_check
 
 if sys.platform == "win32":
     import io as _io
@@ -372,6 +373,7 @@ def main() -> None:
         recs = _parse_tablo(p)
         print(f"   {name}: {len(recs)} kadro")
         kadrolar.extend(recs)
+    guard_check(OUT_KADRO, kadrolar, label="KPSS kadrolar")
     json.dump(kadrolar, open(OUT_KADRO, "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
     print(f"✅ {len(kadrolar)} aktif kadro → {OUT_KADRO}")
@@ -382,6 +384,7 @@ def main() -> None:
         d = _parse_nitelik(p, duzey)
         print(f"   nitelik/{duzey}: {len(d)} kod")
         nitelikler.update(d)
+    guard_check(OUT_NITELIK, nitelikler, label="KPSS nitelikler")
     json.dump(nitelikler, open(OUT_NITELIK, "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
     print(f"✅ {len(nitelikler)} nitelik kodu → {OUT_NITELIK}")
@@ -396,6 +399,7 @@ def main() -> None:
             print(f"   {key}: {len(d)} alan")
             alanlar.update(d)
     if alanlar:
+        guard_check(OUT_ALANLAR, alanlar, label="KPSS mezuniyet alanları")
         json.dump(alanlar, open(OUT_ALANLAR, "w", encoding="utf-8"),
                   ensure_ascii=False, indent=1)
         print(f"✅ {len(alanlar)} mezuniyet alanı → {OUT_ALANLAR}")
@@ -404,10 +408,16 @@ def main() -> None:
     if "ozelkosullar" in ek_pdfs:
         p = _get(s, ek_pdfs["ozelkosullar"], f"k{tag}_ozelkosullar.pdf")
         kosullar = _parse_ozel_kosullar(p)
+        guard_check(OUT_KOSULLAR, kosullar, label="KPSS özel koşullar")
         json.dump(kosullar, open(OUT_KOSULLAR, "w", encoding="utf-8"),
                   ensure_ascii=False, indent=1)
         print(f"✅ {len(kosullar)} özel koşul → {OUT_KOSULLAR}")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except ScrapeGuardError as e:
+        print()
+        print(f"⛔ {e}")
+        sys.exit(1)

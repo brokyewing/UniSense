@@ -32,27 +32,34 @@ def _existing_count(path: Path) -> int:
     return len(data) if isinstance(data, (list, dict)) else 0
 
 
-def write_json_guarded(path: Path, records, *, label: str, force: bool = False) -> None:
-    """records'u path'e yaz — ama boşsa/ciddi küçülüyorsa yazma, hata fırlat.
+def check(path: Path, records, *, label: str, force: bool = False) -> None:
+    """Yazmadan ÖNCE doğrula: boşsa ya da ciddi küçülüyorsa ScrapeGuardError.
 
+    Yazma işini çağırana bırakır — mevcut `json.dump(...)` çağrılarını
+    yeniden yazmadan araya sokulabilsin diye ayrı tutuldu.
     force=True bekçiyi atlar (kaynak gerçekten küçüldüyse elle kullanılır).
     """
+    if force:
+        return
     new = len(records)
     old = _existing_count(path)
+    if new == 0:
+        raise ScrapeGuardError(
+            f"{label}: hiç kayıt üretilemedi, mevcut {old} kayıt KORUNUYOR "
+            f"(dosyaya dokunulmadı). Kaynak erişilemiyor olabilir."
+        )
+    if old and new < old * SHRINK_LIMIT:
+        raise ScrapeGuardError(
+            f"{label}: sonuç {new} kayıt, mevcut {old} kaydın "
+            f"%{SHRINK_LIMIT * 100:.0f}'inden az — şüpheli, dosyaya dokunulmadı. "
+            f"Gerçekten küçüldüyse --force ile çalıştır."
+        )
 
-    if not force:
-        if new == 0:
-            raise ScrapeGuardError(
-                f"{label}: hiç kayıt üretilemedi, mevcut {old} kayıt KORUNUYOR "
-                f"(dosyaya dokunulmadı). Kaynak erişilemiyor olabilir."
-            )
-        if old and new < old * SHRINK_LIMIT:
-            raise ScrapeGuardError(
-                f"{label}: sonuç {new} kayıt, mevcut {old} kaydın "
-                f"%{SHRINK_LIMIT * 100:.0f}'inden az — şüpheli, dosyaya dokunulmadı. "
-                f"Gerçekten küçüldüyse --force ile çalıştır."
-            )
 
+def write_json_guarded(path: Path, records, *, label: str, force: bool = False) -> None:
+    """check() + yazma. Yazma çağrısı da bize aitse bunu kullan."""
+    check(path, records, label=label, force=force)
+    old = _existing_count(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(records, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"✅ {new} kayıt → {path}" + (f"  (önceki: {old})" if old else ""))
+    print(f"✅ {len(records)} kayıt → {path}" + (f"  (önceki: {old})" if old else ""))

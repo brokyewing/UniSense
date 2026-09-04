@@ -14,6 +14,7 @@ if sys.platform == "win32":
     sys.stdout = _io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 import fitz  # PyMuPDF
+from ._guard import ScrapeGuardError, check as guard_check
 
 
 # Üni adı pattern: "İSTANBUL TEKNİK ÜNİVERSİTESİ", "KOÇ ÜNİVERSİTESİ"
@@ -95,6 +96,7 @@ def main() -> None:
     rankings.sort(key=lambda r: r["rank"])
 
     out_file = out_dir / "urap_2025_2026.json"
+    guard_check(out_file, rankings, label="URAP sıralamaları")
     with open(out_file, "w", encoding="utf-8") as f:
         json.dump(rankings, f, ensure_ascii=False, indent=2)
 
@@ -106,4 +108,9 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except ScrapeGuardError as e:
+        print()
+        print(f"⛔ {e}")
+        sys.exit(1)

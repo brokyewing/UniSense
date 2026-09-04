@@ -17,6 +17,7 @@ if sys.platform == "win32":
     sys.stdout = _io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 from unisense.domain.geo import il_to_bolge
+from ._guard import ScrapeGuardError, check as guard_check
 
 
 SCORE_TYPE_MAP = {
@@ -96,8 +97,12 @@ def transform(raw_dir: Path, out_dir: Path) -> None:
             print(f"⏭ {fname}: yok (atlandı)")
 
     if not raw_programs:
-        print("❌ Hiç RAW program bulunamadı! Önce yokatlas_scraper.py çalıştır.")
-        return
+        # Eskiden sessizce return ediyordu → workflow adımı YEŞİL kalıyordu.
+        # Girdi yoksa bu bir arıza; görünür olsun (bkz. _guard.py).
+        raise ScrapeGuardError(
+            "Hiç RAW program bulunamadı — önce yokatlas_scraper çalıştırılmalı. "
+            "processed/ dosyalarına dokunulmadı."
+        )
 
     print(f"📊 Toplam: {len(raw_programs)} program ({', '.join(sources_loaded)})")
 
@@ -263,6 +268,14 @@ def transform(raw_dir: Path, out_dir: Path) -> None:
     # YAZ
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    # Bekçi: dördü de yazılmadan ÖNCE doğrulanır — biri şüpheliyse HİÇBİRİ
+    # yazılmaz, yoksa yarım bir set diske düşer (ör. universities yazılıp
+    # departments boş kalırsa veri tutarsız olur).
+    guard_check(out_dir / "universities.json", universities, label="YÖK Atlas üniversiteler")
+    guard_check(out_dir / "faculties.json", faculties, label="YÖK Atlas fakülteler")
+    guard_check(out_dir / "departments.json", departments, label="YÖK Atlas bölümler")
+    guard_check(out_dir / "rankings.json", rankings, label="YÖK Atlas sıralamalar")
+
     with open(out_dir / "universities.json", "w", encoding="utf-8") as f:
         json.dump(universities, f, ensure_ascii=False, indent=2)
     with open(out_dir / "faculties.json", "w", encoding="utf-8") as f:
@@ -424,4 +437,9 @@ if __name__ == "__main__":
     project_root = Path(__file__).resolve().parents[4]
     raw_dir = project_root / "data" / "raw" / "yokatlas"
     out_dir = project_root / "data" / "processed"
-    transform(raw_dir, out_dir)
+    try:
+        transform(raw_dir, out_dir)
+    except ScrapeGuardError as e:
+        print()
+        print(f"⛔ {e}")
+        sys.exit(1)

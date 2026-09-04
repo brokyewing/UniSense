@@ -25,6 +25,7 @@ from pathlib import Path
 
 import fitz
 import requests
+from ._guard import ScrapeGuardError, check as guard_check
 
 if sys.platform == "win32":
     import io as _io
@@ -222,6 +223,7 @@ def scrape_tablo2(s: requests.Session) -> None:
         p.write_bytes(data)
     alanlar = _parse_tablo2(p)
     n_lisans = sum(len(a["lisans"]) for a in alanlar)
+    guard_check(OUT_GECIS, alanlar, label="DGS geçiş alanları")
     json.dump(alanlar, open(OUT_GECIS, "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
     print(f"✅ {len(alanlar)} önlisans alanı → {n_lisans} lisans eşleşmesi → {OUT_GECIS}")
@@ -250,9 +252,15 @@ def main() -> None:
 
     records = _parse(p, year)
     dolu = sum(1 for r in records if r.get("min_puan"))
+    guard_check(OUT, records, label="DGS yerleştirme tabanları")
     json.dump(records, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(f"✅ {len(records)} DGS kaydı ({dolu} taban puanlı) → {OUT}")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except ScrapeGuardError as e:
+        print()
+        print(f"⛔ {e}")
+        sys.exit(1)
