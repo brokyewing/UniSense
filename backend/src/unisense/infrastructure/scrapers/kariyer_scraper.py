@@ -51,11 +51,11 @@ RG_HOME = "https://www.resmigazete.gov.tr/"
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 OUT = Path(__file__).resolve().parents[4] / "data" / "processed" / "kariyer_ilanlar.json"
 
-# RG sunucusu ara sertifikayı (GeoTrust TLS RSA CA G1) göndermiyor; Windows
-# deposu önbellekten tamamlıyor ama çıplak OpenSSL/certifi zinciri kuramıyor
+# RG ve Jooble sunucuları ara sertifikayı göndermiyor; Windows deposu
+# önbellekten tamamlıyor ama çıplak OpenSSL/certifi zinciri kuramıyor
 # (yerel + CI'da CERTIFICATE_VERIFY_FAILED). Çözüm: herkese açık zincir
-# (ara + kök, sır değil) repoda paketlenir, oturum bunu kullanır.
-_CHAIN = Path(__file__).resolve().parent / "rg_chain.pem"
+# (aralar + kökler, sır değil) repoda paketlenir, oturum bunu kullanır.
+_CHAIN = Path(__file__).resolve().parent / "tls_extra_chain.pem"
 
 MAX_PDF_BYTES = 64 * 1024 * 1024   # ana sayı ~30MB olur; daha büyükler atlanır
 REQUEST_TIMEOUT = 60
