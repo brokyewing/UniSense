@@ -77,7 +77,7 @@ export default function Ozetler({ embedded = false }) {
           description="TYT-AYT matematik, geometri, fizik ve kimya formülleri tek yerde. Aranabilir, çevrimdışı erişilebilir konu özetleri — ücretsiz."
           path="/ozetler" />
       )}
-      <div className="max-w-3xl mx-auto space-y-5">
+      <div className="space-y-5">
         {!embedded && (
           <div className="text-center">
             <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1 flex items-center justify-center gap-2">

@@ -86,7 +86,7 @@ export default function BolumDetay() {
         description={`${data.name} bölümü ne iş yapar, hangi dersleri okur, mezunları nerede çalışır? ${data.name} veren ${data.program_count} programın güncel taban puanı ve başarı sıralaması.`}
         path={`/bolum/${slug}`}
       />
-      <div className="max-w-4xl mx-auto space-y-5">
+      <div className="space-y-5">
         <Link to="/bolum" className="text-xs text-slate-400 hover:text-accent-300 inline-flex items-center gap-1">
           <ArrowLeft size={12} /> Bölüm Rehberi
         </Link>

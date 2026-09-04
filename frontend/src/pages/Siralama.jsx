@@ -105,7 +105,7 @@ export default function Siralama() {
         description="UniSense çalışma sıralaması — en çok XP toplayan öğrenciler. Takma adınla katıl, sıranı gör."
         path="/siralama"
       />
-      <div className="max-w-2xl mx-auto space-y-5">
+      <div className="space-y-5">
         <div className="text-center">
           <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1 flex items-center justify-center gap-2">
             <Trophy className="text-amber-300" /> Sıralama

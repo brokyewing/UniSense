@@ -658,7 +658,7 @@ export default function Search() {
         )}
       </AnimatePresence>
 
-      <div className="flex gap-4 max-w-7xl mx-auto -mx-2 lg:-mx-0">
+      <div className="flex gap-4">
         {/* Sidebar — sol */}
         <ChatSidebar
           activeSessionId={activeSessionId}

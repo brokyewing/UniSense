@@ -39,7 +39,7 @@ export default function BolumKatalog() {
         description="Üniversite bölümleri ne iş yapar, hangi dersleri okur, mezunları nerede çalışır? Bölüm tanıtımları + o bölümü veren üniversitelerin güncel taban puanları."
         path="/bolum"
       />
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="space-y-6">
         <div className="text-center">
           <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-2">
             Bölüm <span className="gradient-text">Rehberi</span>

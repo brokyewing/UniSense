@@ -49,7 +49,7 @@ export default function Takvim() {
         description={`${TERCIH_YILI} YKS, LGS, DGS, KPSS, ALES, TUS, DUS ve AGS sınav, sonuç ve tercih tarihleri — kaç gün kaldığıyla birlikte tek sayfada.`}
         path="/takvim"
       />
-      <div className="max-w-3xl mx-auto space-y-5">
+      <div className="space-y-5">
         <div className="text-center">
           <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1 flex items-center justify-center gap-2">
             <CalendarDays className="text-accent-300" /> {TERCIH_YILI} Sınav Takvimi

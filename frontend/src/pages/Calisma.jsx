@@ -28,7 +28,7 @@ export default function Calisma({ tab = 'konular' }) {
   return (
     <>
       <BackgroundScene />
-      <div className="max-w-3xl mx-auto space-y-4 mb-5">
+      <div className="space-y-4 mb-5">
         <div className="text-center">
           <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1 flex items-center justify-center gap-2">
             <meta.Icon className={meta.renk} /> {meta.h1}

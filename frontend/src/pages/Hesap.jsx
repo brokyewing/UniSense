@@ -693,7 +693,7 @@ export default function Hesap() {
     <>
       <BackgroundScene />
 
-      <div className="space-y-5 max-w-4xl mx-auto">
+      <div className="space-y-5">
         {/* Hero */}
         <div className="text-center mb-2">
           <motion.div

@@ -1095,7 +1095,7 @@ export default function Recommend() {
     <>
       <BackgroundScene />
 
-      <div className="space-y-6 max-w-5xl mx-auto">
+      <div className="space-y-6">
         {/* Hero */}
         <div className="text-center mb-2">
           <motion.h1

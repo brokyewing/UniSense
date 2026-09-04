@@ -439,7 +439,7 @@ export default function LGS() {
         description="LGS yüzdelik dilimini gir, geçen yıl taban puanlarına göre girebileceğin Fen, Anadolu, Sosyal Bilimler ve İmam Hatip liselerini güvenli/tutar/riskli olarak gör. Ücretsiz, tahminî."
         path="/lgs"
       />
-      <div className="max-w-4xl mx-auto space-y-5">
+      <div className="space-y-5">
         <div className="text-center">
           <div className="w-14 h-14 mx-auto mb-2 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
             <School size={28} className="text-white" />
