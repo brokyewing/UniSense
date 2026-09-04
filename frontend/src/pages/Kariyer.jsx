@@ -66,7 +66,7 @@ function SinyalKart({ ilan }) {
             {ilan.detay.pdfler.map((pdf) => (
               <li key={pdf}>
                 <a href={pdf} target="_blank" rel="noreferrer" className="hover:text-accent-300 break-all">
-                  {pdf.rsplit('/').pop()}
+                  {pdf.split('/').pop()}
                 </a>
               </li>
             ))}
