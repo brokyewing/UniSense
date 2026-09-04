@@ -21,13 +21,14 @@ Kullanım: python -m unisense.infrastructure.scrapers.kpss_scraper
 """
 from __future__ import annotations
 
-import json
 import re
 import sys
 from pathlib import Path
 
 import fitz  # PyMuPDF
 import requests
+
+from ._guard import ScrapeGuardError, write_json_guarded
 
 if sys.platform == "win32":
     import io as _io
@@ -195,9 +196,15 @@ def main() -> None:
     # Ayıklama: puanı olmayan/eksik kayıtları at
     clean = [r for r in all_records
              if r.get("min_puan") and r.get("kurum") and r.get("unvan")]
-    json.dump(clean, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    print(f"✅ {len(clean)} kadro kaydı → {OUT}")
+    # Bekçi: boş/şüpheli sonucu dosyaya YAZMA. Eskiden koşulsuz yazılıyordu ve
+    # ÖSYM'ye erişilemediği bir koşuda 1 MB'lık veri [] ile ezildi (e9ece83).
+    write_json_guarded(OUT, clean, label="KPSS yerleştirme", force="--force" in sys.argv)
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except ScrapeGuardError as e:
+        print()
+        print(f"⛔ {e}")
+        sys.exit(1)
