@@ -25,3 +25,4 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 03:10 | Claude Code | bos-sonuc bekcisi kalan 9 scrapera yayildi; transform_yokatlas sessiz return ve yokatlas ara-kayit ezmesi giderildi.
 2026-09-05 04:30 | Claude Code | ruff <0.16 siniri kaldirildi (89 oto + 16 elle duzeltme, kalan 80 gerekceli ignore); TUS-DUS ve KPSS dispatch ile yesil; CI yesil.
 2026-09-05 05:10 | Claude Code | Kariyer yol haritasi yazildi (PLAN_KARIYER_YOL_HARITASI.md); ilan.gov.tr JSON API kesfedildi, ISKUR WAF teyit edildi.
+2026-09-05 05:35 | Claude Code | F0.2 bitti: il_to_bolge yazim farklarina dayanikli hale getirildi (Istanbul/istanbul bolge bulamiyordu), 18 test eklendi.

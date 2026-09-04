@@ -162,8 +162,13 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
 - [ ] **F0.1** Şema v2'yi uygula. Mevcut kayıtları taşıyan `_migrate()` yaz
       (eksik alanlar `bilinmiyor`/`null`).
       *Bitti:* mevcut 488 kayıt kayıpsız v2'ye geçti, pytest yeşil.
-- [ ] **F0.2** `domain/geo.py`'ye 81 il → bölge tablosu; `bolge` il'den türetilsin.
-      *Bitti:* 81 il eşlendi, bilinmeyen il uyarı verir, test var.
+- [x] **F0.2** ~~81 il → bölge tablosu~~ **BİTTİ (Claude Code, 2026-09-05).**
+      `REGIONS` + `il_to_bolge()` zaten vardı ama düz `.upper()` kullanıyordu:
+      "Istanbul" (ASCII I) ve "istanbul" → "Bilinmiyor" dönüyordu, yani bölge
+      filtresi yabancı API verisinde sessizce boş kalırdı. Aksan-katlamalı
+      indeks eklendi; "İSTANBUL"/"Istanbul"/"istanbul"/" İstanbul " hepsi
+      "Marmara". 81 ilin tamamı eşleşiyor, `tests/test_geo_bolge.py` (18 test).
+      Adaptörler `il_to_bolge(il)` çağırıp `bolge` alanını doldurabilir.
 - [ ] **F0.3** `calisma_sekli` çıkarımı: başlık+özette "uzaktan / remote / hibrit /
       home office / yerinde" kalıpları. Bulunamazsa `bilinmiyor`.
       *Bitti:* kalıp tablosu testli, mevcut kayıtlardaki dağılım log'lanıyor.

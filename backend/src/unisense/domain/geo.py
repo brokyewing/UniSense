@@ -49,15 +49,47 @@ REGIONS: dict[str, list[str]] = {
 }
 
 
+# Aksan/Türkçe-harf katlama tablosu. Kaynaklar il adını farklı yazıyor:
+# ilan.gov.tr "İSTANBUL", Jooble/Careerjet gibi yabancı API'ler "Istanbul".
+# Düz .upper() bunları eşleştiremiyordu (I ≠ İ) ve bölge sessizce "Bilinmiyor"
+# kalıyordu — bölge filtresini boş gösteren sinsi hata.
+_KATLAMA = str.maketrans({
+    "İ": "I", "I": "I", "ı": "I", "i": "I",
+    "Ş": "S", "ş": "S", "Ğ": "G", "ğ": "G",
+    "Ü": "U", "ü": "U", "Ö": "O", "ö": "O", "Ç": "C", "ç": "C",
+    "Â": "A", "â": "A", "Î": "I", "î": "I", "Û": "U", "û": "U",
+})
+
+
+def _katla(s: str) -> str:
+    """Karşılaştırma anahtarı: Türkçe harfleri ASCII'ye indir, boşlukları at."""
+    return "".join(ch for ch in s.upper().translate(_KATLAMA) if ch.isalnum())
+
+
+def _bolge_indeksi() -> dict[str, str]:
+    """Katlanmış il adı → bölge. Çakışma olursa import anında patlar."""
+    idx: dict[str, str] = {}
+    for region, cities in REGIONS.items():
+        for city in cities:
+            key = _katla(city)
+            if key in idx and idx[key] != region:
+                raise ValueError(f"Bölge tablosunda çakışma: {city} ({idx[key]} / {region})")
+            idx[key] = region
+    return idx
+
+
+_BOLGE_INDEX: dict[str, str] = _bolge_indeksi()
+
+
 def il_to_bolge(il_adi: str | None) -> str:
-    """İl adından bölgeyi bul. Bilinmiyorsa 'Bilinmiyor' döner."""
+    """İl adından bölgeyi bul. Bilinmiyorsa 'Bilinmiyor' döner.
+
+    Yazım farklarına dayanıklıdır: "İSTANBUL", "Istanbul", "istanbul",
+    " İstanbul " hepsi "Marmara" döner.
+    """
     if not il_adi:
         return "Bilinmiyor"
-    il_norm = il_adi.strip().upper()
-    for region, cities in REGIONS.items():
-        if il_norm in cities:
-            return region
-    return "Bilinmiyor"
+    return _BOLGE_INDEX.get(_katla(il_adi), "Bilinmiyor")
 
 
 # İl kodu → ad (ÖSYM standart kodları)
