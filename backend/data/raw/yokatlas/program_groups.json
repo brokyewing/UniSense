@@ -15,12 +15,12 @@
     "puanTuru": "SAY"
   },
   {
-    "birimGrupId": 20519,
+    "birimGrupId": 4856,
     "birimGrupAdi": "Açık Deniz Sondaj Teknolojisi",
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20521,
+    "birimGrupId": 6154,
     "birimGrupAdi": "Açık Deniz Tabanı Uygulamaları Teknolojisi",
     "puanTuru": "TYT"
   },
@@ -45,9 +45,19 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 1746,
-    "birimGrupAdi": "Aile ve Tüketici Bilimleri",
-    "puanTuru": "EA"
+    "birimGrupId": 6678,
+    "birimGrupAdi": "Akıllı Altyapılar Teknikerliği",
+    "puanTuru": "TYT"
+  },
+  {
+    "birimGrupId": 6679,
+    "birimGrupAdi": "Akıllı Sera Teknolojileri",
+    "puanTuru": "TYT"
+  },
+  {
+    "birimGrupId": 6680,
+    "birimGrupAdi": "Akıllı Tarım ve Gıda Yönetimi",
+    "puanTuru": "TYT"
   },
   {
     "birimGrupId": 1758,
@@ -55,7 +65,7 @@
     "puanTuru": "SAY"
   },
   {
-    "birimGrupId": 20033,
+    "birimGrupId": 6683,
     "birimGrupAdi": "Almanca Mütercim ve Tercümanlık",
     "puanTuru": "DİL"
   },
@@ -72,11 +82,6 @@
   {
     "birimGrupId": 1774,
     "birimGrupAdi": "Alternatif Enerji Kaynakları Teknolojisi",
-    "puanTuru": "TYT"
-  },
-  {
-    "birimGrupId": 20012,
-    "birimGrupAdi": "Ambalaj Tasarımı",
     "puanTuru": "TYT"
   },
   {
@@ -105,7 +110,7 @@
     "puanTuru": "EA"
   },
   {
-    "birimGrupId": 20036,
+    "birimGrupId": 6685,
     "birimGrupAdi": "Arapça Mütercim ve Tercümanlık",
     "puanTuru": "DİL"
   },
@@ -125,7 +130,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20729,
+    "birimGrupId": 6686,
     "birimGrupAdi": "Arka-Yüz Yazılım Geliştirme",
     "puanTuru": "TYT"
   },
@@ -165,7 +170,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20078,
+    "birimGrupId": 6688,
     "birimGrupAdi": "Ayakkabı Tasarımı ve Üretimi",
     "puanTuru": "EA"
   },
@@ -185,7 +190,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20468,
+    "birimGrupId": 6689,
     "birimGrupAdi": "Bağcılık ve Bağ Ürünleri Teknolojisi",
     "puanTuru": "TYT"
   },
@@ -245,7 +250,7 @@
     "puanTuru": "SAY"
   },
   {
-    "birimGrupId": 20525,
+    "birimGrupId": 6696,
     "birimGrupAdi": "Bıçakçılık ve El Aletleri Üretim Teknolojisi",
     "puanTuru": "TYT"
   },
@@ -305,7 +310,7 @@
     "puanTuru": "EA"
   },
   {
-    "birimGrupId": 20018,
+    "birimGrupId": 6702,
     "birimGrupAdi": "Bilişim Güvenliği Teknolojisi",
     "puanTuru": "TYT"
   },
@@ -380,6 +385,11 @@
     "puanTuru": "SAY"
   },
   {
+    "birimGrupId": 2153,
+    "birimGrupAdi": "Biyoteknoloji ve Genetik",
+    "puanTuru": "SAY"
+  },
+  {
     "birimGrupId": 2160,
     "birimGrupAdi": "Boşnak Dili ve Edebiyatı",
     "puanTuru": "DİL"
@@ -390,7 +400,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20039,
+    "birimGrupId": 6704,
     "birimGrupAdi": "Bulgarca Mütercim ve Tercümanlık",
     "puanTuru": "DİL"
   },
@@ -400,8 +410,8 @@
     "puanTuru": "DİL"
   },
   {
-    "birimGrupId": 20735,
-    "birimGrupAdi": "Bulut Bilişim Operatörlüğü ",
+    "birimGrupId": 6705,
+    "birimGrupAdi": "Bulut Bilişim Operatörlüğü",
     "puanTuru": "TYT"
   },
   {
@@ -410,8 +420,8 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20736,
-    "birimGrupAdi": "Büyük Veri Analistliği ",
+    "birimGrupId": 6707,
+    "birimGrupAdi": "Büyük Veri Analistliği",
     "puanTuru": "TYT"
   },
   {
@@ -425,8 +435,8 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20539,
-    "birimGrupAdi": "CNC Programlama ve Operatörlüğü",
+    "birimGrupId": 6709,
+    "birimGrupAdi": "Cnc Programlama ve Operatörlüğü",
     "puanTuru": "TYT"
   },
   {
@@ -470,12 +480,17 @@
     "puanTuru": "TYT"
   },
   {
+    "birimGrupId": 2246,
+    "birimGrupAdi": "Çerkez Dili ve Edebiyatı",
+    "puanTuru": "SÖZ"
+  },
+  {
     "birimGrupId": 2247,
     "birimGrupAdi": "Çerkez Dili ve Kültürü",
     "puanTuru": "SÖZ"
   },
   {
-    "birimGrupId": 20377,
+    "birimGrupId": 6711,
     "birimGrupAdi": "Çeviribilimi",
     "puanTuru": "DİL"
   },
@@ -495,12 +510,22 @@
     "puanTuru": "TYT"
   },
   {
+    "birimGrupId": 6712,
+    "birimGrupAdi": "Çevre Sağlığı ve Çevresel Risk Yönetimi Teknikerliği",
+    "puanTuru": "TYT"
+  },
+  {
+    "birimGrupId": 6713,
+    "birimGrupAdi": "Çevresel Ölçüm ve İzleme Sistemleri Teknikerliği",
+    "puanTuru": "TYT"
+  },
+  {
     "birimGrupId": 2292,
     "birimGrupAdi": "Çim Alan Tesisi ve Yönetimi",
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20041,
+    "birimGrupId": 6714,
     "birimGrupAdi": "Çince Mütercim ve Tercümanlık",
     "puanTuru": "DİL"
   },
@@ -535,7 +560,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20032,
+    "birimGrupId": 6716,
     "birimGrupAdi": "Çok Boyutlu Modelleme ve Animasyon",
     "puanTuru": "TYT"
   },
@@ -575,7 +600,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20017,
+    "birimGrupId": 6719,
     "birimGrupAdi": "Dezenfeksiyon, Sterilizasyon ve Antisepsi Teknikerliği",
     "puanTuru": "TYT"
   },
@@ -585,12 +610,12 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20731,
-    "birimGrupAdi": "Dijital Dönüşüm Elektroniği ",
+    "birimGrupId": 6720,
+    "birimGrupAdi": "Dijital Dönüşüm Elektroniği",
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20014,
+    "birimGrupId": 6721,
     "birimGrupAdi": "Dijital Fabrika Teknolojileri",
     "puanTuru": "TYT"
   },
@@ -598,6 +623,16 @@
     "birimGrupId": 7203,
     "birimGrupAdi": "Dijital Oyun Tasarımı",
     "puanTuru": "SAY"
+  },
+  {
+    "birimGrupId": 6725,
+    "birimGrupAdi": "Dijital Sağlık Sistemleri Teknikerliği",
+    "puanTuru": "TYT"
+  },
+  {
+    "birimGrupId": 6726,
+    "birimGrupAdi": "Dijital Tarım Teknolojileri",
+    "puanTuru": "TYT"
   },
   {
     "birimGrupId": 2461,
@@ -623,6 +658,11 @@
     "birimGrupId": 2498,
     "birimGrupAdi": "Diyaliz",
     "puanTuru": "TYT"
+  },
+  {
+    "birimGrupId": 6729,
+    "birimGrupAdi": "Doğa Koruma ve Biyoçeşitlilik Yönetimi",
+    "puanTuru": "SAY"
   },
   {
     "birimGrupId": 2508,
@@ -695,6 +735,11 @@
     "puanTuru": "TYT"
   },
   {
+    "birimGrupId": 8168,
+    "birimGrupAdi": "Elektrik Makineleri Bakım ve Onarımı",
+    "puanTuru": "TYT"
+  },
+  {
     "birimGrupId": 2637,
     "birimGrupAdi": "Elektrik Mühendisliği",
     "puanTuru": "SAY"
@@ -715,7 +760,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20044,
+    "birimGrupId": 6736,
     "birimGrupAdi": "Elektronik Ticaret ve Yönetimi",
     "puanTuru": "EA"
   },
@@ -735,12 +780,7 @@
     "puanTuru": "SÖZ"
   },
   {
-    "birimGrupId": 2688,
-    "birimGrupAdi": "Emlak ve Emlak Yönetimi",
-    "puanTuru": "EA"
-  },
-  {
-    "birimGrupId": 20022,
+    "birimGrupId": 6738,
     "birimGrupAdi": "Emlak Yönetimi",
     "puanTuru": "TYT"
   },
@@ -805,7 +845,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20376,
+    "birimGrupId": 6740,
     "birimGrupAdi": "Engelliler İçin Gölge Öğreticilik",
     "puanTuru": "TYT"
   },
@@ -830,7 +870,7 @@
     "puanTuru": "DİL"
   },
   {
-    "birimGrupId": 10024,
+    "birimGrupId": 4774,
     "birimGrupAdi": "E-Ticaret ve Pazarlama",
     "puanTuru": "TYT"
   },
@@ -845,7 +885,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20045,
+    "birimGrupId": 6744,
     "birimGrupAdi": "Farsça Mütercim ve Tercümanlık",
     "puanTuru": "DİL"
   },
@@ -875,27 +915,22 @@
     "puanTuru": "TYT"
   },
   {
+    "birimGrupId": 6748,
+    "birimGrupAdi": "Fiber Tekne İmalatı ve Kompozit Kalıp Teknolojileri",
+    "puanTuru": "TYT"
+  },
+  {
     "birimGrupId": 2879,
     "birimGrupAdi": "Fidan Yetiştiriciliği",
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20074,
-    "birimGrupAdi": "Film Tasarımı ve Yazarlığı",
-    "puanTuru": "SÖZ"
-  },
-  {
-    "birimGrupId": 20046,
+    "birimGrupId": 6750,
     "birimGrupAdi": "Film Tasarımı ve Yönetimi",
     "puanTuru": "SÖZ"
   },
   {
-    "birimGrupId": 20075,
-    "birimGrupAdi": "Film Tasarımı ve Yönetmenliği",
-    "puanTuru": "SÖZ"
-  },
-  {
-    "birimGrupId": 20047,
+    "birimGrupId": 6753,
     "birimGrupAdi": "Finans ve Bankacılık",
     "puanTuru": "EA"
   },
@@ -945,7 +980,7 @@
     "puanTuru": "SAY"
   },
   {
-    "birimGrupId": 20048,
+    "birimGrupId": 6757,
     "birimGrupAdi": "Fransızca Mütercim ve Tercümanlık",
     "puanTuru": "DİL"
   },
@@ -980,7 +1015,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20373,
+    "birimGrupId": 6759,
     "birimGrupAdi": "Geleneksel Tekstillerin Korunması ve Restorasyonu",
     "puanTuru": "TYT"
   },
@@ -1000,7 +1035,7 @@
     "puanTuru": "SAY"
   },
   {
-    "birimGrupId": 20023,
+    "birimGrupId": 6762,
     "birimGrupAdi": "Gemi Makineleri İşletmeciliği",
     "puanTuru": "TYT"
   },
@@ -1080,7 +1115,7 @@
     "puanTuru": "EA"
   },
   {
-    "birimGrupId": 20049,
+    "birimGrupId": 6767,
     "birimGrupAdi": "Grafik Sanatlar",
     "puanTuru": "EA"
   },
@@ -1110,7 +1145,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20051,
+    "birimGrupId": 6773,
     "birimGrupAdi": "Halkbilimi",
     "puanTuru": "SÖZ"
   },
@@ -1140,12 +1175,17 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20421,
+    "birimGrupId": 6774,
+    "birimGrupAdi": "Hassas Tarım ve Tarımsal Robotlar",
+    "puanTuru": "SAY"
+  },
+  {
+    "birimGrupId": 6775,
     "birimGrupAdi": "Hasta Bakımı",
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20719,
+    "birimGrupId": 6776,
     "birimGrupAdi": "Hava Aracı İmalat Teknolojileri",
     "puanTuru": "TYT"
   },
@@ -1153,6 +1193,11 @@
     "birimGrupId": 3217,
     "birimGrupAdi": "Havacılık Elektrik ve Elektroniği",
     "puanTuru": "SAY"
+  },
+  {
+    "birimGrupId": 6778,
+    "birimGrupAdi": "Havacılık Elektroniği Teknolojileri",
+    "puanTuru": "TYT"
   },
   {
     "birimGrupId": 3220,
@@ -1185,9 +1230,19 @@
     "puanTuru": "TYT"
   },
   {
+    "birimGrupId": 6781,
+    "birimGrupAdi": "Hidrojen ve Enerji Depolama Teknikerliği",
+    "puanTuru": "TYT"
+  },
+  {
     "birimGrupId": 3288,
     "birimGrupAdi": "Hidrojeoloji Mühendisliği",
     "puanTuru": "SAY"
+  },
+  {
+    "birimGrupId": 4847,
+    "birimGrupAdi": "Hidrolik ve Pnömatik Teknikerliği",
+    "puanTuru": "TYT"
   },
   {
     "birimGrupId": 3297,
@@ -1210,7 +1265,7 @@
     "puanTuru": "DİL"
   },
   {
-    "birimGrupId": 20054,
+    "birimGrupId": 6783,
     "birimGrupAdi": "İbrani Dili ve Kültürü",
     "puanTuru": "DİL"
   },
@@ -1230,7 +1285,7 @@
     "puanTuru": "EA"
   },
   {
-    "birimGrupId": 20716,
+    "birimGrupId": 6784,
     "birimGrupAdi": "İklim Bilimi ve Meteoroloji Mühendisliği",
     "puanTuru": "SAY"
   },
@@ -1245,17 +1300,12 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 7521,
-    "birimGrupAdi": "İktisadi ve İdari Bilimler Programları",
-    "puanTuru": "EA"
-  },
-  {
     "birimGrupId": 3353,
     "birimGrupAdi": "İktisat",
     "puanTuru": "EA"
   },
   {
-    "birimGrupId": 3367,
+    "birimGrupId": 3913,
     "birimGrupAdi": "İlahiyat",
     "puanTuru": "TYT"
   },
@@ -1280,7 +1330,7 @@
     "puanTuru": "SÖZ"
   },
   {
-    "birimGrupId": 20019,
+    "birimGrupId": 6785,
     "birimGrupAdi": "İletişim ve Tasarımı",
     "puanTuru": "SÖZ"
   },
@@ -1300,17 +1350,17 @@
     "puanTuru": "SAY"
   },
   {
-    "birimGrupId": 20726,
+    "birimGrupId": 6788,
     "birimGrupAdi": "İmalat Yürütme Sistemleri Operatörlüğü",
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20057,
+    "birimGrupId": 6791,
     "birimGrupAdi": "İngilizce, Fransızca Mütercim ve Tercümanlık",
     "puanTuru": "DİL"
   },
   {
-    "birimGrupId": 20056,
+    "birimGrupId": 6792,
     "birimGrupAdi": "İngilizce Mütercim ve Tercümanlık",
     "puanTuru": "DİL"
   },
@@ -1340,12 +1390,12 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20732,
+    "birimGrupId": 6794,
     "birimGrupAdi": "İnsansız Araç Teknikerliği",
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20072,
+    "birimGrupId": 6795,
     "birimGrupAdi": "İnsansız Hava Aracı Teknolojisi ve Operatörlüğü",
     "puanTuru": "TYT"
   },
@@ -1365,7 +1415,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 3510,
+    "birimGrupId": 4447,
     "birimGrupAdi": "İslami İlimler",
     "puanTuru": "TYT"
   },
@@ -1375,9 +1425,14 @@
     "puanTuru": "SÖZ"
   },
   {
-    "birimGrupId": 20058,
+    "birimGrupId": 6797,
     "birimGrupAdi": "İslam İktisadı ve Finans",
     "puanTuru": "EA"
+  },
+  {
+    "birimGrupId": 6799,
+    "birimGrupAdi": "İspanyolca Mütercim ve Tercümanlık",
+    "puanTuru": "DİL"
   },
   {
     "birimGrupId": 3512,
@@ -1405,6 +1460,11 @@
     "puanTuru": "SAY"
   },
   {
+    "birimGrupId": 24278,
+    "birimGrupAdi": "İşletme ve Yapay Zeka",
+    "puanTuru": "EA"
+  },
+  {
     "birimGrupId": 3568,
     "birimGrupAdi": "İşletme Yönetimi",
     "puanTuru": "TYT"
@@ -1420,11 +1480,6 @@
     "puanTuru": "SAY"
   },
   {
-    "birimGrupId": 3528,
-    "birimGrupAdi": "İş Sağlığı ve Güvenliği",
-    "puanTuru": "TYT"
-  },
-  {
     "birimGrupId": 3541,
     "birimGrupAdi": "İş ve Uğraşı Terapisi",
     "puanTuru": "TYT"
@@ -1435,7 +1490,7 @@
     "puanTuru": "DİL"
   },
   {
-    "birimGrupId": 20414,
+    "birimGrupId": 6806,
     "birimGrupAdi": "Japonca Mütercim ve Tercümanlık",
     "puanTuru": "DİL"
   },
@@ -1470,6 +1525,16 @@
     "puanTuru": "SAY"
   },
   {
+    "birimGrupId": 6808,
+    "birimGrupAdi": "Karayolu Yük Taşıtı Sürücülüğü",
+    "puanTuru": "TYT"
+  },
+  {
+    "birimGrupId": 6809,
+    "birimGrupAdi": "Karbon Yönetimi Teknikerliği",
+    "puanTuru": "TYT"
+  },
+  {
     "birimGrupId": 3675,
     "birimGrupAdi": "Karşılaştırmalı Edebiyat",
     "puanTuru": "DİL"
@@ -1480,7 +1545,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20739,
+    "birimGrupId": 6811,
     "birimGrupAdi": "Kenevir Dokumacılığı",
     "puanTuru": "TYT"
   },
@@ -1545,17 +1610,17 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20061,
+    "birimGrupId": 6815,
     "birimGrupAdi": "Kurgu, Ses ve Görüntü Yönetimi",
     "puanTuru": "SÖZ"
   },
   {
-    "birimGrupId": 20730,
-    "birimGrupAdi": "Kurumsal Bilişim Uzmanlığı ",
+    "birimGrupId": 6816,
+    "birimGrupAdi": "Kurumsal Bilişim Uzmanlığı",
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20076,
+    "birimGrupId": 6817,
     "birimGrupAdi": "Kuyumculuk ve Mücevher Tasarımı",
     "puanTuru": "EA"
   },
@@ -1625,7 +1690,7 @@
     "puanTuru": "EA"
   },
   {
-    "birimGrupId": 20024,
+    "birimGrupId": 6819,
     "birimGrupAdi": "Madencilik Teknolojisi",
     "puanTuru": "TYT"
   },
@@ -1635,7 +1700,7 @@
     "puanTuru": "SAY"
   },
   {
-    "birimGrupId": 20674,
+    "birimGrupId": 6820,
     "birimGrupAdi": "Mahkeme Büro Hizmetleri",
     "puanTuru": "TYT"
   },
@@ -1650,7 +1715,7 @@
     "puanTuru": "SAY"
   },
   {
-    "birimGrupId": 20025,
+    "birimGrupId": 6822,
     "birimGrupAdi": "Makine Resim ve Konstrüksiyonu",
     "puanTuru": "TYT"
   },
@@ -1658,11 +1723,6 @@
     "birimGrupId": 4018,
     "birimGrupAdi": "Maliye",
     "puanTuru": "EA"
-  },
-  {
-    "birimGrupId": 4018,
-    "birimGrupAdi": "Maliye",
-    "puanTuru": "TYT"
   },
   {
     "birimGrupId": 4028,
@@ -1865,6 +1925,11 @@
     "puanTuru": "TYT"
   },
   {
+    "birimGrupId": 6836,
+    "birimGrupAdi": "Ofis Teknolojileri ve Veri Yönetimi",
+    "puanTuru": "TYT"
+  },
+  {
     "birimGrupId": 4352,
     "birimGrupAdi": "Okul Öncesi Öğretmenliği",
     "puanTuru": "SÖZ"
@@ -1877,6 +1942,11 @@
   {
     "birimGrupId": 4373,
     "birimGrupAdi": "Optisyenlik",
+    "puanTuru": "TYT"
+  },
+  {
+    "birimGrupId": 6838,
+    "birimGrupAdi": "Optoelektronik ve Elektro Optik Teknolojileri",
     "puanTuru": "TYT"
   },
   {
@@ -1905,7 +1975,7 @@
     "puanTuru": "SAY"
   },
   {
-    "birimGrupId": 20064,
+    "birimGrupId": 6841,
     "birimGrupAdi": "Ortez ve Protez",
     "puanTuru": "SAY"
   },
@@ -1925,7 +1995,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 10025,
+    "birimGrupId": 4776,
     "birimGrupAdi": "Otomotiv Gövde ve Yüzey İşlem Teknolojileri",
     "puanTuru": "TYT"
   },
@@ -1940,7 +2010,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20724,
+    "birimGrupId": 6843,
     "birimGrupAdi": "Otonom Sistemler Teknikerliği",
     "puanTuru": "TYT"
   },
@@ -1950,13 +2020,13 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20723,
-    "birimGrupAdi": "Oyun Geliştirme ve Programlama ",
+    "birimGrupId": 6844,
+    "birimGrupAdi": "Oyun Geliştirme ve Programlama",
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20728,
-    "birimGrupAdi": "Ön-Yüz Yazılım Geliştirme ",
+    "birimGrupId": 6845,
+    "birimGrupAdi": "Ön-Yüz Yazılım Geliştirme",
     "puanTuru": "TYT"
   },
   {
@@ -1968,6 +2038,11 @@
     "birimGrupId": 4524,
     "birimGrupAdi": "Özel Güvenlik ve Koruma",
     "puanTuru": "TYT"
+  },
+  {
+    "birimGrupId": 4537,
+    "birimGrupAdi": "Paramedik",
+    "puanTuru": "SAY"
   },
   {
     "birimGrupId": 9504,
@@ -2010,7 +2085,7 @@
     "puanTuru": "SAY"
   },
   {
-    "birimGrupId": 20027,
+    "birimGrupId": 6849,
     "birimGrupAdi": "Peyzaj ve Süs Bitkileri Yetiştiriciliği",
     "puanTuru": "TYT"
   },
@@ -2025,7 +2100,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20065,
+    "birimGrupId": 6851,
     "birimGrupAdi": "Polimer Malzeme Mühendisliği",
     "puanTuru": "SAY"
   },
@@ -2090,7 +2165,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20028,
+    "birimGrupId": 6852,
     "birimGrupAdi": "Raylı Sistemler Makinistliği",
     "puanTuru": "TYT"
   },
@@ -2135,7 +2210,7 @@
     "puanTuru": "SÖZ"
   },
   {
-    "birimGrupId": 20727,
+    "birimGrupId": 6856,
     "birimGrupAdi": "Robotik ve Yapay Zeka",
     "puanTuru": "TYT"
   },
@@ -2153,6 +2228,11 @@
     "birimGrupId": 4779,
     "birimGrupAdi": "Saç Bakımı ve Güzellik Hizmetleri",
     "puanTuru": "TYT"
+  },
+  {
+    "birimGrupId": 7566,
+    "birimGrupAdi": "Saç ve Güzellik Uygulamaları",
+    "puanTuru": "EA"
   },
   {
     "birimGrupId": 4782,
@@ -2175,7 +2255,7 @@
     "puanTuru": "EA"
   },
   {
-    "birimGrupId": 20029,
+    "birimGrupId": 6860,
     "birimGrupAdi": "Sahne Işık ve Ses Teknolojileri",
     "puanTuru": "TYT"
   },
@@ -2235,17 +2315,22 @@
     "puanTuru": "EA"
   },
   {
+    "birimGrupId": 4917,
+    "birimGrupAdi": "Sırp Dili ve Edebiyatı",
+    "puanTuru": "DİL"
+  },
+  {
     "birimGrupId": 4918,
     "birimGrupAdi": "Siber Güvenlik",
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20630,
+    "birimGrupId": 6864,
     "birimGrupAdi": "Siber Güvenlik Analistliği ve Operatörlüğü",
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20510,
+    "birimGrupId": 6865,
     "birimGrupAdi": "Siber Güvenlik Mühendisliği",
     "puanTuru": "SAY"
   },
@@ -2340,7 +2425,7 @@
     "puanTuru": "EA"
   },
   {
-    "birimGrupId": 20011,
+    "birimGrupId": 4949,
     "birimGrupAdi": "Sosyal Hizmetler",
     "puanTuru": "TYT"
   },
@@ -2355,12 +2440,7 @@
     "puanTuru": "EA"
   },
   {
-    "birimGrupId": 5042,
-    "birimGrupAdi": "Spor Yöneticiliği",
-    "puanTuru": "EA"
-  },
-  {
-    "birimGrupId": 20703,
+    "birimGrupId": 6868,
     "birimGrupAdi": "Su Altı Kaynak Teknolojisi",
     "puanTuru": "TYT"
   },
@@ -2380,7 +2460,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20586,
+    "birimGrupId": 6870,
     "birimGrupAdi": "Su Ürünleri Endüstrisi Mühendisliği",
     "puanTuru": "SAY"
   },
@@ -2393,6 +2473,11 @@
     "birimGrupId": 5074,
     "birimGrupAdi": "Su Ürünleri Mühendisliği",
     "puanTuru": "SAY"
+  },
+  {
+    "birimGrupId": 4891,
+    "birimGrupAdi": "Su ve Atık Yönetimi Teknikerliği",
+    "puanTuru": "TYT"
   },
   {
     "birimGrupId": 5086,
@@ -2440,7 +2525,12 @@
     "puanTuru": "EA"
   },
   {
-    "birimGrupId": 20086,
+    "birimGrupId": 6872,
+    "birimGrupAdi": "Talaşlı Üretim Teknikerliği",
+    "puanTuru": "TYT"
+  },
+  {
+    "birimGrupId": 4991,
     "birimGrupAdi": "Tapu Kadastro",
     "puanTuru": "EA"
   },
@@ -2457,6 +2547,11 @@
   {
     "birimGrupId": 5134,
     "birimGrupAdi": "Tarım Makineleri",
+    "puanTuru": "TYT"
+  },
+  {
+    "birimGrupId": 7346,
+    "birimGrupAdi": "Tarım Makineleri ve Teknolojileri",
     "puanTuru": "TYT"
   },
   {
@@ -2550,6 +2645,11 @@
     "puanTuru": "EA"
   },
   {
+    "birimGrupId": 6879,
+    "birimGrupAdi": "Tele-Sağlık Teknikerliği",
+    "puanTuru": "TYT"
+  },
+  {
     "birimGrupId": 5241,
     "birimGrupAdi": "Televizyon Haberciliği ve Programcılığı",
     "puanTuru": "SÖZ"
@@ -2577,6 +2677,11 @@
   {
     "birimGrupId": 5367,
     "birimGrupAdi": "Tıbbi ve Aromatik Bitkiler",
+    "puanTuru": "TYT"
+  },
+  {
+    "birimGrupId": 6884,
+    "birimGrupAdi": "Tıbbi Veri İşleme Teknikerliği",
     "puanTuru": "TYT"
   },
   {
@@ -2623,6 +2728,11 @@
     "birimGrupId": 5448,
     "birimGrupAdi": "Turizm Rehberliği",
     "puanTuru": "DİL"
+  },
+  {
+    "birimGrupId": 6888,
+    "birimGrupAdi": "Turizm ve Gastronomi Yönetimi Programları",
+    "puanTuru": "EA"
   },
   {
     "birimGrupId": 7256,
@@ -2675,12 +2785,12 @@
     "puanTuru": "SAY"
   },
   {
-    "birimGrupId": 20077,
+    "birimGrupId": 6895,
     "birimGrupAdi": "Uçak Elektrik ve Elektroniği",
     "puanTuru": "SAY"
   },
   {
-    "birimGrupId": 20073,
+    "birimGrupId": 6896,
     "birimGrupAdi": "Uçak Gövde ve Motor Bakımı",
     "puanTuru": "SAY"
   },
@@ -2765,6 +2875,11 @@
     "puanTuru": "DİL"
   },
   {
+    "birimGrupId": 5665,
+    "birimGrupAdi": "Uzaktan Algılama ve Coğrafi Bilgi Sistemleri",
+    "puanTuru": "TYT"
+  },
+  {
     "birimGrupId": 5670,
     "birimGrupAdi": "Uzay Bilimleri ve Teknolojileri",
     "puanTuru": "SAY"
@@ -2780,7 +2895,7 @@
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20529,
+    "birimGrupId": 6906,
     "birimGrupAdi": "Veri Bilimi ve Analitiği",
     "puanTuru": "SAY"
   },
@@ -2810,17 +2925,17 @@
     "puanTuru": "SAY"
   },
   {
-    "birimGrupId": 20734,
+    "birimGrupId": 6908,
     "birimGrupAdi": "Yapay Zeka Operatörlüğü",
     "puanTuru": "TYT"
   },
   {
-    "birimGrupId": 20722,
+    "birimGrupId": 6909,
     "birimGrupAdi": "Yapay Zeka ve Makine Öğrenmesi",
     "puanTuru": "SAY"
   },
   {
-    "birimGrupId": 20020,
+    "birimGrupId": 6910,
     "birimGrupAdi": "Yapay Zeka ve Veri Mühendisliği",
     "puanTuru": "SAY"
   },
@@ -2845,6 +2960,11 @@
     "puanTuru": "TYT"
   },
   {
+    "birimGrupId": 6912,
+    "birimGrupAdi": "Yapı Yüzeyi Tasarım Teknikerliği",
+    "puanTuru": "TYT"
+  },
+  {
     "birimGrupId": 7263,
     "birimGrupAdi": "Yaşlı Bakımı",
     "puanTuru": "TYT"
@@ -2863,6 +2983,11 @@
     "birimGrupId": 5821,
     "birimGrupAdi": "Yazılım Mühendisliği",
     "puanTuru": "SAY"
+  },
+  {
+    "birimGrupId": 6913,
+    "birimGrupAdi": "Yenilenebilir Enerji Teknikerliği",
+    "puanTuru": "TYT"
   },
   {
     "birimGrupId": 5835,
@@ -2885,8 +3010,8 @@
     "puanTuru": "EA"
   },
   {
-    "birimGrupId": 5853,
-    "birimGrupAdi": "Yerel Yönetimler",
+    "birimGrupId": 4872,
+    "birimGrupAdi": "Yeşil ve Ekolojik Bina Teknikerliği",
     "puanTuru": "TYT"
   },
   {
