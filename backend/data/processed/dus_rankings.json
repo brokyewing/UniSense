@@ -1,35 +1,83 @@
 {
  "sinav": "DUS",
- "donem": "2025 2. Dönem",
- "guncelleme": "2025",
- "kaynak": "ÖSYM 2025 2. Dönem DUS Yerleştirme Sayısal Bilgiler",
- "kaynak_url": "https://www.osym.gov.tr/TR,33701/2025-dus-2-donem-yerlestirme-sonuclarina-iliskin-sayisal-bilgiler.html",
- "toplam": 422,
- "taban_puanli": 420,
+ "donem": "2026 1. Dönem",
+ "guncelleme": "2026",
+ "kaynak": "ÖSYM 2026 1. Dönem DUS Yerleştirme Sayısal Bilgiler",
+ "kaynak_url": "https://www.osym.gov.tr/2026dus-1donem-yerlestirme-sonuclarina-iliskin-sayisal-bilgiler",
+ "toplam": 424,
+ "taban_puanli": 424,
  "programlar": [
   {
    "kod": "111000101",
-   "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)",
-   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 1,
-   "yerlesen": 0,
-   "bos": 1,
-   "min_puan": null,
-   "max_puan": null
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 49.798,
+   "max_puan": 49.798
   },
   {
    "kod": "111000108",
-   "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)/ENDODONTİ",
+   "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)",
-   "dal": "ENDODONTİ",
+   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 1,
-   "yerlesen": 0,
-   "bos": 1,
-   "min_puan": null,
-   "max_puan": null
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 47.339,
+   "max_puan": 47.339
+  },
+  {
+   "kod": "111000115",
+   "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)/PROTETİK DİŞ TEDAVİSİ",
+   "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)",
+   "dal": "PROTETİK DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 45.75,
+   "max_puan": 45.75
+  },
+  {
+   "kod": "111000122",
+   "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi, Deniz Kuvvetleri Komutanlığı (ANKARA)/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
+   "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi, Deniz Kuvvetleri Komutanlığı (ANKARA)",
+   "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 53.762,
+   "max_puan": 53.762
+  },
+  {
+   "kod": "111000129",
+   "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi, Hava Kuvvetleri Komutanlığı (ANKARA)/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
+   "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi, Hava Kuvvetleri Komutanlığı (ANKARA)",
+   "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 58.993,
+   "max_puan": 58.993
+  },
+  {
+   "kod": "111000136",
+   "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi, Kara Kuvvetleri Komutanlığı (ANKARA)/RESTORATİF DİŞ TEDAVİSİ",
+   "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi, Kara Kuvvetleri Komutanlığı (ANKARA)",
+   "dal": "RESTORATİF DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 53.7,
+   "max_puan": 53.7
   },
   {
    "kod": "100200101",
@@ -40,8 +88,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.045,
-   "max_puan": 65.079
+   "min_puan": 64.53,
+   "max_puan": 64.647
   },
   {
    "kod": "100200108",
@@ -52,8 +100,20 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.472,
-   "max_puan": 62.472
+   "min_puan": 61.759,
+   "max_puan": 61.759
+  },
+  {
+   "kod": "100200115",
+   "ad": "ADIYAMAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
+   "kurum": "ADIYAMAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 5,
+   "yerlesen": 5,
+   "bos": 0,
+   "min_puan": 62.607,
+   "max_puan": 62.758
   },
   {
    "kod": "100200122",
@@ -64,20 +124,8 @@
    "kontenjan": 4,
    "yerlesen": 4,
    "bos": 0,
-   "min_puan": 62.563,
-   "max_puan": 63.305
-  },
-  {
-   "kod": "100200129",
-   "ad": "ADIYAMAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
-   "kurum": "ADIYAMAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ORTODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 4,
-   "yerlesen": 4,
-   "bos": 0,
-   "min_puan": 65.787,
-   "max_puan": 65.923
+   "min_puan": 62.399,
+   "max_puan": 62.438
   },
   {
    "kod": "100200136",
@@ -85,11 +133,11 @@
    "kurum": "ADIYAMAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 4,
-   "yerlesen": 4,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.482,
-   "max_puan": 65.079
+   "min_puan": 63.379,
+   "max_puan": 63.574
   },
   {
    "kod": "100200143",
@@ -97,11 +145,11 @@
    "kurum": "ADIYAMAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.814,
-   "max_puan": 63.814
+   "min_puan": 63.063,
+   "max_puan": 63.215
   },
   {
    "kod": "112600101",
@@ -112,59 +160,59 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.156,
-   "max_puan": 65.578
+   "min_puan": 64.963,
+   "max_puan": 65.716
   },
   {
-   "kod": "112600108",
+   "kod": "112600115",
    "ad": "AFYONKARAHİSAR SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "AFYONKARAHİSAR SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 4,
+   "yerlesen": 4,
    "bos": 0,
-   "min_puan": 63.914,
-   "max_puan": 64.303
+   "min_puan": 63.886,
+   "max_puan": 64.062
   },
   {
-   "kod": "112600115",
+   "kod": "112600122",
    "ad": "AFYONKARAHİSAR SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "AFYONKARAHİSAR SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.372,
-   "max_puan": 63.372
+   "min_puan": 63.046,
+   "max_puan": 63.277
   },
   {
-   "kod": "112600122",
+   "kod": "112600129",
    "ad": "AFYONKARAHİSAR SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
    "kurum": "AFYONKARAHİSAR SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 67.187,
-   "max_puan": 67.551
+   "min_puan": 66.228,
+   "max_puan": 66.228
   },
   {
-   "kod": "112600129",
+   "kod": "112600136",
    "ad": "AFYONKARAHİSAR SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "AFYONKARAHİSAR SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 4,
-   "yerlesen": 4,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.016,
-   "max_puan": 64.747
+   "min_puan": 64.018,
+   "max_puan": 65.197
   },
   {
-   "kod": "112600136",
+   "kod": "112600143",
    "ad": "AFYONKARAHİSAR SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "AFYONKARAHİSAR SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
@@ -172,8 +220,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.768,
-   "max_puan": 64.813
+   "min_puan": 63.44,
+   "max_puan": 64.058
   },
   {
    "kod": "100700101",
@@ -184,23 +232,11 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 67.806,
-   "max_puan": 68.671
+   "min_puan": 66.966,
+   "max_puan": 67.183
   },
   {
    "kod": "100700108",
-   "ad": "AKDENİZ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
-   "kurum": "AKDENİZ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 65.023,
-   "max_puan": 65.023
-  },
-  {
-   "kod": "100700115",
    "ad": "AKDENİZ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "AKDENİZ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
@@ -208,68 +244,68 @@
    "kontenjan": 3,
    "yerlesen": 3,
    "bos": 0,
-   "min_puan": 65.809,
-   "max_puan": 66.235
+   "min_puan": 64.791,
+   "max_puan": 64.987
   },
   {
-   "kod": "100700122",
+   "kod": "100700115",
    "ad": "AKDENİZ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "AKDENİZ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 4,
-   "yerlesen": 4,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.625,
-   "max_puan": 63.858
+   "min_puan": 64.69,
+   "max_puan": 64.69
   },
   {
-   "kod": "100700129",
+   "kod": "100700122",
    "ad": "AKDENİZ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
    "kurum": "AKDENİZ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 10,
-   "yerlesen": 10,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 68.415,
-   "max_puan": 70.642
+   "min_puan": 66.997,
+   "max_puan": 66.997
   },
   {
-   "kod": "100700136",
+   "kod": "100700129",
    "ad": "AKDENİZ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "AKDENİZ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 65.809,
-   "max_puan": 67.76
+   "min_puan": 65.834,
+   "max_puan": 65.834
   },
   {
-   "kod": "100700143",
+   "kod": "100700136",
    "ad": "AKDENİZ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "AKDENİZ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 65.787,
-   "max_puan": 65.798
+   "min_puan": 64.893,
+   "max_puan": 65.322
   },
   {
-   "kod": "100700150",
+   "kod": "100700143",
    "ad": "AKDENİZ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "AKDENİZ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.928,
-   "max_puan": 63.928
+   "min_puan": 62.695,
+   "max_puan": 63.398
   },
   {
    "kod": "110500101",
@@ -277,50 +313,62 @@
    "kurum": "ALANYA ALAADDİN KEYKUBAT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 65.735,
-   "max_puan": 66.319
+   "min_puan": 65.209,
+   "max_puan": 65.209
   },
   {
    "kod": "110500108",
+   "ad": "ALANYA ALAADDİN KEYKUBAT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kurum": "ALANYA ALAADDİN KEYKUBAT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 64.136,
+   "max_puan": 64.136
+  },
+  {
+   "kod": "110500115",
    "ad": "ALANYA ALAADDİN KEYKUBAT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "ALANYA ALAADDİN KEYKUBAT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.485,
-   "max_puan": 63.936
+   "min_puan": 63.468,
+   "max_puan": 63.468
   },
   {
-   "kod": "110500115",
+   "kod": "110500122",
    "ad": "ALANYA ALAADDİN KEYKUBAT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
    "kurum": "ALANYA ALAADDİN KEYKUBAT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 68.095,
-   "max_puan": 68.226
+   "min_puan": 66.704,
+   "max_puan": 66.704
   },
   {
-   "kod": "110500122",
+   "kod": "110500129",
    "ad": "ALANYA ALAADDİN KEYKUBAT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "ALANYA ALAADDİN KEYKUBAT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.893,
-   "max_puan": 64.116
+   "min_puan": 63.992,
+   "max_puan": 63.992
   },
   {
-   "kod": "110500129",
+   "kod": "110500136",
    "ad": "ALANYA ALAADDİN KEYKUBAT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "ALANYA ALAADDİN KEYKUBAT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
@@ -328,44 +376,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.404,
-   "max_puan": 64.58
-  },
-  {
-   "kod": "209200101",
-   "ad": "ANKARA MEDİPOL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kurum": "ANKARA MEDİPOL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 64.625,
-   "max_puan": 66.173
-  },
-  {
-   "kod": "209200108",
-   "ad": "ANKARA MEDİPOL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
-   "kurum": "ANKARA MEDİPOL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ENDODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 62.553,
-   "max_puan": 62.619
-  },
-  {
-   "kod": "209200115",
-   "ad": "ANKARA MEDİPOL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
-   "kurum": "ANKARA MEDİPOL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PERİODONTOLOJİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
-   "bos": 0,
-   "min_puan": 63.241,
-   "max_puan": 63.548
+   "min_puan": 64.074,
+   "max_puan": 64.093
   },
   {
    "kod": "101100101",
@@ -376,8 +388,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 70.522,
-   "max_puan": 70.852
+   "min_puan": 69.315,
+   "max_puan": 71.712
   },
   {
    "kod": "101100108",
@@ -385,11 +397,11 @@
    "kurum": "ANKARA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 66.165,
-   "max_puan": 68.126
+   "min_puan": 65.322,
+   "max_puan": 65.322
   },
   {
    "kod": "101100115",
@@ -397,11 +409,11 @@
    "kurum": "ANKARA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 6,
+   "yerlesen": 6,
    "bos": 0,
-   "min_puan": 65.281,
-   "max_puan": 65.281
+   "min_puan": 63.671,
+   "max_puan": 64.105
   },
   {
    "kod": "101100122",
@@ -409,11 +421,11 @@
    "kurum": "ANKARA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 69.756,
-   "max_puan": 70.011
+   "min_puan": 68.195,
+   "max_puan": 68.534
   },
   {
    "kod": "101100129",
@@ -421,11 +433,35 @@
    "kurum": "ANKARA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 4,
+   "yerlesen": 4,
    "bos": 0,
-   "min_puan": 67.837,
-   "max_puan": 67.837
+   "min_puan": 65.096,
+   "max_puan": 66.794
+  },
+  {
+   "kod": "101100136",
+   "ad": "ANKARA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
+   "kurum": "ANKARA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "PROTETİK DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 4,
+   "yerlesen": 4,
+   "bos": 0,
+   "min_puan": 65.369,
+   "max_puan": 66.661
+  },
+  {
+   "kod": "101100143",
+   "ad": "ANKARA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
+   "kurum": "ANKARA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "RESTORATİF DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 3,
+   "yerlesen": 3,
+   "bos": 0,
+   "min_puan": 62.832,
+   "max_puan": 63.211
   },
   {
    "kod": "110000101",
@@ -433,11 +469,11 @@
    "kurum": "ANKARA YILDIRIM BEYAZIT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 66.506,
-   "max_puan": 66.92
+   "min_puan": 66.853,
+   "max_puan": 66.853
   },
   {
    "kod": "110000108",
@@ -445,11 +481,11 @@
    "kurum": "ANKARA YILDIRIM BEYAZIT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 62.432,
-   "max_puan": 62.432
+   "min_puan": 61.92,
+   "max_puan": 61.935
   },
   {
    "kod": "110000115",
@@ -460,8 +496,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.147,
-   "max_puan": 65.201
+   "min_puan": 63.78,
+   "max_puan": 64.261
   },
   {
    "kod": "110000122",
@@ -469,11 +505,11 @@
    "kurum": "ANKARA YILDIRIM BEYAZIT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 64.426,
-   "max_puan": 64.593
+   "min_puan": 63.379,
+   "max_puan": 63.48
   },
   {
    "kod": "110000129",
@@ -484,8 +520,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 68.404,
-   "max_puan": 68.449
+   "min_puan": 67.23,
+   "max_puan": 67.968
   },
   {
    "kod": "110000136",
@@ -496,8 +532,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 65.456,
-   "max_puan": 65.456
+   "min_puan": 64.3,
+   "max_puan": 64.3
   },
   {
    "kod": "110000143",
@@ -505,11 +541,11 @@
    "kurum": "ANKARA YILDIRIM BEYAZIT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 64.956,
-   "max_puan": 65.226
+   "min_puan": 64.127,
+   "max_puan": 64.456
   },
   {
    "kod": "110000150",
@@ -517,11 +553,23 @@
    "kurum": "ANKARA YILDIRIM BEYAZIT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
+   "kontenjan": 4,
+   "yerlesen": 4,
+   "bos": 0,
+   "min_puan": 62.423,
+   "max_puan": 62.574
+  },
+  {
+   "kod": "110000157",
+   "ad": "ANKARA YILDIRIM BEYAZIT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
+   "kurum": "ANKARA YILDIRIM BEYAZIT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "RESTORATİF DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Yabancı Uyruklu",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.922,
-   "max_puan": 64.922
+   "min_puan": 51.566,
+   "max_puan": 51.566
   },
   {
    "kod": "101400101",
@@ -529,26 +577,38 @@
    "kurum": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 64.901,
-   "max_puan": 64.924
+   "min_puan": 64.456,
+   "max_puan": 64.631
   },
   {
    "kod": "101400108",
+   "ad": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
+   "kurum": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
+   "kontenjan_turu": "Yabancı Uyruklu",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 59.566,
+   "max_puan": 60.654
+  },
+  {
+   "kod": "101400115",
    "ad": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.08,
-   "max_puan": 65.798
+   "min_puan": 63.948,
+   "max_puan": 64.893
   },
   {
-   "kod": "101400115",
+   "kod": "101400122",
    "ad": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
@@ -556,11 +616,23 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 54.017,
-   "max_puan": 54.017
+   "min_puan": 54.519,
+   "max_puan": 54.519
   },
   {
    "kod": "101400129",
+   "ad": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
+   "kurum": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ENDODONTİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 63.046,
+   "max_puan": 63.046
+  },
+  {
+   "kod": "101400136",
    "ad": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
@@ -568,11 +640,11 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 56.856,
-   "max_puan": 56.856
+   "min_puan": 54.114,
+   "max_puan": 54.114
   },
   {
-   "kod": "101400136",
+   "kod": "101400143",
    "ad": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
    "kurum": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
@@ -580,11 +652,11 @@
    "kontenjan": 5,
    "yerlesen": 5,
    "bos": 0,
-   "min_puan": 66.165,
-   "max_puan": 68.725
+   "min_puan": 65.284,
+   "max_puan": 67.577
   },
   {
-   "kod": "101400143",
+   "kod": "101400150",
    "ad": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
@@ -592,44 +664,68 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.203,
-   "max_puan": 64.469
+   "min_puan": 63.492,
+   "max_puan": 63.546
   },
   {
-   "kod": "101400150",
+   "kod": "101400157",
+   "ad": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
+   "kurum": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "PERİODONTOLOJİ",
+   "kontenjan_turu": "Yabancı Uyruklu",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 57.591,
+   "max_puan": 59.017
+  },
+  {
+   "kod": "101400164",
    "ad": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.702,
-   "max_puan": 64.702
+   "min_puan": 63.379,
+   "max_puan": 63.426
   },
   {
-   "kod": "101400157",
+   "kod": "101400171",
    "ad": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Yabancı Uyruklu",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.005,
-   "max_puan": 63.005
+   "min_puan": 57.939,
+   "max_puan": 58.524
   },
   {
-   "kod": "101400164",
+   "kod": "101400178",
    "ad": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 62.301,
+   "max_puan": 62.383
+  },
+  {
+   "kod": "101400185",
+   "ad": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
+   "kurum": "ATATÜRK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "RESTORATİF DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Yabancı Uyruklu",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.972,
-   "max_puan": 63.972
+   "min_puan": 50.562,
+   "max_puan": 50.562
   },
   {
    "kod": "100300101",
@@ -640,8 +736,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.61,
-   "max_puan": 66.443
+   "min_puan": 65.272,
+   "max_puan": 65.365
   },
   {
    "kod": "100300108",
@@ -652,8 +748,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.408,
-   "max_puan": 62.408
+   "min_puan": 61.885,
+   "max_puan": 61.885
   },
   {
    "kod": "100300115",
@@ -661,11 +757,11 @@
    "kurum": "AYDIN ADNAN MENDERES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.737,
-   "max_puan": 65.07
+   "min_puan": 64.565,
+   "max_puan": 64.643
   },
   {
    "kod": "100300122",
@@ -676,8 +772,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.95,
-   "max_puan": 63.95
+   "min_puan": 63.548,
+   "max_puan": 63.548
   },
   {
    "kod": "100300129",
@@ -685,11 +781,11 @@
    "kurum": "AYDIN ADNAN MENDERES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 66.732,
-   "max_puan": 66.907
+   "min_puan": 66.454,
+   "max_puan": 66.454
   },
   {
    "kod": "100300136",
@@ -697,11 +793,11 @@
    "kurum": "AYDIN ADNAN MENDERES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.614,
-   "max_puan": 64.614
+   "min_puan": 64.105,
+   "max_puan": 64.225
   },
   {
    "kod": "100300143",
@@ -712,8 +808,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.401,
-   "max_puan": 65.656
+   "min_puan": 64.308,
+   "max_puan": 65.572
   },
   {
    "kod": "200500101",
@@ -724,47 +820,59 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.321,
-   "max_puan": 65.423
+   "min_puan": 64.589,
+   "max_puan": 65.091
   },
   {
    "kod": "200500108",
+   "ad": "BAHÇEŞEHİR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
+   "kurum": "BAHÇEŞEHİR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 65.541,
+   "max_puan": 65.541
+  },
+  {
+   "kod": "200500115",
    "ad": "BAHÇEŞEHİR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "BAHÇEŞEHİR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.738,
-   "max_puan": 63.018
+   "min_puan": 63.126,
+   "max_puan": 63.126
   },
   {
-   "kod": "200500115",
+   "kod": "200500122",
    "ad": "BAHÇEŞEHİR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
    "kurum": "BAHÇEŞEHİR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 66.732,
-   "max_puan": 67.24
+   "min_puan": 65.779,
+   "max_puan": 65.779
   },
   {
-   "kod": "200500122",
+   "kod": "200500129",
    "ad": "BAHÇEŞEHİR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "BAHÇEŞEHİR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.913,
-   "max_puan": 65.246
+   "min_puan": 62.942,
+   "max_puan": 62.942
   },
   {
-   "kod": "200500129",
+   "kod": "200500136",
    "ad": "BAHÇEŞEHİR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "BAHÇEŞEHİR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
@@ -772,35 +880,11 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.602,
-   "max_puan": 64.602
+   "min_puan": 64.225,
+   "max_puan": 64.225
   },
   {
    "kod": "200600101",
-   "ad": "BAŞKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kurum": "BAŞKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 64.857,
-   "max_puan": 64.857
-  },
-  {
-   "kod": "200600108",
-   "ad": "BAŞKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
-   "kurum": "BAŞKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 64.404,
-   "max_puan": 64.404
-  },
-  {
-   "kod": "200600115",
    "ad": "BAŞKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "BAŞKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
@@ -808,35 +892,23 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.85,
-   "max_puan": 62.85
+   "min_puan": 62.454,
+   "max_puan": 62.454
   },
   {
-   "kod": "200600122",
-   "ad": "BAŞKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
-   "kurum": "BAŞKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ORTODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 67.052,
-   "max_puan": 67.319
-  },
-  {
-   "kod": "200600129",
+   "kod": "200600108",
    "ad": "BAŞKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "BAŞKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.071,
-   "max_puan": 64.261
+   "min_puan": 62.763,
+   "max_puan": 62.763
   },
   {
-   "kod": "200600136",
+   "kod": "200600115",
    "ad": "BAŞKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "BAŞKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
@@ -844,8 +916,32 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.647,
-   "max_puan": 64.647
+   "min_puan": 63.496,
+   "max_puan": 63.496
+  },
+  {
+   "kod": "200600122",
+   "ad": "BAŞKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
+   "kurum": "BAŞKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "RESTORATİF DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 62.095,
+   "max_puan": 62.095
+  },
+  {
+   "kod": "200600129",
+   "ad": "BAŞKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
+   "kurum": "BAŞKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "RESTORATİF DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Yabancı Uyruklu",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 53.984,
+   "max_puan": 53.984
   },
   {
    "kod": "200900101",
@@ -853,11 +949,11 @@
    "kurum": "BEZMİÂLEM VAKIF ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 4,
+   "yerlesen": 4,
    "bos": 0,
-   "min_puan": 66.556,
-   "max_puan": 66.961
+   "min_puan": 65.213,
+   "max_puan": 66.27
   },
   {
    "kod": "200900108",
@@ -868,23 +964,11 @@
    "kontenjan": 3,
    "yerlesen": 3,
    "bos": 0,
-   "min_puan": 63.424,
-   "max_puan": 64.024
+   "min_puan": 64.003,
+   "max_puan": 64.737
   },
   {
    "kod": "200900115",
-   "ad": "BEZMİÂLEM VAKIF ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
-   "kurum": "BEZMİÂLEM VAKIF ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
-   "kontenjan_turu": "Yabancı Uyruklu",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 57.988,
-   "max_puan": 57.988
-  },
-  {
-   "kod": "200900122",
    "ad": "BEZMİÂLEM VAKIF ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "BEZMİÂLEM VAKIF ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
@@ -892,35 +976,23 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 62.666,
-   "max_puan": 63.061
+   "min_puan": 63.199,
+   "max_puan": 63.371
   },
   {
    "kod": "200900129",
-   "ad": "BEZMİÂLEM VAKIF ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
-   "kurum": "BEZMİÂLEM VAKIF ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ORTODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 67.717,
-   "max_puan": 67.884
-  },
-  {
-   "kod": "200900136",
    "ad": "BEZMİÂLEM VAKIF ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "BEZMİÂLEM VAKIF ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 64.025,
-   "max_puan": 64.822
+   "min_puan": 63.176,
+   "max_puan": 63.784
   },
   {
-   "kod": "200900143",
+   "kod": "200900136",
    "ad": "BEZMİÂLEM VAKIF ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "BEZMİÂLEM VAKIF ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
@@ -928,11 +1000,11 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.504,
-   "max_puan": 64.504
+   "min_puan": 63.629,
+   "max_puan": 63.629
   },
   {
-   "kod": "200900150",
+   "kod": "200900143",
    "ad": "BEZMİÂLEM VAKIF ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "BEZMİÂLEM VAKIF ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
@@ -940,68 +1012,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.66,
-   "max_puan": 62.66
-  },
-  {
-   "kod": "207600101",
-   "ad": "BİRUNİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kurum": "BİRUNİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 64.979,
-   "max_puan": 64.979
-  },
-  {
-   "kod": "207600108",
-   "ad": "BİRUNİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
-   "kurum": "BİRUNİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 63.251,
-   "max_puan": 63.251
-  },
-  {
-   "kod": "207600115",
-   "ad": "BİRUNİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
-   "kurum": "BİRUNİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ENDODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 62.541,
-   "max_puan": 62.541
-  },
-  {
-   "kod": "207600122",
-   "ad": "BİRUNİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
-   "kurum": "BİRUNİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ORTODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 65.345,
-   "max_puan": 65.478
-  },
-  {
-   "kod": "207600129",
-   "ad": "BİRUNİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
-   "kurum": "BİRUNİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PERİODONTOLOJİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 63.914,
-   "max_puan": 63.914
+   "min_puan": 62.501,
+   "max_puan": 62.501
   },
   {
    "kod": "100100101",
@@ -1012,68 +1024,104 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.898,
-   "max_puan": 66.563
+   "min_puan": 65.447,
+   "max_puan": 65.779
   },
   {
    "kod": "100100108",
+   "ad": "BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kurum": "BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 62.001,
+   "max_puan": 62.008
+  },
+  {
+   "kod": "100100115",
    "ad": "BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.413,
-   "max_puan": 64.482
+   "min_puan": 64.671,
+   "max_puan": 64.671
   },
   {
-   "kod": "100100115",
+   "kod": "100100122",
    "ad": "BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 5,
-   "yerlesen": 5,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.55,
-   "max_puan": 64.48
+   "min_puan": 63.379,
+   "max_puan": 63.379
   },
   {
-   "kod": "100100122",
+   "kod": "100100129",
    "ad": "BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
    "kurum": "BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 7,
+   "yerlesen": 7,
    "bos": 0,
-   "min_puan": 67.306,
-   "max_puan": 67.573
+   "min_puan": 66.606,
+   "max_puan": 67.216
   },
   {
-   "kod": "100100129",
+   "kod": "100100136",
    "ad": "BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 65.286,
-   "max_puan": 65.286
+   "min_puan": 63.426,
+   "max_puan": 63.898
   },
   {
-   "kod": "100100136",
+   "kod": "100100143",
+   "ad": "BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
+   "kurum": "BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "PROTETİK DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Yabancı Uyruklu",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 54.89,
+   "max_puan": 56.572
+  },
+  {
+   "kod": "100100150",
    "ad": "BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 62.313,
+   "max_puan": 62.407
+  },
+  {
+   "kod": "100100157",
+   "ad": "BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
+   "kurum": "BOLU ABANT İZZET BAYSAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "RESTORATİF DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Yabancı Uyruklu",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.631,
-   "max_puan": 62.631
+   "min_puan": 53.958,
+   "max_puan": 53.958
   },
   {
    "kod": "107300101",
@@ -1084,8 +1132,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.299,
-   "max_puan": 65.343
+   "min_puan": 64.643,
+   "max_puan": 64.702
   },
   {
    "kod": "107300108",
@@ -1096,8 +1144,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.306,
-   "max_puan": 62.306
+   "min_puan": 61.841,
+   "max_puan": 61.841
   },
   {
    "kod": "107300115",
@@ -1105,26 +1153,14 @@
    "kurum": "BURDUR MEHMET AKİF ERSOY ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.961,
-   "max_puan": 63.206
+   "min_puan": 63.235,
+   "max_puan": 63.235
   },
   {
    "kod": "107300122",
-   "ad": "BURDUR MEHMET AKİF ERSOY ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
-   "kurum": "BURDUR MEHMET AKİF ERSOY ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ORTODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 66.452,
-   "max_puan": 66.52
-  },
-  {
-   "kod": "107300129",
    "ad": "BURDUR MEHMET AKİF ERSOY ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "BURDUR MEHMET AKİF ERSOY ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
@@ -1132,68 +1168,80 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.692,
-   "max_puan": 64.834
+   "min_puan": 63.457,
+   "max_puan": 63.558
   },
   {
-   "kod": "102700101",
-   "ad": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
-   "kurum": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 62.484,
-   "max_puan": 62.484
-  },
-  {
-   "kod": "102700108",
-   "ad": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
-   "kurum": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
-   "bos": 0,
-   "min_puan": 63.483,
-   "max_puan": 64.16
-  },
-  {
-   "kod": "102700115",
-   "ad": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
-   "kurum": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ENDODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 63.491,
-   "max_puan": 63.491
-  },
-  {
-   "kod": "102700122",
-   "ad": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
-   "kurum": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ORTODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
-   "bos": 0,
-   "min_puan": 66.917,
-   "max_puan": 67.216
-  },
-  {
-   "kod": "102700129",
-   "ad": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
-   "kurum": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PERİODONTOLOJİ",
+   "kod": "107300129",
+   "ad": "BURDUR MEHMET AKİF ERSOY ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
+   "kurum": "BURDUR MEHMET AKİF ERSOY ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.356,
-   "max_puan": 65.612
+   "min_puan": 62.15,
+   "max_puan": 62.341
+  },
+  {
+   "kod": "102700101",
+   "ad": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
+   "kurum": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 63.718,
+   "max_puan": 63.718
+  },
+  {
+   "kod": "102700108",
+   "ad": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
+   "kurum": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ENDODONTİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 62.988,
+   "max_puan": 63.964
+  },
+  {
+   "kod": "102700115",
+   "ad": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
+   "kurum": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ORTODONTİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 66.782,
+   "max_puan": 66.782
+  },
+  {
+   "kod": "102700122",
+   "ad": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
+   "kurum": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "PERİODONTOLOJİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 64.378,
+   "max_puan": 64.378
+  },
+  {
+   "kod": "102700129",
+   "ad": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
+   "kurum": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "PROTETİK DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 64.355,
+   "max_puan": 64.447
   },
   {
    "kod": "102700136",
@@ -1201,11 +1249,11 @@
    "kurum": "ÇANAKKALE ONSEKİZ MART ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.407,
-   "max_puan": 63.407
+   "min_puan": 62.645,
+   "max_puan": 62.97
   },
   {
    "kod": "102900101",
@@ -1213,38 +1261,26 @@
    "kurum": "ÇUKUROVA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 66.975,
-   "max_puan": 67.105
-  },
-  {
-   "kod": "102900108",
-   "ad": "ÇUKUROVA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
-   "kurum": "ÇUKUROVA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
-   "kontenjan_turu": "Genel",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.751,
-   "max_puan": 62.751
+   "min_puan": 66.329,
+   "max_puan": 66.329
   },
   {
-   "kod": "102900115",
+   "kod": "102900108",
    "ad": "ÇUKUROVA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "ÇUKUROVA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.446,
-   "max_puan": 65.346
+   "min_puan": 63.948,
+   "max_puan": 63.948
   },
   {
-   "kod": "102900122",
+   "kod": "102900115",
    "ad": "ÇUKUROVA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "ÇUKUROVA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
@@ -1252,20 +1288,32 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.627,
-   "max_puan": 63.627
+   "min_puan": 63.298,
+   "max_puan": 63.298
   },
   {
-   "kod": "102900129",
+   "kod": "102900122",
    "ad": "ÇUKUROVA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
    "kurum": "ÇUKUROVA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 68.749,
+   "max_puan": 68.749
+  },
+  {
+   "kod": "102900129",
+   "ad": "ÇUKUROVA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
+   "kurum": "ÇUKUROVA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "PERİODONTOLOJİ",
+   "kontenjan_turu": "Genel",
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 67.087,
-   "max_puan": 67.152
+   "min_puan": 64.803,
+   "max_puan": 65.197
   },
   {
    "kod": "102900136",
@@ -1276,8 +1324,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.358,
-   "max_puan": 66.378
+   "min_puan": 64.195,
+   "max_puan": 64.631
   },
   {
    "kod": "102900143",
@@ -1285,11 +1333,11 @@
    "kurum": "ÇUKUROVA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.204,
-   "max_puan": 64.204
+   "min_puan": 62.669,
+   "max_puan": 63.211
   },
   {
    "kod": "103000101",
@@ -1297,11 +1345,11 @@
    "kurum": "DİCLE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.254,
-   "max_puan": 65.71
+   "min_puan": 64.803,
+   "max_puan": 64.803
   },
   {
    "kod": "103000108",
@@ -1312,8 +1360,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.306,
-   "max_puan": 62.306
+   "min_puan": 62.239,
+   "max_puan": 62.239
   },
   {
    "kod": "103000115",
@@ -1321,11 +1369,11 @@
    "kurum": "DİCLE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 4,
-   "yerlesen": 4,
+   "kontenjan": 5,
+   "yerlesen": 5,
    "bos": 0,
-   "min_puan": 63.404,
-   "max_puan": 66.355
+   "min_puan": 63.168,
+   "max_puan": 64.616
   },
   {
    "kod": "103000122",
@@ -1336,20 +1384,20 @@
    "kontenjan": 3,
    "yerlesen": 3,
    "bos": 0,
-   "min_puan": 62.707,
-   "max_puan": 63.152
+   "min_puan": 62.677,
+   "max_puan": 62.777
   },
   {
    "kod": "103000129",
-   "ad": "DİCLE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
+   "ad": "DİCLE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "DİCLE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ORTODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "dal": "ENDODONTİ",
+   "kontenjan_turu": "Yabancı Uyruklu",
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 67.972,
-   "max_puan": 68.217
+   "min_puan": 48.972,
+   "max_puan": 51.463
   },
   {
    "kod": "103000136",
@@ -1357,11 +1405,11 @@
    "kurum": "DİCLE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 4,
-   "yerlesen": 4,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 64.126,
-   "max_puan": 64.269
+   "min_puan": 63.734,
+   "max_puan": 64.397
   },
   {
    "kod": "103000143",
@@ -1369,11 +1417,11 @@
    "kurum": "DİCLE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.424,
-   "max_puan": 64.424
+   "min_puan": 63.515,
+   "max_puan": 64.19
   },
   {
    "kod": "103000150",
@@ -1381,11 +1429,11 @@
    "kurum": "DİCLE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.25,
-   "max_puan": 63.25
+   "min_puan": 62.426,
+   "max_puan": 64.237
   },
   {
    "kod": "103100101",
@@ -1396,8 +1444,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 66.807,
-   "max_puan": 67.284
+   "min_puan": 65.431,
+   "max_puan": 65.747
   },
   {
    "kod": "103100108",
@@ -1408,8 +1456,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.454,
-   "max_puan": 62.454
+   "min_puan": 63.317,
+   "max_puan": 63.317
   },
   {
    "kod": "103100115",
@@ -1417,11 +1465,11 @@
    "kurum": "DOKUZ EYLÜL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.546,
-   "max_puan": 64.979
+   "min_puan": 64.619,
+   "max_puan": 64.619
   },
   {
    "kod": "103100122",
@@ -1432,44 +1480,56 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.294,
-   "max_puan": 64.294
+   "min_puan": 63.57,
+   "max_puan": 63.57
   },
   {
    "kod": "103100129",
+   "ad": "DOKUZ EYLÜL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
+   "kurum": "DOKUZ EYLÜL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ORTODONTİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 5,
+   "yerlesen": 5,
+   "bos": 0,
+   "min_puan": 66.431,
+   "max_puan": 67.048
+  },
+  {
+   "kod": "103100136",
    "ad": "DOKUZ EYLÜL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "DOKUZ EYLÜL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 65.266,
-   "max_puan": 65.423
+   "min_puan": 64.39,
+   "max_puan": 64.39
   },
   {
-   "kod": "103100136",
+   "kod": "103100143",
    "ad": "DOKUZ EYLÜL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "DOKUZ EYLÜL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.699,
-   "max_puan": 65.699
+   "min_puan": 64.643,
+   "max_puan": 64.787
   },
   {
-   "kod": "103100143",
+   "kod": "103100150",
    "ad": "DOKUZ EYLÜL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "DOKUZ EYLÜL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.726,
-   "max_puan": 63.726
+   "min_puan": 62.442,
+   "max_puan": 62.442
   },
   {
    "kod": "103400101",
@@ -1480,8 +1540,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 67.451,
-   "max_puan": 67.506
+   "min_puan": 66.669,
+   "max_puan": 66.883
   },
   {
    "kod": "103400108",
@@ -1489,11 +1549,11 @@
    "kurum": "EGE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.456,
-   "max_puan": 65.8
+   "min_puan": 64.694,
+   "max_puan": 65.131
   },
   {
    "kod": "103400115",
@@ -1504,8 +1564,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 65.156,
-   "max_puan": 65.156
+   "min_puan": 64.452,
+   "max_puan": 64.452
   },
   {
    "kod": "103400122",
@@ -1516,8 +1576,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 69.07,
-   "max_puan": 69.224
+   "min_puan": 67.133,
+   "max_puan": 67.145
   },
   {
    "kod": "103400129",
@@ -1528,8 +1588,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.436,
-   "max_puan": 65.71
+   "min_puan": 64.475,
+   "max_puan": 64.572
   },
   {
    "kod": "103400136",
@@ -1540,8 +1600,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.898,
-   "max_puan": 65.9
+   "min_puan": 65.197,
+   "max_puan": 65.213
   },
   {
    "kod": "103400143",
@@ -1549,11 +1609,11 @@
    "kurum": "EGE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 63.99,
-   "max_puan": 63.99
+   "min_puan": 62.458,
+   "max_puan": 62.586
   },
   {
    "kod": "103500101",
@@ -1561,62 +1621,38 @@
    "kurum": "ERCİYES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 66.795,
-   "max_puan": 67.075
+   "min_puan": 65.662,
+   "max_puan": 66.27
   },
   {
    "kod": "103500108",
-   "ad": "ERCİYES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
-   "kurum": "ERCİYES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 62.309,
-   "max_puan": 62.309
-  },
-  {
-   "kod": "103500115",
    "ad": "ERCİYES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "ERCİYES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 4,
-   "yerlesen": 4,
+   "kontenjan": 7,
+   "yerlesen": 7,
    "bos": 0,
-   "min_puan": 63.751,
-   "max_puan": 63.983
+   "min_puan": 63.499,
+   "max_puan": 66.06
   },
   {
-   "kod": "103500122",
+   "kod": "103500115",
    "ad": "ERCİYES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "ERCİYES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 4,
-   "yerlesen": 4,
+   "kontenjan": 6,
+   "yerlesen": 6,
    "bos": 0,
-   "min_puan": 63.075,
-   "max_puan": 63.492
+   "min_puan": 62.876,
+   "max_puan": 63.452
   },
   {
    "kod": "103500129",
-   "ad": "ERCİYES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
-   "kurum": "ERCİYES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ORTODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 69.801,
-   "max_puan": 70.012
-  },
-  {
-   "kod": "103500136",
    "ad": "ERCİYES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "ERCİYES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
@@ -1624,44 +1660,32 @@
    "kontenjan": 6,
    "yerlesen": 6,
    "bos": 0,
-   "min_puan": 64.502,
-   "max_puan": 64.991
+   "min_puan": 63.617,
+   "max_puan": 63.721
   },
   {
-   "kod": "103500143",
+   "kod": "103500136",
    "ad": "ERCİYES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "ERCİYES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 65.091,
-   "max_puan": 65.455
+   "min_puan": 64.19,
+   "max_puan": 64.499
   },
   {
-   "kod": "103500150",
-   "ad": "ERCİYES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
-   "kurum": "ERCİYES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PROTETİK DİŞ TEDAVİSİ",
-   "kontenjan_turu": "Yabancı Uyruklu",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 58.608,
-   "max_puan": 58.716
-  },
-  {
-   "kod": "103500157",
+   "kod": "103500143",
    "ad": "ERCİYES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "ERCİYES ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.071,
-   "max_puan": 63.071
+   "min_puan": 62.485,
+   "max_puan": 62.505
   },
   {
    "kod": "103600101",
@@ -1669,35 +1693,47 @@
    "kurum": "ERZİNCAN BİNALİ YILDIRIM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 64.279,
-   "max_puan": 64.579
-  },
-  {
-   "kod": "103600108",
-   "ad": "ERZİNCAN BİNALİ YILDIRIM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
-   "kurum": "ERZİNCAN BİNALİ YILDIRIM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ENDODONTİ",
-   "kontenjan_turu": "Genel",
    "kontenjan": 3,
    "yerlesen": 3,
    "bos": 0,
-   "min_puan": 62.641,
-   "max_puan": 62.907
+   "min_puan": 64.195,
+   "max_puan": 64.28
   },
   {
-   "kod": "103600115",
-   "ad": "ERZİNCAN BİNALİ YILDIRIM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
+   "kod": "103600108",
+   "ad": "ERZİNCAN BİNALİ YILDIRIM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
    "kurum": "ERZİNCAN BİNALİ YILDIRIM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PROTETİK DİŞ TEDAVİSİ",
+   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 65.148,
-   "max_puan": 65.148
+   "min_puan": 61.817,
+   "max_puan": 61.817
+  },
+  {
+   "kod": "103600115",
+   "ad": "ERZİNCAN BİNALİ YILDIRIM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
+   "kurum": "ERZİNCAN BİNALİ YILDIRIM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ENDODONTİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 62.466,
+   "max_puan": 62.48
+  },
+  {
+   "kod": "103600122",
+   "ad": "ERZİNCAN BİNALİ YILDIRIM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
+   "kurum": "ERZİNCAN BİNALİ YILDIRIM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "PROTETİK DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 62.886,
+   "max_puan": 63.289
   },
   {
    "kod": "103800101",
@@ -1705,83 +1741,107 @@
    "kurum": "ESKİŞEHİR OSMANGAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 67.064,
-   "max_puan": 67.428
+   "min_puan": 66.193,
+   "max_puan": 66.395
   },
   {
    "kod": "103800108",
+   "ad": "ESKİŞEHİR OSMANGAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kurum": "ESKİŞEHİR OSMANGAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 62.336,
+   "max_puan": 62.336
+  },
+  {
+   "kod": "103800115",
    "ad": "ESKİŞEHİR OSMANGAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "ESKİŞEHİR OSMANGAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.646,
-   "max_puan": 65.401
+   "min_puan": 64.253,
+   "max_puan": 64.253
   },
   {
-   "kod": "103800115",
+   "kod": "103800122",
    "ad": "ESKİŞEHİR OSMANGAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "ESKİŞEHİR OSMANGAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.959,
-   "max_puan": 63.959
+   "min_puan": 63.32,
+   "max_puan": 63.379
   },
   {
-   "kod": "103800122",
+   "kod": "103800129",
    "ad": "ESKİŞEHİR OSMANGAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
    "kurum": "ESKİŞEHİR OSMANGAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 4,
-   "yerlesen": 4,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 67.971,
-   "max_puan": 68.749
+   "min_puan": 67.402,
+   "max_puan": 67.676
   },
   {
-   "kod": "103800129",
+   "kod": "103800136",
    "ad": "ESKİŞEHİR OSMANGAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "ESKİŞEHİR OSMANGAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 65.368,
-   "max_puan": 65.368
+   "min_puan": 64.459,
+   "max_puan": 64.815
   },
   {
-   "kod": "103800136",
+   "kod": "103800143",
    "ad": "ESKİŞEHİR OSMANGAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "ESKİŞEHİR OSMANGAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.123,
-   "max_puan": 65.123
+   "min_puan": 64.308,
+   "max_puan": 64.589
   },
   {
-   "kod": "103800143",
+   "kod": "103800150",
    "ad": "ESKİŞEHİR OSMANGAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "ESKİŞEHİR OSMANGAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 62.716,
+   "max_puan": 63.265
+  },
+  {
+   "kod": "103900101",
+   "ad": "Fırat Üniversitesi/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
+   "kurum": "Fırat Üniversitesi/Diş Hekimliği Fakültesi",
+   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
+   "kontenjan_turu": "Genel",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.47,
-   "max_puan": 63.47
+   "min_puan": 62.977,
+   "max_puan": 62.977
   },
   {
    "kod": "103900108",
@@ -1792,8 +1852,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.821,
-   "max_puan": 62.821
+   "min_puan": 62.598,
+   "max_puan": 62.598
   },
   {
    "kod": "103900115",
@@ -1804,8 +1864,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.647,
-   "max_puan": 64.647
+   "min_puan": 63.629,
+   "max_puan": 63.629
   },
   {
    "kod": "103900122",
@@ -1813,11 +1873,11 @@
    "kurum": "Fırat Üniversitesi/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.025,
-   "max_puan": 64.025
+   "min_puan": 63.043,
+   "max_puan": 63.164
   },
   {
    "kod": "104100101",
@@ -1825,11 +1885,11 @@
    "kurum": "GAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 5,
+   "yerlesen": 5,
    "bos": 0,
-   "min_puan": 68.015,
-   "max_puan": 68.393
+   "min_puan": 68.11,
+   "max_puan": 68.999
   },
   {
    "kod": "104100108",
@@ -1840,8 +1900,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.629,
-   "max_puan": 62.629
+   "min_puan": 62.582,
+   "max_puan": 62.582
   },
   {
    "kod": "104100115",
@@ -1849,11 +1909,11 @@
    "kurum": "GAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.876,
-   "max_puan": 65.91
+   "min_puan": 64.909,
+   "max_puan": 65.178
   },
   {
    "kod": "104100122",
@@ -1861,11 +1921,11 @@
    "kurum": "GAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 64.812,
-   "max_puan": 64.901
+   "min_puan": 63.539,
+   "max_puan": 63.612
   },
   {
    "kod": "104100129",
@@ -1876,8 +1936,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 66.576,
-   "max_puan": 66.576
+   "min_puan": 65.58,
+   "max_puan": 65.58
   },
   {
    "kod": "104100136",
@@ -1885,11 +1945,11 @@
    "kurum": "GAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 69.134,
-   "max_puan": 69.401
+   "min_puan": 68.129,
+   "max_puan": 68.129
   },
   {
    "kod": "104100143",
@@ -1897,11 +1957,11 @@
    "kurum": "GAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 65.577,
-   "max_puan": 66.286
+   "min_puan": 64.19,
+   "max_puan": 64.525
   },
   {
    "kod": "104100150",
@@ -1909,11 +1969,11 @@
    "kurum": "GAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 66.231,
-   "max_puan": 67.018
+   "min_puan": 64.471,
+   "max_puan": 64.749
   },
   {
    "kod": "104100157",
@@ -1921,11 +1981,11 @@
    "kurum": "GAZİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 63.517,
-   "max_puan": 63.517
+   "min_puan": 62.645,
+   "max_puan": 62.704
   },
   {
    "kod": "104200101",
@@ -1936,7 +1996,7 @@
    "kontenjan": 4,
    "yerlesen": 4,
    "bos": 0,
-   "min_puan": 64.592,
+   "min_puan": 64.296,
    "max_puan": 64.78
   },
   {
@@ -1948,8 +2008,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.519,
-   "max_puan": 62.519
+   "min_puan": 61.845,
+   "max_puan": 61.845
   },
   {
    "kod": "104200115",
@@ -1957,11 +2017,11 @@
    "kurum": "GAZİANTEP ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.24,
-   "max_puan": 63.24
+   "min_puan": 63.152,
+   "max_puan": 63.734
   },
   {
    "kod": "104200122",
@@ -1972,8 +2032,8 @@
    "kontenjan": 3,
    "yerlesen": 3,
    "bos": 0,
-   "min_puan": 67.517,
-   "max_puan": 67.684
+   "min_puan": 66.497,
+   "max_puan": 66.794
   },
   {
    "kod": "104200129",
@@ -1981,11 +2041,11 @@
    "kurum": "GAZİANTEP ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 4,
-   "yerlesen": 4,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 64.349,
-   "max_puan": 65.721
+   "min_puan": 63.968,
+   "max_puan": 64.023
   },
   {
    "kod": "104200136",
@@ -1993,11 +2053,11 @@
    "kurum": "GAZİANTEP ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 64.492,
-   "max_puan": 64.59
+   "min_puan": 63.546,
+   "max_puan": 64.647
   },
   {
    "kod": "104200143",
@@ -2005,11 +2065,11 @@
    "kurum": "GAZİANTEP ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 62.741,
-   "max_puan": 62.741
+   "min_puan": 62.188,
+   "max_puan": 62.544
   },
   {
    "kod": "104200150",
@@ -2017,14 +2077,26 @@
    "kurum": "GAZİANTEP ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Yabancı Uyruklu",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 54.939,
-   "max_puan": 54.939
+   "min_puan": 48.786,
+   "max_puan": 50.347
   },
   {
    "kod": "104500101",
+   "ad": "GİRESUN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kurum": "GİRESUN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 61.782,
+   "max_puan": 61.782
+  },
+  {
+   "kod": "104500108",
    "ad": "GİRESUN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "GİRESUN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
@@ -2032,23 +2104,23 @@
    "kontenjan": 3,
    "yerlesen": 3,
    "bos": 0,
-   "min_puan": 63.251,
-   "max_puan": 63.525
+   "min_puan": 63.063,
+   "max_puan": 63.218
   },
   {
-   "kod": "104800101",
-   "ad": "HACETTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kurum": "HACETTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
+   "kod": "104500115",
+   "ad": "GİRESUN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
+   "kurum": "GİRESUN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 68.515,
-   "max_puan": 68.825
+   "min_puan": 63.164,
+   "max_puan": 63.692
   },
   {
-   "kod": "104800108",
+   "kod": "104800101",
    "ad": "HACETTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
    "kurum": "HACETTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
@@ -2056,47 +2128,35 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.53,
-   "max_puan": 63.53
+   "min_puan": 62.079,
+   "max_puan": 62.079
   },
   {
-   "kod": "104800115",
+   "kod": "104800108",
    "ad": "HACETTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "HACETTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.92,
-   "max_puan": 66.319
+   "min_puan": 65.412,
+   "max_puan": 66.001
   },
   {
-   "kod": "104800122",
+   "kod": "104800115",
    "ad": "HACETTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "HACETTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 65.333,
-   "max_puan": 65.333
+   "min_puan": 64.14,
+   "max_puan": 64.781
   },
   {
-   "kod": "104800129",
-   "ad": "HACETTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
-   "kurum": "HACETTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ORTODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 70.021,
-   "max_puan": 70.3
-  },
-  {
-   "kod": "104800136",
+   "kod": "104800122",
    "ad": "HACETTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "HACETTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
@@ -2104,32 +2164,32 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 68.005,
-   "max_puan": 68.137
+   "min_puan": 64.956,
+   "max_puan": 65.424
   },
   {
-   "kod": "104800143",
+   "kod": "104800129",
    "ad": "HACETTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "HACETTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 67.661,
-   "max_puan": 67.684
+   "min_puan": 65.091,
+   "max_puan": 65.759
   },
   {
-   "kod": "104800150",
+   "kod": "104800136",
    "ad": "HACETTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "HACETTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 65.809,
-   "max_puan": 65.809
+   "min_puan": 62.949,
+   "max_puan": 64.074
   },
   {
    "kod": "105000101",
@@ -2140,20 +2200,20 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.979,
-   "max_puan": 65.467
+   "min_puan": 64.702,
+   "max_puan": 64.702
   },
   {
    "kod": "105000108",
-   "ad": "Harran Üniversitesi/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
+   "ad": "Harran Üniversitesi/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
    "kurum": "Harran Üniversitesi/Diş Hekimliği Fakültesi",
-   "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kontenjan_turu": "Yabancı Uyruklu",
+   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kontenjan_turu": "Genel",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 65.133,
-   "max_puan": 65.133
+   "min_puan": 62.02,
+   "max_puan": 62.02
   },
   {
    "kod": "105000115",
@@ -2164,8 +2224,8 @@
    "kontenjan": 3,
    "yerlesen": 3,
    "bos": 0,
-   "min_puan": 63.594,
-   "max_puan": 63.859
+   "min_puan": 62.874,
+   "max_puan": 62.914
   },
   {
    "kod": "105000122",
@@ -2173,11 +2233,11 @@
    "kurum": "Harran Üniversitesi/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.675,
-   "max_puan": 62.742
+   "min_puan": 62.688,
+   "max_puan": 62.688
   },
   {
    "kod": "105000129",
@@ -2185,11 +2245,11 @@
    "kurum": "Harran Üniversitesi/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 5,
+   "yerlesen": 5,
    "bos": 0,
-   "min_puan": 66.234,
-   "max_puan": 66.642
+   "min_puan": 65.182,
+   "max_puan": 65.697
   },
   {
    "kod": "105000136",
@@ -2197,11 +2257,11 @@
    "kurum": "Harran Üniversitesi/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.949,
-   "max_puan": 63.958
+   "min_puan": 62.766,
+   "max_puan": 62.766
   },
   {
    "kod": "107700101",
@@ -2209,11 +2269,11 @@
    "kurum": "HATAY MUSTAFA KEMAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.689,
-   "max_puan": 64.802
+   "min_puan": 64.702,
+   "max_puan": 64.702
   },
   {
    "kod": "107700108",
@@ -2224,8 +2284,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.365,
-   "max_puan": 62.365
+   "min_puan": 62.135,
+   "max_puan": 62.135
   },
   {
    "kod": "107700115",
@@ -2236,8 +2296,8 @@
    "kontenjan": 4,
    "yerlesen": 4,
    "bos": 0,
-   "min_puan": 63.027,
-   "max_puan": 63.275
+   "min_puan": 62.716,
+   "max_puan": 63.558
   },
   {
    "kod": "107700122",
@@ -2245,11 +2305,11 @@
    "kurum": "HATAY MUSTAFA KEMAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 4,
+   "yerlesen": 4,
    "bos": 0,
-   "min_puan": 62.751,
-   "max_puan": 62.761
+   "min_puan": 62.442,
+   "max_puan": 62.844
   },
   {
    "kod": "107700129",
@@ -2257,11 +2317,11 @@
    "kurum": "HATAY MUSTAFA KEMAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 4,
+   "yerlesen": 4,
    "bos": 0,
-   "min_puan": 65.933,
-   "max_puan": 66.309
+   "min_puan": 65.131,
+   "max_puan": 65.143
   },
   {
    "kod": "107700136",
@@ -2269,23 +2329,11 @@
    "kurum": "HATAY MUSTAFA KEMAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.627,
-   "max_puan": 63.751
-  },
-  {
-   "kod": "107700143",
-   "ad": "HATAY MUSTAFA KEMAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
-   "kurum": "HATAY MUSTAFA KEMAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PROTETİK DİŞ TEDAVİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 63.971,
-   "max_puan": 64.135
+   "min_puan": 64.784,
+   "max_puan": 64.784
   },
   {
    "kod": "105300101",
@@ -2293,11 +2341,11 @@
    "kurum": "İNÖNÜ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 4,
-   "yerlesen": 4,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.148,
-   "max_puan": 65.624
+   "min_puan": 64.791,
+   "max_puan": 65.424
   },
   {
    "kod": "105300108",
@@ -2308,8 +2356,8 @@
    "kontenjan": 4,
    "yerlesen": 4,
    "bos": 0,
-   "min_puan": 63.416,
-   "max_puan": 64.071
+   "min_puan": 63.137,
+   "max_puan": 64.885
   },
   {
    "kod": "105300115",
@@ -2317,11 +2365,11 @@
    "kurum": "İNÖNÜ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 63.006,
-   "max_puan": 63.604
+   "min_puan": 62.598,
+   "max_puan": 62.805
   },
   {
    "kod": "105300122",
@@ -2329,11 +2377,11 @@
    "kurum": "İNÖNÜ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 6,
-   "yerlesen": 6,
+   "kontenjan": 5,
+   "yerlesen": 5,
    "bos": 0,
-   "min_puan": 66.243,
-   "max_puan": 67.451
+   "min_puan": 65.646,
+   "max_puan": 66.384
   },
   {
    "kod": "105300129",
@@ -2341,167 +2389,119 @@
    "kurum": "İNÖNÜ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 4,
-   "yerlesen": 4,
-   "bos": 0,
-   "min_puan": 63.837,
-   "max_puan": 64.213
-  },
-  {
-   "kod": "105300136",
-   "ad": "İNÖNÜ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
-   "kurum": "İNÖNÜ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PROTETİK DİŞ TEDAVİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 64.237,
-   "max_puan": 64.8
-  },
-  {
-   "kod": "105300143",
-   "ad": "İNÖNÜ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
-   "kurum": "İNÖNÜ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PROTETİK DİŞ TEDAVİSİ",
-   "kontenjan_turu": "Yabancı Uyruklu",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 58.295,
-   "max_puan": 58.295
-  },
-  {
-   "kod": "105300150",
-   "ad": "İNÖNÜ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
-   "kurum": "İNÖNÜ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "RESTORATİF DİŞ TEDAVİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 62.638,
-   "max_puan": 62.638
-  },
-  {
-   "kod": "105300157",
-   "ad": "İNÖNÜ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
-   "kurum": "İNÖNÜ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "RESTORATİF DİŞ TEDAVİSİ",
-   "kontenjan_turu": "Yabancı Uyruklu",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 53.185,
-   "max_puan": 53.185
-  },
-  {
-   "kod": "210300101",
-   "ad": "İSTANBUL BEYKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kurum": "İSTANBUL BEYKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 63.905,
-   "max_puan": 63.937
-  },
-  {
-   "kod": "210300108",
-   "ad": "İSTANBUL BEYKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
-   "kurum": "İSTANBUL BEYKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
-   "kontenjan_turu": "Genel",
    "kontenjan": 3,
    "yerlesen": 3,
    "bos": 0,
-   "min_puan": 62.563,
-   "max_puan": 62.829
+   "min_puan": 63.598,
+   "max_puan": 64.94
   },
   {
-   "kod": "210300115",
-   "ad": "İSTANBUL BEYKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
-   "kurum": "İSTANBUL BEYKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ENDODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 62.532,
-   "max_puan": 62.532
-  },
-  {
-   "kod": "210300122",
-   "ad": "İSTANBUL BEYKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
-   "kurum": "İSTANBUL BEYKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ORTODONTİ",
+   "kod": "105300136",
+   "ad": "İNÖNÜ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
+   "kurum": "İNÖNÜ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.702,
-   "max_puan": 64.956
+   "min_puan": 62.138,
+   "max_puan": 62.2
   },
   {
-   "kod": "210300129",
-   "ad": "İSTANBUL BEYKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
-   "kurum": "İSTANBUL BEYKENT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PERİODONTOLOJİ",
-   "kontenjan_turu": "Genel",
+   "kod": "105300143",
+   "ad": "İNÖNÜ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
+   "kurum": "İNÖNÜ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "RESTORATİF DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Yabancı Uyruklu",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.297,
-   "max_puan": 63.297
+   "min_puan": 47.967,
+   "max_puan": 47.967
   },
   {
-   "kod": "202700101",
-   "ad": "İSTANBUL GELİŞİM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kurum": "İSTANBUL GELİŞİM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "kod": "209800101",
+   "ad": "İSTANBUL GALATA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
+   "kurum": "İSTANBUL GALATA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 63.324,
+   "max_puan": 64.69
+  },
+  {
+   "kod": "209800108",
+   "ad": "İSTANBUL GALATA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
+   "kurum": "İSTANBUL GALATA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
+   "kontenjan_turu": "Yabancı Uyruklu",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.773,
-   "max_puan": 63.773
+   "min_puan": 56.84,
+   "max_puan": 56.84
   },
   {
-   "kod": "202700108",
-   "ad": "İSTANBUL GELİŞİM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
-   "kurum": "İSTANBUL GELİŞİM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ENDODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 62.474,
-   "max_puan": 62.474
-  },
-  {
-   "kod": "202700115",
-   "ad": "İSTANBUL GELİŞİM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
-   "kurum": "İSTANBUL GELİŞİM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ORTODONTİ",
+   "kod": "209800115",
+   "ad": "İSTANBUL GALATA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
+   "kurum": "İSTANBUL GALATA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 66.11,
-   "max_puan": 66.576
+   "min_puan": 62.688,
+   "max_puan": 62.716
   },
   {
-   "kod": "202700122",
-   "ad": "İSTANBUL GELİŞİM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
-   "kurum": "İSTANBUL GELİŞİM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PERİODONTOLOJİ",
-   "kontenjan_turu": "Genel",
+   "kod": "209800122",
+   "ad": "İSTANBUL GALATA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
+   "kurum": "İSTANBUL GALATA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
+   "kontenjan_turu": "Yabancı Uyruklu",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.061,
-   "max_puan": 63.061
+   "min_puan": 53.637,
+   "max_puan": 53.637
+  },
+  {
+   "kod": "209800136",
+   "ad": "İSTANBUL GALATA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
+   "kurum": "İSTANBUL GALATA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ENDODONTİ",
+   "kontenjan_turu": "Yabancı Uyruklu",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 56.35,
+   "max_puan": 56.35
+  },
+  {
+   "kod": "209800143",
+   "ad": "İSTANBUL GALATA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
+   "kurum": "İSTANBUL GALATA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "PERİODONTOLOJİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 62.68,
+   "max_puan": 62.758
+  },
+  {
+   "kod": "209800150",
+   "ad": "İSTANBUL GALATA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
+   "kurum": "İSTANBUL GALATA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "PERİODONTOLOJİ",
+   "kontenjan_turu": "Yabancı Uyruklu",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 57.805,
+   "max_puan": 57.805
   },
   {
    "kod": "105400101",
@@ -2509,11 +2509,11 @@
    "kurum": "İSTANBUL MEDENİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 66.918,
-   "max_puan": 67.294
+   "min_puan": 66.544,
+   "max_puan": 66.544
   },
   {
    "kod": "105400108",
@@ -2524,8 +2524,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.25,
-   "max_puan": 63.25
+   "min_puan": 62.067,
+   "max_puan": 62.067
   },
   {
    "kod": "105400115",
@@ -2533,11 +2533,11 @@
    "kurum": "İSTANBUL MEDENİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.592,
-   "max_puan": 64.314
+   "min_puan": 64.565,
+   "max_puan": 65.268
   },
   {
    "kod": "105400122",
@@ -2545,11 +2545,11 @@
    "kurum": "İSTANBUL MEDENİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.027,
-   "max_puan": 64.027
+   "min_puan": 63.789,
+   "max_puan": 63.867
   },
   {
    "kod": "105400129",
@@ -2560,8 +2560,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 65.866,
-   "max_puan": 65.866
+   "min_puan": 64.503,
+   "max_puan": 64.503
   },
   {
    "kod": "105400136",
@@ -2569,107 +2569,47 @@
    "kurum": "İSTANBUL MEDENİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 66.741,
-   "max_puan": 66.741
+   "min_puan": 64.589,
+   "max_puan": 66.145
   },
   {
-   "kod": "203100101",
-   "ad": "İSTANBUL MEDİPOL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kurum": "İSTANBUL MEDİPOL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "kod": "209400101",
+   "ad": "İSTANBUL SAĞLIK VE TEKNOLOJİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
+   "kurum": "İSTANBUL SAĞLIK VE TEKNOLOJİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 66.465,
-   "max_puan": 66.651
+   "min_puan": 63.218,
+   "max_puan": 63.89
   },
   {
-   "kod": "203100108",
-   "ad": "İSTANBUL MEDİPOL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
-   "kurum": "İSTANBUL MEDİPOL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
+   "kod": "209400108",
+   "ad": "İSTANBUL SAĞLIK VE TEKNOLOJİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
+   "kurum": "İSTANBUL SAĞLIK VE TEKNOLOJİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.482,
-   "max_puan": 63.95
+   "min_puan": 62.551,
+   "max_puan": 62.654
   },
   {
-   "kod": "203100115",
-   "ad": "İSTANBUL MEDİPOL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
-   "kurum": "İSTANBUL MEDİPOL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ENDODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 62.631,
-   "max_puan": 62.631
-  },
-  {
-   "kod": "203100122",
-   "ad": "İSTANBUL MEDİPOL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
-   "kurum": "İSTANBUL MEDİPOL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PERİODONTOLOJİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 64.57,
-   "max_puan": 64.57
-  },
-  {
-   "kod": "204700101",
-   "ad": "İSTANBUL OKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kurum": "İSTANBUL OKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
+   "kod": "209400115",
+   "ad": "İSTANBUL SAĞLIK VE TEKNOLOJİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
+   "kurum": "İSTANBUL SAĞLIK VE TEKNOLOJİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.135,
-   "max_puan": 64.371
-  },
-  {
-   "kod": "204700108",
-   "ad": "İSTANBUL OKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
-   "kurum": "İSTANBUL OKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
-   "bos": 0,
-   "min_puan": 62.662,
-   "max_puan": 62.873
-  },
-  {
-   "kod": "204700115",
-   "ad": "İSTANBUL OKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
-   "kurum": "İSTANBUL OKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ENDODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 62.553,
-   "max_puan": 62.553
-  },
-  {
-   "kod": "204700122",
-   "ad": "İSTANBUL OKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
-   "kurum": "İSTANBUL OKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PERİODONTOLOJİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 63.349,
-   "max_puan": 63.349
+   "min_puan": 65.544,
+   "max_puan": 65.662
   },
   {
    "kod": "105600101",
@@ -2677,11 +2617,11 @@
    "kurum": "İSTANBUL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 68.461,
-   "max_puan": 68.514
+   "min_puan": 67.301,
+   "max_puan": 67.301
   },
   {
    "kod": "105600108",
@@ -2692,8 +2632,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.816,
-   "max_puan": 62.816
+   "min_puan": 62.141,
+   "max_puan": 62.141
   },
   {
    "kod": "105600115",
@@ -2701,11 +2641,11 @@
    "kurum": "İSTANBUL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 66.807,
-   "max_puan": 68.282
+   "min_puan": 65.853,
+   "max_puan": 65.853
   },
   {
    "kod": "105600122",
@@ -2716,8 +2656,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.201,
-   "max_puan": 65.257
+   "min_puan": 64.124,
+   "max_puan": 64.316
   },
   {
    "kod": "105600129",
@@ -2725,11 +2665,11 @@
    "kurum": "İSTANBUL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 68.938,
-   "max_puan": 69.114
+   "min_puan": 67.926,
+   "max_puan": 67.926
   },
   {
    "kod": "105600136",
@@ -2740,20 +2680,32 @@
    "kontenjan": 4,
    "yerlesen": 4,
    "bos": 0,
-   "min_puan": 65.01,
-   "max_puan": 66.02
+   "min_puan": 64.803,
+   "max_puan": 65.982
   },
   {
    "kod": "105600143",
+   "ad": "İSTANBUL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
+   "kurum": "İSTANBUL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "PROTETİK DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 4,
+   "yerlesen": 4,
+   "bos": 0,
+   "min_puan": 65.31,
+   "max_puan": 66.228
+  },
+  {
+   "kod": "105600150",
    "ad": "İSTANBUL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "İSTANBUL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 64.024,
-   "max_puan": 64.024
+   "min_puan": 62.758,
+   "max_puan": 62.879
   },
   {
    "kod": "111600101",
@@ -2761,71 +2713,107 @@
    "kurum": "İSTANBUL ÜNİVERSİTESİ-CERRAHPAŞA/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.368,
-   "max_puan": 65.446
+   "min_puan": 64.9,
+   "max_puan": 65.518
   },
   {
    "kod": "111600108",
-   "ad": "İSTANBUL ÜNİVERSİTESİ-CERRAHPAŞA/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
+   "ad": "İSTANBUL ÜNİVERSİTESİ-CERRAHPAŞA/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "İSTANBUL ÜNİVERSİTESİ-CERRAHPAŞA/Diş Hekimliği Fakültesi",
-   "dal": "PROTETİK DİŞ TEDAVİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 66.176,
-   "max_puan": 66.176
-  },
-  {
-   "kod": "206200101",
-   "ad": "İSTANBUL YENİ YÜZYIL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kurum": "İSTANBUL YENİ YÜZYIL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 64.799,
-   "max_puan": 64.799
-  },
-  {
-   "kod": "206200108",
-   "ad": "İSTANBUL YENİ YÜZYIL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
-   "kurum": "İSTANBUL YENİ YÜZYIL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
+   "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 62.551,
-   "max_puan": 62.785
+   "min_puan": 64.471,
+   "max_puan": 64.69
   },
   {
-   "kod": "206200115",
-   "ad": "İSTANBUL YENİ YÜZYIL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
-   "kurum": "İSTANBUL YENİ YÜZYIL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PERİODONTOLOJİ",
+   "kod": "111600115",
+   "ad": "İSTANBUL ÜNİVERSİTESİ-CERRAHPAŞA/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
+   "kurum": "İSTANBUL ÜNİVERSİTESİ-CERRAHPAŞA/Diş Hekimliği Fakültesi",
+   "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.251,
-   "max_puan": 63.251
+   "min_puan": 64.963,
+   "max_puan": 65.147
   },
   {
-   "kod": "111100101",
-   "ad": "İZMİR DEMOKRASİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
-   "kurum": "İZMİR DEMOKRASİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "kod": "208400101",
+   "ad": "İSTİNYE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
+   "kurum": "İSTİNYE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.772,
-   "max_puan": 62.772
+   "min_puan": 62.891,
+   "max_puan": 62.891
+  },
+  {
+   "kod": "208400108",
+   "ad": "İSTİNYE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
+   "kurum": "İSTİNYE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "PROTETİK DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 63.868,
+   "max_puan": 63.868
+  },
+  {
+   "kod": "208400115",
+   "ad": "İSTİNYE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
+   "kurum": "İSTİNYE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "RESTORATİF DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 62.454,
+   "max_puan": 62.454
+  },
+  {
+   "kod": "111100101",
+   "ad": "İZMİR DEMOKRASİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
+   "kurum": "İZMİR DEMOKRASİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 4,
+   "yerlesen": 4,
+   "bos": 0,
+   "min_puan": 63.406,
+   "max_puan": 63.82
+  },
+  {
+   "kod": "111100108",
+   "ad": "İZMİR DEMOKRASİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
+   "kurum": "İZMİR DEMOKRASİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ENDODONTİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 4,
+   "yerlesen": 4,
+   "bos": 0,
+   "min_puan": 62.805,
+   "max_puan": 63.327
+  },
+  {
+   "kod": "111100115",
+   "ad": "İZMİR DEMOKRASİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
+   "kurum": "İZMİR DEMOKRASİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "RESTORATİF DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 3,
+   "yerlesen": 3,
+   "bos": 0,
+   "min_puan": 62.244,
+   "max_puan": 62.423
   },
   {
    "kod": "105700101",
@@ -2836,80 +2824,80 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 67.296,
-   "max_puan": 67.416
+   "min_puan": 66.572,
+   "max_puan": 66.735
   },
   {
    "kod": "105700108",
+   "ad": "İZMİR KÂTİP ÇELEBİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kurum": "İZMİR KÂTİP ÇELEBİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 61.935,
+   "max_puan": 61.935
+  },
+  {
+   "kod": "105700115",
    "ad": "İZMİR KÂTİP ÇELEBİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "İZMİR KÂTİP ÇELEBİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.993,
-   "max_puan": 64.391
+   "min_puan": 64.058,
+   "max_puan": 64.058
   },
   {
-   "kod": "105700115",
-   "ad": "İZMİR KÂTİP ÇELEBİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
-   "kurum": "İZMİR KÂTİP ÇELEBİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ENDODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 6,
-   "yerlesen": 6,
-   "bos": 0,
-   "min_puan": 63.084,
-   "max_puan": 63.595
-  },
-  {
-   "kod": "105700122",
+   "kod": "105700129",
    "ad": "İZMİR KÂTİP ÇELEBİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
    "kurum": "İZMİR KÂTİP ÇELEBİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 5,
+   "yerlesen": 5,
    "bos": 0,
-   "min_puan": 67.118,
-   "max_puan": 67.916
+   "min_puan": 66.778,
+   "max_puan": 67.579
   },
   {
-   "kod": "105700129",
+   "kod": "105700136",
    "ad": "İZMİR KÂTİP ÇELEBİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "İZMİR KÂTİP ÇELEBİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 4,
-   "yerlesen": 4,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.693,
-   "max_puan": 64.969
+   "min_puan": 64.296,
+   "max_puan": 64.296
   },
   {
-   "kod": "105700136",
+   "kod": "105700143",
    "ad": "İZMİR KÂTİP ÇELEBİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "İZMİR KÂTİP ÇELEBİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.132,
-   "max_puan": 65.132
+   "min_puan": 64.292,
+   "max_puan": 64.831
   },
   {
-   "kod": "105700143",
+   "kod": "105700150",
    "ad": "İZMİR KÂTİP ÇELEBİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "İZMİR KÂTİP ÇELEBİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.624,
-   "max_puan": 64.624
+   "min_puan": 62.442,
+   "max_puan": 62.696
   },
   {
    "kod": "209600101",
@@ -2920,8 +2908,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 62.638,
-   "max_puan": 62.908
+   "min_puan": 62.921,
+   "max_puan": 63.14
   },
   {
    "kod": "209600108",
@@ -2929,11 +2917,11 @@
    "kurum": "İZMİR TINAZTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 62.531,
-   "max_puan": 62.531
+   "min_puan": 62.48,
+   "max_puan": 62.574
   },
   {
    "kod": "209600115",
@@ -2944,8 +2932,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 66.638,
-   "max_puan": 66.673
+   "min_puan": 65.603,
+   "max_puan": 65.638
   },
   {
    "kod": "209600122",
@@ -2956,20 +2944,140 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.59,
-   "max_puan": 64.59
+   "min_puan": 62.529,
+   "max_puan": 62.529
   },
   {
-   "kod": "106000101",
-   "ad": "KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
-   "kurum": "KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ENDODONTİ",
+   "kod": "209600129",
+   "ad": "İZMİR TINAZTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
+   "kurum": "İZMİR TINAZTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.751,
-   "max_puan": 62.751
+   "min_puan": 63.551,
+   "max_puan": 63.551
+  },
+  {
+   "kod": "209600136",
+   "ad": "İZMİR TINAZTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
+   "kurum": "İZMİR TINAZTEPE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "RESTORATİF DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 62.224,
+   "max_puan": 62.224
+  },
+  {
+   "kod": "106000101",
+   "ad": "KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kurum": "KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 61.961,
+   "max_puan": 61.961
+  },
+  {
+   "kod": "106000108",
+   "ad": "KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kurum": "KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kontenjan_turu": "Yabancı Uyruklu",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 47.449,
+   "max_puan": 47.449
+  },
+  {
+   "kod": "106000115",
+   "ad": "KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
+   "kurum": "KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 6,
+   "yerlesen": 6,
+   "bos": 0,
+   "min_puan": 62.77,
+   "max_puan": 63.008
+  },
+  {
+   "kod": "106000122",
+   "ad": "KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
+   "kurum": "KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ENDODONTİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 62.516,
+   "max_puan": 62.56
+  },
+  {
+   "kod": "106000129",
+   "ad": "KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
+   "kurum": "KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "PERİODONTOLOJİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 4,
+   "yerlesen": 4,
+   "bos": 0,
+   "min_puan": 63.324,
+   "max_puan": 63.683
+  },
+  {
+   "kod": "106000136",
+   "ad": "KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
+   "kurum": "KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "RESTORATİF DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 62.098,
+   "max_puan": 62.138
+  },
+  {
+   "kod": "106000143",
+   "ad": "KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
+   "kurum": "KAHRAMANMARAŞ SÜTÇÜ İMAM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "RESTORATİF DİŞ TEDAVİSİ",
+   "kontenjan_turu": "Yabancı Uyruklu",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 48.023,
+   "max_puan": 48.353
+  },
+  {
+   "kod": "106100101",
+   "ad": "KARABÜK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
+   "kurum": "KARABÜK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 63.055,
+   "max_puan": 63.117
+  },
+  {
+   "kod": "106100108",
+   "ad": "KARABÜK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
+   "kurum": "KARABÜK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ENDODONTİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 62.485,
+   "max_puan": 62.56
   },
   {
    "kod": "106200101",
@@ -2977,11 +3085,11 @@
    "kurum": "KARADENİZ TEKNİK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 67.861,
-   "max_puan": 68.625
+   "min_puan": 66.169,
+   "max_puan": 66.169
   },
   {
    "kod": "106200108",
@@ -2992,8 +3100,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.35,
-   "max_puan": 62.35
+   "min_puan": 62.192,
+   "max_puan": 62.192
   },
   {
    "kod": "106200115",
@@ -3001,11 +3109,11 @@
    "kurum": "KARADENİZ TEKNİK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.636,
-   "max_puan": 65.0
+   "min_puan": 63.457,
+   "max_puan": 63.457
   },
   {
    "kod": "106200122",
@@ -3016,20 +3124,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.282,
-   "max_puan": 63.282
-  },
-  {
-   "kod": "106200129",
-   "ad": "KARADENİZ TEKNİK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
-   "kurum": "KARADENİZ TEKNİK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ORTODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
-   "bos": 0,
-   "min_puan": 66.343,
-   "max_puan": 67.285
+   "min_puan": 63.02,
+   "max_puan": 63.02
   },
   {
    "kod": "106200136",
@@ -3037,11 +3133,11 @@
    "kurum": "KARADENİZ TEKNİK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.771,
-   "max_puan": 63.994
+   "min_puan": 63.598,
+   "max_puan": 63.598
   },
   {
    "kod": "106200143",
@@ -3049,11 +3145,11 @@
    "kurum": "KARADENİZ TEKNİK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.677,
-   "max_puan": 65.677
+   "min_puan": 63.457,
+   "max_puan": 64.647
   },
   {
    "kod": "106200150",
@@ -3061,11 +3157,11 @@
    "kurum": "KARADENİZ TEKNİK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 62.773,
-   "max_puan": 62.773
+   "min_puan": 62.197,
+   "max_puan": 62.367
   },
   {
    "kod": "106300101",
@@ -3073,11 +3169,11 @@
    "kurum": "KARAMANOĞLU MEHMETBEY ÜNİVERSİTESİ/Ahmet Keleşoğlu Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 8,
-   "yerlesen": 8,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.25,
-   "max_puan": 65.101
+   "min_puan": 64.447,
+   "max_puan": 64.519
   },
   {
    "kod": "106300108",
@@ -3088,8 +3184,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.264,
-   "max_puan": 62.264
+   "min_puan": 61.806,
+   "max_puan": 61.806
   },
   {
    "kod": "106300115",
@@ -3097,23 +3193,35 @@
    "kurum": "KARAMANOĞLU MEHMETBEY ÜNİVERSİTESİ/Ahmet Keleşoğlu Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.205,
-   "max_puan": 63.416
+   "min_puan": 63.298,
+   "max_puan": 63.298
   },
   {
    "kod": "106300122",
+   "ad": "KARAMANOĞLU MEHMETBEY ÜNİVERSİTESİ/Ahmet Keleşoğlu Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
+   "kurum": "KARAMANOĞLU MEHMETBEY ÜNİVERSİTESİ/Ahmet Keleşoğlu Diş Hekimliği Fakültesi",
+   "dal": "PERİODONTOLOJİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 4,
+   "yerlesen": 4,
+   "bos": 0,
+   "min_puan": 62.918,
+   "max_puan": 63.359
+  },
+  {
+   "kod": "106300129",
    "ad": "KARAMANOĞLU MEHMETBEY ÜNİVERSİTESİ/Ahmet Keleşoğlu Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "KARAMANOĞLU MEHMETBEY ÜNİVERSİTESİ/Ahmet Keleşoğlu Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 63.925,
-   "max_puan": 64.082
+   "min_puan": 63.001,
+   "max_puan": 63.617
   },
   {
    "kod": "106600101",
@@ -3124,8 +3232,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 66.076,
-   "max_puan": 66.551
+   "min_puan": 65.096,
+   "max_puan": 65.174
   },
   {
    "kod": "106600108",
@@ -3133,11 +3241,11 @@
    "kurum": "KIRIKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.06,
-   "max_puan": 64.336
+   "min_puan": 64.414,
+   "max_puan": 64.414
   },
   {
    "kod": "106600115",
@@ -3148,23 +3256,11 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.604,
-   "max_puan": 63.604
+   "min_puan": 63.332,
+   "max_puan": 63.332
   },
   {
    "kod": "106600122",
-   "ad": "KIRIKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
-   "kurum": "KIRIKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ENDODONTİ",
-   "kontenjan_turu": "Yabancı Uyruklu",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 56.077,
-   "max_puan": 56.077
-  },
-  {
-   "kod": "106600129",
    "ad": "KIRIKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
    "kurum": "KIRIKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
@@ -3172,35 +3268,23 @@
    "kontenjan": 3,
    "yerlesen": 3,
    "bos": 0,
-   "min_puan": 66.82,
-   "max_puan": 67.596
+   "min_puan": 67.075,
+   "max_puan": 68.534
   },
   {
-   "kod": "106600136",
+   "kod": "106600129",
    "ad": "KIRIKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "KIRIKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 65.178,
-   "max_puan": 65.521
-  },
-  {
-   "kod": "106600143",
-   "ad": "KIRIKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
-   "kurum": "KIRIKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PERİODONTOLOJİ",
-   "kontenjan_turu": "Yabancı Uyruklu",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 59.456,
-   "max_puan": 59.456
+   "min_puan": 64.397,
+   "max_puan": 64.397
   },
   {
-   "kod": "106600150",
+   "kod": "106600136",
    "ad": "KIRIKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "KIRIKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
@@ -3208,20 +3292,20 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.979,
-   "max_puan": 65.5
+   "min_puan": 63.898,
+   "max_puan": 64.452
   },
   {
-   "kod": "106600157",
+   "kod": "106600143",
    "ad": "KIRIKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "KIRIKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 62.85,
-   "max_puan": 62.85
+   "min_puan": 62.282,
+   "max_puan": 62.501
   },
   {
    "kod": "106900101",
@@ -3232,8 +3316,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 66.052,
-   "max_puan": 67.074
+   "min_puan": 65.834,
+   "max_puan": 66.228
   },
   {
    "kod": "106900108",
@@ -3244,8 +3328,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 65.534,
-   "max_puan": 65.534
+   "min_puan": 62.383,
+   "max_puan": 62.383
   },
   {
    "kod": "106900115",
@@ -3253,11 +3337,11 @@
    "kurum": "KOCAELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.262,
-   "max_puan": 64.272
+   "min_puan": 62.968,
+   "max_puan": 63.051
   },
   {
    "kod": "106900122",
@@ -3265,14 +3349,26 @@
    "kurum": "KOCAELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 10,
-   "yerlesen": 10,
+   "kontenjan": 4,
+   "yerlesen": 4,
    "bos": 0,
-   "min_puan": 63.128,
-   "max_puan": 65.988
+   "min_puan": 62.999,
+   "max_puan": 63.398
   },
   {
    "kod": "106900129",
+   "ad": "KOCAELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
+   "kurum": "KOCAELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ORTODONTİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 10,
+   "yerlesen": 10,
+   "bos": 0,
+   "min_puan": 65.994,
+   "max_puan": 66.657
+  },
+  {
+   "kod": "106900136",
    "ad": "KOCAELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "KOCAELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
@@ -3280,35 +3376,47 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.091,
-   "max_puan": 65.9
+   "min_puan": 63.881,
+   "max_puan": 64.565
   },
   {
-   "kod": "106900136",
+   "kod": "106900143",
    "ad": "KOCAELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "KOCAELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 62.885,
-   "max_puan": 62.885
+   "min_puan": 62.595,
+   "max_puan": 62.844
   },
   {
    "kod": "111400101",
+   "ad": "KÜTAHYA SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kurum": "KÜTAHYA SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 62.005,
+   "max_puan": 62.005
+  },
+  {
+   "kod": "111400108",
    "ad": "KÜTAHYA SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "KÜTAHYA SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.626,
-   "max_puan": 63.827
+   "min_puan": 63.308,
+   "max_puan": 63.617
   },
   {
-   "kod": "111400108",
+   "kod": "111400115",
    "ad": "KÜTAHYA SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "KÜTAHYA SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
@@ -3316,11 +3424,11 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.384,
-   "max_puan": 63.692
+   "min_puan": 63.004,
+   "max_puan": 63.121
   },
   {
-   "kod": "111400115",
+   "kod": "111400122",
    "ad": "KÜTAHYA SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "KÜTAHYA SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
@@ -3328,11 +3436,11 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.946,
-   "max_puan": 65.022
+   "min_puan": 63.723,
+   "max_puan": 63.73
   },
   {
-   "kod": "111400122",
+   "kod": "111400129",
    "ad": "KÜTAHYA SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "KÜTAHYA SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
@@ -3340,44 +3448,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.301,
-   "max_puan": 64.358
-  },
-  {
-   "kod": "208800101",
-   "ad": "LOKMAN HEKİM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kurum": "LOKMAN HEKİM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 64.291,
-   "max_puan": 64.291
-  },
-  {
-   "kod": "208800108",
-   "ad": "LOKMAN HEKİM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
-   "kurum": "LOKMAN HEKİM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 63.958,
-   "max_puan": 64.26
-  },
-  {
-   "kod": "208800115",
-   "ad": "LOKMAN HEKİM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
-   "kurum": "LOKMAN HEKİM ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PERİODONTOLOJİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 63.083,
-   "max_puan": 63.083
+   "min_puan": 63.176,
+   "max_puan": 63.371
   },
   {
    "kod": "107200101",
@@ -3388,8 +3460,8 @@
    "kontenjan": 4,
    "yerlesen": 4,
    "bos": 0,
-   "min_puan": 68.902,
-   "max_puan": 69.29
+   "min_puan": 67.355,
+   "max_puan": 70.013
   },
   {
    "kod": "107200108",
@@ -3397,11 +3469,11 @@
    "kurum": "MARMARA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 62.764,
-   "max_puan": 62.764
+   "min_puan": 62.532,
+   "max_puan": 64.081
   },
   {
    "kod": "107200115",
@@ -3409,11 +3481,11 @@
    "kurum": "MARMARA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 65.513,
-   "max_puan": 68.382
+   "min_puan": 66.095,
+   "max_puan": 66.095
   },
   {
    "kod": "107200122",
@@ -3424,8 +3496,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.924,
-   "max_puan": 64.924
+   "min_puan": 64.003,
+   "max_puan": 64.003
   },
   {
    "kod": "107200129",
@@ -3436,8 +3508,8 @@
    "kontenjan": 3,
    "yerlesen": 3,
    "bos": 0,
-   "min_puan": 69.544,
-   "max_puan": 70.677
+   "min_puan": 68.249,
+   "max_puan": 68.823
   },
   {
    "kod": "107200136",
@@ -3445,11 +3517,11 @@
    "kurum": "MARMARA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 66.82,
-   "max_puan": 66.82
+   "min_puan": 65.888,
+   "max_puan": 66.395
   },
   {
    "kod": "107200143",
@@ -3457,11 +3529,11 @@
    "kurum": "MARMARA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 4,
+   "yerlesen": 4,
    "bos": 0,
-   "min_puan": 66.199,
-   "max_puan": 67.573
+   "min_puan": 65.775,
+   "max_puan": 66.556
   },
   {
    "kod": "107200150",
@@ -3469,11 +3541,11 @@
    "kurum": "MARMARA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 63.837,
-   "max_puan": 63.837
+   "min_puan": 63.074,
+   "max_puan": 63.515
   },
   {
    "kod": "107400101",
@@ -3484,11 +3556,23 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.932,
-   "max_puan": 66.565
+   "min_puan": 65.15,
+   "max_puan": 65.881
   },
   {
    "kod": "107400108",
+   "ad": "Mersin Üniversitesi/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kurum": "Mersin Üniversitesi/Diş Hekimliği Fakültesi",
+   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 63.204,
+   "max_puan": 63.204
+  },
+  {
+   "kod": "107400115",
    "ad": "Mersin Üniversitesi/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "Mersin Üniversitesi/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
@@ -3496,11 +3580,11 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.704,
-   "max_puan": 63.914
+   "min_puan": 63.945,
+   "max_puan": 63.953
   },
   {
-   "kod": "107400115",
+   "kod": "107400122",
    "ad": "Mersin Üniversitesi/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "Mersin Üniversitesi/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
@@ -3508,56 +3592,56 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.587,
-   "max_puan": 63.587
+   "min_puan": 62.836,
+   "max_puan": 62.836
   },
   {
-   "kod": "107400122",
+   "kod": "107400129",
    "ad": "Mersin Üniversitesi/Diş Hekimliği Fakültesi/ORTODONTİ",
    "kurum": "Mersin Üniversitesi/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 67.561,
-   "max_puan": 68.461
+   "min_puan": 67.114,
+   "max_puan": 67.114
   },
   {
-   "kod": "107400129",
+   "kod": "107400136",
    "ad": "Mersin Üniversitesi/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "Mersin Üniversitesi/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 4,
-   "yerlesen": 4,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 64.225,
-   "max_puan": 64.314
+   "min_puan": 63.843,
+   "max_puan": 64.19
   },
   {
-   "kod": "107400136",
+   "kod": "107400143",
    "ad": "Mersin Üniversitesi/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "Mersin Üniversitesi/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.393,
-   "max_puan": 63.393
+   "min_puan": 62.282,
+   "max_puan": 62.758
   },
   {
    "kod": "107600101",
-   "ad": "MUĞLA SITKI KOÇMAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
+   "ad": "MUĞLA SITKI KOÇMAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "MUĞLA SITKI KOÇMAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PROTETİK DİŞ TEDAVİSİ",
+   "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.223,
-   "max_puan": 65.223
+   "min_puan": 62.305,
+   "max_puan": 62.414
   },
   {
    "kod": "107000101",
@@ -3565,95 +3649,83 @@
    "kurum": "NECMETTİN ERBAKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 66.064,
-   "max_puan": 66.343
+   "min_puan": 65.397,
+   "max_puan": 65.397
   },
   {
    "kod": "107000108",
+   "ad": "NECMETTİN ERBAKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kurum": "NECMETTİN ERBAKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 61.9,
+   "max_puan": 61.904
+  },
+  {
+   "kod": "107000115",
    "ad": "NECMETTİN ERBAKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "NECMETTİN ERBAKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.348,
-   "max_puan": 64.671
+   "min_puan": 64.319,
+   "max_puan": 65.178
   },
   {
-   "kod": "107000115",
+   "kod": "107000122",
    "ad": "NECMETTİN ERBAKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "NECMETTİN ERBAKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.693,
-   "max_puan": 63.693
+   "min_puan": 63.032,
+   "max_puan": 63.612
   },
   {
-   "kod": "107000122",
+   "kod": "107000129",
    "ad": "NECMETTİN ERBAKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
    "kurum": "NECMETTİN ERBAKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 67.086,
-   "max_puan": 67.139
+   "min_puan": 66.169,
+   "max_puan": 66.614
   },
   {
-   "kod": "107000129",
+   "kod": "107000136",
    "ad": "NECMETTİN ERBAKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "NECMETTİN ERBAKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 4,
-   "yerlesen": 4,
+   "kontenjan": 5,
+   "yerlesen": 5,
    "bos": 0,
-   "min_puan": 64.68,
-   "max_puan": 64.968
-  },
-  {
-   "kod": "107000136",
-   "ad": "NECMETTİN ERBAKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
-   "kurum": "NECMETTİN ERBAKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PROTETİK DİŞ TEDAVİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 65.745,
-   "max_puan": 65.745
+   "min_puan": 64.105,
+   "max_puan": 64.643
   },
   {
    "kod": "107000143",
-   "ad": "NECMETTİN ERBAKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
-   "kurum": "NECMETTİN ERBAKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PROTETİK DİŞ TEDAVİSİ",
-   "kontenjan_turu": "Yabancı Uyruklu",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 61.355,
-   "max_puan": 61.355
-  },
-  {
-   "kod": "107000150",
    "ad": "NECMETTİN ERBAKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "NECMETTİN ERBAKAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 63.105,
-   "max_puan": 63.105
+   "min_puan": 62.279,
+   "max_puan": 62.536
   },
   {
    "kod": "108000101",
@@ -3664,35 +3736,59 @@
    "kontenjan": 3,
    "yerlesen": 3,
    "bos": 0,
-   "min_puan": 65.365,
-   "max_puan": 66.186
+   "min_puan": 64.525,
+   "max_puan": 64.581
   },
   {
    "kod": "108000108",
-   "ad": "NEVŞEHİR HACI BEKTAŞ VELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
+   "ad": "NEVŞEHİR HACI BEKTAŞ VELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
    "kurum": "NEVŞEHİR HACI BEKTAŞ VELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ENDODONTİ",
+   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.139,
-   "max_puan": 63.139
+   "min_puan": 61.994,
+   "max_puan": 61.994
   },
   {
    "kod": "108000115",
-   "ad": "NEVŞEHİR HACI BEKTAŞ VELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
+   "ad": "NEVŞEHİR HACI BEKTAŞ VELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "NEVŞEHİR HACI BEKTAŞ VELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ORTODONTİ",
+   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 66.065,
-   "max_puan": 66.83
+   "min_puan": 63.274,
+   "max_puan": 63.457
   },
   {
    "kod": "108000122",
+   "ad": "NEVŞEHİR HACI BEKTAŞ VELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
+   "kurum": "NEVŞEHİR HACI BEKTAŞ VELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ENDODONTİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 4,
+   "yerlesen": 4,
+   "bos": 0,
+   "min_puan": 62.532,
+   "max_puan": 62.695
+  },
+  {
+   "kod": "108000129",
+   "ad": "NEVŞEHİR HACI BEKTAŞ VELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
+   "kurum": "NEVŞEHİR HACI BEKTAŞ VELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ORTODONTİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 3,
+   "yerlesen": 3,
+   "bos": 0,
+   "min_puan": 65.685,
+   "max_puan": 66.244
+  },
+  {
+   "kod": "108000136",
    "ad": "NEVŞEHİR HACI BEKTAŞ VELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "NEVŞEHİR HACI BEKTAŞ VELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
@@ -3700,11 +3796,11 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.806,
-   "max_puan": 63.837
+   "min_puan": 63.285,
+   "max_puan": 63.554
   },
   {
-   "kod": "108000129",
+   "kod": "108000143",
    "ad": "NEVŞEHİR HACI BEKTAŞ VELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "NEVŞEHİR HACI BEKTAŞ VELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
@@ -3712,68 +3808,44 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.417,
-   "max_puan": 64.527
+   "min_puan": 63.052,
+   "max_puan": 63.621
   },
   {
-   "kod": "108100101",
-   "ad": "NİĞDE ÖMER HALİSDEMİR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
-   "kurum": "NİĞDE ÖMER HALİSDEMİR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ENDODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 62.83,
-   "max_puan": 62.83
-  },
-  {
-   "kod": "108100108",
-   "ad": "NİĞDE ÖMER HALİSDEMİR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
-   "kurum": "NİĞDE ÖMER HALİSDEMİR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ORTODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 65.932,
-   "max_puan": 65.953
-  },
-  {
-   "kod": "204600101",
-   "ad": "NUH NACİ YAZGAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
-   "kurum": "NUH NACİ YAZGAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
+   "kod": "108000150",
+   "ad": "NEVŞEHİR HACI BEKTAŞ VELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
+   "kurum": "NEVŞEHİR HACI BEKTAŞ VELİ ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 3,
    "yerlesen": 3,
    "bos": 0,
-   "min_puan": 62.961,
-   "max_puan": 63.106
+   "min_puan": 62.148,
+   "max_puan": 62.166
   },
   {
-   "kod": "204600108",
-   "ad": "NUH NACİ YAZGAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
-   "kurum": "NUH NACİ YAZGAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ORTODONTİ",
+   "kod": "108100108",
+   "ad": "NİĞDE ÖMER HALİSDEMİR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
+   "kurum": "NİĞDE ÖMER HALİSDEMİR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.48,
-   "max_puan": 65.7
+   "min_puan": 62.567,
+   "max_puan": 62.716
   },
   {
-   "kod": "204600115",
-   "ad": "NUH NACİ YAZGAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
-   "kurum": "NUH NACİ YAZGAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PERİODONTOLOJİ",
+   "kod": "108100115",
+   "ad": "NİĞDE ÖMER HALİSDEMİR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
+   "kurum": "NİĞDE ÖMER HALİSDEMİR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.128,
-   "max_puan": 63.128
+   "min_puan": 65.357,
+   "max_puan": 65.357
   },
   {
    "kod": "108200101",
@@ -3781,38 +3853,26 @@
    "kurum": "ONDOKUZ MAYIS ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 66.587,
-   "max_puan": 66.743
-  },
-  {
-   "kod": "108200108",
-   "ad": "ONDOKUZ MAYIS ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
-   "kurum": "ONDOKUZ MAYIS ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
-   "kontenjan_turu": "Genel",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.387,
-   "max_puan": 62.387
+   "min_puan": 66.087,
+   "max_puan": 66.087
   },
   {
-   "kod": "108200115",
+   "kod": "108200108",
    "ad": "ONDOKUZ MAYIS ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "ONDOKUZ MAYIS ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.424,
-   "max_puan": 65.122
+   "min_puan": 64.733,
+   "max_puan": 64.733
   },
   {
-   "kod": "108200122",
+   "kod": "108200115",
    "ad": "ONDOKUZ MAYIS ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "ONDOKUZ MAYIS ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
@@ -3820,47 +3880,47 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.839,
-   "max_puan": 63.839
+   "min_puan": 63.586,
+   "max_puan": 63.586
   },
   {
-   "kod": "108200129",
+   "kod": "108200122",
    "ad": "ONDOKUZ MAYIS ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
    "kurum": "ONDOKUZ MAYIS ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 68.671,
-   "max_puan": 68.683
+   "min_puan": 67.808,
+   "max_puan": 67.808
   },
   {
-   "kod": "108200136",
+   "kod": "108200129",
    "ad": "ONDOKUZ MAYIS ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "ONDOKUZ MAYIS ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 65.323,
-   "max_puan": 65.334
+   "min_puan": 64.464,
+   "max_puan": 64.464
   },
   {
-   "kod": "108200143",
+   "kod": "108200136",
    "ad": "ONDOKUZ MAYIS ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "ONDOKUZ MAYIS ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.39,
-   "max_puan": 65.39
+   "min_puan": 64.787,
+   "max_puan": 64.905
   },
   {
-   "kod": "108200150",
+   "kod": "108200143",
    "ad": "ONDOKUZ MAYIS ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "ONDOKUZ MAYIS ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
@@ -3868,20 +3928,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.271,
-   "max_puan": 63.271
-  },
-  {
-   "kod": "108300101",
-   "ad": "ORDU ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kurum": "ORDU ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 65.787,
-   "max_puan": 65.788
+   "min_puan": 62.921,
+   "max_puan": 62.921
   },
   {
    "kod": "108300108",
@@ -3892,8 +3940,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.284,
-   "max_puan": 62.284
+   "min_puan": 62.048,
+   "max_puan": 62.048
   },
   {
    "kod": "108300115",
@@ -3901,11 +3949,11 @@
    "kurum": "ORDU ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.649,
-   "max_puan": 63.947
+   "min_puan": 64.077,
+   "max_puan": 64.077
   },
   {
    "kod": "108300122",
@@ -3913,11 +3961,11 @@
    "kurum": "ORDU ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.984,
-   "max_puan": 63.338
+   "min_puan": 62.723,
+   "max_puan": 62.723
   },
   {
    "kod": "108300129",
@@ -3925,23 +3973,11 @@
    "kurum": "ORDU ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 67.042,
-   "max_puan": 67.805
-  },
-  {
-   "kod": "108300136",
-   "ad": "ORDU ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
-   "kurum": "ORDU ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PERİODONTOLOJİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 64.692,
-   "max_puan": 64.809
+   "min_puan": 65.881,
+   "max_puan": 66.731
   },
   {
    "kod": "108300143",
@@ -3949,11 +3985,11 @@
    "kurum": "ORDU ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.982,
-   "max_puan": 64.982
+   "min_puan": 64.046,
+   "max_puan": 64.515
   },
   {
    "kod": "108300150",
@@ -3961,50 +3997,38 @@
    "kurum": "ORDU ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.128,
-   "max_puan": 63.128
+   "min_puan": 62.383,
+   "max_puan": 62.532
   },
   {
    "kod": "108600101",
-   "ad": "PAMUKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
-   "kurum": "PAMUKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 63.26,
-   "max_puan": 63.26
-  },
-  {
-   "kod": "108600108",
    "ad": "PAMUKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "PAMUKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.237,
-   "max_puan": 64.281
+   "min_puan": 64.258,
+   "max_puan": 64.284
   },
   {
-   "kod": "108600115",
+   "kod": "108600108",
    "ad": "PAMUKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "PAMUKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.24,
-   "max_puan": 63.24
+   "min_puan": 63.617,
+   "max_puan": 64.803
   },
   {
-   "kod": "108600122",
+   "kod": "108600115",
    "ad": "PAMUKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "PAMUKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
@@ -4012,32 +4036,32 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 65.389,
-   "max_puan": 65.389
+   "min_puan": 64.148,
+   "max_puan": 64.148
   },
   {
-   "kod": "108600129",
+   "kod": "108600122",
    "ad": "PAMUKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "PAMUKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.269,
-   "max_puan": 64.269
+   "min_puan": 63.692,
+   "max_puan": 63.711
   },
   {
    "kod": "108600136",
    "ad": "PAMUKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "PAMUKKALE ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
-   "kontenjan_turu": "Genel",
+   "kontenjan_turu": "Yabancı Uyruklu",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.715,
-   "max_puan": 63.715
+   "min_puan": 52.395,
+   "max_puan": 52.395
   },
   {
    "kod": "108700101",
@@ -4045,11 +4069,11 @@
    "kurum": "RECEP TAYYİP ERDOĞAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 4,
-   "yerlesen": 4,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.879,
-   "max_puan": 65.213
+   "min_puan": 65.096,
+   "max_puan": 65.096
   },
   {
    "kod": "108700108",
@@ -4060,8 +4084,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.319,
-   "max_puan": 62.319
+   "min_puan": 61.908,
+   "max_puan": 61.908
   },
   {
    "kod": "108700115",
@@ -4072,8 +4096,8 @@
    "kontenjan": 4,
    "yerlesen": 4,
    "bos": 0,
-   "min_puan": 63.883,
-   "max_puan": 64.749
+   "min_puan": 63.277,
+   "max_puan": 64.206
   },
   {
    "kod": "108700122",
@@ -4084,8 +4108,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.887,
-   "max_puan": 62.887
+   "min_puan": 62.832,
+   "max_puan": 62.832
   },
   {
    "kod": "108700129",
@@ -4093,11 +4117,11 @@
    "kurum": "RECEP TAYYİP ERDOĞAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 4,
+   "yerlesen": 4,
    "bos": 0,
-   "min_puan": 66.045,
-   "max_puan": 66.12
+   "min_puan": 65.377,
+   "max_puan": 65.694
   },
   {
    "kod": "108700136",
@@ -4105,11 +4129,11 @@
    "kurum": "RECEP TAYYİP ERDOĞAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.69,
-   "max_puan": 64.69
+   "min_puan": 63.558,
+   "max_puan": 63.718
   },
   {
    "kod": "108700143",
@@ -4117,11 +4141,11 @@
    "kurum": "RECEP TAYYİP ERDOĞAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.789,
-   "max_puan": 64.789
+   "min_puan": 63.293,
+   "max_puan": 63.327
   },
   {
    "kod": "108700150",
@@ -4129,26 +4153,26 @@
    "kurum": "RECEP TAYYİP ERDOĞAN ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 62.566,
-   "max_puan": 62.566
+   "min_puan": 62.145,
+   "max_puan": 62.251
   },
   {
-   "kod": "111000115",
+   "kod": "111000143",
    "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 67.726,
-   "max_puan": 67.793
+   "min_puan": 67.964,
+   "max_puan": 67.964
   },
   {
-   "kod": "111000122",
+   "kod": "111000150",
    "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
    "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)",
    "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
@@ -4156,11 +4180,11 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.377,
-   "max_puan": 62.377
+   "min_puan": 62.208,
+   "max_puan": 62.208
   },
   {
-   "kod": "111000129",
+   "kod": "111000157",
    "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
@@ -4168,11 +4192,11 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.421,
-   "max_puan": 65.809
+   "min_puan": 64.768,
+   "max_puan": 65.061
   },
   {
-   "kod": "111000136",
+   "kod": "111000164",
    "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)/ENDODONTİ",
    "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)",
    "dal": "ENDODONTİ",
@@ -4180,35 +4204,35 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.448,
-   "max_puan": 64.448
+   "min_puan": 63.484,
+   "max_puan": 63.484
   },
   {
-   "kod": "111000143",
+   "kod": "111000171",
    "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)/ORTODONTİ",
    "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 4,
+   "yerlesen": 4,
    "bos": 0,
-   "min_puan": 68.99,
-   "max_puan": 69.07
+   "min_puan": 67.574,
+   "max_puan": 68.023
   },
   {
-   "kod": "111000150",
+   "kod": "111000178",
    "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)/PERİODONTOLOJİ",
    "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 65.9,
-   "max_puan": 66.308
+   "min_puan": 64.702,
+   "max_puan": 64.702
   },
   {
-   "kod": "111000157",
+   "kod": "111000185",
    "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
@@ -4216,11 +4240,11 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.845,
-   "max_puan": 66.076
+   "min_puan": 64.499,
+   "max_puan": 64.687
   },
   {
-   "kod": "111000164",
+   "kod": "111000192",
    "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Gülhane Diş Hekimliği Fakültesi (ANKARA)",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
@@ -4228,11 +4252,11 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.96,
-   "max_puan": 64.213
+   "min_puan": 62.633,
+   "max_puan": 62.786
   },
   {
-   "kod": "111000171",
+   "kod": "111000199",
    "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Hamidiye Diş Hekimliği Fakültesi (İSTANBUL)/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Hamidiye Diş Hekimliği Fakültesi (İSTANBUL)",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
@@ -4240,23 +4264,47 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 67.805,
-   "max_puan": 67.905
+   "min_puan": 66.789,
+   "max_puan": 67.348
   },
   {
-   "kod": "111000178",
+   "kod": "111000206",
+   "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Hamidiye Diş Hekimliği Fakültesi (İSTANBUL)/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Hamidiye Diş Hekimliği Fakültesi (İSTANBUL)",
+   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 61.978,
+   "max_puan": 61.978
+  },
+  {
+   "kod": "111000213",
+   "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Hamidiye Diş Hekimliği Fakültesi (İSTANBUL)/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Hamidiye Diş Hekimliği Fakültesi (İSTANBUL)",
+   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kontenjan_turu": "Yabancı Uyruklu",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 48.056,
+   "max_puan": 48.056
+  },
+  {
+   "kod": "111000220",
    "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Hamidiye Diş Hekimliği Fakültesi (İSTANBUL)/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Hamidiye Diş Hekimliği Fakültesi (İSTANBUL)",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.59,
-   "max_puan": 65.311
+   "min_puan": 64.772,
+   "max_puan": 64.85
   },
   {
-   "kod": "111000185",
+   "kod": "111000227",
    "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Hamidiye Diş Hekimliği Fakültesi (İSTANBUL)/ENDODONTİ",
    "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Hamidiye Diş Hekimliği Fakültesi (İSTANBUL)",
    "dal": "ENDODONTİ",
@@ -4264,23 +4312,23 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.131,
-   "max_puan": 63.98
+   "min_puan": 63.515,
+   "max_puan": 63.617
   },
   {
-   "kod": "111000192",
+   "kod": "111000234",
    "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Hamidiye Diş Hekimliği Fakültesi (İSTANBUL)/ORTODONTİ",
    "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Hamidiye Diş Hekimliği Fakültesi (İSTANBUL)",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 68.473,
-   "max_puan": 68.893
+   "min_puan": 67.785,
+   "max_puan": 67.785
   },
   {
-   "kod": "111000199",
+   "kod": "111000241",
    "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Hamidiye Diş Hekimliği Fakültesi (İSTANBUL)/PERİODONTOLOJİ",
    "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Hamidiye Diş Hekimliği Fakültesi (İSTANBUL)",
    "dal": "PERİODONTOLOJİ",
@@ -4288,32 +4336,20 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.003,
-   "max_puan": 65.511
+   "min_puan": 64.706,
+   "max_puan": 65.544
   },
   {
-   "kod": "111000206",
-   "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Hamidiye Diş Hekimliği Fakültesi (İSTANBUL)/PROTETİK DİŞ TEDAVİSİ",
-   "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Hamidiye Diş Hekimliği Fakültesi (İSTANBUL)",
-   "dal": "PROTETİK DİŞ TEDAVİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 65.888,
-   "max_puan": 66.032
-  },
-  {
-   "kod": "111000213",
+   "kod": "111000255",
    "ad": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Hamidiye Diş Hekimliği Fakültesi (İSTANBUL)/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "SAĞLIK BİLİMLERİ ÜNİVERSİTESİ/Hamidiye Diş Hekimliği Fakültesi (İSTANBUL)",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.848,
-   "max_puan": 62.918
+   "min_puan": 62.539,
+   "max_puan": 62.539
   },
   {
    "kod": "108800101",
@@ -4324,8 +4360,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.596,
-   "max_puan": 62.596
+   "min_puan": 61.866,
+   "max_puan": 61.866
   },
   {
    "kod": "108800108",
@@ -4333,14 +4369,26 @@
    "kurum": "SAKARYA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.292,
-   "max_puan": 64.966
+   "min_puan": 64.487,
+   "max_puan": 65.096
   },
   {
    "kod": "108800115",
+   "ad": "SAKARYA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
+   "kurum": "SAKARYA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ENDODONTİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 62.949,
+   "max_puan": 62.949
+  },
+  {
+   "kod": "108800122",
    "ad": "SAKARYA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "SAKARYA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
@@ -4348,32 +4396,32 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.759,
-   "max_puan": 64.759
+   "min_puan": 64.296,
+   "max_puan": 64.296
   },
   {
-   "kod": "108800122",
+   "kod": "108800129",
    "ad": "SAKARYA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "SAKARYA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.022,
-   "max_puan": 65.022
+   "min_puan": 63.52,
+   "max_puan": 63.695
   },
   {
-   "kod": "108800129",
+   "kod": "108800136",
    "ad": "SAKARYA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "SAKARYA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 62.698,
-   "max_puan": 62.698
+   "min_puan": 62.61,
+   "max_puan": 62.796
   },
   {
    "kod": "108900101",
@@ -4381,11 +4429,11 @@
    "kurum": "SELÇUK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 4,
+   "yerlesen": 4,
    "bos": 0,
-   "min_puan": 65.8,
-   "max_puan": 65.922
+   "min_puan": 64.975,
+   "max_puan": 65.334
   },
   {
    "kod": "108900108",
@@ -4396,8 +4444,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.331,
-   "max_puan": 62.331
+   "min_puan": 62.02,
+   "max_puan": 62.02
   },
   {
    "kod": "108900115",
@@ -4405,11 +4453,11 @@
    "kurum": "SELÇUK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 65.334,
-   "max_puan": 65.646
+   "min_puan": 64.506,
+   "max_puan": 64.784
   },
   {
    "kod": "108900122",
@@ -4417,11 +4465,11 @@
    "kurum": "SELÇUK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.937,
-   "max_puan": 63.937
+   "min_puan": 62.871,
+   "max_puan": 62.935
   },
   {
    "kod": "108900129",
@@ -4429,23 +4477,11 @@
    "kurum": "SELÇUK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 66.664,
-   "max_puan": 66.975
-  },
-  {
-   "kod": "108900136",
-   "ad": "SELÇUK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
-   "kurum": "SELÇUK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PERİODONTOLOJİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 65.223,
-   "max_puan": 65.333
+   "min_puan": 65.978,
+   "max_puan": 66.091
   },
   {
    "kod": "108900143",
@@ -4453,11 +4489,11 @@
    "kurum": "SELÇUK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 3,
+   "yerlesen": 3,
    "bos": 0,
-   "min_puan": 64.934,
-   "max_puan": 64.981
+   "min_puan": 63.836,
+   "max_puan": 65.221
   },
   {
    "kod": "108900150",
@@ -4465,11 +4501,11 @@
    "kurum": "SELÇUK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 4,
+   "yerlesen": 4,
    "bos": 0,
-   "min_puan": 63.517,
-   "max_puan": 63.517
+   "min_puan": 62.32,
+   "max_puan": 62.766
   },
   {
    "kod": "102600101",
@@ -4477,50 +4513,50 @@
    "kurum": "SİVAS CUMHURİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
-   "bos": 0,
-   "min_puan": 64.624,
-   "max_puan": 64.878
-  },
-  {
-   "kod": "102600108",
-   "ad": "SİVAS CUMHURİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
-   "kurum": "SİVAS CUMHURİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
-   "kontenjan_turu": "Genel",
    "kontenjan": 3,
    "yerlesen": 3,
    "bos": 0,
-   "min_puan": 63.507,
-   "max_puan": 63.827
+   "min_puan": 64.584,
+   "max_puan": 64.647
   },
   {
-   "kod": "102600115",
-   "ad": "SİVAS CUMHURİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
+   "kod": "102600108",
+   "ad": "SİVAS CUMHURİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
    "kurum": "SİVAS CUMHURİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ENDODONTİ",
+   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.984,
-   "max_puan": 62.984
+   "min_puan": 61.744,
+   "max_puan": 61.744
   },
   {
    "kod": "102600122",
+   "ad": "SİVAS CUMHURİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
+   "kurum": "SİVAS CUMHURİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ENDODONTİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 4,
+   "yerlesen": 4,
+   "bos": 0,
+   "min_puan": 62.517,
+   "max_puan": 63.126
+  },
+  {
+   "kod": "102600129",
    "ad": "SİVAS CUMHURİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
    "kurum": "SİVAS CUMHURİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 66.111,
-   "max_puan": 66.178
+   "min_puan": 65.205,
+   "max_puan": 65.205
   },
   {
-   "kod": "102600129",
+   "kod": "102600136",
    "ad": "SİVAS CUMHURİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "SİVAS CUMHURİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
@@ -4528,32 +4564,32 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.025,
-   "max_puan": 64.269
+   "min_puan": 63.379,
+   "max_puan": 63.48
   },
   {
-   "kod": "102600136",
+   "kod": "102600143",
    "ad": "SİVAS CUMHURİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "SİVAS CUMHURİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.879,
-   "max_puan": 64.879
+   "min_puan": 63.398,
+   "max_puan": 63.461
   },
   {
-   "kod": "102600143",
+   "kod": "102600150",
    "ad": "SİVAS CUMHURİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "SİVAS CUMHURİYET ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 62.575,
-   "max_puan": 62.575
+   "min_puan": 62.138,
+   "max_puan": 62.266
   },
   {
    "kod": "109200101",
@@ -4561,62 +4597,74 @@
    "kurum": "SÜLEYMAN DEMİREL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 66.008,
-   "max_puan": 66.444
+   "min_puan": 65.072,
+   "max_puan": 65.072
   },
   {
    "kod": "109200108",
+   "ad": "SÜLEYMAN DEMİREL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kurum": "SÜLEYMAN DEMİREL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 61.932,
+   "max_puan": 61.935
+  },
+  {
+   "kod": "109200115",
    "ad": "SÜLEYMAN DEMİREL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "SÜLEYMAN DEMİREL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 4,
+   "yerlesen": 4,
    "bos": 0,
-   "min_puan": 64.424,
-   "max_puan": 64.866
+   "min_puan": 63.492,
+   "max_puan": 63.956
   },
   {
-   "kod": "109200115",
+   "kod": "109200122",
    "ad": "SÜLEYMAN DEMİREL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "SÜLEYMAN DEMİREL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.34,
-   "max_puan": 63.483
+   "min_puan": 63.027,
+   "max_puan": 63.027
   },
   {
-   "kod": "109200122",
+   "kod": "109200129",
    "ad": "SÜLEYMAN DEMİREL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
    "kurum": "SÜLEYMAN DEMİREL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 67.727,
-   "max_puan": 67.963
+   "min_puan": 66.204,
+   "max_puan": 66.204
   },
   {
-   "kod": "109200129",
+   "kod": "109200136",
    "ad": "SÜLEYMAN DEMİREL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PERİODONTOLOJİ",
    "kurum": "SÜLEYMAN DEMİREL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 4,
-   "yerlesen": 4,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 64.125,
-   "max_puan": 64.461
+   "min_puan": 63.44,
+   "max_puan": 63.44
   },
   {
-   "kod": "109200136",
+   "kod": "109200143",
    "ad": "SÜLEYMAN DEMİREL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "SÜLEYMAN DEMİREL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
@@ -4624,32 +4672,44 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.913,
-   "max_puan": 65.101
+   "min_puan": 64.405,
+   "max_puan": 64.728
   },
   {
-   "kod": "109200143",
+   "kod": "109200150",
    "ad": "SÜLEYMAN DEMİREL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
    "kurum": "SÜLEYMAN DEMİREL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
+   "kontenjan": 2,
+   "yerlesen": 2,
+   "bos": 0,
+   "min_puan": 62.064,
+   "max_puan": 62.154
+  },
+  {
+   "kod": "107900101",
+   "ad": "TEKİRDAĞ NAMIK KEMAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
+   "kurum": "TEKİRDAĞ NAMIK KEMAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
+   "kontenjan_turu": "Genel",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.737,
-   "max_puan": 63.737
+   "min_puan": 64.955,
+   "max_puan": 64.955
   },
   {
-   "kod": "107900304",
-   "ad": "TEKİRDAĞ NAMIK KEMAL ÜNİVERSİTESİ//Tekirdağ Namık Kemal Üniversitesi Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
-   "kurum": "TEKİRDAĞ NAMIK KEMAL ÜNİVERSİTESİ//Tekirdağ Namık Kemal Üniversitesi Diş Hekimliği Fakültesi",
-   "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
+   "kod": "107900108",
+   "ad": "TEKİRDAĞ NAMIK KEMAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
+   "kurum": "TEKİRDAĞ NAMIK KEMAL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 65.2,
-   "max_puan": 65.336
+   "min_puan": 64.006,
+   "max_puan": 64.006
   },
   {
    "kod": "104300101",
@@ -4657,11 +4717,11 @@
    "kurum": "TOKAT GAZİOSMANPAŞA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 65.078,
-   "max_puan": 65.368
+   "min_puan": 64.987,
+   "max_puan": 64.987
   },
   {
    "kod": "104300108",
@@ -4672,8 +4732,20 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.231,
-   "max_puan": 62.231
+   "min_puan": 61.911,
+   "max_puan": 61.911
+  },
+  {
+   "kod": "104300115",
+   "ad": "TOKAT GAZİOSMANPAŞA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
+   "kurum": "TOKAT GAZİOSMANPAŞA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 63.301,
+   "max_puan": 63.301
   },
   {
    "kod": "104300122",
@@ -4681,11 +4753,11 @@
    "kurum": "TOKAT GAZİOSMANPAŞA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.851,
-   "max_puan": 63.35
+   "min_puan": 62.669,
+   "max_puan": 62.669
   },
   {
    "kod": "104300129",
@@ -4696,8 +4768,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 66.353,
-   "max_puan": 66.786
+   "min_puan": 65.232,
+   "max_puan": 65.31
   },
   {
    "kod": "104300136",
@@ -4708,8 +4780,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.47,
-   "max_puan": 64.581
+   "min_puan": 63.499,
+   "max_puan": 64.461
   },
   {
    "kod": "104300143",
@@ -4717,11 +4789,11 @@
    "kurum": "TOKAT GAZİOSMANPAŞA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.822,
-   "max_puan": 64.822
+   "min_puan": 63.024,
+   "max_puan": 64.584
   },
   {
    "kod": "104300150",
@@ -4729,11 +4801,11 @@
    "kurum": "TOKAT GAZİOSMANPAŞA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 62.774,
-   "max_puan": 62.774
+   "min_puan": 62.126,
+   "max_puan": 62.141
   },
   {
    "kod": "109400101",
@@ -4741,11 +4813,11 @@
    "kurum": "TRAKYA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 4,
-   "yerlesen": 4,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.573,
-   "max_puan": 64.727
+   "min_puan": 63.515,
+   "max_puan": 63.612
   },
   {
    "kod": "109400108",
@@ -4756,8 +4828,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.482,
-   "max_puan": 63.55
+   "min_puan": 62.758,
+   "max_puan": 63.023
   },
   {
    "kod": "109400115",
@@ -4765,11 +4837,11 @@
    "kurum": "TRAKYA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 66.421,
-   "max_puan": 66.931
+   "min_puan": 65.876,
+   "max_puan": 65.876
   },
   {
    "kod": "109400122",
@@ -4780,8 +4852,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.505,
-   "max_puan": 65.734
+   "min_puan": 63.418,
+   "max_puan": 63.812
   },
   {
    "kod": "109400129",
@@ -4789,23 +4861,11 @@
    "kurum": "TRAKYA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.636,
-   "max_puan": 64.636
-  },
-  {
-   "kod": "109400136",
-   "ad": "TRAKYA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/RESTORATİF DİŞ TEDAVİSİ",
-   "kurum": "TRAKYA ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "RESTORATİF DİŞ TEDAVİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 63.193,
-   "max_puan": 63.193
+   "min_puan": 63.89,
+   "max_puan": 64.042
   },
   {
    "kod": "109800101",
@@ -4813,11 +4873,11 @@
    "kurum": "UŞAK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 65.211,
-   "max_puan": 66.042
+   "min_puan": 64.885,
+   "max_puan": 64.916
   },
   {
    "kod": "109800108",
@@ -4825,11 +4885,11 @@
    "kurum": "UŞAK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.826,
-   "max_puan": 64.48
+   "min_puan": 64.28,
+   "max_puan": 64.374
   },
   {
    "kod": "109800115",
@@ -4840,8 +4900,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.393,
-   "max_puan": 63.407
+   "min_puan": 62.817,
+   "max_puan": 63.426
   },
   {
    "kod": "109800122",
@@ -4849,11 +4909,11 @@
    "kurum": "UŞAK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ORTODONTİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 4,
+   "yerlesen": 4,
    "bos": 0,
-   "min_puan": 66.553,
-   "max_puan": 66.563
+   "min_puan": 65.876,
+   "max_puan": 66.341
   },
   {
    "kod": "109800129",
@@ -4861,11 +4921,11 @@
    "kurum": "UŞAK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PERİODONTOLOJİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.956,
-   "max_puan": 64.956
+   "min_puan": 63.558,
+   "max_puan": 63.676
   },
   {
    "kod": "109800136",
@@ -4873,11 +4933,11 @@
    "kurum": "UŞAK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.702,
-   "max_puan": 64.702
+   "min_puan": 63.239,
+   "max_puan": 63.32
   },
   {
    "kod": "109800143",
@@ -4885,38 +4945,26 @@
    "kurum": "UŞAK ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "RESTORATİF DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 62.628,
-   "max_puan": 62.628
+   "min_puan": 62.176,
+   "max_puan": 62.68
   },
   {
    "kod": "206500101",
-   "ad": "ÜSKÜDAR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
+   "ad": "ÜSKÜDAR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "ÜSKÜDAR ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ENDODONTİ",
+   "dal": "PROTETİK DİŞ TEDAVİSİ",
    "kontenjan_turu": "Genel",
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.408,
-   "max_puan": 62.408
+   "min_puan": 63.809,
+   "max_puan": 63.809
   },
   {
    "kod": "110200101",
-   "ad": "VAN YÜZÜNCÜ YIL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
-   "kurum": "VAN YÜZÜNCÜ YIL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "AĞIZ, DİŞ VE ÇENE RADYOLOJİSİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 62.189,
-   "max_puan": 62.189
-  },
-  {
-   "kod": "110200108",
    "ad": "VAN YÜZÜNCÜ YIL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ÇOCUK DİŞ HEKİMLİĞİ",
    "kurum": "VAN YÜZÜNCÜ YIL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
@@ -4924,11 +4972,11 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.162,
-   "max_puan": 63.34
+   "min_puan": 62.926,
+   "max_puan": 62.949
   },
   {
-   "kod": "110200115",
+   "kod": "110200108",
    "ad": "VAN YÜZÜNCÜ YIL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ENDODONTİ",
    "kurum": "VAN YÜZÜNCÜ YIL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ENDODONTİ",
@@ -4936,11 +4984,23 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.008,
-   "max_puan": 63.008
+   "min_puan": 62.595,
+   "max_puan": 62.595
   },
   {
-   "kod": "110200129",
+   "kod": "110200115",
+   "ad": "VAN YÜZÜNCÜ YIL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
+   "kurum": "VAN YÜZÜNCÜ YIL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
+   "dal": "ORTODONTİ",
+   "kontenjan_turu": "Genel",
+   "kontenjan": 1,
+   "yerlesen": 1,
+   "bos": 0,
+   "min_puan": 66.27,
+   "max_puan": 66.27
+  },
+  {
+   "kod": "110200122",
    "ad": "VAN YÜZÜNCÜ YIL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
    "kurum": "VAN YÜZÜNCÜ YIL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "PROTETİK DİŞ TEDAVİSİ",
@@ -4948,20 +5008,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 63.896,
-   "max_puan": 64.634
-  },
-  {
-   "kod": "110200136",
-   "ad": "VAN YÜZÜNCÜ YIL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
-   "kurum": "VAN YÜZÜNCÜ YIL ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PROTETİK DİŞ TEDAVİSİ",
-   "kontenjan_turu": "Yabancı Uyruklu",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 56.545,
-   "max_puan": 56.545
+   "min_puan": 63.168,
+   "max_puan": 64.159
   },
   {
    "kod": "110300101",
@@ -4969,11 +5017,11 @@
    "kurum": "ZONGULDAK BÜLENT ECEVİT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "AĞIZ, DİŞ VE ÇENE CERRAHİSİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 2,
-   "yerlesen": 2,
+   "kontenjan": 1,
+   "yerlesen": 1,
    "bos": 0,
-   "min_puan": 65.067,
-   "max_puan": 65.465
+   "min_puan": 65.037,
+   "max_puan": 65.037
   },
   {
    "kod": "110300108",
@@ -4984,8 +5032,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 62.253,
-   "max_puan": 62.253
+   "min_puan": 61.869,
+   "max_puan": 61.869
   },
   {
    "kod": "110300115",
@@ -4996,8 +5044,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 53.926,
-   "max_puan": 53.926
+   "min_puan": 47.902,
+   "max_puan": 47.902
   },
   {
    "kod": "110300122",
@@ -5005,11 +5053,11 @@
    "kurum": "ZONGULDAK BÜLENT ECEVİT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
    "dal": "ÇOCUK DİŞ HEKİMLİĞİ",
    "kontenjan_turu": "Genel",
-   "kontenjan": 3,
-   "yerlesen": 3,
+   "kontenjan": 2,
+   "yerlesen": 2,
    "bos": 0,
-   "min_puan": 62.993,
-   "max_puan": 63.117
+   "min_puan": 62.72,
+   "max_puan": 62.855
   },
   {
    "kod": "110300129",
@@ -5020,20 +5068,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 62.953,
-   "max_puan": 63.384
-  },
-  {
-   "kod": "110300136",
-   "ad": "ZONGULDAK BÜLENT ECEVİT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/ORTODONTİ",
-   "kurum": "ZONGULDAK BÜLENT ECEVİT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "ORTODONTİ",
-   "kontenjan_turu": "Genel",
-   "kontenjan": 7,
-   "yerlesen": 7,
-   "bos": 0,
-   "min_puan": 66.233,
-   "max_puan": 66.686
+   "min_puan": 62.758,
+   "max_puan": 62.773
   },
   {
    "kod": "110300143",
@@ -5044,8 +5080,8 @@
    "kontenjan": 1,
    "yerlesen": 1,
    "bos": 0,
-   "min_puan": 63.849,
-   "max_puan": 63.849
+   "min_puan": 63.426,
+   "max_puan": 63.426
   },
   {
    "kod": "110300150",
@@ -5056,20 +5092,8 @@
    "kontenjan": 2,
    "yerlesen": 2,
    "bos": 0,
-   "min_puan": 64.546,
-   "max_puan": 64.802
-  },
-  {
-   "kod": "110300157",
-   "ad": "ZONGULDAK BÜLENT ECEVİT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi/PROTETİK DİŞ TEDAVİSİ",
-   "kurum": "ZONGULDAK BÜLENT ECEVİT ÜNİVERSİTESİ/Diş Hekimliği Fakültesi",
-   "dal": "PROTETİK DİŞ TEDAVİSİ",
-   "kontenjan_turu": "Yabancı Uyruklu",
-   "kontenjan": 1,
-   "yerlesen": 1,
-   "bos": 0,
-   "min_puan": 54.054,
-   "max_puan": 54.054
+   "min_puan": 63.046,
+   "max_puan": 64.799
   }
  ]
 }

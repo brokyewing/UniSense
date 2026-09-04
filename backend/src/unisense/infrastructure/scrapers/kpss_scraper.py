@@ -21,6 +21,7 @@ Kullanım: python -m unisense.infrastructure.scrapers.kpss_scraper
 """
 from __future__ import annotations
 
+import json
 import re
 import sys
 from pathlib import Path
@@ -28,6 +29,7 @@ from pathlib import Path
 import fitz  # PyMuPDF
 import requests
 
+from . import _osym as osym
 from ._guard import ScrapeGuardError, write_json_guarded
 
 if sys.platform == "win32":
@@ -53,24 +55,42 @@ _DONEM_RE = re.compile(r"kpss-?(20\d\d)(\d)[^0-9]", re.I)
 
 
 def _discover_pages(s: requests.Session) -> dict[str, str]:
-    """ÖSYM arama sayfasından yeni dönem duyurularını keşfet."""
-    pages = dict(SOURCE_PAGES)
-    try:
-        html = s.get(DISCOVER_URL, timeout=60).text
-        for m in re.finditer(
-            r'href="(/TR,\d+/kpss-?(20\d\d)(\d)-[^"]*sayisal-bilgiler[^"]*\.html)"',
-            html, re.I,
-        ):
-            donem = f"{m.group(2)}/{m.group(3)}"
-            pages.setdefault(donem, "https://www.osym.gov.tr" + m.group(1))
-    except Exception as e:  # noqa: BLE001
-        print(f"   ⚠️ keşif atlandı ({str(e)[:60]}) — bilinen sayfalarla devam")
+    """Duyurular sayfasindan KPSS yerlestirme duyurularini kesfet.
+
+    ÖSYM slug-only şemaya geçti; slug'lar tutarsız (`kpss20252` ama
+    `kpss-20261`) → URL üretilemez, keşfedilmeli. Ayrıntı: _osym.py
+    """
+    # `ekpss` ayrı bir sınav — `bazi-kamu` kalıbı onu eliyor.
+    found = osym.discover(s, r"kpss-?(20\d\d)(\d)-bazi-kamu[^/]*sayisal-bilgiler")
+    if not found:
+        print("   ⚠️ keşif boş döndü — bilinen sayfalarla devam")
+
+    # KEŞİF ÖNCE: SOURCE_PAGES'teki eski /TR,NNNNN/ adresleri artık 404.
+    # Önce onları koyup setdefault etmek, canlı adresi ölü adresle gölgelerdi.
+    pages: dict[str, str] = {}
+    for slug, url in found:
+        m = re.search(r"kpss-?(20\d\d)(\d)", slug, re.I)
+        if m:
+            pages[f"{m.group(1)}/{m.group(2)}"] = url
+    # Keşfedilemeyen dönemler için son çare
+    for donem, url in SOURCE_PAGES.items():
+        pages.setdefault(donem, url)
     return pages
 
-LEVEL_HINTS = {  # PDF dosya adındaki ipucu → düzey + puan türü
-    "lisans": ("lisans", "P3"),
+
+# PDF dosya adındaki ipucu → düzey + puan türü.
+# SIRA ÖNEMLİ: "on-lsans" aynı zamanda "lsans" içerdiği için önlisans önce
+# denenmeli. ÖSYM'nin yeni dosya adlarında Türkçe harfler düşüyor
+# ("...-en-kucuk-ve-en-buyuk-puanlar-on-lsans-...") — hem eski ("onl")
+# hem yeni ("on-lsans") biçim tutuluyor ki eski PDF'ler de okunabilsin.
+LEVEL_HINTS = {
+    "on-lsans": ("önlisans", "P93"),
+    "onlisans": ("önlisans", "P93"),
     "onl": ("önlisans", "P93"),
+    "ortaogret": ("ortaöğretim", "P94"),
     "ort": ("ortaöğretim", "P94"),
+    "lsans": ("lisans", "P3"),
+    "lisans": ("lisans", "P3"),
 }
 
 _CODE_RE = re.compile(r"^\d{9}$")
@@ -81,18 +101,17 @@ _INT_RE = re.compile(r"^\d{1,5}$")
 
 
 def _session() -> requests.Session:
-    s = requests.Session()
-    s.headers.update({
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126",
-        "Referer": "https://www.osym.gov.tr/",  # dokuman sunucusu bunsuz boş döner
-    })
-    return s
+    return osym.session()
 
 
 def _find_pdfs(s: requests.Session, page_url: str) -> dict[str, str]:
     """Duyuru sayfasından minmax PDF linklerini bul → {düzey_ipucu: url}."""
-    html = s.get(page_url, timeout=60).text
-    urls = re.findall(r'href="(https://dokuman\.osym\.gov\.tr/[^"]*minmax[^"]*\.pdf)"', html, re.I)
+    html = osym.fetch_tolerant(s, page_url)
+    # Eski adlar "minmax_*.pdf"; yeni adlar
+    # "...-en-kucuk-ve-en-buyuk-puanlar-<duzey>-*.pdf" → ikisini de yakala.
+    urls = re.findall(
+        r'href="(https://dokuman\.osym\.gov\.tr/[^"]*'
+        r'(?:minmax|en-kucuk-ve-en-buyuk)[^"]*\.pdf)"', html, re.I)
     out = {}
     for u in dict.fromkeys(urls):
         low = u.lower()
@@ -196,6 +215,23 @@ def main() -> None:
     # Ayıklama: puanı olmayan/eksik kayıtları at
     clean = [r for r in all_records
              if r.get("min_puan") and r.get("kurum") and r.get("unvan")]
+
+    # Arşiv birleştirme (lgs_scraper'daki desenin aynısı): ÖSYM eski duyuruları
+    # yayından kaldırıyor — 2025/1 artık keşfedilemiyor. Bu koşuda üretilmeyen
+    # dönemleri mevcut dosyadan taşı, yoksa her yeni dönem bir eskisini siler.
+    scraped_donemler = {r["donem"] for r in clean}
+    tasinan = 0
+    if OUT.exists():
+        try:
+            eski = json.loads(OUT.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            eski = []
+        for r in eski:
+            if r.get("donem") and r["donem"] not in scraped_donemler:
+                clean.append(r)
+                tasinan += 1
+    if tasinan:
+        print(f"  ↺ arşivden {tasinan} eski dönem kaydı korundu")
     # Bekçi: boş/şüpheli sonucu dosyaya YAZMA. Eskiden koşulsuz yazılıyordu ve
     # ÖSYM'ye erişilemediği bir koşuda 1 MB'lık veri [] ile ezildi (e9ece83).
     write_json_guarded(OUT, clean, label="KPSS yerleştirme", force="--force" in sys.argv)
