@@ -6,6 +6,7 @@ from unisense.application.services.kariyer_service import (
     filtrele,
 )
 from unisense.infrastructure.scrapers.kariyer_scraper import (
+    _bolum_etiketle,
     _careerjet_normalize,
     _eslesme_say,
     _gunluk_sayilar,
@@ -94,6 +95,38 @@ class TestRehber:
         ids = {k["id"] for k in _KAYNAKLAR}
         assert {"iskur-acik-is", "elemanonline", "cvyolla", "stajim",
                 "jooble"} <= ids
+
+
+class TestBolum:
+    def test_cift_tarafli_coklu_etiket(self):
+        from unisense.core.text import fold_tr
+        tags = _bolum_etiketle(fold_tr(
+            "Bilgisayar mühendisi aranıyor; yazılım geliştirme ve siber güvenlik bilgisi"))
+        assert {"bilgisayar", "yazilim", "siber"} <= set(tags)
+
+    def test_eslesmeyen_bos(self):
+        from unisense.core.text import fold_tr
+        assert _bolum_etiketle(fold_tr("Garson aranıyor, deneyimli")) == []
+
+    def test_normalize_etiket_tasiyor(self):
+        k = _jooble_normalize(
+            {"id": 9, "title": "Elektrik Bakım Mühendisi", "link": "https://x.jobs/9",
+             "snippet": "PLC ve otomasyon bilen"}, "2026-09-05")
+        assert {"elektrik_elektronik", "mekatronik"} <= set(k["bolumler"])
+
+    def test_filtre_bolum(self):
+        a = _k("a", ilk="2026-09-05")
+        a["bolumler"] = ["bilgisayar", "yazilim"]
+        b = _k("b", ilk="2026-09-05")
+        b["bolumler"] = ["insaat"]
+        assert [x["id"] for x in filtrele([a, b], bolum="yazilim", bugun=BUGUN)] == ["a"]
+
+    def test_merge_30gun_budama(self):
+        taze = _k("taze", tarih="2026-09-05", ilk="2026-09-05")
+        bayat = _k("bayat", tarih="2026-07-01", ilk="2026-07-01")
+        tarihsiz = {"id": "x", "tarih": "", "ilk_gorulme": ""}
+        out = _merge([taze, bayat, tarihsiz], [])
+        assert {x["id"] for x in out} == {"taze", "x"}
 
 
 class TestHatB:

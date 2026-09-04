@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from pydantic import BaseModel, Field
+
 from unisense.domain.enums import ScoreType
 
 
@@ -593,6 +594,7 @@ class KariyerIlan(BaseModel):
     detay: dict = {}
     ilk_gorulme: str = ""
     yeni: bool = False
+    bolumler: list[str] = []
 
 
 class KariyerIlanlarResponse(BaseModel):
@@ -621,3 +623,14 @@ class KariyerMetaResponse(BaseModel):
     kaynak_sayisi: int = 0
     son_tarih: str = ""
     rehber_kaynak: int = 0
+
+
+class KariyerBolum(BaseModel):
+    id: str = ""
+    label: str = ""
+    sayi: int = 0
+
+
+class KariyerBolumlerResponse(BaseModel):
+    toplam: int
+    bolumler: list[KariyerBolum]
