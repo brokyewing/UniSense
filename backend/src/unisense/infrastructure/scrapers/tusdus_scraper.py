@@ -158,7 +158,7 @@ def _parse(path: Path) -> list[dict]:
     return records
 
 
-def _scrape_one(s: requests.Session, sinav: str, cfg: dict) -> None:
+def _scrape_one(s: requests.Session, sinav: str, cfg: dict) -> bool:
     donem, page_url = _discover(s, cfg)
     print(f"📡 {sinav} {donem} → {page_url[:80]}")
     html = s.get(page_url, timeout=60).text
@@ -166,7 +166,7 @@ def _scrape_one(s: requests.Session, sinav: str, cfg: dict) -> None:
         r'href="(https://dokuman\.osym\.gov\.tr/[^"]*minmax[^"]*\.pdf)"', html, re.I)
     if not pdfs:
         print(f"   ⛔ {sinav} min/max PDF bulunamadı — atlandı")
-        return
+        return False
     # Cache dosya adı DÖNEME bağlı: sabit ad kullanılırsa yeni dönem keşfedilse
     # bile eski dönemin PDF'i parse edilip yeni dönem etiketiyle yazılırdı.
     donem_slug = re.sub(r"[^0-9a-z]+", "-", donem.lower()).strip("-")
@@ -175,7 +175,7 @@ def _scrape_one(s: requests.Session, sinav: str, cfg: dict) -> None:
         data = s.get(pdfs[0], timeout=180).content
         if data[:4] != b"%PDF":
             print(f"   ⛔ {sinav} PDF gelmedi — atlandı")
-            return
+            return False
         p.write_bytes(data)
 
     programlar = _parse(p)
@@ -185,7 +185,7 @@ def _scrape_one(s: requests.Session, sinav: str, cfg: dict) -> None:
     if len(programlar) < floor:
         print(f"   ⛔ {sinav}: yalnız {len(programlar)} kayıt (<{floor}) — PDF formatı "
               f"değişmiş olabilir; {cfg['out'].name} GÜNCELLENMEDİ (eski veri korundu)")
-        return
+        return False
     dolu = sum(1 for r in programlar if r.get("min_puan") is not None)
     out = {
         "sinav": sinav,
@@ -200,16 +200,30 @@ def _scrape_one(s: requests.Session, sinav: str, cfg: dict) -> None:
     cfg["out"].parent.mkdir(parents=True, exist_ok=True)
     json.dump(out, open(cfg["out"], "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(f"   ✅ {len(programlar)} program ({dolu} taban puanlı) → {cfg['out'].name}")
+    return True
 
 
 def main() -> None:
     CACHE.mkdir(parents=True, exist_ok=True)
     s = _session()
+    basarili = 0
     for sinav, cfg in CONFIG.items():
         try:
-            _scrape_one(s, sinav, cfg)
+            if _scrape_one(s, sinav, cfg):
+                basarili += 1
         except Exception as e:  # noqa: BLE001
             print(f"   ⛔ {sinav} hata: {str(e)[:80]}")
+
+    # Hicbiri veri uretemediyse bu bir kaynak arizasidir. Eskiden exit 0
+    # donuluyordu → workflow sessizce yesil kaliyor, kimse fark etmiyordu
+    # (kpss_scraper'da ayni sessizlik 1 MB veri kaybina yol acmisti).
+    if basarili == 0:
+        print()
+        print("⛔ Hicbir sinav icin veri uretilemedi — mevcut dosyalar korundu.")
+        print("   OSYM duyuru sayfalari erisilemez/degismis olabilir; URL'ler kontrol edilmeli.")
+        sys.exit(1)
+    print()
+    print(f"✅ {basarili}/{len(CONFIG)} sinav guncellendi")
 
 
 if __name__ == "__main__":
