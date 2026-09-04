@@ -4,6 +4,15 @@ on:
   push:
     branches: [main]
   pull_request:
+  # GITHUB_TOKEN ile atilan push'lar (veri sync workflow'larinin bot commit'leri)
+  # yeni workflow TETIKLEMEZ — GitHub'in sonsuz dongu korumasi. Bu kor nokta
+  # yuzunden CI 2026-07-20'den 2026-09-04'e kadar HIC kosmadi ve iki ayri sorun
+  # 6 hafta gizli kaldi: ruff 0.16 kaymasi (149 bulgu) ve kpss_placements.json'in
+  # bot commit'iyle bosaltilmasi (1 MB -> []). Haftalik kosu tetikleyiciden
+  # bagimsiz olarak bu tur kaymayi yakalar.
+  schedule:
+    - cron: '0 6 * * 1'   # her pazartesi 06:00 UTC
+  workflow_dispatch:      # elle dogrulama icin
 
 permissions:
   contents: read
