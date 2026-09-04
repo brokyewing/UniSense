@@ -577,3 +577,48 @@ class TusMetaResponse(BaseModel):
     toplam: int | None = None
     taban_puanli: int | None = None
     dallar: list[str] = []
+
+
+# === Kariyer (günlük ilan sinyalleri + kaynak rehberi) ===
+
+class KariyerIlan(BaseModel):
+    id: str = ""
+    hat: str = ""
+    kaynak: str = ""
+    baslik: str = ""
+    kurum: str = ""
+    sehir: str = ""
+    tarih: str = ""
+    url: str = ""
+    ozet: str = ""
+    detay: dict = {}
+    ilk_gorulme: str = ""
+    yeni: bool = False
+
+
+class KariyerIlanlarResponse(BaseModel):
+    toplam: int
+    ilanlar: list[KariyerIlan]
+
+
+class KariyerKaynak(BaseModel):
+    id: str = ""
+    hat: str = ""
+    tip: str = ""
+    ad: str = ""
+    url: str = ""
+    not_: str = Field(default="", alias="not")
+
+    model_config = {"populate_by_name": True}
+
+
+class KariyerKaynaklarResponse(BaseModel):
+    toplam: int
+    kaynaklar: list[KariyerKaynak]
+
+
+class KariyerMetaResponse(BaseModel):
+    toplam: int = 0
+    kaynak_sayisi: int = 0
+    son_tarih: str = ""
+    rehber_kaynak: int = 0
