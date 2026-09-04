@@ -3,10 +3,13 @@
 Durum: `[ ]` açık · `[~]` devam ediyor · `[x]` bitti · `[!]` engellendi
 
 ## Açık
-- [ ] TUS/DUS + KPSS Data Sync gerçek Actions koşusunda doğrulanmalı (dispatch)
-- [ ] 149 ruff bulgusu temizlenip `<0.16` üst sınırı kaldırılmalı
+- [ ] SIM115 (35 nokta): `json.load(open(p))` → context manager. Şu an ruff'ta
+      `ignore`'da, gerekçesi pyproject'te yazılı. Servis kodunda geniş yeniden yazım.
+- [ ] DTZ011 (5 nokta): `date.today()` → Europe/Istanbul mı UTC mi? Ürün kararı.
 
 ## Bitti
+- [x] Ruff bulguları temizlendi, `<0.16` üst sınırı kaldırıldı (bb9bc50)
+- [x] TUS/DUS + KPSS Data Sync gerçek Actions koşusunda YEŞİL (dispatch, 2026-09-04)
 - [x] Boş-sonuç bekçisi kalan 9 scraper'a yayıldı (d1bfa23)
 - [x] CI kör noktası kapatıldı — haftalık schedule (4ebdd61)
 - [x] yearly-data-sync zinciri gerçek koşuda doğrulandı (dispatch, 2026-09-04)
@@ -34,10 +37,20 @@ Durum: `[ ]` açık · `[~]` devam ediyor · `[x]` bitti · `[!]` engellendi
 - [x] Doğrulama: pytest 10/10 (kariyer) + 92 toplam, ruff temiz, vite+prerender temiz
 - Detay: `.beyin/PLAN_KARIYER.md` (uygulandı; Hat B site-sorgu fazı sonraki iş)
 
+## Plan — Kariyer bölüm seçici (ekleyen + uygulayan: opencode, 2026-09-05 02:15)
+- [x] Geniş çekim: Jooble 4 sorgu×5 sayfa + Careerjet 3 sorgu×3 sayfa (bölüm-agnostik)
+- [x] Çift taraflı etiket: 12 bölüm, başlık+açıklama fold eşleşme (`bolumler: [...]`)
+- [x] 30 günlük kayan pencere budaması (`_merge`); canlı koşu: 563 çekim → 76 budama → 488 kayıt
+- [x] API: `?bolum=` filtresi + `/kariyer/bolumler` (sayımlı taksonomi)
+- [x] Frontend: üstte bölüm seçici chips + kartlarda bölüm rozetleri
+- [x] Doğrulama: pytest 21/21, ruff temiz, API 200, build 631 URL; push 806961f
+
 ## Plan — Kariyer kaynak envanteri (ekleyen: opencode, 2026-09-04 22:58)
 - [x] Hat A kamu kaynakları (A1–A18 + 12 ek, 30 kamu toplam) scraper önceliğine bağlandı
 - [x] Hat B career-ops TR sorguları referans alındı + CANLI adaptör yazıldı (Jooble+Careerjet, 0947055)
-- [ ] API anahtarları girilmeli: `JOOBLE_API_KEY` (jooble.org/api/about) + `CAREERJET_API_KEY` (careerjet.com/partners) → backend/.env + GitHub Secrets; girilmeden Hat B atlanır (zarif, hata değil)
+- [x] API anahtarları girildi (career-ops .env) + canlı doğrulama: careerjet 117 + jooble 80 + RG 1 = 198 kayıt (54c1a9b)
+- [ ] Anahtarlar UniSense'e taşınmalı: backend/.env (yerel) + GitHub Secrets (CI); şimdilik career-ops .env'den okunuyor
+- [ ] Jooble detay linkleri botlara 403 (WAF) — kullanıcı tarayıcısında açılır; sorun değil ama not düşüldü
 - [ ] Kapalı TR şirket URL'leri doğrulanmalı (Getir, Baykar, Roketsan, STM, Papara...; career-ops tarafı)
 - [x] `kaynak_hat: kamu|ozel` alanı + API `hat` filtresi uygulandı
 - Detay: `.beyin/PLAN_KARIYER.md` Ek bölümü (21 sayfalık PDF metni + portals.yml satır referanslı)

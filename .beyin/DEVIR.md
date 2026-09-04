@@ -1,6 +1,6 @@
 # Devir — UniSense
 **Son araç:** Claude Code
-**Tarih:** 2026-09-05 03:10
+**Tarih:** 2026-09-05 04:30
 **Durum:** bekliyor
 
 ## Nerede kaldık
@@ -65,21 +65,35 @@ Doğrulandı: check() sınır testi (boş/30/49/50/80/150/force/yeni-dosya),
 transform_yokatlas boş raw ile ENGELLENDİ ve mevcut 228 kayıt KORUNDU,
 temiz klonda ruff temiz + pytest 127 passed.
 
+### Lint sözleşmesi (bb9bc50, f9acddb)
+`<0.16` üst sınırı KALDIRILDI; en son ruff (0.16.6) ile tüm repo temiz.
+89 bulgu otomatik, 16 bulgu elle düzeltildi (hiçbiri davranış değiştirmeden).
+Kalan 80 için `ignore` listesi gerekçeleriyle pyproject'te: B008 (FastAPI
+Depends — extend-immutable-calls ile çözüldü), SIM115 (35), BLE001/S110/S112
+(bilinçli dayanıklılık), DTZ011 (timezone ürün kararı).
+`select` bilinçli YAZILMADI: aile bazında seçmek varsayılanda olmayan
+kuralları da açıyor — RUF001/002/003 tek başına 3774 bulgu üretti (Türkçe
+karakterleri "belirsiz" sayıyor). Varsayılan set sürümle değişebilir; haftalık
+CI cron'u (4ebdd61) bunu bir hafta içinde görünür kılar.
+
+**Bu iş sırasında bir hata yapıldı ve düzeltildi:** f2d2dde'de schemas.py'nin
+lint düzeltmesi eski bir klonda hesaplandı; arada opencode 806961f ile aynı
+dosyaya Kariyer DTO'ları eklemişti ve eski içerik yazılınca bunlar silindi
+(636→624 satır). f9acddb ile aynen geri getirildi. Ders: eşzamanlı ajan
+varken dosya içeriğini HEAD'den değil, GÜNCEL uzaktan almak gerekiyor.
+
 ## Sıradaki adım
-Actions'tan "TUS/DUS Data Sync" ve "KPSS Data Sync"i workflow_dispatch ile
-tetikle — ÖSYM düzeltmesinin (96aed46) gerçek Actions ortamında da çalıştığını
-doğrulamak için. Sonra `_guard.py` diğer 8 scraper'a uygulanacak.
+Açık iş kalmadı. GOREVLER.md'deki iki madde (SIM115 yeniden yazımı, DTZ011
+timezone kararı) bilinçli olarak ertelendi; ikisi de ürün/kapsam kararı ister.
 
 ## Engeller
-- TUS/DUS ve KPSS Data Sync henüz gerçek Actions koşusunda denenmedi
-  (workflow_dispatch token gerektiriyor, kullanıcı tetiklemeli). LGS ve
-  Yearly YKS 2026-09-04'te dispatch ile YEŞİL koştu ve veriyi commit'ledi:
+- (ÇÖZÜLDÜ) Dört sync workflow'u da dispatch ile YEŞİL koştu: LGS, Yearly YKS,
+  TUS/DUS, KPSS. Veri commit'leri:
   lgs_liseler.json yil=2026 / 3155 kayıt (fbad2cc), YKS chunks.json yeniden
   üretildi (4fea0c1), RAG Index Sync de yeşil.
 - Diğer scraper'larda (urap, wikipedia_*, dgs, iskur, avesis,
   transform_yokatlas, kpss_kilavuz, yokatlas_scraper) boş-sonuç bekçisi yok;
   `_guard.py` oraya da uygulanmalı.
-- 149 ruff bulgusu temizlenmeden `<0.16` üst sınırı kaldırılmamalı.
 - Vercel: "2 misconfigured domains" + "failed production deployment"
   e-postaları incelenmedi.
 
