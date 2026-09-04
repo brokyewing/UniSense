@@ -20,6 +20,23 @@ from unisense.core.text import fold_tr
 YENI_GUN_SAYISI = 7
 MAX_LIMIT = 100
 
+# Bölüm taksonomisi (id → görünen ad). Eşleşme scraper'da BÖLÜM_ANAHTAR ile
+# yapılır; burası yalnız etiket listesidir — ikisi birlikte güncellenir.
+BOLUM_ETIKETLER: dict[str, str] = {
+    "bilgisayar": "Bilgisayar Müh.",
+    "yazilim": "Yazılım Müh.",
+    "elektrik_elektronik": "Elektrik-Elektronik",
+    "endustri": "Endüstri Müh.",
+    "makine": "Makine Müh.",
+    "mekatronik": "Mekatronik/Robotik",
+    "insaat": "İnşaat Müh.",
+    "yapay_zeka_veri": "YZ / Veri",
+    "siber": "Siber Güvenlik",
+    "ag_sistem": "Ağ / Sistem / DevOps",
+    "tekniker": "Tekniker/Teknisyen",
+    "isletme": "İşletme/Finans",
+}
+
 # === Statik kaynak rehberi (Hat A: PDF rehberinden; Hat B: career-ops) ===
 # tip: portal (doğrudan ilan bakılır) | kurum (kendi duyuru sayfası) |
 #      toplayici (resmî değil, hızlı derleme) | site_sorgu (career-ops deseni)
@@ -181,7 +198,8 @@ def _yeni_mi(ilk_gorulme: str, bugun: date, gun: int = YENI_GUN_SAYISI) -> bool:
 
 def filtrele(kayitlar: list[dict], *, hat: str | None = None,
              q: str | None = None, kaynak: str | None = None,
-             sehir: str | None = None, sadece_yeni: bool = False,
+             sehir: str | None = None, bolum: str | None = None,
+             sadece_yeni: bool = False,
              yeni_gun: int = YENI_GUN_SAYISI,
              limit: int = 20, bugun: date | None = None) -> list[dict]:
     """Saf filtre — test edilebilir; cache'li veriyi mutasyona uğratmaz."""
@@ -192,6 +210,8 @@ def filtrele(kayitlar: list[dict], *, hat: str | None = None,
         if hat and k.get("hat") != hat:
             continue
         if kaynak and k.get("kaynak") != kaynak:
+            continue
+        if bolum and bolum not in (k.get("bolumler") or []):
             continue
         if sehir and fold_tr(sehir) not in fold_tr(k.get("sehir") or ""):
             continue
@@ -225,3 +245,13 @@ class KariyerService:
     def kaynaklar(self, hat: str | None = None) -> dict:
         liste = [k for k in _KAYNAKLAR if not hat or k["hat"] == hat]
         return {"toplam": len(liste), "kaynaklar": liste}
+
+    def bolumler(self) -> dict:
+        """Bölüm seçici rehberi: etiket + o etiketteki kayıt sayısı."""
+        say: dict[str, int] = {}
+        for k in _load():
+            for b in k.get("bolumler") or []:
+                say[b] = say.get(b, 0) + 1
+        liste = [{"id": bid, "label": label, "sayi": say.get(bid, 0)}
+                 for bid, label in BOLUM_ETIKETLER.items()]
+        return {"toplam": len(liste), "bolumler": liste}

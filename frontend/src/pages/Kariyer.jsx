@@ -22,7 +22,7 @@ const TIP_STIL = {
 
 const HAT_IKON = { kamu: Landmark, ozel: Building2 }
 
-function SinyalKart({ ilan }) {
+function SinyalKart({ ilan, bolumAd }) {
   const eslesme = Object.entries(ilan.detay?.eslesme || {}).filter(([, c]) => c > 0)
   return (
     <div className="rounded-xl bg-white/[0.03] border border-white/5 p-4">
@@ -53,6 +53,15 @@ function SinyalKart({ ilan }) {
           {eslesme.map(([grup, sayi]) => (
             <span key={grup} className="text-[10px] px-2 py-0.5 rounded-full border bg-accent-500/10 text-accent-200 border-accent-500/30">
               {grup.replaceAll('_', ' ')}: {sayi}
+            </span>
+          ))}
+        </div>
+      )}
+      {(ilan.bolumler?.length > 0) && (
+        <div className="flex flex-wrap gap-1.5 mt-1.5">
+          {ilan.bolumler.map((b) => (
+            <span key={b} className="text-[10px] px-2 py-0.5 rounded-full border bg-teal-500/10 text-teal-200 border-teal-500/30">
+              🎓 {bolumAd?.(b) || b}
             </span>
           ))}
         </div>
@@ -106,13 +115,17 @@ function KaynakKart({ kaynak }) {
 export default function Kariyer() {
   const [sekme, setSekme] = useState('sinyaller')
   const [hat, setHat] = useState('')
+  const [bolum, setBolum] = useState('')
   const [q, setQ] = useState('')
   const [sadeceYeni, setSadeceYeni] = useState(false)
   const [ilanlar, setIlanlar] = useState([])
   const [kaynaklar, setKaynaklar] = useState([])
+  const [bolumler, setBolumler] = useState([])
   const [meta, setMeta] = useState(null)
   const [yukleniyor, setYukleniyor] = useState(true)
   const [hata, setHata] = useState('')
+
+  const bolumAd = (id) => (bolumler.find((b) => b.id === id)?.label || id)
 
   useEffect(() => {
     let iptal = false
@@ -122,18 +135,21 @@ export default function Kariyer() {
       try {
         const params = new URLSearchParams()
         if (hat) params.set('hat', hat)
+        if (bolum) params.set('bolum', bolum)
         if (q.trim()) params.set('q', q.trim())
         if (sadeceYeni) params.set('sadece_yeni', 'true')
         params.set('limit', '50')
-        const [i, k, m] = await Promise.all([
+        const [i, k, m, b] = await Promise.all([
           apiFetch(`/api/v1/kariyer/ilanlar?${params}`),
           apiFetch(`/api/v1/kariyer/kaynaklar${hat ? `?hat=${hat}` : ''}`),
           apiFetch('/api/v1/kariyer/meta'),
+          apiFetch('/api/v1/kariyer/bolumler'),
         ])
         if (!iptal) {
           setIlanlar(i.ilanlar || [])
           setKaynaklar(k.kaynaklar || [])
           setMeta(m)
+          setBolumler(b.bolumler || [])
         }
       } catch (e) {
         if (!iptal) setHata(e.message || 'Veri alınamadı')
@@ -143,7 +159,7 @@ export default function Kariyer() {
     }
     const t = setTimeout(yukle, q ? 400 : 0) // aramada debounce
     return () => { iptal = true; clearTimeout(t) }
-  }, [hat, q, sadeceYeni])
+  }, [hat, bolum, q, sadeceYeni])
 
   return (
     <>
@@ -183,6 +199,40 @@ export default function Kariyer() {
             </button>
           ))}
         </div>
+
+        {/* Bölüm seçici rehber */}
+        {bolumler.length > 0 && (
+          <div className="card !p-3">
+            <div className="text-xs font-medium text-slate-400 mb-2 px-1">
+              🎓 Bölümüne göre ilan akışı — bir ilan birden çok bölüme girebilir
+            </div>
+            <div className="flex gap-1.5 flex-wrap max-h-28 overflow-y-auto pr-1">
+              <button
+                onClick={() => setBolum('')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition border whitespace-nowrap ${
+                  !bolum
+                    ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white border-transparent'
+                    : 'text-slate-300 border-white/10 hover:bg-white/5'
+                }`}
+              >
+                Tümü
+              </button>
+              {bolumler.map((b) => (
+                <button
+                  key={b.id}
+                  onClick={() => setBolum(bolum === b.id ? '' : b.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition border whitespace-nowrap ${
+                    bolum === b.id
+                      ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white border-transparent'
+                      : 'text-slate-300 border-white/10 hover:bg-white/5'
+                  }`}
+                >
+                  {b.label}{b.sayi > 0 ? ` · ${b.sayi}` : ''}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Filtreler */}
         <div className="card !p-3 flex flex-wrap items-center gap-2">
@@ -248,7 +298,7 @@ export default function Kariyer() {
               <>
                 <p className="text-xs text-slate-500">{ilanlar.length} kayıt (yeniden eskiye)</p>
                 <div className="grid md:grid-cols-2 gap-3">
-                  {ilanlar.map((ilan) => <SinyalKart key={ilan.id} ilan={ilan} />)}
+                  {ilanlar.map((ilan) => <SinyalKart key={ilan.id} ilan={ilan} bolumAd={bolumAd} />)}
                 </div>
               </>
             )}
