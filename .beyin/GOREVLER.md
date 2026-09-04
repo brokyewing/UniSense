@@ -7,6 +7,20 @@ Durum: `[ ]` açık · `[~]` devam ediyor · `[x]` bitti · `[!]` engellendi
       `ignore`'da, gerekçesi pyproject'te yazılı. Servis kodunda geniş yeniden yazım.
 - [ ] DTZ011 (5 nokta): `date.today()` → Europe/Istanbul mı UTC mi? Ürün kararı.
 
+## Kariyer platformu — YOL HARİTASI (ekleyen: Claude Code, 2026-09-05)
+
+**Uygulama sırası ve "bitti" tanımları: `.beyin/PLAN_KARIYER_YOL_HARITASI.md`.**
+opencode bu dosyayı sırayla uygular; onay beklemez (kararlar §4'te önceden verildi),
+tıkanan kaynakta durmaz (§3 erişim karar ağacı + `[!]` işaretle-geç kuralı).
+
+Hazır keşifler (tekrar araştırma yapılmayacak, §3.1):
+- ilan.gov.tr → kimlik doğrulamasız JSON API bulundu (25.062 ilan + şehir kırılımı)
+- İŞKUR → WAF teyitli, doğrudan erişim yok; resmî ayna/toplayıcı yolu izlenecek
+- ÖSYM → `_osym.py` (toleranslı indirme + Duyurular keşfi) hazır, yeniden kullanılacak
+
+Faz başlıkları: F0 temel şema/bölge/çalışma-şekli/kaynak defteri · F1 kamu hattı ·
+F2 özel sektör · F3 API+filtreler · F4 frontend · F5 dayanıklılık.
+
 ## Bitti
 - [x] Ruff bulguları temizlendi, `<0.16` üst sınırı kaldırıldı (bb9bc50)
 - [x] TUS/DUS + KPSS Data Sync gerçek Actions koşusunda YEŞİL (dispatch, 2026-09-04)
