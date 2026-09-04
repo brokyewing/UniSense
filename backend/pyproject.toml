@@ -48,7 +48,10 @@ dev = [
     "pytest>=8.3.0",
     "pytest-asyncio>=0.24.0",
     "pytest-cov>=5.0.0",
-    "ruff>=0.7.0",
+    # <0.16 sabit: ruff 0.16 varsayilan kural setini genisletti ve DEGISMEMIS
+    # kodda 149 bulgu uretiyor (SIM115/FURB167/B008/I001...). 0.15.4'e kadar
+    # temiz geciyor. Ust sinir kaldirilmadan once bu bulgular temizlenmeli.
+    "ruff>=0.7.0,<0.16",
     "mypy>=1.13.0",
 ]
 
