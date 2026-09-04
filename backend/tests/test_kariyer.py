@@ -86,3 +86,8 @@ class TestRehber:
         assert {"milli-saraylar", "spor-toto", "ssb", "epdk-rekabet-btk",
                 "iletisim", "kamu-bankalari", "csb-yerel", "sozlesmeli-bilisim",
                 "kamuis", "isinolsa", "kamuilan-net", "kamuajans"} <= ids
+
+    def test_ek_kaynaklar_2026_09(self):
+        ids = {k["id"] for k in _KAYNAKLAR}
+        assert {"iskur-acik-is", "elemanonline", "cvyolla", "stajim",
+                "jooble"} <= ids
