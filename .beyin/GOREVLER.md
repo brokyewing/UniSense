@@ -4,10 +4,10 @@ Durum: `[ ]` açık · `[~]` devam ediyor · `[x]` bitti · `[!]` engellendi
 
 ## Açık
 - [ ] TUS/DUS + KPSS Data Sync gerçek Actions koşusunda doğrulanmalı (dispatch)
-- [ ] `_guard.py` diğer scraper'lara da uygulanmalı (urap, wikipedia_*, dgs, iskur, ...)
 - [ ] 149 ruff bulgusu temizlenip `<0.16` üst sınırı kaldırılmalı
 
 ## Bitti
+- [x] Boş-sonuç bekçisi kalan 9 scraper'a yayıldı (d1bfa23)
 - [x] CI kör noktası kapatıldı — haftalık schedule (4ebdd61)
 - [x] yearly-data-sync zinciri gerçek koşuda doğrulandı (dispatch, 2026-09-04)
 - [x] LGS 2026 verisi repo'ya girdi — yil=2026, 3155 kayıt (fbad2cc)
@@ -35,8 +35,9 @@ Durum: `[ ]` açık · `[~]` devam ediyor · `[x]` bitti · `[!]` engellendi
 - Detay: `.beyin/PLAN_KARIYER.md` (uygulandı; Hat B site-sorgu fazı sonraki iş)
 
 ## Plan — Kariyer kaynak envanteri (ekleyen: opencode, 2026-09-04 22:58)
-- [ ] Hat A kamu kaynakları (A1–A18) scraper önceliğine bağlanmalı (önce A1/A9/A5)
-- [ ] Hat B career-ops TR sorguları referans alınmalı (kariyer.net, secretcv, techcareer, careerjet tr_TR...)
-- [ ] Kapalı TR şirket URL'leri doğrulanmalı (Getir, Baykar, Roketsan, STM, Papara...)
-- [ ] `kaynak_hat: kamu|ozel` alanı + API `hat` filtresi taslakta; kodlamada uygulanacak
+- [x] Hat A kamu kaynakları (A1–A18 + 12 ek, 30 kamu toplam) scraper önceliğine bağlandı
+- [x] Hat B career-ops TR sorguları referans alındı + CANLI adaptör yazıldı (Jooble+Careerjet, 0947055)
+- [ ] API anahtarları girilmeli: `JOOBLE_API_KEY` (jooble.org/api/about) + `CAREERJET_API_KEY` (careerjet.com/partners) → backend/.env + GitHub Secrets; girilmeden Hat B atlanır (zarif, hata değil)
+- [ ] Kapalı TR şirket URL'leri doğrulanmalı (Getir, Baykar, Roketsan, STM, Papara...; career-ops tarafı)
+- [x] `kaynak_hat: kamu|ozel` alanı + API `hat` filtresi uygulandı
 - Detay: `.beyin/PLAN_KARIYER.md` Ek bölümü (21 sayfalık PDF metni + portals.yml satır referanslı)

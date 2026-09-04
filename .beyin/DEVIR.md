@@ -1,6 +1,6 @@
 # Devir — UniSense
 **Son araç:** Claude Code
-**Tarih:** 2026-09-05 02:20
+**Tarih:** 2026-09-05 03:10
 **Durum:** bekliyor
 
 ## Nerede kaldık
@@ -47,6 +47,23 @@ korundu); tus_rankings 2025 1.Dönem → **2026 1.Dönem** (2895 program);
 dus_rankings 2025 2.Dönem → **2026 1.Dönem** (424 program).
 build_chunks bu dosyaları okumuyor → RAG index'i etkilenmez.
 ruff temiz, pytest **123 passed** (önceden 111).
+
+### Bekçi yayılımı (d1bfa23)
+`_guard.py`'ye `check()` eklendi (yazmadan ÖNCE doğrular, yazmayı çağırana
+bırakır) ve kalan 9 scraper'a uygulandı: urap, wikipedia_uni,
+wikipedia_infobox, dgs, iskur_mbk, avesis, transform_yokatlas, kpss_kilavuz,
+yokatlas. Her girişe ScrapeGuardError → exit 1 sarmalı eklendi.
+İki özel durum:
+- transform_yokatlas RAW yoksa sessizce `return` ediyordu (adım YEŞİL kalıyordu)
+  → artık hata fırlatıyor. Dört çıktı yazılmadan önce topluca doğrulanıyor;
+  biri şüpheliyse hiçbiri yazılmıyor.
+- yokatlas_scraper'ın döngü içi "Ara kayıt"ı her turda ASIL dosyayı eziyordu
+  (ilk tur ~5.7k program ile 12.2k'lık dosyayı). Artık
+  `programs_2025.partial.json`'a yazıyor; asıl dosya döngü bitince bekçiden
+  geçerek tek seferde yazılıyor. .gitignore'a `*.partial.json` eklendi.
+Doğrulandı: check() sınır testi (boş/30/49/50/80/150/force/yeni-dosya),
+transform_yokatlas boş raw ile ENGELLENDİ ve mevcut 228 kayıt KORUNDU,
+temiz klonda ruff temiz + pytest 127 passed.
 
 ## Sıradaki adım
 Actions'tan "TUS/DUS Data Sync" ve "KPSS Data Sync"i workflow_dispatch ile

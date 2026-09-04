@@ -16,6 +16,8 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 01:02 | opencode | Kariyer beyaz ekran duzeltildi (rsplit->split, d52e8a6 pushlandi).
 2026-09-05 01:15 | opencode | PDF kapsama denetimi: 12 eksik kaynak eklendi (37 toplam, URL'ler canli dogrulamali); test 11/11; e11a68e pushlandi.
 2026-09-05 01:25 | opencode | 5 ek kaynak arastirildi (iskur acik is, elemanonline, cvyolla, stajim, jooble; 42 toplam); test 12/12; 0c02d8b pushlandi.
+2026-09-05 01:38 | opencode | Hat B canli tarama yazildi (Jooble+Careerjet, career-ops desenli; anahtarsiz zarif atlama dogrulandi); test 16/16, ruff temiz; 0947055 pushlandi. API anahtarlari bekleniyor.
 2026-09-04 23:55 | Claude Code | KPSS veri kaybi geri alindi + bos-sonuc bekcisi, CI pin bypass i duzeltildi (CI artik yesil), tusdus sessiz basarisi giderildi; OSYM URL kesfi engelli.
 2026-09-05 01:40 | Claude Code | OSYM yeni URL semasi cozuldu (chunked-hang toleransli fetch + Duyurular/Index kesfi); KPSS 2026/1, TUS ve DUS 2026 verileri geldi; CI yesil.
 2026-09-05 02:20 | Claude Code | CI kor noktasi kapatildi (haftalik schedule); LGS ve Yearly YKS dispatch ile yesil kosup 2026 verisini commitledi.
+2026-09-05 03:10 | Claude Code | bos-sonuc bekcisi kalan 9 scrapera yayildi; transform_yokatlas sessiz return ve yokatlas ara-kayit ezmesi giderildi.
