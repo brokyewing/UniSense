@@ -35,6 +35,8 @@ from pathlib import Path
 import fitz
 import requests
 
+from . import _osym as osym
+
 if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
@@ -50,9 +52,10 @@ CONFIG = {
         "min_kayit": 1500,  # bunun altı = PDF formatı değişmiş/bozuk → YAZMA
         "known_page": ("https://www.osym.gov.tr/TR,33253/"
                        "2025-tus-1-donem-yerlestirme-sonuclarina-iliskin-sayisal-bilgiler.html"),
-        "search": ("https://www.osym.gov.tr/arama?_Dil=1&aranan="
-                   "tus+yerlestirme+sonuclarina+iliskin+sayisal"),
-        "page_re": r'href="(/TR,\d+/(20\d\d)-tus-(\d)-donem-yerlestirme-sonuclarina[^"]*\.html)"',
+        # ÖSYM slug-only şemaya geçti; keşif /Duyurular/Index üzerinden.
+        # "-donem-yerlestirme-" kalıbı ek-yerleştirme ve uzmanlık dalı
+        # değişikliği duyurularını dışarıda bırakır.
+        "slug_re": r"(20\d\d)tus-(\d)-?donem-yerlestirme-sonuclarina-iliskin-sayisal-bilgiler",
     },
     "DUS": {
         "out": BACKEND / "data" / "processed" / "dus_rankings.json",
@@ -60,9 +63,9 @@ CONFIG = {
         "min_kayit": 200,
         "known_page": ("https://www.osym.gov.tr/TR,33701/"
                        "2025-dus-2-donem-yerlestirme-sonuclarina-iliskin-sayisal-bilgiler.html"),
-        "search": ("https://www.osym.gov.tr/arama?_Dil=1&aranan="
-                   "dus+yerlestirme+sonuclarina+iliskin+sayisal"),
-        "page_re": r'href="(/TR,\d+/(20\d\d)-dus-(\d)-donem-yerlestirme-sonuclarina[^"]*\.html)"',
+        # (20\d\d)dus → "2026ydus" eşleşmez (YDUS ayrı sınav).
+        # Slug'lar tutarsız: "2026dus-1donem" ama "2025tus-2-donem" → -? gerekli.
+        "slug_re": r"(20\d\d)dus-(\d)-?donem-yerlestirme-sonuclarina-iliskin-sayisal-bilgiler",
     },
 }
 
@@ -77,29 +80,27 @@ _HEADER_TOKENS = {
 
 
 def _session() -> requests.Session:
-    s = requests.Session()
-    s.headers.update({
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126",
-        "Referer": "https://www.osym.gov.tr/",
-    })
-    return s
+    return osym.session()
 
 
 def _discover(s: requests.Session, cfg: dict) -> tuple[str, str]:
-    """(donem_etiketi, sayfa_url) — arama daha yeni dönem bulursa onu döndür."""
-    try:
-        html = s.get(cfg["search"], timeout=60).text
-        best = None  # (yil, donem, url)
-        for m in re.finditer(cfg["page_re"], html, re.I):
-            yil, donem = int(m.group(2)), int(m.group(3))
-            key = (yil, donem)
-            if best is None or key > best[0]:
-                best = (key, "https://www.osym.gov.tr" + m.group(1))
-        if best:
-            (yil, donem), url = best
-            return f"{yil} {donem}. Dönem", url
-    except Exception as e:  # noqa: BLE001
-        print(f"   ⚠️ keşif atlandı ({str(e)[:60]})")
+    """(donem_etiketi, sayfa_url) — en yeni dönemi keşfet.
+
+    Eski arama endpoint'i (/arama?...) ana sayfaya 302 atıyor; keşif artık
+    /Duyurular/Index üzerinden slug eşleştirmeyle yapılıyor (bkz. _osym.py).
+    """
+    best = None  # ((yil, donem), url)
+    for slug, url in osym.discover(s, cfg["slug_re"]):
+        m = re.search(cfg["slug_re"], slug, re.I)
+        if not m:
+            continue
+        key = (int(m.group(1)), int(m.group(2)))
+        if best is None or key > best[0]:
+            best = (key, url)
+    if best:
+        (yil, donem), url = best
+        return f"{yil} {donem}. Dönem", url
+    print("   ⚠️ keşif boş döndü — bilinen sayfaya düşülüyor")
     return cfg["donem"], cfg["known_page"]
 
 
@@ -161,9 +162,12 @@ def _parse(path: Path) -> list[dict]:
 def _scrape_one(s: requests.Session, sinav: str, cfg: dict) -> bool:
     donem, page_url = _discover(s, cfg)
     print(f"📡 {sinav} {donem} → {page_url[:80]}")
-    html = s.get(page_url, timeout=60).text
+    html = osym.fetch_tolerant(s, page_url)
+    # Eski adlar "minmax_*.pdf"; ÖSYM yeni duyurularda
+    # "...-en-kucuk-ve-en-buyuk-puanlar-*.pdf" kullanıyor → ikisi de.
     pdfs = re.findall(
-        r'href="(https://dokuman\.osym\.gov\.tr/[^"]*minmax[^"]*\.pdf)"', html, re.I)
+        r'href="(https://dokuman\.osym\.gov\.tr/[^"]*'
+        r'(?:minmax|en-kucuk-ve-en-buyuk)[^"]*\.pdf)"', html, re.I)
     if not pdfs:
         print(f"   ⛔ {sinav} min/max PDF bulunamadı — atlandı")
         return False
