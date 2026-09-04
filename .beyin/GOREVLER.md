@@ -3,13 +3,14 @@
 Durum: `[ ]` açık · `[~]` devam ediyor · `[x]` bitti · `[!]` engellendi
 
 ## Açık
+- [ ] TUS/DUS + KPSS Data Sync gerçek Actions koşusunda doğrulanmalı (dispatch)
 - [ ] `_guard.py` diğer scraper'lara da uygulanmalı (urap, wikipedia_*, dgs, iskur, ...)
-- [ ] Bot veri commit'lerinin CI tetiklememesi yapısal olarak ele alınmalı
 - [ ] 149 ruff bulgusu temizlenip `<0.16` üst sınırı kaldırılmalı
-- [ ] yearly-data-sync zincirinin ilk 2 adımdan sonrası (transform/enrich/chunks/index) gerçek koşuyla doğrulanmalı
-- [ ] LGS 2026 verisi repo'ya alınmalı (sync düzeltildi, tetiklenmeyi bekliyor)
 
 ## Bitti
+- [x] CI kör noktası kapatıldı — haftalık schedule (4ebdd61)
+- [x] yearly-data-sync zinciri gerçek koşuda doğrulandı (dispatch, 2026-09-04)
+- [x] LGS 2026 verisi repo'ya girdi — yil=2026, 3155 kayıt (fbad2cc)
 - [x] ÖSYM yeni URL şeması çözüldü, KPSS/TUS/DUS scraper'ları çalışıyor (96aed46)
 - [x] lgs-sync / tusdus-sync / yearly-data-sync onarildi (a25d823)
 - [x] KPSS verisi geri yuklendi + bekci eklendi (e849f23)

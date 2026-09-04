@@ -1,6 +1,6 @@
 # Devir — UniSense
 **Son araç:** Claude Code
-**Tarih:** 2026-09-05 01:40
+**Tarih:** 2026-09-05 02:20
 **Durum:** bekliyor
 
 ## Nerede kaldık
@@ -19,6 +19,11 @@ Sekiz commit push edildi, **CI yeşil** (96aed46 doğrulandı).
   `pip install -e ".[dev]"`. CI yeşile döndü.
 - `755018a` tusdus artık hiç veri üretemezse exit 1 (sessiz yeşil yoktu).
 - `96aed46` **ÖSYM yeni URL şemasına geçildi — scraper'lar yeniden çalışıyor.**
+- `9968d5d` .beyin + orkestra dosyaları repoya alındı.
+- `4ebdd61` CI'a haftalık `schedule` + `workflow_dispatch` eklendi. GITHUB_TOKEN
+  ile atılan bot push'ları workflow tetiklemiyor (GitHub'ın sonsuz döngü
+  koruması); CI 07-20'den 09-04'e hiç koşmadı, ruff kayması ve KPSS veri kaybı
+  bu kör noktada 6 hafta gizli kaldı. Haftalık koşu ikisini de yakalardı.
 
 ### ÖSYM çözümü (96aed46) — beş kırılma
 1. www.osym.gov.tr `chunked` gönderiyor ama SONLANDIRICI CHUNK'I HİÇ
@@ -44,19 +49,20 @@ build_chunks bu dosyaları okumuyor → RAG index'i etkilenmez.
 ruff temiz, pytest **123 passed** (önceden 111).
 
 ## Sıradaki adım
-Actions'tan "LGS Lise Data Sync"i workflow_dispatch ile elle tetikle ve yeşil
-döndüğünü doğrula (LGS 2026 verisi hâlâ repo'ya girmedi).
+Actions'tan "TUS/DUS Data Sync" ve "KPSS Data Sync"i workflow_dispatch ile
+tetikle — ÖSYM düzeltmesinin (96aed46) gerçek Actions ortamında da çalıştığını
+doğrulamak için. Sonra `_guard.py` diğer 8 scraper'a uygulanacak.
 
 ## Engeller
-- LGS/TUS/DUS/KPSS workflow'ları henüz GERÇEK bir Actions koşusunda
-  doğrulanmadı; hepsi yerelde CI taklidiyle doğrulandı. workflow_dispatch
-  token gerektiriyor, kullanıcı tetiklemeli.
+- TUS/DUS ve KPSS Data Sync henüz gerçek Actions koşusunda denenmedi
+  (workflow_dispatch token gerektiriyor, kullanıcı tetiklemeli). LGS ve
+  Yearly YKS 2026-09-04'te dispatch ile YEŞİL koştu ve veriyi commit'ledi:
+  lgs_liseler.json yil=2026 / 3155 kayıt (fbad2cc), YKS chunks.json yeniden
+  üretildi (4fea0c1), RAG Index Sync de yeşil.
 - Diğer scraper'larda (urap, wikipedia_*, dgs, iskur, avesis,
   transform_yokatlas, kpss_kilavuz, yokatlas_scraper) boş-sonuç bekçisi yok;
   `_guard.py` oraya da uygulanmalı.
 - 149 ruff bulgusu temizlenmeden `<0.16` üst sınırı kaldırılmamalı.
-- Bot veri commit'leri CI tetiklemiyor — KPSS veri kaybı da ruff kırılması da
-  bu kör noktada 6 hafta gizli kaldı.
 - Vercel: "2 misconfigured domains" + "failed production deployment"
   e-postaları incelenmedi.
 
