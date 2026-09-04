@@ -594,7 +594,6 @@ class KariyerIlan(BaseModel):
     detay: dict = {}
     ilk_gorulme: str = ""
     yeni: bool = False
-    bolumler: list[str] = []
 
 
 class KariyerIlanlarResponse(BaseModel):
@@ -623,14 +622,3 @@ class KariyerMetaResponse(BaseModel):
     kaynak_sayisi: int = 0
     son_tarih: str = ""
     rehber_kaynak: int = 0
-
-
-class KariyerBolum(BaseModel):
-    id: str = ""
-    label: str = ""
-    sayi: int = 0
-
-
-class KariyerBolumlerResponse(BaseModel):
-    toplam: int
-    bolumler: list[KariyerBolum]
