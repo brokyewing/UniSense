@@ -257,6 +257,51 @@
     }
   },
   {
+    "code": "114827",
+    "name": "İSTANBUL AYDIN ÜNİVERSİTESİ",
+    "wikipedia_title": "İstanbul Aydın Üniversitesi",
+    "infobox": {
+      "logo_raw": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/40/Istanbul_Ayd%C4%B1n_University_logo.svg/250px-Istanbul_Ayd%C4%B1n_University_logo.svg.png?utm_source=tr.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+      "founded_raw": "2003",
+      "founded_year": 2003,
+      "type_wiki": "Özel",
+      "rector": "Prof. Dr. İbrahim Hakkı Aydın [ 1 ]",
+      "student_count_raw": "50.000 [ 2 ]",
+      "address": "İstanbul , Türkiye",
+      "colors": "Mavi ve Beyaz",
+      "website": "https://www.aydin.edu.tr/tr-tr/Pages/default.aspx"
+    }
+  },
+  {
+    "code": "115373",
+    "name": "İSTANBUL ÜNİVERSİTESİ",
+    "wikipedia_title": "İstanbul Üniversitesi",
+    "infobox": {
+      "logo_raw": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/%C4%B0stanbul_%C3%9Cniversitesi_Logo.svg/250px-%C4%B0stanbul_%C3%9Cniversitesi_Logo.svg.png?utm_source=tr.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+      "founded_raw": "30 Mayıs 1453 (573 yıl önce ) ( 1453-05-30 )",
+      "type_wiki": "Devlet araştırma üniversitesi",
+      "rector": "Prof. Dr. Osman Bülent Zülfikar",
+      "student_count_raw": "16.268",
+      "address": "İstanbul , Türkiye 41°00′46.93″K 28°57′49.95″D ﻿ / ﻿ 41.0130361°K 28.9638750°D ﻿ / 41.0130361; 28.9638750",
+      "colors": "",
+      "website": "http://www.istanbul.edu.tr/"
+    }
+  },
+  {
+    "code": "166433",
+    "name": "KTO KARATAY ÜNİVERSİTESİ (KONYA)",
+    "wikipedia_title": "KTO Karatay Üniversitesi",
+    "infobox": {
+      "logo_raw": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/KtoLOGO.png/250px-KtoLOGO.png?utm_source=tr.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
+      "founded_raw": "Medrese , 1251-1914 Üniversite , 2009",
+      "founded_year": 1914,
+      "type_wiki": "Vakıf",
+      "rector": "Prof. Dr. Mustafa Altunok [ 2 ]",
+      "address": "Konya , Türkiye",
+      "website": "http://www.karatay.edu.tr"
+    }
+  },
+  {
     "code": "104090",
     "name": "ATILIM ÜNİVERSİTESİ (ANKARA)",
     "wikipedia_title": "Atılım Üniversitesi",
@@ -3212,30 +3257,17 @@
     }
   },
   {
-    "code": "255896",
-    "name": "ATAŞEHİR ADIGÜZEL MESLEK YÜKSEKOKULU (İSTANBUL)",
-    "wikipedia_title": "Ataşehir Adıgüzel Meslek Yüksekokulu",
+    "code": "334490",
+    "name": "İZMİR KAVRAM MESLEK YÜKSEKOKULU",
+    "wikipedia_title": "İzmir Konak Meslek Yüksekokulu",
     "infobox": {
-      "logo_raw": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Ata%C5%9Fehir_Ad%C4%B1g%C3%BCzel_Meslek_Y%C3%BCksekokulu_logo.svg/250px-Ata%C5%9Fehir_Ad%C4%B1g%C3%BCzel_Meslek_Y%C3%BCksekokulu_logo.svg.png",
-      "founded_raw": "16 Mart 2014 (12 yıl, 61 gün önce)",
-      "founded_year": 2014,
+      "logo_raw": "https://upload.wikimedia.org/wikipedia/tr/thumb/d/d1/%C4%B0zmir_Kavram_MYO_logo.png/250px-%C4%B0zmir_Kavram_MYO_logo.png",
+      "founded_raw": "2007",
+      "founded_year": 2007,
       "type_wiki": "Vakıf",
-      "address": "İstanbul , Türkiye",
-      "website": "http://www.adiguzel.edu.tr/"
-    }
-  },
-  {
-    "code": "301240",
-    "name": "AZERBAYCAN DEVLET PEDAGOJİ ÜNİVERSİTESİ (BAKÜ-AZERBAYCAN)",
-    "wikipedia_title": "Nahçıvan Devlet Üniversitesi",
-    "infobox": {
-      "logo_raw": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/NDUNAJ.JPG/250px-NDUNAJ.JPG",
-      "founded_raw": "1967",
-      "founded_year": 1967,
-      "type_wiki": "Devlet Üniversitesi",
-      "rector": "Elbrus İsayev",
-      "address": "Nahçıvan , Azerbaycan",
-      "website": "http://www.ndu.edu.az/"
+      "address": "İzmir , Türkiye",
+      "colors": "Kırmızı , Beyaz , Gri",
+      "website": "http://www.konak.edu.tr/"
     }
   },
   {
@@ -3252,6 +3284,19 @@
     }
   },
   {
+    "code": "255896",
+    "name": "ATAŞEHİR ADIGÜZEL MESLEK YÜKSEKOKULU (İSTANBUL)",
+    "wikipedia_title": "Ataşehir Adıgüzel Meslek Yüksekokulu",
+    "infobox": {
+      "logo_raw": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Ata%C5%9Fehir_Ad%C4%B1g%C3%BCzel_Meslek_Y%C3%BCksekokulu_logo.svg/250px-Ata%C5%9Fehir_Ad%C4%B1g%C3%BCzel_Meslek_Y%C3%BCksekokulu_logo.svg.png",
+      "founded_raw": "16 Mart 2014 (12 yıl, 61 gün önce)",
+      "founded_year": 2014,
+      "type_wiki": "Vakıf",
+      "address": "İstanbul , Türkiye",
+      "website": "http://www.adiguzel.edu.tr/"
+    }
+  },
+  {
     "code": "220121",
     "name": "İSTANBUL ŞİŞLİ MESLEK YÜKSEKOKULU",
     "wikipedia_title": "İstanbul Şişli Meslek Yüksekokulu",
@@ -3265,17 +3310,17 @@
     }
   },
   {
-    "code": "334490",
-    "name": "İZMİR KAVRAM MESLEK YÜKSEKOKULU",
-    "wikipedia_title": "İzmir Konak Meslek Yüksekokulu",
+    "code": "301240",
+    "name": "AZERBAYCAN DEVLET PEDAGOJİ ÜNİVERSİTESİ (BAKÜ-AZERBAYCAN)",
+    "wikipedia_title": "Nahçıvan Devlet Üniversitesi",
     "infobox": {
-      "logo_raw": "https://upload.wikimedia.org/wikipedia/tr/thumb/d/d1/%C4%B0zmir_Kavram_MYO_logo.png/250px-%C4%B0zmir_Kavram_MYO_logo.png",
-      "founded_raw": "2007",
-      "founded_year": 2007,
-      "type_wiki": "Vakıf",
-      "address": "İzmir , Türkiye",
-      "colors": "Kırmızı , Beyaz , Gri",
-      "website": "http://www.konak.edu.tr/"
+      "logo_raw": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/NDUNAJ.JPG/250px-NDUNAJ.JPG",
+      "founded_raw": "1967",
+      "founded_year": 1967,
+      "type_wiki": "Devlet Üniversitesi",
+      "rector": "Elbrus İsayev",
+      "address": "Nahçıvan , Azerbaycan",
+      "website": "http://www.ndu.edu.az/"
     }
   }
 ]
