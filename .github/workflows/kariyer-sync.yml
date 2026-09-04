@@ -38,8 +38,12 @@ jobs:
           pip install -r requirements.txt
           pip install -e . --no-deps
 
-      - name: Kariyer taramasi (Resmi Gazete gunluk sayilari)
+      - name: Kariyer taramasi (Resmi Gazete + Hat B)
         working-directory: backend
+        env:
+          # Secrets tanımsızsa boş geçer → adaptör atlanır, Hat A yine yazar.
+          JOOBLE_API_KEY: ${{ secrets.JOOBLE_API_KEY }}
+          CAREERJET_API_KEY: ${{ secrets.CAREERJET_API_KEY }}
         run: python -m unisense.infrastructure.scrapers.kariyer_scraper
 
       - name: Commit data updates

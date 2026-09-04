@@ -16,6 +16,14 @@ Neden RG: loginsiz, statik HTML, resmi, günlük. Bilinen sınırlar:
   - esube.iskur.gov.tr WAF'lı (bkz. iskur_mbk_scraper).
   - osym.gov.tr erişilemiyor (DEVIR Engeller).
 
+Hat B (özel sektör) canlı adaptörler — API anahtarlı, env'den okunur:
+  - Jooble: POST https://tr.jooble.org/api/{JOOBLE_API_KEY} (ülke subdomaini
+    şart; global host WAF 403). Anahtar: https://jooble.org/api/about
+  - Careerjet: GET http://public.api.careerjet.net/search (HTTP-only;
+    Referer header şart). affid: https://www.careerjet.com/partners/
+  Anahtar yoksa adaptör sessizce atlanır (hata değil) — Hat A yine yazar.
+  Desenler career-ops providers/jooble.mjs + careerjet.mjs'ten alındı.
+
 Kayıt şeması (liste, guard uyumlu):
   {id, hat, kaynak, baslik, kurum, sehir, tarih, url, ozet, detay, ilk_gorulme}
 
@@ -24,11 +32,13 @@ Kullanım: python -m unisense.infrastructure.scrapers.kariyer_scraper
 """
 from __future__ import annotations
 
+import hashlib
 import json
+import os
 import re
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 import fitz  # PyMuPDF
@@ -155,7 +165,129 @@ def scrape() -> list[dict]:
         })
         top = {g: c for g, c in toplam_eslesme.items() if c}
         print(f"  {gun}: {len(pdfler)} pdf, {toplam_sayfa} sayfa, sinyal={top or '-'}")
-    return kayitlar
+    hatb = _scrape_hatb(session)
+    if hatb:
+        print(f"  Hat B: {len(hatb)} ilan (jooble+careerjet)")
+    return kayitlar + hatb
+
+
+# === Hat B: Jooble + Careerjet (API anahtarlı) ===
+
+_HATB_JOOBLE_SORGULAR = [
+    ("yazılım geliştirici", "Türkiye"),
+    ("bilgisayar mühendisi", "Türkiye"),
+]
+_HATB_CJ_SORGULAR = ["yazılım", "bilgisayar mühendisi"]
+_HATB_SAYFA = 2          # kota dostu: Jooble varsayılan anahtarı 500 istek
+_CJ_UC = "http://public.api.careerjet.net/search"  # HTTPS yok (sağlayıcı tarafı)
+_CJ_REFERER = os.environ.get("CAREERJET_REFERER", "http://localhost/")
+
+
+def _temizle_ham(s: str) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", s or "")).strip()
+
+
+def _jooble_normalize(job: dict, bugun: str) -> dict | None:
+    baslik = (job.get("title") or "").strip()
+    link = (job.get("link") or "").strip()
+    if not baslik or not link.startswith("http"):
+        return None
+    jid = str(job.get("id") or hashlib.sha1(link.encode()).hexdigest()[:12])
+    return {
+        "id": f"jooble-{jid}",
+        "hat": "ozel",
+        "kaynak": "Jooble",
+        "baslik": baslik,
+        "kurum": (job.get("source") or "").strip(),  # Jooble kaynak panoyu verir, işvereni değil
+        "sehir": (job.get("location") or "").strip(),
+        "tarih": (job.get("updated") or bugun)[:10],
+        "url": link,
+        "ozet": _temizle_ham(job.get("snippet") or "")[:500],
+        "detay": {"maas": (job.get("salary") or "").strip(), "tur": (job.get("type") or "").strip()},
+        "ilk_gorulme": bugun,
+    }
+
+
+def _careerjet_normalize(job: dict, bugun: str) -> dict | None:
+    baslik = (job.get("title") or "").strip()
+    link = (job.get("url") or "").strip()
+    if not baslik or not link.startswith("http"):
+        return None
+    return {
+        "id": f"cj-{hashlib.sha1(link.encode()).hexdigest()[:12]}",
+        "hat": "ozel",
+        "kaynak": "Careerjet",
+        "baslik": baslik,
+        "kurum": (job.get("company") or "").strip(),
+        "sehir": (job.get("locations") or "").strip(),
+        "tarih": (job.get("date") or bugun)[:10],
+        "url": link,
+        "ozet": _temizle_ham(job.get("description") or "")[:500],
+        "detay": {"maas": (job.get("salary") or "").strip(), "site": (job.get("site") or "").strip()},
+        "ilk_gorulme": bugun,
+    }
+
+
+def _scrape_hatb(session: requests.Session) -> list[dict]:
+    """Jooble + Careerjet sorguları. Anahtar yoksa [] döner (atlama, hata değil)."""
+    kayitlar: list[dict] = []
+    bugun = date.today().isoformat()
+    jooble_key = os.environ.get("JOOBLE_API_KEY", "").strip()
+    if jooble_key:
+        for keywords, location in _HATB_JOOBLE_SORGULAR:
+            for page in range(1, _HATB_SAYFA + 1):
+                try:
+                    r = session.post(f"https://tr.jooble.org/api/{jooble_key}",
+                                     json={"keywords": keywords, "location": location, "page": page},
+                                     timeout=REQUEST_TIMEOUT)
+                    r.raise_for_status()
+                    jobs = r.json().get("jobs") or []
+                except Exception as e:  # noqa: BLE001
+                    print(f"  ⚠️ jooble '{keywords}' s.{page}: {type(e).__name__}")
+                    break
+                if not jobs:
+                    break
+                for j in jobs:
+                    k = _jooble_normalize(j, bugun)
+                    if k:
+                        kayitlar.append(k)
+                print(f"  jooble '{keywords}' s.{page}: {len(jobs)} ilan")
+                time.sleep(KIBAR_BEKELEME)
+    else:
+        print("  ○ JOOBLE_API_KEY yok — Jooble atlandı")
+    cj_affid = os.environ.get("CAREERJET_API_KEY", "").strip()
+    if cj_affid:
+        for keywords in _HATB_CJ_SORGULAR:
+            for page in range(1, _HATB_SAYFA + 1):
+                try:
+                    r = session.get(_CJ_UC, params={
+                        "locale_code": "tr_TR", "keywords": keywords, "location": "",
+                        "affid": cj_affid, "user_ip": "127.0.0.1",
+                        "user_agent": HEADERS["User-Agent"],
+                        "page": page, "pagesize": 50,
+                    }, headers={"Referer": _CJ_REFERER}, timeout=REQUEST_TIMEOUT)
+                    r.raise_for_status()
+                    data = r.json()
+                except Exception as e:  # noqa: BLE001
+                    print(f"  ⚠️ careerjet '{keywords}' s.{page}: {type(e).__name__}")
+                    break
+                if not isinstance(data, dict) or data.get("type") != "JOBS":
+                    print(f"  ⚠️ careerjet '{keywords}' s.{page}: beklenmeyen yanıt")
+                    break
+                jobs = data.get("jobs") or []
+                if not jobs:
+                    break
+                for j in jobs:
+                    k = _careerjet_normalize(j, bugun)
+                    if k:
+                        kayitlar.append(k)
+                print(f"  careerjet '{keywords}' s.{page}: {len(jobs)} ilan")
+                time.sleep(KIBAR_BEKELEME)
+    else:
+        print("  ○ CAREERJET_API_KEY yok — Careerjet atlandı")
+    # Aynı link iki sorguda da çıkabilir → id ile tekille
+    tekil = list({k["id"]: k for k in kayitlar}.values())
+    return tekil
 
 
 def _merge(yeni: list[dict], eski: list[dict]) -> list[dict]:

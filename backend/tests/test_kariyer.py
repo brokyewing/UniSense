@@ -6,9 +6,12 @@ from unisense.application.services.kariyer_service import (
     filtrele,
 )
 from unisense.infrastructure.scrapers.kariyer_scraper import (
+    _careerjet_normalize,
     _eslesme_say,
     _gunluk_sayilar,
+    _jooble_normalize,
     _merge,
+    _scrape_hatb,
 )
 
 BUGUN = date(2026, 9, 5)
@@ -91,3 +94,34 @@ class TestRehber:
         ids = {k["id"] for k in _KAYNAKLAR}
         assert {"iskur-acik-is", "elemanonline", "cvyolla", "stajim",
                 "jooble"} <= ids
+
+
+class TestHatB:
+    def test_jooble_normalize(self):
+        k = _jooble_normalize(
+            {"id": 123, "title": "Yazılım Geliştirici", "link": "https://x.jobs/1",
+             "source": "kariyer.net", "location": "İstanbul",
+             "snippet": "<b>Java</b> aranıyor", "salary": "100bin", "type": "Tam zamanlı"},
+            "2026-09-05")
+        assert k["id"] == "jooble-123"
+        assert k["hat"] == "ozel" and k["kurum"] == "kariyer.net"
+        assert k["ozet"] == "Java aranıyor"
+
+    def test_jooble_bos_link_elenir(self):
+        assert _jooble_normalize({"title": "X", "link": "ftp://a"}, "2026-09-05") is None
+
+    def test_careerjet_normalize(self):
+        k = _careerjet_normalize(
+            {"title": "Backend Dev", "url": "https://y.jobs/2", "company": "Acme",
+             "locations": "Ankara", "description": "Python <b>bilgisi</b>",
+             "date": "2026-09-04", "salary": "", "site": "careerjet.com.tr"},
+            "2026-09-05")
+        assert k["id"].startswith("cj-") and k["kurum"] == "Acme"
+        assert k["tarih"] == "2026-09-04"
+
+    def test_anahtar_yoksa_atlama(self, monkeypatch):
+        import requests
+
+        monkeypatch.delenv("JOOBLE_API_KEY", raising=False)
+        monkeypatch.delenv("CAREERJET_API_KEY", raising=False)
+        assert _scrape_hatb(requests.Session()) == []
