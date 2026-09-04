@@ -34,8 +34,15 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install requests
-        run: python -m pip install --upgrade pip requests
+      # `python -m unisense...` paketin import edilebilir olmasını gerektirir;
+      # sadece requests kurmak yetmiyordu → ModuleNotFoundError ile 10 sn'de
+      # düşüyordu. --no-deps: lgs_scraper stdlib + requests dışında bir şey
+      # kullanmıyor, chromadb/pandas gibi ağır runtime paketlerini çekmeye gerek yok.
+      - name: Install requests + unisense paketi
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip requests
+          pip install -e . --no-deps
 
       - name: Scrape — LGS lise taban puanları / yüzdelik dilimleri
         working-directory: backend

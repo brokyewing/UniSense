@@ -32,8 +32,15 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install deps (requests + PyMuPDF)
-        run: python -m pip install --upgrade pip requests PyMuPDF
+      # `python -m unisense...` paketin import edilebilir olmasını gerektirir;
+      # sadece requests+PyMuPDF kurmak yetmiyordu → ModuleNotFoundError ile
+      # 0 sn'de düşüyordu. --no-deps: tusdus_scraper bu ikisi dışında bir şey
+      # kullanmıyor, ağır runtime paketlerini çekmeye gerek yok.
+      - name: Install deps (requests + PyMuPDF) + unisense paketi
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip requests PyMuPDF
+          pip install -e . --no-deps
 
       - name: Scrape — TUS/DUS ÖSYM min/max yerleşme puanları
         working-directory: backend

@@ -36,6 +36,14 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Yalnız scraper'ların (yokatlas_scraper / yokatlas_extra_scraper / probe_dgs)
+# ihtiyaç duyduğu paketler. Runtime'a GİRMEZ: prod imajı requirements.txt +
+# `pip install -e . --no-deps` ile kurulduğu için buradakiler Render'a inmez.
+# Yearly YKS Data Sync workflow'u `pip install -e ".[scrape]"` ile kurar.
+scrape = [
+    "yokatlas-py>=0.6.0",
+]
+
 dev = [
     "pytest>=8.3.0",
     "pytest-asyncio>=0.24.0",
