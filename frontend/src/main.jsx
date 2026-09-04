@@ -18,6 +18,7 @@ import BolumDetay from './pages/BolumDetay.jsx'
 import Takvim from './pages/Takvim.jsx'
 import LGS from './pages/LGS.jsx'
 import TusDus from './pages/TusDus.jsx'
+import Kariyer from './pages/Kariyer.jsx'
 import Calisma from './pages/Calisma.jsx'
 import OzetDetay from './pages/OzetDetay.jsx'
 import Siralama from './pages/Siralama.jsx'
@@ -74,6 +75,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/pano" element={<Calisma tab="pano" />} />
               <Route path="/lgs" element={<LGS />} />
               <Route path="/tus" element={<TusDus />} />
+              <Route path="/kariyer" element={<Kariyer />} />
               {LEGACY_ROUTES.map(([from, to]) => (
                 <Route key={from} path={from} element={<LegacyRedirect to={to} />} />
               ))}

@@ -92,6 +92,12 @@ def get_tus_service():
 
 
 @lru_cache(maxsize=1)
+def get_kariyer_service():
+    from unisense.application.services.kariyer_service import KariyerService
+    return KariyerService()
+
+
+@lru_cache(maxsize=1)
 def get_compare_service() -> CompareService:
     from unisense.application.services.compare_service import CompareService
     return CompareService()

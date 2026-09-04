@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import {
   Search, ListChecks,
   LogIn, LogOut, User, ChevronDown, Compass, Calculator, BookOpen, CalendarDays,
-  GraduationCap, Trophy,
+  GraduationCap, Trophy, Briefcase,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from './contexts/AuthContext'
@@ -35,6 +35,7 @@ const ROUTE_SEO = {
   '/takvim': { title: `${TERCIH_YILI} Sınav Takvimi — YKS, LGS, DGS, KPSS, ALES, TUS | UniSense`, description: `${TERCIH_YILI} YKS, LGS, DGS, KPSS, ALES, TUS, DUS ve AGS sınav, sonuç ve tercih tarihleri — kaç gün kaldığıyla tek sayfada.` },
   '/lgs': { title: `LGS Tercih Robotu ${TERCIH_YILI} — Yüzdelik Dilimine Göre Lise Bul | UniSense`, description: 'LGS yüzdelik dilimini gir, girebileceğin Fen, Anadolu, Sosyal Bilimler ve İmam Hatip liselerini güvenli/tutar/riskli olarak gör — ücretsiz, tahminî.' },
   '/tus': { title: `TUS / DUS Tercih Robotu ${TERCIH_YILI} — Puanına Göre Uzmanlık Bul | UniSense`, description: 'TUS veya DUS puanını gir, geçen dönem ÖSYM taban puanlarına göre yerleşebileceğin uzmanlık dallarını ve kurumları güvenli/tutar/riskli olarak gör — ücretsiz, tahminî.' },
+  '/kariyer': { title: `Kariyer Sinyalleri ${TERCIH_YILI} — Kamu ve Özel Sektör İş İlanları | UniSense`, description: 'Her sabah güncellenen kamu ilan sinyalleri (Resmî Gazete taraması) + Kariyer Kapısı, Vizyoner Genç, TÜBİTAK ve özel sektör kaynak rehberi — ücretsiz.' },
   '/gizlilik': { title: 'Gizlilik ve KVKK | UniSense', description: 'UniSense gizlilik politikası ve KVKK aydınlatma metni.' },
   '/tercih': { title: 'Tercih Listem | UniSense', noindex: true },
   '/profil': { title: 'Sınav Profilim | UniSense', noindex: true },
@@ -141,6 +142,7 @@ export default function App() {
             {navItem('/takvim', 'Takvim', CalendarDays)}
             {navItem('/bolum', 'Bölümler', BookOpen)}
             {navItem('/pusula', 'Pusula', Compass)}
+            {navItem('/kariyer', 'Kariyer', Briefcase)}
           </nav>
 
           {/* Sağ taraf — theme toggle profil avatarına yakın */}

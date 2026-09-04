@@ -14,6 +14,7 @@ from unisense.api.v1.dependencies import (
     compass_service_dep,
     dgs_service_dep,
     guide_service_dep,
+    kariyer_service_dep,
     kpss_service_dep,
     lgs_service_dep,
     tus_service_dep,
@@ -49,6 +50,9 @@ from unisense.api.v1.schemas import (
     TusMetaResponse,
     TusOneriRequest,
     TusOneriResponse,
+    KariyerIlanlarResponse,
+    KariyerKaynaklarResponse,
+    KariyerMetaResponse,
     KpssKadroRequest,
     KpssKadroResponse,
     ModelInfo,
@@ -636,3 +640,48 @@ def programs_compare(
     """2-5 ÖSYM kodunu yan yana karşılaştır (trend, taban, sıra, kontenjan, kadro)."""
     result = svc.compare(body.codes)
     return CompareResponse(**result)
+
+
+@router.get("/kariyer/ilanlar", response_model=KariyerIlanlarResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def kariyer_ilanlar(
+    request: Request,
+    hat: str | None = None,
+    q: str | None = ApiQuery(None, max_length=120),
+    kaynak: str | None = ApiQuery(None, max_length=80),
+    sehir: str | None = ApiQuery(None, max_length=40),
+    sadece_yeni: bool = False,
+    limit: int = ApiQuery(20, ge=1, le=100),
+    svc=Depends(kariyer_service_dep),
+) -> KariyerIlanlarResponse:
+    """Günlük kariyer sinyalleri (tarihe göre tersten; `yeni` = son 7 günde görülen).
+
+    Veri yoksa boş liste döner — kaynak rehberi her durumda `/kariyer/kaynaklar`'da.
+    """
+    result = svc.ilanlar(
+        hat=hat, q=q, kaynak=kaynak, sehir=sehir,
+        sadece_yeni=sadece_yeni, limit=limit,
+    )
+    return KariyerIlanlarResponse(**result)
+
+
+@router.get("/kariyer/kaynaklar", response_model=KariyerKaynaklarResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def kariyer_kaynaklar(
+    request: Request,
+    hat: str | None = None,
+    svc=Depends(kariyer_service_dep),
+) -> KariyerKaynaklarResponse:
+    """Kariyer kaynak rehberi: Hat A (kamu) + Hat B (özel) dış bağlantıları."""
+    result = svc.kaynaklar(hat=hat)
+    return KariyerKaynaklarResponse(**result)
+
+
+@router.get("/kariyer/meta", response_model=KariyerMetaResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def kariyer_meta(
+    request: Request,
+    svc=Depends(kariyer_service_dep),
+) -> KariyerMetaResponse:
+    """Kariyer veri durumu: kayıt sayısı + en güncel tarih."""
+    return KariyerMetaResponse(**svc.meta())

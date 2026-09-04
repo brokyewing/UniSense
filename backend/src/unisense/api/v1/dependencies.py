@@ -59,3 +59,8 @@ def lgs_service_dep():
 def tus_service_dep():
     from unisense.core.di import get_tus_service
     return get_tus_service()
+
+
+def kariyer_service_dep():
+    from unisense.core.di import get_kariyer_service
+    return get_kariyer_service()
