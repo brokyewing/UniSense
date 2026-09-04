@@ -46,14 +46,18 @@ jobs:
         working-directory: backend
         run: |
           python -m pip install --upgrade pip
-          pip install -e .
+          # [scrape]: yokatlas-py — yokatlas_scraper/yokatlas_extra_scraper'in
+          # importu. Runtime bağımlılığı DEĞİL, o yüzden ana dependencies'te yok.
+          pip install -e ".[scrape]"
 
       - name: Scrape — YÖK Atlas (lisans + önlisans)
         if: github.event.inputs.skip_scrape != 'true'
         working-directory: backend
         run: |
           python -m unisense.infrastructure.scrapers.yokatlas_scraper
-          python -m unisense.infrastructure.scrapers.yokatlas_extra_scraper
+          # --target zorunlu; argümansız çağrı argparse ile exit 2 veriyordu.
+          # DGS'nin ayrı adımı var (dgs_scraper) → burada yalnız önlisans.
+          python -m unisense.infrastructure.scrapers.yokatlas_extra_scraper --target onlisans
         continue-on-error: false
 
       - name: Scrape — URAP
