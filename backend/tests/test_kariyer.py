@@ -80,3 +80,9 @@ class TestRehber:
     def test_kariyer_kapisi_ve_vizyoner_var(self):
         ids = {k["id"] for k in _KAYNAKLAR}
         assert {"kariyer-kapisi", "vizyoner-genc", "ilan-gov-tr"} <= ids
+
+    def test_pdf_kapsami_tamamlandi(self):
+        ids = {k["id"] for k in _KAYNAKLAR}
+        assert {"milli-saraylar", "spor-toto", "ssb", "epdk-rekabet-btk",
+                "iletisim", "kamu-bankalari", "csb-yerel", "sozlesmeli-bilisim",
+                "kamuis", "isinolsa", "kamuilan-net", "kamuajans"} <= ids
