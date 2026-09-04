@@ -114,7 +114,7 @@ girme.
 
 | Kaynak | Durum | Bulgu / yöntem |
 |---|---|---|
-| **ilan.gov.tr** | ✅ **API bulundu** | `POST https://www.ilan.gov.tr/api/api/services/app/Ad/AdsByFilter`, **kimlik doğrulama YOK**. Gövde: `{skipCount, maxResultCount, sorting:"publishDate desc"}`. Yanıt: `result.ads[]` + `result.cityCounts` (şehir kırılımı) + `result.numFound` (25.062 ilan). Alanlar: `id, adNo, advertiserName, title, addressCityName, addressCountyName, publishStartDate, urlStr, adSourceName, adTypeFilters[]`. **Açık uç:** kategori filtresi parametresi bulunamadı (`avIdTax/taxIds/categoryIds` yok sayılıyor) → şimdilik `adTypeFilters[].key=="İlan Türü"` değerine veya `slugifyTitle` önekine göre süz. robots.txt yalnız `/*tebligat` yasaklıyor. |
+| **ilan.gov.tr** | 🟡 **API bulundu, oturum şartı çözülmedi** | Uç nokta: `POST https://www.ilan.gov.tr/api/api/services/app/Ad/AdsByFilter`. **Doğrulanmış kayıt şeması** (sitenin kendi isteğinin yanıtından alındı): `result.ads[]` → `id, adNo, advertiserName, title, slugifyTitle, addressCityName, addressCountyName, publishStartDate, urlStr, adSourceName, adTypeFilters[{key,value}]`; ayrıca `result.cityCounts` (şehir kırılımı — bölge filtresi için birebir) ve `result.numFound` (**25.062** ilan). **DİKKAT — yanlış ize düşme:** aynı gövde (`{skipCount, maxResultCount, sorting:"publishDate desc"}`) ilk denemelerde 25.062 döndürdü, sonraki tüm denemelerde (ana sayfa dahil) **0** döndü. Yani uç nokta anonim değil: bir oturum çerezi / ABP token / `Referer` başlığı ya da hız sınırı devrede. **Yapılacak:** tarayıcıda tek bir başarılı isteğin TAM başlıklarını + gövdesini yakala (fetch monkey-patch tam sayfa gezinmede siliniyor; `Ctrl+Shift+I → Network → Copy as cURL` en pratiği), sonra Python'da birebir tekrarla. `ats=5` = PERSONEL ALIMI (URL'den: `/ilan/tum-ilanlar/personel-alimi?ats=5`, `kategori/8/kamu-akademik-personel?ats=5`) — gövdedeki karşılığı bu yakalamada görülecek. robots.txt yalnız `/*tebligat` yasaklıyor. |
 | ilan.gov.tr sitemap | ❌ | robots.txt `ads.xml`, `daily-ads.xml` ilan ediyor ama hepsi **404**. Kullanma. |
 | **İŞKUR e-Şube** | ❌ WAF | `robots.txt` bile "Request Rejected" dönüyor. Doğrudan erişim yok — §3 madde 6. |
 | kamuilan.sbb.gov.tr | 🟡 | HTTP 200, ~207 KB sunucu-tarafı HTML → parse edilebilir. Arşiv niteliğinde, başvuru alınmaz. |
@@ -174,8 +174,10 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
 
 ### F1 — Kamu hattı (en yüksek değer; KPSS'li + KPSS'siz)
 
-- [ ] **F1.1** `ilangovtr` adaptörü — §3.1'deki API ile. `cityCounts` bölge
-      filtresi için saklanır.
+- [ ] **F1.1** `ilangovtr` adaptörü. **İlk adım: oturum şartını çöz** (§3.1'deki
+      "Copy as cURL" tarifi) — şema ve `cityCounts` zaten doğrulandı, eksik olan
+      yalnızca isteğin kabul edilmesi. Çözülemezse `[!]` yaz ve F1.2'ye geç;
+      §3 madde 4 (sunucu-tarafı HTML) alternatifini dene.
       *Bitti:* ≥200 personel-alımı ilanı v2 şemasında, il/ilçe dolu.
 - [ ] **F1.2** Kariyer Kapısı (A1) erişimi — runner'dan/tarayıcıdan tekrar dene,
       §3 ağacını uygula. **En kritik kamu kanalı.**
