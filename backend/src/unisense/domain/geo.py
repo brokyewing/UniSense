@@ -8,7 +8,6 @@ import json
 from functools import lru_cache
 from pathlib import Path
 
-
 REGIONS: dict[str, list[str]] = {
     "Marmara": [
         "İSTANBUL", "BURSA", "KOCAELİ", "TEKİRDAĞ", "BALIKESİR", "ÇANAKKALE",

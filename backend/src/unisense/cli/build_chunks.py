@@ -16,9 +16,9 @@ from __future__ import annotations
 import datetime as _dt
 import json
 import sys
+from collections import defaultdict
 from functools import lru_cache
 from pathlib import Path
-from collections import defaultdict
 
 if sys.platform == "win32":
     import io as _io
@@ -34,7 +34,7 @@ def _data_year() -> int:
         rankings = json.load(open(proc / "rankings.json", encoding="utf-8"))
         years = {r.get("year") for r in rankings[:500] if r.get("year")}
         return max(years) if years else _dt.date.today().year - 1
-    except Exception:  # noqa: BLE001
+    except Exception:
         return _dt.date.today().year - 1
 
 

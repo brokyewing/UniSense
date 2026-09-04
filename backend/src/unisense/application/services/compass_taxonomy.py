@@ -15,7 +15,6 @@ from __future__ import annotations
 import re
 from functools import lru_cache
 
-
 # === Kategori şablonları: (id, label, emoji, default_axes [m,h,c,r,f]) ===
 CATEGORIES: dict[str, dict] = {
     "muhendislik":   {"label": "Mühendislik",       "emoji": "🔧", "default": [5, 2, 3, 3, 3]},

@@ -21,7 +21,9 @@ from typing import Any
 
 import requests
 from bs4 import BeautifulSoup
-from ._guard import ScrapeGuardError, check as guard_check
+
+from ._guard import ScrapeGuardError
+from ._guard import check as guard_check
 
 if sys.platform == "win32":
     import io as _io

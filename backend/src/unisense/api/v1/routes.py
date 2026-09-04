@@ -8,6 +8,14 @@ import re
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi import Query as ApiQuery  # domain.models.Query ile ad çakışmasın
 
+from unisense.api.middleware.rate_limit import (
+    ASK_DAILY_GLOBAL_LIMIT,
+    ASK_DAILY_LIMIT,
+    ASK_LIMIT,
+    DEFAULT_LIMIT,
+    _global_key,
+    limiter,
+)
 from unisense.api.v1.dependencies import (
     ask_service_dep,
     compare_service_dep,
@@ -17,14 +25,13 @@ from unisense.api.v1.dependencies import (
     kariyer_service_dep,
     kpss_service_dep,
     lgs_service_dep,
-    tus_service_dep,
     news_service_dep,
     recommendation_service_dep,
+    tus_service_dep,
 )
 from unisense.api.v1.schemas import (
     AskRequest,
     AskResponse,
-    SiralamaResponse,
     CompareRequest,
     CompareResponse,
     CompassAxesRequest,
@@ -38,43 +45,37 @@ from unisense.api.v1.schemas import (
     DgsGecisResponse,
     DgsProgramRequest,
     DgsProgramResponse,
+    DocResponse,
     ExamCalendarResponse,
     GuideDetailResponse,
     GuideListResponse,
-    DocResponse,
     HealthResponse,
-    LgsIlcelerResponse,
-    LgsIllerResponse,
-    LgsOneriRequest,
-    LgsOneriResponse,
-    TusMetaResponse,
-    TusOneriRequest,
-    TusOneriResponse,
+    KariyerBolumlerResponse,
     KariyerIlanlarResponse,
     KariyerKaynaklarResponse,
     KariyerMetaResponse,
     KpssKadroRequest,
     KpssKadroResponse,
+    LgsIlcelerResponse,
+    LgsIllerResponse,
+    LgsOneriRequest,
+    LgsOneriResponse,
     ModelInfo,
     ModelsResponse,
     ProgramLookupRequest,
     ProgramLookupResponse,
     RecommendResponse,
+    SiralamaResponse,
     StudentProfileRequest,
+    TusMetaResponse,
+    TusOneriRequest,
+    TusOneriResponse,
 )
 from unisense.application.services import (
     AskService,
     CompareService,
     CompassService,
     RecommendationService,
-)
-from unisense.api.middleware.rate_limit import (
-    ASK_DAILY_GLOBAL_LIMIT,
-    ASK_DAILY_LIMIT,
-    ASK_LIMIT,
-    DEFAULT_LIMIT,
-    _global_key,
-    limiter,
 )
 from unisense.core.di import get_vector_store
 from unisense.core.logging import get_logger
@@ -103,7 +104,7 @@ def health(response: Response) -> HealthResponse:
     """
     try:
         count = get_vector_store().count()
-    except Exception:  # noqa: BLE001
+    except Exception:
         count = None
     status = "ok" if count else "degraded"
     return HealthResponse(status=status, version="0.1.0", chunks_count=count)
@@ -147,7 +148,7 @@ def ask(
     # Depends() yerine guard sonrası elle çözülür.
     try:
         index_hazir = bool(get_vector_store().count())
-    except Exception:  # noqa: BLE001
+    except Exception:
         index_hazir = False
     if not index_hazir:
         raise HTTPException(
@@ -204,7 +205,7 @@ def ask(
             lookups = rec_svc.lookup_programs(program_codes)
             lookup_map = {p["department_code"]: p for p in lookups if p.get("found")}
             lookup_ok = True
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             logger.warning("ask_lookup_failed", error=str(e)[:200])
 
     answer_text = answer.text
@@ -650,6 +651,7 @@ def kariyer_ilanlar(
     q: str | None = ApiQuery(None, max_length=120),
     kaynak: str | None = ApiQuery(None, max_length=80),
     sehir: str | None = ApiQuery(None, max_length=40),
+    bolum: str | None = ApiQuery(None, max_length=40),
     sadece_yeni: bool = False,
     limit: int = ApiQuery(20, ge=1, le=100),
     svc=Depends(kariyer_service_dep),
@@ -659,7 +661,7 @@ def kariyer_ilanlar(
     Veri yoksa boş liste döner — kaynak rehberi her durumda `/kariyer/kaynaklar`'da.
     """
     result = svc.ilanlar(
-        hat=hat, q=q, kaynak=kaynak, sehir=sehir,
+        hat=hat, q=q, kaynak=kaynak, sehir=sehir, bolum=bolum,
         sadece_yeni=sadece_yeni, limit=limit,
     )
     return KariyerIlanlarResponse(**result)
@@ -685,3 +687,13 @@ def kariyer_meta(
 ) -> KariyerMetaResponse:
     """Kariyer veri durumu: kayıt sayısı + en güncel tarih."""
     return KariyerMetaResponse(**svc.meta())
+
+
+@router.get("/kariyer/bolumler", response_model=KariyerBolumlerResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def kariyer_bolumler(
+    request: Request,
+    svc=Depends(kariyer_service_dep),
+) -> KariyerBolumlerResponse:
+    """Bölüm seçici rehberi: etiket + o bölümdeki kayıt sayısı."""
+    return KariyerBolumlerResponse(**svc.bolumler())

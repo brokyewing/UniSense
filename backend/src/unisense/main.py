@@ -10,7 +10,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from unisense.api.middleware import error_handler, logging as request_log, rate_limit
+from unisense.api.middleware import error_handler, rate_limit
+from unisense.api.middleware import logging as request_log
 from unisense.api.v1.routes import router as v1_router
 from unisense.core.config import get_settings
 from unisense.core.di import get_vector_store
@@ -42,7 +43,7 @@ async def _index_retry_loop() -> None:
                 store.warmup()
                 logger.info("index_retry_success", chunks=store.count())
                 return
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             logger.warning("index_retry_failed", error=str(e)[:200])
 
 

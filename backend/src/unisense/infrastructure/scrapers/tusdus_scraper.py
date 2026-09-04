@@ -91,7 +91,7 @@ def _discover(s: requests.Session, cfg: dict) -> tuple[str, str]:
     """
     best = None  # ((yil, donem), url)
     for slug, url in osym.discover(s, cfg["slug_re"]):
-        m = re.search(cfg["slug_re"], slug, re.I)
+        m = re.search(cfg["slug_re"], slug, re.IGNORECASE)
         if not m:
             continue
         key = (int(m.group(1)), int(m.group(2)))
@@ -167,7 +167,7 @@ def _scrape_one(s: requests.Session, sinav: str, cfg: dict) -> bool:
     # "...-en-kucuk-ve-en-buyuk-puanlar-*.pdf" kullanıyor → ikisi de.
     pdfs = re.findall(
         r'href="(https://dokuman\.osym\.gov\.tr/[^"]*'
-        r'(?:minmax|en-kucuk-ve-en-buyuk)[^"]*\.pdf)"', html, re.I)
+        r'(?:minmax|en-kucuk-ve-en-buyuk)[^"]*\.pdf)"', html, re.IGNORECASE)
     if not pdfs:
         print(f"   ⛔ {sinav} min/max PDF bulunamadı — atlandı")
         return False
@@ -215,7 +215,7 @@ def main() -> None:
         try:
             if _scrape_one(s, sinav, cfg):
                 basarili += 1
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             print(f"   ⛔ {sinav} hata: {str(e)[:80]}")
 
     # Hicbiri veri uretemediyse bu bir kaynak arizasidir. Eskiden exit 0

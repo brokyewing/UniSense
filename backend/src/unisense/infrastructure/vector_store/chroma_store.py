@@ -53,7 +53,7 @@ class ChromaVectorStore:
             emb = embed_query("ısınma sorgusu")  # modeli yükler (local: ONNX init)
             _ = self._collection.query(query_embeddings=[emb.tolist()], n_results=1)
             logger.info("warmup_done", chunks=self._collection.count())
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             logger.warning("warmup_failed", error=str(e)[:200])
 
     def search(

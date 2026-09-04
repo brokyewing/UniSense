@@ -9,8 +9,14 @@ from unisense.application.services import (
 )
 from unisense.core.di import (
     get_ask_service as _di_ask,
+)
+from unisense.core.di import (
     get_compare_service as _di_compare,
+)
+from unisense.core.di import (
     get_compass_service as _di_compass,
+)
+from unisense.core.di import (
     get_recommendation_service as _di_rec,
 )
 

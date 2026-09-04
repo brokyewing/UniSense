@@ -92,7 +92,7 @@ class Settings(BaseSettings):
         if not v.strip():
             return v
         keys = [k.strip() for k in v.split(",") if k.strip()]
-        valid = [k for k in keys if k.startswith("AIza") or k.startswith("AQ.")]
+        valid = [k for k in keys if k.startswith(("AIza", "AQ."))]
         dropped = len(keys) - len(valid)
         if dropped:
             import sys as _sys

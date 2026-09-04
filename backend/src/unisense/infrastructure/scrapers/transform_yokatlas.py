@@ -17,8 +17,9 @@ if sys.platform == "win32":
     sys.stdout = _io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 from unisense.domain.geo import il_to_bolge
-from ._guard import ScrapeGuardError, check as guard_check
 
+from ._guard import ScrapeGuardError
+from ._guard import check as guard_check
 
 SCORE_TYPE_MAP = {
     "SAY": "SAY",

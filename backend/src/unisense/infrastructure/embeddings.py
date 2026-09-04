@@ -89,7 +89,7 @@ def embed_texts(
                     embs = [embs]
                 all_embs.extend(embs)
                 break
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 last_err = e
                 msg = str(e)
                 retriable = any(s in msg for s in ("429", "quota", "Quota", "503", "500", "deadline"))

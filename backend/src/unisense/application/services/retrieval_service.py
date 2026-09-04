@@ -126,6 +126,7 @@ class RetrievalService:
             if collection is None:
                 # Eski davranış: yeni client aç (fallback)
                 import chromadb
+
                 from unisense.core.config import get_settings
                 settings = get_settings()
                 client = chromadb.PersistentClient(path=settings.chroma_persist_dir)
@@ -172,7 +173,7 @@ class RetrievalService:
                 except Exception:
                     continue
             return chunks[:limit]
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             logger.warning("keyword_search_failed", error=str(e)[:120])
             return []
 

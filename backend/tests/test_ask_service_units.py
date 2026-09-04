@@ -130,7 +130,8 @@ class TestListingIntent:
 
 class TestCacheKey:
     def _q(self, **kw):
-        defaults = dict(text="test sorgusu", top_k=12, history=[], model_preference="gemini")
+        defaults = {"text": "test sorgusu", "top_k": 12, "history": [],
+                    "model_preference": "gemini"}
         defaults.update(kw)
         return Query(**defaults)
 

@@ -25,7 +25,9 @@ from pathlib import Path
 
 import fitz
 import requests
-from ._guard import ScrapeGuardError, check as guard_check
+
+from ._guard import ScrapeGuardError
+from ._guard import check as guard_check
 
 if sys.platform == "win32":
     import io as _io
@@ -63,14 +65,14 @@ def _discover(s: requests.Session) -> tuple[int, str]:
         best = None
         for m in re.finditer(
             r'href="(/TR,\d+/(20\d\d)-dgs-yerlestirme-sonuclarina[^"]*\.html)"',
-            html, re.I,
+            html, re.IGNORECASE,
         ):
             year = int(m.group(2))
             if best is None or year > best[0]:
                 best = (year, "https://www.osym.gov.tr" + m.group(1))
         if best and best[0] > KNOWN_YEAR:
             return best
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"   ⚠️ keşif atlandı ({str(e)[:60]})")
     return KNOWN_YEAR, KNOWN_PAGE
 
@@ -239,7 +241,7 @@ def main() -> None:
     print(f"📡 DGS {year} → {page_url[:80]}")
     html = s.get(page_url, timeout=60).text
     pdfs = re.findall(
-        r'href="(https://dokuman\.osym\.gov\.tr/[^"]*minmax[^"]*\.pdf)"', html, re.I)
+        r'href="(https://dokuman\.osym\.gov\.tr/[^"]*minmax[^"]*\.pdf)"', html, re.IGNORECASE)
     if not pdfs:
         print("⛔ min/max PDF bulunamadı")
         return

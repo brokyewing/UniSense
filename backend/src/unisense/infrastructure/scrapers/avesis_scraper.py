@@ -19,7 +19,9 @@ from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
-from ._guard import ScrapeGuardError, check as guard_check
+
+from ._guard import ScrapeGuardError
+from ._guard import check as guard_check
 
 if sys.platform == "win32":
     import io as _io
@@ -102,10 +104,10 @@ def fetch_researchers_list(base_url: str, max_count: int = 50) -> list[dict]:
             soup = BeautifulSoup(r.text, "lxml")
 
             # Akademisyen kartı pattern'leri (Avesis tipik HTML)
-            cards = soup.find_all(["div", "article", "tr"], class_=re.compile(r"researcher|akademisyen|kart|card|user", re.I))
+            cards = soup.find_all(["div", "article", "tr"], class_=re.compile(r"researcher|akademisyen|kart|card|user", re.IGNORECASE))
             if not cards:
                 # Fallback: sayfadaki tüm linklerden /araştırmacı/<id> pattern'ini çıkar
-                links = soup.find_all("a", href=re.compile(r"/araştırmacı/|/arastirmaci/|/researcher/", re.I))
+                links = soup.find_all("a", href=re.compile(r"/araştırmacı/|/arastirmaci/|/researcher/", re.IGNORECASE))
                 for link in links[:max_count]:
                     href = link.get("href", "")
                     name = link.get_text(strip=True)
@@ -124,8 +126,8 @@ def fetch_researchers_list(base_url: str, max_count: int = 50) -> list[dict]:
                     name = name_el.get_text(strip=True)
                     if not name or len(name) < 5:
                         continue
-                    title_el = card.find(string=re.compile(r"Prof|Doç|Dr\.|Öğr", re.I))
-                    dept_el = card.find(string=re.compile(r"Bölüm|Fakülte|Anabilim", re.I))
+                    title_el = card.find(string=re.compile(r"Prof|Doç|Dr\.|Öğr", re.IGNORECASE))
+                    dept_el = card.find(string=re.compile(r"Bölüm|Fakülte|Anabilim", re.IGNORECASE))
                     profile_link = name_el.get("href") if name_el.name == "a" else card.find("a", href=True)
                     href = profile_link if isinstance(profile_link, str) else (profile_link.get("href") if profile_link else "")
                     researchers.append({
