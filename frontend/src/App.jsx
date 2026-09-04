@@ -121,7 +121,7 @@ export default function App() {
     <div className="min-h-screen flex flex-col">
       {seoEl}
       <header className="sticky top-0 z-30 backdrop-blur-2xl bg-slate-950/40 border-b border-white/5">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        <div className="w-full px-4 md:px-6 xl:px-8 3xl:px-12 py-3 flex items-center justify-between gap-4">
           {/* Logo = Ana Sayfa (nav'da ayrı öğe yok) */}
           <Link to="/anasayfa" className="flex items-center gap-3 group shrink-0">
             <Logo size={40} rounded="rounded-none" />
@@ -225,12 +225,12 @@ export default function App() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-8 relative z-10">
+      <main className="flex-1 w-full px-4 md:px-6 xl:px-8 3xl:px-12 py-8 relative z-10">
         <Outlet />
       </main>
 
       <footer className="border-t border-white/5 py-4 text-center text-xs text-slate-500 relative z-10">
-        <div className="max-w-6xl mx-auto px-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+        <div className="w-full px-4 md:px-6 xl:px-8 3xl:px-12 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
           <span>UniSense</span>
           <span className="text-slate-700">•</span>
           <span className="text-slate-400">YÖK Atlas + Wikipedia</span>

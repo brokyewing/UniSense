@@ -471,7 +471,7 @@ export default function Planim({ embedded = false }) {
           description="Haftalık çalışma planını kur, günlük görevlerini bitir; AI geri kaldığında planı yeniden düzenler. Ücretsiz." path="/planim" noindex />
       )}
       {toast && <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl glass text-sm">{toast}</div>}
-      <div className="max-w-3xl mx-auto space-y-4">
+      <div className="space-y-4">
         {!embedded && H1}
         {body}
       </div>

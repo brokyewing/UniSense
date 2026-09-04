@@ -77,7 +77,7 @@ export default function Notlar({ embedded = false }) {
           description="Yapacaklarını ve aklındakileri not et, tamamladıkça işaretle. Ücretsiz çalışma not defteri." path="/notlar" noindex />
       )}
       {toast && <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl glass text-sm">{toast}</div>}
-      <div className="max-w-3xl mx-auto space-y-5">
+      <div className="space-y-5">
         {!embedded && (
           <div className="text-center">
             <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1 flex items-center justify-center gap-2">

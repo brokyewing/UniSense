@@ -225,7 +225,7 @@ export default function Home() {
           >
             Ne yapabilirim?
           </motion.h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4 gap-4">
             {FEATURES.map((f, i) => (
               <FeatureCard key={i} feat={f} index={i} />
             ))}

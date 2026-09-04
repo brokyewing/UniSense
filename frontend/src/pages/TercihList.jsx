@@ -1232,7 +1232,7 @@ export default function TercihList() {
     <>
       <BackgroundScene />
 
-      <div className="space-y-5 max-w-5xl mx-auto">
+      <div className="space-y-5">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-3xl font-display font-bold text-white flex items-center gap-2">

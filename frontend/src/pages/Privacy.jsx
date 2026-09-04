@@ -107,7 +107,7 @@ export default function Privacy() {
     <>
       <BackgroundScene />
 
-      <div className="space-y-8 max-w-4xl mx-auto">
+      <div className="space-y-8">
         {/* Hero */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}

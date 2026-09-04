@@ -35,7 +35,7 @@ export default function OzetDetay() {
           description={`${kart.ozet} ${kart.ders} ${kart.konu} formülleri.`}
           path={`/ozet/${slug}`} />
       )}
-      <div className="max-w-2xl mx-auto space-y-4">
+      <div className="space-y-4">
         <Link to="/ozetler" className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-amber-300">
           <ArrowLeft size={15} /> Tüm formül özetleri
         </Link>

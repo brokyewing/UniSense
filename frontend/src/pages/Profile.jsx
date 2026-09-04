@@ -43,7 +43,7 @@ export default function Profile() {
     <>
       <BackgroundScene />
 
-      <div className="max-w-3xl mx-auto space-y-5">
+      <div className="space-y-5">
         {/* Hero */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

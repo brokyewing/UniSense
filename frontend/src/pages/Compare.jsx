@@ -191,7 +191,7 @@ export default function Compare() {
     <>
       <BackgroundScene />
 
-      <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="space-y-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}

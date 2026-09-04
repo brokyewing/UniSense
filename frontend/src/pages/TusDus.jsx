@@ -333,7 +333,7 @@ export default function TusDus() {
         description="TUS veya DUS puanını gir, geçen dönem ÖSYM en küçük yerleşme puanlarına göre yerleşebileceğin uzmanlık dallarını ve kurumları güvenli/tutar/riskli olarak gör — ücretsiz, tahminî."
         path="/tus"
       />
-      <div className="max-w-4xl mx-auto space-y-5">
+      <div className="space-y-5">
         <div className="text-center">
           <div className="w-14 h-14 mx-auto mb-2 rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg">
             <Stethoscope size={28} className="text-white" />
