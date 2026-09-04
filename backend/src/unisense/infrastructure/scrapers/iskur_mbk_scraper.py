@@ -24,6 +24,7 @@ import fitz  # PyMuPDF
 import requests
 
 from unisense.core.text import fold_tr
+from ._guard import ScrapeGuardError, check as guard_check
 
 if sys.platform == "win32":
     import io as _io
@@ -191,9 +192,15 @@ def main() -> None:
     matched = _match_groups(professions, groups)
     print(f"🔗 Bölüm grubuyla güvenli eşleşen: {len(matched)}")
 
+    guard_check(OUT, matched, label="İŞKUR meslek rehberleri")
     json.dump(matched, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(f"✅ {OUT}")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except ScrapeGuardError as e:
+        print()
+        print(f"⛔ {e}")
+        sys.exit(1)

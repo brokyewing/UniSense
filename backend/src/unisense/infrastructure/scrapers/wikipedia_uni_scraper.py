@@ -18,6 +18,7 @@ import time
 from pathlib import Path
 
 import requests
+from ._guard import ScrapeGuardError, check as guard_check
 
 if sys.platform == "win32":
     import io as _io
@@ -289,6 +290,7 @@ def main() -> None:
 
     # Final kayıt
     out_file = out_dir / "universities.json"
+    guard_check(out_file, output, label="Wikipedia üniversite metinleri")
     with open(out_file, "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
@@ -301,4 +303,9 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except ScrapeGuardError as e:
+        print()
+        print(f"⛔ {e}")
+        sys.exit(1)

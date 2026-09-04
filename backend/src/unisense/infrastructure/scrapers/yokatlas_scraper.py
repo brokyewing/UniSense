@@ -18,6 +18,7 @@ from pathlib import Path
 
 from yokatlas_py.http_client import HttpClient
 from yokatlas_py.config import Settings
+from ._guard import ScrapeGuardError, check as guard_check
 
 # Encoding fix for Windows console
 if sys.platform == "win32":
@@ -107,22 +108,35 @@ def main() -> None:
 
     # 1. Üniversiteler
     universities = fetch_universities(http)
+    guard_check(out_dir / "universities.json", universities, label="YÖK Atlas üniversiteler")
     with open(out_dir / "universities.json", "w", encoding="utf-8") as f:
         json.dump(universities, f, ensure_ascii=False, indent=2)
 
     # 2. Program grupları
     program_groups = fetch_program_groups(http)
+    guard_check(out_dir / "program_groups.json", program_groups,
+                label="YÖK Atlas bölüm grupları")
     with open(out_dir / "program_groups.json", "w", encoding="utf-8") as f:
         json.dump(program_groups, f, ensure_ascii=False, indent=2)
 
     # 3. Tüm programlar
+    # Ara kayıtlar .partial dosyasına gider: çökme durumunda ilerleme kaybolmasın
+    # ama YARIM veri asıl dosyayı EZMESİN. Asıl dosya döngü bittikten sonra,
+    # bekçiden geçerek tek seferde yazılır. (Eskiden her turda asıl dosyaya
+    # yazılıyordu; ilk tur ~5.7k program ile 12.2k'lık dosyayı eziyordu.)
+    programs_path = out_dir / "programs_2025.json"
+    partial_path = out_dir / "programs_2025.partial.json"
     all_programs: list[dict] = []
     for st in SCORE_TYPES:
         progs = fetch_score_type(http, st)
         all_programs.extend(progs)
-        # Ara kayıt
-        with open(out_dir / "programs_2025.json", "w", encoding="utf-8") as f:
+        with open(partial_path, "w", encoding="utf-8") as f:
             json.dump(all_programs, f, ensure_ascii=False, indent=2)
+
+    guard_check(programs_path, all_programs, label="YÖK Atlas programlar")
+    with open(programs_path, "w", encoding="utf-8") as f:
+        json.dump(all_programs, f, ensure_ascii=False, indent=2)
+    partial_path.unlink(missing_ok=True)
 
     elapsed = time.time() - start
     print("\n" + "=" * 60)
@@ -134,4 +148,9 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except ScrapeGuardError as e:
+        print()
+        print(f"⛔ {e}")
+        sys.exit(1)
