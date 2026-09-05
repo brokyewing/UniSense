@@ -447,6 +447,49 @@ tam yapılır (istekler arası ≥250 ms bekleyerek; ölçümde bu hızda sorun 
 
 ---
 
+## 12. Yedinci tur — iki kaynak elendi
+
+### 12.1 🚨 kodilan.com ARTIK İŞ SİTESİ DEĞİL — listeden çıkarılmalı
+
+`PLAN_KARIYER.md` Hat B listesinde geçiyor. **Alan adı el değiştirmiş.**
+
+- `kodilan.com/rss` gerçek bir RSS döndürüyor (`application/rss+xml`) ama içi
+  WordPress'in varsayılan **"Hello world!"** yazısı; `guid`
+  `beta.strixdevelopment.net/winindia`'yı gösteriyor.
+- Ana sayfa başlığı: **"Download & Play BDG Game/BDG Win to Earn Real Money"**
+
+→ **KULLANILMAYACAK.** Kullanıcıyı buraya yönlendirmek zararlı olur.
+`PLAN_KARIYER.md`'de işaretlendi.
+
+**Ders:** bir kaynağın RSS'i geçerli olması içeriğinin de geçerli olduğu
+anlamına gelmiyor. Eski kaynak listeleri kullanılmadan önce **içerik
+doğrulamasından** geçmeli.
+
+### 12.2 TÜBİTAK Kariyer — ilan yok, statik tanıtım sayfası
+
+`kariyer.tubitak.gov.tr` tarayıcıyla açıldı; ağ trafiğinde **tek bir API
+çağrısı yok** — yalnız görseller, video ve enstitü ikonları (BİLGEM, MAM,
+SAGE, ULAKBİM, UZAY, RUTE, UME…). Tüm yollar (`/ilanlar`, `/is-ilanlari`,
+`/acik-pozisyonlar`) aynı 22.602 baytı döndürüyor (soft-404).
+
+→ Bu bir **tanıtım sitesi**, ilan kaynağı değil. TÜBİTAK ilanları toplayıcılarda
+(K1/K2) aranmalı. F3.6'da TÜBİTAK için ayrı adaptör beklentisi **düşürülmeli**.
+
+### 12.3 Diğer Türk iş siteleri — besleme yok
+
+| Site | /rss | /feed | Sonuç |
+|---|---|---|---|
+| techcareer.net | 404 | 404 | besleme yok (dürüst 404) |
+| youthall.com | 404 | — | besleme yok |
+| yenibiris.com | 404 | — | besleme yok |
+| eleman.net | 404 | — | besleme yok |
+| kodilan.com | 200 | 200 | ⚠️ geçerli RSS ama site artık iş sitesi değil (§12.1) |
+
+→ Bu sitelerde kolay yol yok; §3.2'deki robots kısıtlarıyla birlikte
+değerlendirilecek (F4.5/F4.6).
+
+---
+
 **Sıradaki keşif turları** (henüz yapılmadı):
 
 - [ ] Faal 302 OSB'nin en yoğun 8-10 ildeki sitelerinde ilan sayfası örneklemi

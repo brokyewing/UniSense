@@ -120,7 +120,7 @@ Site-sorgu deseni (`site:` + WebSearch, herkese açık ATS API'si yok — `porta
 - kariyer.net (Backend açık / Frontend kapalı), yenibiris.com, secretcv.com,
   isinolsun.com, eleman.net, tr.indeed.com (Backend + AI/ML), careerjet.com.tr
   (`provider: careerjet`, `locale tr_TR` — `portals.yml:2126`), techcareer.net
-  (Backend + AI/Python), kodilan.com, youthall.com + toptalent.co (yeni mezun),
+  (Backend + AI/Python), ~~kodilan.com~~ (⚠️ ARTIK İŞ SİTESİ DEĞİL — alan adı el değiştirmiş, kumar/oyun sitesi; bkz. KAYNAK_HARITASI §12.1), youthall.com + toptalent.co (yeni mezun),
   LinkedIn Turkey (genel + junior sorguları + Apify actor girdisi).
 - Konum filtresi Türkiye-öncelikli (`location_filter`, 2026-09-02 notu);
   TR pazar notları (net maaş, yemek kartı, deneme süresi 2 ay) `portals.yml:1627-1633`.
