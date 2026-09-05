@@ -637,6 +637,7 @@ class KariyerMetaResponse(BaseModel):
     kaynak_sayisi: int = 0
     son_tarih: str = ""
     rehber_kaynak: int = 0
+    son_kosu: dict = {}
 
 
 class KariyerBolum(BaseModel):

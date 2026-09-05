@@ -336,3 +336,18 @@ class TestDefter:
                      encoding="utf-8")
         with pytest.raises(ValueError):
             yukle(p)
+
+
+class TestKosuRaporu:
+    def test_kaynak_bazinda_sayim(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import _kosu_raporu
+        yeni = [
+            {"id": "jooble:1", "kaynak": "Jooble"},
+            {"id": "jooble:2", "kaynak": "Jooble"},
+            {"id": "kamuilan:9", "kaynak": "kamuilan.sbb.gov.tr"},
+        ]
+        r = _kosu_raporu(yeni, {"jooble:1"}, {"rg": "SSLError"}, "2026-09-05")
+        assert r["tarih"] == "2026-09-05"
+        assert r["kaynaklar"]["jooble"] == {"cekilen": 2, "yeni": 1, "hata": ""}
+        assert r["kaynaklar"]["kamuilan"] == {"cekilen": 1, "yeni": 1, "hata": ""}
+        assert r["kaynaklar"]["rg"]["hata"].startswith("SSLError")
