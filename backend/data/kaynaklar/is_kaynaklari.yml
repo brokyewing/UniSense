@@ -21,6 +21,14 @@ kaynaklar:
     aktif: true
     not: WebForms postback (boş arama) + timeline parse; güncel kamu ilanları.
 
+  - kod: kariyerkapisi
+    ad: Kariyer Kapısı
+    hat: kamu
+    url: https://kariyerkapisi.gov.tr/RSS
+    erisim: rss
+    aktif: true
+    not: Girişsiz RSS (33 ilan); category → istihdam, "KURUM - başlık" → kurum.
+
   - kod: jooble
     ad: Jooble
     hat: ozel
