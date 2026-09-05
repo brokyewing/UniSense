@@ -29,6 +29,14 @@ kaynaklar:
     aktif: true
     not: Girişsiz RSS (33 ilan); category → istihdam, "KURUM - başlık" → kurum.
 
+  - kod: akademiktr
+    ad: AkademikTR
+    hat: kamu
+    url: https://akademiktr.com/ilan
+    erisim: html
+    aktif: true
+    not: Akademik kadro toplayıcısı (ilan.yok.gov.tr ölü); kategori + detay SSR.
+
   - kod: jooble
     ad: Jooble
     hat: ozel

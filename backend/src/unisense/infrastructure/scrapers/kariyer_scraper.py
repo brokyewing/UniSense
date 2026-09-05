@@ -217,7 +217,13 @@ def scrape() -> tuple[list[dict], dict[str, str]]:
         print(f"  ⚠️ kariyerkapisi düştü: {type(e).__name__}: {e}")
         hatalar["kariyerkapisi"] = f"{type(e).__name__}: {e}"
         kk = []
-    return rg + hatb + kam + kk, hatalar
+    try:
+        ak = _scrape_akademiktr(session)
+    except Exception as e:  # noqa: BLE001
+        print(f"  ⚠️ akademiktr düştü: {type(e).__name__}: {e}")
+        hatalar["akademiktr"] = f"{type(e).__name__}: {e}"
+        ak = []
+    return rg + hatb + kam + kk + ak, hatalar
 
 
 # === Hat B: Jooble + Careerjet (API anahtarlı) ===
@@ -415,7 +421,8 @@ def _scrape_hatb(session: requests.Session) -> list[dict]:
 # "kaynak:anahtar" — eski "kaynak-anahtar" id'ler _migrate'te deterministik
 # çevrilir (süreklilik korunur, ilk_gorulme sıfırlanmaz).
 KAYNAK_KOD = {"Jooble": "jooble", "Careerjet": "careerjet", "Resmî Gazete": "rg",
-              "kamuilan.sbb.gov.tr": "kamuilan", "Kariyer Kapısı": "kariyerkapisi"}
+              "kamuilan.sbb.gov.tr": "kamuilan", "Kariyer Kapısı": "kariyerkapisi",
+              "AkademikTR": "akademiktr"}
 
 V2_BILINMIYOR = "bilinmiyor"
 
@@ -727,6 +734,88 @@ def _scrape_kariyerkapisi(session: requests.Session) -> list[dict]:
             "maas": None,
         })
     print(f"  kariyerkapisi: {len(kayitlar)} ilan")
+    return kayitlar
+
+
+# === Hat A8: akademiktr.com (akademik kadro; ilan.yok.gov.tr ölü) ===
+# ilan.yok.gov.tr çözülmüyor (DNS yok). Yerine özel toplayıcı: kategori
+# sayfaları SSR, detay linkleri (/ilan/<slug>-alim-ilani-N) + detayda tarih.
+AKADEMIKTR_KATEGORILER = [
+    "arastirma-gorevlisi", "ogretim-gorevlisi", "dr-ogretim-uyesi",
+    "docent", "profesor",
+]
+AKADEMIKTR_URL = "https://akademiktr.com"
+AKADEMIKTR_DETAY_TAVAN = 300  # koşu başına detay üst sınırı (kibarlık)
+
+
+def _akademiktr_parse_liste(html: str) -> list[str]:
+    linkler = []
+    for m in re.finditer(r'href="(/ilan/[^"]+?-alim-ilani-\d+)"', html):
+        if m.group(1) not in linkler:
+            linkler.append(m.group(1))
+    return linkler
+
+
+def _akademiktr_parse_detay(html: str) -> dict:
+    def ilk(desene: str) -> str:
+        m = re.search(desene, html, re.S)
+        return re.sub(r"\s+", " ", m.group(1)).strip() if m else ""
+    baslik = ilk(r'<h1 class="detail-title-new">(.*?)</h1>')
+    tarihler = re.findall(r"(\d{2})\.(\d{2})\.(\d{4})", html)
+    iso = sorted({f"{y}-{m}-{d}" for d, m, y in tarihler})
+    return {"baslik": baslik, "tarihler": iso}
+
+
+def _scrape_akademiktr(session: requests.Session) -> list[dict]:
+    kayitlar: list[dict] = []
+    bugun = date.today().isoformat()
+    gorulen: set[str] = set()
+    for kat in AKADEMIKTR_KATEGORILER:
+        try:
+            h = session.get(f"{AKADEMIKTR_URL}/ilan/{kat}", timeout=REQUEST_TIMEOUT).text
+        except Exception as e:  # noqa: BLE001
+            print(f"  ⚠️ akademiktr/{kat}: {type(e).__name__}")
+            continue
+        for link in _akademiktr_parse_liste(h):
+            if link in gorulen or len(kayitlar) >= AKADEMIKTR_DETAY_TAVAN:
+                continue
+            gorulen.add(link)
+            try:
+                d = session.get(AKADEMIKTR_URL + link, timeout=REQUEST_TIMEOUT).text
+                time.sleep(KIBAR_BEKELEME)
+            except Exception as e:  # noqa: BLE001
+                print(f"  ⚠️ akademiktr detay: {type(e).__name__}")
+                continue
+            p = _akademiktr_parse_detay(d)
+            if not p["baslik"]:
+                continue
+            uni = p["baslik"].split(" Öğretim")[0].split(" Araştırma")[0].strip()
+            metin = fold_tr(p["baslik"])
+            kayitlar.append({
+                "id": f"akademiktr:{hashlib.sha1(link.encode()).hexdigest()[:16]}",
+                "hat": "kamu",
+                "kaynak": "AkademikTR",
+                "kaynak_kod": "akademiktr",
+                "baslik": p["baslik"],
+                "kurum": uni,
+                "il": "",
+                "ilce": "",
+                "bolge": "Bilinmiyor",
+                "tarih": p["tarihler"][0] if p["tarihler"] else "",
+                "son_basvuru": p["tarihler"][-1] if len(p["tarihler"]) > 1 else None,
+                "url": AKADEMIKTR_URL + link,
+                "ozet": f"{kat} — {p['baslik']}"[:300],
+                "detay": {"kategori": kat},
+                "ilk_gorulme": bugun,
+                "bolumler": _bolum_etiketle(metin),
+                "calisma_sekli": _calisma_sekli(metin),
+                "istihdam_turu": V2_BILINMIYOR,
+                "deneyim": V2_BILINMIYOR,
+                "pozisyon_etiket": [],
+                "kpss": None,
+                "maas": None,
+            })
+    print(f"  akademiktr: {len(kayitlar)} ilan")
     return kayitlar
 
 

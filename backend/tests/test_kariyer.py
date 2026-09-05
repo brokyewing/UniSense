@@ -312,7 +312,8 @@ class TestDefter:
         from unisense.infrastructure.scrapers.kariyer_registry import yukle
         girdiler = yukle()
         kodlar = {g["kod"] for g in girdiler if g.get("aktif")}
-        assert {"rg", "jooble", "careerjet", "kamuilan", "kariyerkapisi"} <= kodlar
+        assert {"rg", "jooble", "careerjet", "kamuilan", "kariyerkapisi",
+                "akademiktr"} <= kodlar
 
     def test_davranis_paritesi(self):
         # Defter değerleri eski gömülü sabitlerle aynı olmalı
@@ -433,4 +434,23 @@ class TestKariyerKapisi:
         from unisense.infrastructure.scrapers.kariyer_scraper import _kk_istihdam
         assert _kk_istihdam("Sözleşmeli Personel İlanları") == "sozlesmeli"
         assert _kk_istihdam("A Grubu Memur (Kariyer Meslek)") == "bilinmiyor"
+
+
+class TestAkademiktr:
+    LISTE = ('<a href="/ilan/ege-universitesi-ogretim-elemani-alim-ilani-1">x</a>'
+             '<a href="/ilan/ege-universitesi-ogretim-elemani-alim-ilani-1">x</a>'
+             '<a href="/ilan/istanbul">yön</a>')
+    DETAY = ('<h1 class="detail-title-new">Ege Üniversitesi Öğretim Elemanı Alım İlanı</h1>'
+             '<span>01.09.2026</span><span>16.09.2026</span>')
+
+    def test_liste_parse(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import _akademiktr_parse_liste
+        out = _akademiktr_parse_liste(self.LISTE)
+        assert out == ["/ilan/ege-universitesi-ogretim-elemani-alim-ilani-1"]
+
+    def test_detay_parse(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import _akademiktr_parse_detay
+        p = _akademiktr_parse_detay(self.DETAY)
+        assert p["baslik"].startswith("Ege Üniversitesi")
+        assert p["tarihler"] == ["2026-09-01", "2026-09-16"]
 
