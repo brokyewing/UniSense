@@ -270,9 +270,17 @@ Bulunan slug'lar Lever API'sinde doğrulandı.
 | Trendyol | Lever | `trendyol` | **27** | İstanbul/Maslak 13, Bükreş 4, Kocaeli/Gebze 2, Riyad 1 |
 | Peak Games | Lever | `peakgames` | **20** | ⚠️ konum alanı bozuk (aşağı bak) |
 | Dream Games | Lever | `dreamgames` | **19** | İstanbul 18, Londra 1 |
+| **Midas** | Lever | **`getmidas`** | **13** | İstanbul 11, Türkiye 2 |
 | iyzico | Lever | `iyzico` | **12** | İstanbul 12 |
+| **Insider One** | Lever | **`insiderone`** | **117** | ⚠️ küresel pano: São Paulo 26, Londra 10, **İstanbul 10** |
+| Codeway | Lever | `codeway` | **0** | slug geçerli ama şu an ilan yok — kayıt defterinde kalsın |
 
-Tek adaptörle **78 gerçek ilan**. Uç nokta:
+**Türkiye ile ilgili toplam ≈ 101 ilan** (91 + insiderone'un İstanbul'daki ~10'u).
+
+⚠️ **Slug'lar tahmin edilebilir DEĞİL:** Midas → `getmidas`, Peak → `peakgames`,
+Insider One → `insiderone`. Hiçbiri şirket adının kendisi değil.
+
+Uç nokta:
 `https://api.lever.co/v0/postings/<slug>?mode=json` — kimlik doğrulama yok.
 
 ⚠️ **Yabancı konumlar var** (Bükreş, Riyad, Londra). Bu, `il_to_bolge()` ile
@@ -290,6 +298,19 @@ ya elenmeli ya da `il/bolge = null` ile işaretlenmeli — sessizce
 iline çözülmüyorsa **konum olarak KABUL ETME**; `workplaceType`/`country`'ye
 düş, o da yoksa `il=null, bolge="Bilinmiyor"` yaz. Aynı doğrulama yabancı
 konumları (Bükreş, Riyad, Londra) da eler.
+
+#### ⚠️ Arama sonuçları BAYAT olabilir — eklemeden önce doğrula
+
+Arama, `jobs.lever.co/papara/...`, `/useinsider/...`, `/colendi/...` gibi
+gerçek görünen ilan URL'leri döndürdü. **Üçü de artık 404** — hem arayüz
+panosu hem API. Yani panolar kapanmış, arama indeksi eski.
+
+Kontrol edildi: **UI ve API durumu birebir aynı** (papara/useinsider/colendi
+ikisinde de 404; codeway/getmidas/trendyol ikisinde de 200). Yani "arayüz var
+ama API kapalı" diye bir durum yok — tek kontrol yeterli.
+
+→ **Kural:** aramadan gelen her slug, kayıt defterine girmeden önce API'de
+doğrulanacak. Kayıt defterine `son_dogrulama` tarihi yazılsın; panolar kapanıyor.
 
 #### Slug varyantları — tahmin neden çalışmıyor
 

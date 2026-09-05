@@ -28,6 +28,7 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 12:49 | opencode | F2.1: kaynak bazli kosu raporu + adaptor hata toleransi (canli 4 satir); a912594 pushlandi. Siradaki: F2.2 olu-kaynak alarmi.
 2026-09-05 13:09 | opencode | F2.2: olu-kaynak alarmi (10 kosu gecmis, Step Summary; kirmiziya dusurmez karari); 7660aea pushlandi. Siradaki: F2.3 tekillestirme.
 2026-09-05 14:16 | opencode | F2.3: capraz kaynak tekillestirme (kamu kazanir, canli 17 birlesme); da93be9 pushlandi. F2 tamam. Siradaki: F3.1 KK RSS.
+2026-09-05 14:34 | opencode | F3.1: Kariyer Kapisi RSS adaptoru (girissiz, canli 33/30 ilan); 74bd5ea pushlandi. Siradaki: F3.3 ilan.yok.
 2026-09-04 23:55 | Claude Code | KPSS veri kaybi geri alindi + bos-sonuc bekcisi, CI pin bypass i duzeltildi (CI artik yesil), tusdus sessiz basarisi giderildi; OSYM URL kesfi engelli.
 2026-09-05 01:40 | Claude Code | OSYM yeni URL semasi cozuldu (chunked-hang toleransli fetch + Duyurular/Index kesfi); KPSS 2026/1, TUS ve DUS 2026 verileri geldi; CI yesil.
 2026-09-05 02:20 | Claude Code | CI kor noktasi kapatildi (haftalik schedule); LGS ve Yearly YKS dispatch ile yesil kosup 2026 verisini commitledi.
@@ -49,3 +50,4 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 12:45 | Claude Code | ilan.gov.tr COZULDU: sorun oturum degil gecersiz sorting degeriymis (API sessizce 0 donuyor). sorting=id desc, sayfa tavani 20, 25.061 ilan, cityCounts 81 il; personel alimi orani %10,5 (~2.600 ilan).
 2026-09-05 13:15 | Claude Code | 7. tur: kodilan.com artik is sitesi degil (alan adi el degistirmis, kumar sitesi) -> listeden cikarildi; TUBITAK kariyer statik tanitim sayfasi, ilan yok; techcareer/youthall/yenibiris/eleman.net beslemesi yok.
 2026-09-05 13:40 | Claude Code | SAHIPLIK.md yazildi (dosya sahipligi + cakisma onleme protokolu); PLAN_KARIYER.mddeki iki yanlis iddia duzeltildi (ATS APIsi yok / tek TR ATS Getir).
+2026-09-05 14:05 | Claude Code | ATS haritasi: getmidas 13, insiderone 117 (kuresel, Istanbul 10), codeway 0 eklendi -> TR ilgili ~101 ilan. papara/useinsider/colendi arama sonucunda vardi ama 404 (bayat indeks) -> "aramadan geleni API de dogrula" kurali yazildi.
