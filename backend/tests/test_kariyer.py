@@ -219,7 +219,9 @@ class TestSemaV2:
                      "istihdam_turu", "deneyim", "pozisyon_etiket", "kpss",
                      "maas", "son_basvuru"):
             assert alan in k, alan
-        assert k["il"] == "İstanbul" and k["bolge"] == "Marmara"
+        # il artık KANONİK (şema v2: "BÜYÜK, TR normalize"); 355 farklı
+        # değer 65 ile indi, İstanbul'un ~95 varyantı tek değerde toplandı.
+        assert k["il"] == "İSTANBUL" and k["bolge"] == "Marmara"
         assert k["calisma_sekli"] == "bilinmiyor" and k["kpss"] is None
         assert len(k["ozet"]) == 300
         assert k["ilk_gorulme"] == "2026-09-01"  # korunur
@@ -659,4 +661,14 @@ class TestAts:
         assert _ats_kayit(kaynak_id="x", kaynak_ad="L", sirket="S", baslik="",
                           sehir="", tarih="", url="http://e.c", ozet="",
                           workplace=None, bugun="d") is None
+
+
+class TestRobotsKontrol:
+    def test_kararlar_yuklenir(self):
+        from unisense.infrastructure.scrapers.kariyer_registry import robots_kontrol
+        d = {e["pano"]: e for e in robots_kontrol()}
+        assert d["tr.indeed.com"]["erisim"] == "robots_yasak"
+        assert d["kariyer.net"]["erisim"] == "kismi"
+        assert d["yenibiris.com"]["erisim"] == "bot_duvari"
+        assert len(d) >= 6
 

@@ -81,6 +81,22 @@ def _bolge_indeksi() -> dict[str, str]:
 
 _BOLGE_INDEX: dict[str, str] = _bolge_indeksi()
 
+# Katlanmış ad → REGIONS'taki KANONİK yazım. Çıkarım fonksiyonları eşleşen ham
+# metni değil bunu döndürür; yoksa "İSTANBUL" ve "İstanbul" ayrı il sayılıyordu
+# (ölçüm 2026-09-05: 355 ham değer → 102 il; kanonikleştirmeyle 81'e iner).
+_KANONIK_IL: dict[str, str] = {
+    _katla(city): city
+    for cities in REGIONS.values()
+    for city in cities
+}
+
+
+def kanonik_il(ad: str | None) -> str | None:
+    """İl adını REGIONS'taki tek yazıma çevir. Tanınmıyorsa None."""
+    if not ad:
+        return None
+    return _KANONIK_IL.get(_katla(ad))
+
 
 # Kurum adından il çıkarımı için bilinen istisnalar: adında il geçmeyen ama
 # ili belli kurumlar. Ölçüm (2026-09-05): ili boş 128 kayıttan 64'ü kurum
@@ -131,8 +147,8 @@ def metinden_il_bul(metin: str | None) -> str | None:
     # Kelime bazlı: 2 harften uzun kelimeler, il adıyla birebir eşleşme.
     # Önek eşleme YAPILMAZ — "VAN" birçok kelimeyi yanlış eşleştirirdi.
     for kelime in re.split(r"[\s,/|()\-]+", metin):
-        if len(kelime) > 2 and _katla(kelime) in _BOLGE_INDEX:
-            return kelime
+        if len(kelime) > 2 and _katla(kelime) in _KANONIK_IL:
+            return _KANONIK_IL[_katla(kelime)]
     return None
 
 
@@ -182,10 +198,14 @@ def il_ilce_ayikla(konum: str | None) -> tuple[str | None, str | None, str]:
     if il is None:
         return None, None, "Bilinmiyor"
 
+    # İlçe, EŞLEŞEN HAM parçadan hesaplanır; kanonikleştirme en sonda yapılır.
+    # (Önce kanonikleştirilirse `p is not il` kimlik karşılaştırması tutmaz ve
+    #  "Ankara, Çankaya" için ilçe yanlışlıkla "Ankara" olur.)
     if not kelimeden:
         kalan = [p for p in parcalar if p is not il]
         ilce = kalan[0] if kalan else None
-    return il, ilce, _BOLGE_INDEX.get(_katla(il), "Bilinmiyor")
+    kanonik = _KANONIK_IL.get(_katla(il), il)
+    return kanonik, ilce, _BOLGE_INDEX.get(_katla(kanonik), "Bilinmiyor")
 
 
 def il_to_bolge(il_adi: str | None) -> str:
