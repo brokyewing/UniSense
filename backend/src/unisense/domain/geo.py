@@ -4,6 +4,8 @@ Sahil/metropol/merkez ilçe metadatası `data/raw/turkey_geo.json` dosyasından 
 """
 from __future__ import annotations
 
+import re
+
 import json
 from functools import lru_cache
 from pathlib import Path
@@ -79,6 +81,58 @@ def _bolge_indeksi() -> dict[str, str]:
 
 
 _BOLGE_INDEX: dict[str, str] = _bolge_indeksi()
+
+
+def il_ilce_ayikla(konum: str | None) -> tuple[str | None, str | None, str]:
+    """Serbest konum metninden (il, ilce, bolge) çıkar.
+
+    İş ilanı kaynakları konumu tek alanda ve **tutarsız sırada** veriyor:
+      Jooble    -> "Ankara, Çankaya"   (il, ilçe)
+      Careerjet -> "Konak, İzmir"      (ilçe, il)
+    Bu yüzden sıraya güvenilmez; hangi parçanın 81 ilden biri olduğuna bakılır.
+
+    Ölçüm (2026-09-05, 487 kayıt): birleşik alan doğrudan `il_to_bolge`'ye
+    verildiğinde 336 kayıtta bölge "Bilinmiyor" kalıyordu (%69).
+
+    Dönüş: il bulunamazsa (None, None, "Bilinmiyor"); ilçe yoksa ilce None.
+    """
+    if not konum:
+        return None, None, "Bilinmiyor"
+
+    parcalar = [p.strip() for p in re.split(r"[,/|]", konum) if p.strip()]
+    if not parcalar:
+        return None, None, "Bilinmiyor"
+
+    il = ilce = None
+    # 1) Parçanın tamamı bir il mi? ("Ankara", "İzmir")
+    for parca in parcalar:
+        if _katla(parca) in _BOLGE_INDEX:
+            il = parca
+            break
+    # 2) Değilse parça içindeki KELİMELERDEN biri il mi?
+    #    "İstanbul Avrupa" / "İstanbul Anadolu Yakası" gibi yakalar (66 kayıt).
+    #    Kelime bazlı; önek eşleme yapılmaz, yoksa "Van" birçok kelimeyi yanlış
+    #    eşleştirirdi.
+    kelimeden = False
+    if il is None:
+        for parca in parcalar:
+            for kelime in parca.split():
+                if _katla(kelime) in _BOLGE_INDEX:
+                    il, kelimeden = kelime, True
+                    # İl kelimesi çıkarılınca kalan varsa o ilçe/yaka etiketidir:
+                    # "İstanbul Avrupa" -> ilçe "Avrupa" (tüm metin DEĞİL).
+                    artik = " ".join(k for k in parca.split() if k != kelime).strip()
+                    ilce = artik or None
+                    break
+            if il:
+                break
+    if il is None:
+        return None, None, "Bilinmiyor"
+
+    if not kelimeden:
+        kalan = [p for p in parcalar if p is not il]
+        ilce = kalan[0] if kalan else None
+    return il, ilce, il_to_bolge(il)
 
 
 def il_to_bolge(il_adi: str | None) -> str:

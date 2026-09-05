@@ -47,3 +47,44 @@ def test_yedi_cografi_bolge_mevcut():
         "Karadeniz", "Doğu Anadolu", "Güneydoğu Anadolu",
     }
     assert yedi <= set(REGIONS), f"eksik bölge: {yedi - set(REGIONS)}"
+
+
+class TestIlIlceAyikla:
+    """Serbest konum metninden (il, ilce, bolge) çıkarımı.
+
+    İş ilanı kaynakları konumu tek alanda ve TUTARSIZ SIRADA veriyor:
+    Jooble "Ankara, Çankaya" (il, ilçe) — Careerjet "Konak, İzmir" (ilçe, il).
+    Ölçüm (2026-09-05, 486 kayıt): birleşik alan doğrudan il_to_bolge'ye
+    verildiğinde yalnız 147 kayıt çözülüyordu; bu ayıklayıcıyla 460.
+    """
+
+    @pytest.mark.parametrize(
+        ("konum", "beklenen"),
+        [
+            ("Ankara, Çankaya", ("Ankara", "Çankaya", "İç Anadolu")),
+            ("Konak, İzmir", ("İzmir", "Konak", "Ege")),          # ters sıra
+            ("Şişli / İstanbul", ("İstanbul", "Şişli", "Marmara")),  # eğik çizgi
+            ("İstanbul", ("İstanbul", None, "Marmara")),          # yalnız il
+            ("İstanbul Avrupa", ("İstanbul", "Avrupa", "Marmara")),  # yaka etiketi
+            ("İstanbul Anadolu Yakası", ("İstanbul", "Anadolu Yakası", "Marmara")),
+        ],
+    )
+    def test_cozulen_konumlar(self, konum, beklenen):
+        from unisense.domain.geo import il_ilce_ayikla
+
+        assert il_ilce_ayikla(konum) == beklenen
+
+    @pytest.mark.parametrize(
+        "konum",
+        [None, "", "Türkiye", "Remote", "Tuzla, İçmeler"],  # il geçmiyor
+    )
+    def test_il_yoksa_bilinmiyor(self, konum):
+        from unisense.domain.geo import il_ilce_ayikla
+
+        assert il_ilce_ayikla(konum) == (None, None, "Bilinmiyor")
+
+    def test_ilce_alanina_il_adi_tekrarlanmaz(self):
+        from unisense.domain.geo import il_ilce_ayikla
+
+        _, ilce, _ = il_ilce_ayikla("İstanbul Avrupa")
+        assert ilce == "Avrupa", "ilçe alanına tüm metin yazılmamalı"
