@@ -232,15 +232,15 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
 > sayısının arkasında kilitlemek yanlıştı. Önce çalışan bir ürün, sonra kaynak
 > genişletme.
 
-- [ ] **F1.1** `GET /api/v1/kariyer/ilanlar` filtreleri: `hat, il, bolge, ilce,
-      calisma_sekli, istihdam_turu, deneyim, kpss, q, sayfa, boyut`.
-      Mevcut yol ve alanlar korunur, yalnız parametre eklenir.
+- [x] **F1.1** `GET /api/v1/kariyer/ilanlar` filtreleri (opencode, 2026-09-05,
+      2c99e58): `hat, il, bolge, ilce, calisma_sekli, istihdam_turu, deneyim,
+      kpss, q, sayfa, boyut` + legacy `limit`.
       *Bitti:* her filtre canlı veride doğru sayı döndürüyor, mevcut çağrılar
       bozulmadı, testli.
-- [ ] **F1.2** `GET /api/v1/kariyer/filtreler` — mevcut değerler + sayıları
-      (facet). Frontend filtre panelini bu besler; boş seçenek gösterilmesin.
+- [x] **F1.2** `GET /api/v1/kariyer/filtreler` (opencode, 2026-09-05, 2c99e58).
       *Bitti:* bölge/il/çalışma şekli facet'leri gerçek sayılarla dönüyor.
-- [ ] **F1.3** Sıralama: `tarih desc` (varsayılan), `son_basvuru asc`.
+- [x] **F1.3** Sıralama (opencode, 2026-09-05, 2c99e58): `tarih desc`
+      (varsayılan), `son_basvuru asc` (tarihsizler sonda).
 - [ ] **F1.4** Filtre paneli: bölge → il → ilçe kademeli seçim; çalışma şekli
       çoklu seçim; istihdam türü; deneyim; KPSS var/yok anahtarı.
 - [ ] **F1.5** Arama kutusu (başlık + kurum); filtre durumu URL'ye yansısın
@@ -281,8 +281,12 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
       postback'i + `ul#nav2` timeline parse (kurum, başlık, tarih, son_basvuru,
       bölüm etiketleri). *Bitti:* canlı 76 ilan (68'i pencerede), v2 şemalı,
       testli (34 kariyer testi).
-- [ ] **F3.3** ilan.yok.gov.tr (A8) — akademik kadro. **Not:** bu hostname
-      8.8.8.8'de de çözülmedi; doğru adres önce teyit edilmeli.
+- [x] **F3.3** ~~ilan.yok.gov.tr (A8) — akademik kadro~~ **İPTAL
+      (Claude Code, 2026-09-05).** Öyle bir adres yok. Akademik kadro zaten
+      BİK'te: kategori `73` (akademik-personel-alimlari) ve `8`
+      (kamu-akademik-personel). Sağlık alımları da aynı şekilde toplayıcıda.
+      → K1 adaptörü (F3.4) bu kategorileri de çekince kapsanır; ayrı adaptör
+      gereksiz. Ayrıntı: `KAYNAK_HARITASI.md` §6.1-6.2.
 - [ ] **F3.4** `ilangovtr` adaptörü — §3.1'deki oturum şartını çöz. Çözülemezse
       `[!]` yaz, §3 madde 4 (sunucu-tarafı HTML) alternatifini dene, geç.
 - [ ] **F3.5** Vizyoner Genç (A9) — SPA; API'si ağ sekmesiyle bulunacak.

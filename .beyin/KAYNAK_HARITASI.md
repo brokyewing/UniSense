@@ -103,9 +103,73 @@ Burada **birleştirme yok**: şema eşleme, tekilleştirme, kayıt defterine gir
 ve adaptör kodu opencode'un işi (yol haritası F2.3, F3, F4). Bu dosya yalnız
 "hangi kapı açık, hangisi kapalı, kanıtı ne" sorusunu cevaplar.
 
+---
+
+## 6. İkinci keşif turu — sonuçlar (2026-09-05)
+
+Dört açık soru da kapandı. Üçü toplayıcı-önce tezini güçlendirdi.
+
+### 6.1 Akademik kadro — ayrı adaptör GEREKMİYOR ✅
+
+`ilan.yok.gov.tr` diye bir adres **yok** (benim uydurmamdı; 8.8.8.8 de çözmedi).
+Akademik ilanlar zaten BİK'te, kendi kategorisinde:
+
+- `https://www.ilan.gov.tr/ilan/kategori/73/akademik-personel-alimlari`
+- `https://www.ilan.gov.tr/ilan/kategori/8/kamu-akademik-personel`
+
+**Tespit edilen BİK kategori kimlikleri** (adaptör için): `2` personel-alimi,
+`8` kamu-akademik-personel, `73` akademik-personel-alimlari. Liste sayfasında
+ayrıca `ats=5` = PERSONEL ALIMI süzgeci.
+→ Yol haritası F3.3'teki "ilan.yok.gov.tr" görevi **iptal**; K1 adaptörü
+kategori 73/8'i de çekince akademik kadro kapsanır.
+
+### 6.2 Sağlık alımları — ayrı adaptör GEREKMİYOR ✅
+
+Sağlık Bakanlığı'nın 15.342 sözleşmeli + 3.658 sürekli işçi alımı hem
+`ilan.gov.tr`'de (`/ilan/1761908/kamu-akademik-personel-...`) hem
+`kariyerkapisi.gov.tr/IlanDetay?i=...`'da yayımlanmış. İl bazlı kadrolar da
+aynı ilan içinde.
+
+⚠️ **Nüans:** *sürekli işçi* başvuruları **İŞKUR üzerinden** alınıyor ve İŞKUR
+WAF'lı. Ama **ilan** her iki toplayıcıda görünüyor → biz ilanı listeleriz,
+başvuru için kaynağa yönlendiririz (§1 kuralı). Kapsama kaybı yok.
+
+### 6.3 OSB haritası — il bazlı sanayi işvereni iskeleti ✅
+
+`https://www.osbuk.org/view/sayilarlaosb/osbliste.php` — 346 KB, sunucu-tarafı
+HTML tablo, **418 OSB**. Sütunlar: `sıra | İL | OSB adı | tür | durum`.
+
+- İl sütunu **418/418** `geo.il_to_bolge()` ile çözülüyor — temiz veri.
+- Durum dağılımı: **302 İŞLETMEDE (FAALİYETTE)**, 46 planlama, 42 altyapı,
+  28 kamulaştırma.
+- Faal 302 OSB **78/81 ilde**, yedi bölgenin hepsinde
+  (Marmara 80, Karadeniz 51, Ege 50, İç Anadolu 50, G.Doğu 27, Akdeniz 24,
+  D.Anadolu 20). En yoğun: Bursa 17, Kocaeli 14, Ankara/İzmir/Tekirdağ 13.
+
+⚠️ **Satırlarda link YOK** — OSB'lerin kendi siteleri bu tablodan çıkmıyor.
+Üye firma listesine ulaşmak için her OSB'nin sitesi ayrıca bulunmalı; yani
+bu tablo **işveren haritasının iskeleti**, ilan kaynağı değil.
+*Önerilen kullanım:* önce faal OSB'leri il bazlı referans veri olarak tut,
+sonra en yoğun 8-10 ilde OSB sitelerinde ilan sayfası var mı diye örneklem yap.
+
+### 6.4 Ticaret/Sanayi Odaları — kaynak DEĞİL ❌
+
+ITO, ATO, İZTO ana sayfalarında iş ilanı/kariyer izi arandı: ITO 0, İZTO 0,
+ATO 1 (zayıf). **Bu aile kapatıldı**, düşük değerli.
+
+---
+
+## 7. Güncellenmiş sonuç
+
+İkinci tur, kurum-kurum gitme ihtiyacını daha da azalttı: akademik ve sağlık
+alımları da toplayıcılarda. Geriye kalan gerçek boşluk **yalnızca**:
+
+1. KPSS'siz doğrudan alım yapan ~10 kurum (ASELSAN, HAVELSAN, TÜBİTAK…)
+2. Vizyoner Genç
+3. Özel sektörde il bazlı derinlik (ATS adaptörleri + OSB firmaları)
+
 **Sıradaki keşif turları** (henüz yapılmadı):
 
-- [ ] `ilan.yok.gov.tr` doğru hostname (8.8.8.8'de de çözülmedi)
-- [ ] OSBÜK OSB listesinden il → OSB → üye firma zinciri çıkarılabilir mi
-- [ ] İl Sağlık Müdürlükleri / hastane alımları BİK'te görünüyor mu (örneklem)
-- [ ] Ticaret/Sanayi Odalarının kendi iş ilanı sayfaları var mı (örneklem)
+- [ ] Faal 302 OSB'nin en yoğun 8-10 ildeki sitelerinde ilan sayfası örneklemi
+- [ ] ASELSAN/HAVELSAN/TÜBİTAK kariyer sayfalarında RSS veya JSON API var mı
+- [ ] Vizyoner Genç SPA'sının API'si (ağ sekmesi)
