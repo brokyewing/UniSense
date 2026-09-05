@@ -32,3 +32,4 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 06:20 | Claude Code | il_ilce_ayikla eklendi: birlesik/ters sirali konum alani cozuluyor, bolge kapsami 147->460; Careerjet tarih hatasi (178 kayit) tespit edilip gorev yazildi.
 2026-09-05 07:15 | Claude Code | Faz sirasi bagimlilik mantigina gore duzeltildi: deger (API+frontend) one alindi, emniyet (rapor+tekillestirme) kaynaklardan once, kamu hattinda kesin kaynaklar basa.
 2026-09-05 07:45 | Claude Code | Kariyer Kapisi RSS bulundu (33 ilan, giris gerekmiyor); e-Devlet kurali plana yazildi: giris BASVURU icin, liste acik; giris asla otomatiklestirilmez.
+2026-09-05 08:20 | Claude Code | Kapali kapilar bolumu eklendi: LinkedIn robots ile tamamen yasak (anthropic-ai dahil), Indeed kisitli, kariyer.net ilan yollari serbest; repo 230 MB sismesi F5.3 olarak yazildi.

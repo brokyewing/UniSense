@@ -135,6 +135,29 @@ girme.
 | **Kariyer Kapısı** | ✅ **RSS bulundu** | `https://kariyerkapisi.gov.tr/RSS` → `application/xml`, **33 ilan**, GİRİŞ GEREKTİRMİYOR. Alanlar: `title` ("KURUM - İlan adı"), `category` ("Sözleşmeli Personel İlanları" vb.), `link`/`guid` (`/IlanDetay?i=<uuid>`), `pubDate` (RFC-822). Sayfada `robots: index, follow`. e-Devlet bağlantısı yalnız **başvuru** içindir (`giris.turkiye.gov.tr/OAuth2...`), listeyi engellemiyor. **DNS UYARISI:** `kariyerkapisi.gov.tr` bu makinenin yerel çözümleyicisinde çözülmüyor ama 8.8.8.8/1.1.1.1 çözüyor (94.55.123.141) — yerel ISS sorunu, CI runner'da olmayacak. Yerelde denemek için `curl --resolve kariyerkapisi.gov.tr:443:94.55.123.141`. |
 | ÖSYM | ✅ çözüldü | `_osym.py` hazır: `fetch_tolerant` + `/Duyurular/Index` keşfi. Kariyer için yeniden kullan. |
 
+
+### 3.2 KAPALI KAPILAR — denenmeyecek kaynaklar (2026-09-05 ölçüldü)
+
+Bunlar "henüz yapılmadı" değil, **yapılmayacak**. Vakit harcama, tekrar deneme.
+
+| Kaynak | Kanıt | Karar |
+|---|---|---|
+| **LinkedIn** | `robots.txt`: `User-agent: *` → `Disallow: /` (tüm site). Ayrıca `User-agent: anthropic-ai` → `Disallow: /` ile bize özel yasak. 4398 kural, 33 tam-yasak bloğu. Dosyada not: "crawl etmek istiyorsan whitelist-crawl@linkedin.com'a yaz." | **KULLANILMAYACAK.** Hat B listesinden çıkarıldı. İzin alınmadan tek satır çekilmez. |
+| **İŞKUR e-Şube** | `robots.txt` bile "Request Rejected" (WAF). | Doğrudan erişim yok. Yalnız resmî ayna / toplayıcı üzerinden (§3 madde 6). |
+| **e-Devlet arkası her şey** | — | Giriş **asla** otomatikleştirilmez (§3 kuralı). Liste açıksa alınır, değilse kaynak atlanır. |
+
+**Kısıtlı ama mümkün olanlar** (adaptör yazmadan önce yol bazında robots kontrolü ZORUNLU):
+
+| Kaynak | Durum |
+|---|---|
+| tr.indeed.com | 468 disallow kuralı, 128'i ilan/arama yollarında (`/advanced_search`, `/api/getrecjobs`, ülke bazlı `/jobs/XX/`). Türkiye yolları ayrıca teyit edilmeli. |
+| kariyer.net | `User-agent: *` altında 45 disallow ama **ilan yolları yasak DEĞİL**. Yasaklı: `/filtre`, `/filtre/*`, `/ozgecmis/*`, `/Services/`, `/WebSite/Kariyerim/`. Yani ilan listesi robots açısından serbest; filtre URL'leri kullanılmaz. |
+| secretcv.com / eleman.net | 18-20 kural, 4'ü ilan/arama yollarında. Yol bazında bakılmalı. |
+| yenibiris.com | 21 kural, ilan/arama yolunda yasak yok. |
+
+> **Kural:** robots izin veriyor diye site kazımayı *hoş karşılıyor* demek değil.
+> WAF/CAPTCHA çıkarsa §3 madde 6 uygulanır — zorlanmaz.
+
 ---
 
 ## 4. Önceden verilmiş kararlar (onay bekleme)
@@ -272,14 +295,32 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
       *Bitti:* en az bir ATS üzerinden ≥3 şirketin ilanları geliyor.
 - [ ] **F4.4** ATS kullanmayan şirketler için tek tek adaptör — F4.2'deki
       listeden, önce ilan sayısı yüksek olanlar.
-- [ ] **F4.5** kariyer.net / secretcv / yenibiris / eleman.net — bot koruması
-      beklenir. §3 madde 6; zorlama.
+- [ ] **F4.5** kariyer.net / secretcv / yenibiris / eleman.net.
+      **Ön koşul:** adaptör yazmadan önce hedef YOLU `robots.txt`'te doğrula
+      (§3.2 tablosu). kariyer.net'te ilan yolları serbest ama `/filtre*` ve
+      `/ozgecmis/*` YASAK — filtre URL'leri kullanılmayacak.
+      Bot koruması çıkarsa §3 madde 6; zorlanmaz.
+      *Bitti:* her kaynak için "robots izni var mı" kararı kayıt defterine
+      `robots_kontrol` alanı olarak yazıldı.
+- [ ] **F4.6** tr.indeed.com — 468 disallow kuralı var, ilan/arama yollarının
+      çoğu kapalı. **Önce** Türkiye ilan yollarının serbest olup olmadığını
+      belirle; kapalıysa `erisim: robots_yasak` yaz ve GEÇ.
+      **LinkedIn bu fazda YOK** — §3.2'ye göre kalıcı olarak kapalı.
 
 ### F5 — Ölçekleme
 
 - [ ] **F5.1** Kaynak sayısı 15'i geçince cron'u 2 koşuya böl (kamu / özel).
 - [ ] **F5.2** Kaynak başına hız sınırı ve yeniden deneme politikası tek yerde
       toplansın (şu an adaptörlere dağılmış olabilir).
+- [ ] **F5.3** **Repo şişmesi — ölçüldü, ilerde tıkar.** Repo şu an **230 MB**.
+      `chunks.json` 28 MB ve her index yeniden üretiminde commit'leniyor;
+      `kariyer_ilanlar.json` 528 KB ve GÜNLÜK commit'leniyor (yılda ~365 sürüm).
+      Klonlama ve CI checkout süresi büyümeye devam eder.
+      *Seçenekler:* (a) büyük veri dosyalarını git yerine HF dataset'te tut
+      (index-sync zaten HF kullanıyor — aynı deseni kariyer verisine uygula),
+      (b) günlük tam dosya yerine delta commit, (c) veri dosyalarını ayrı repoya
+      taşı. **Karar kullanıcıya ait**, seçenekleri ölçümle birlikte sun.
+      *Bitti:* seçim yapıldı ve uygulandı; günlük commit boyutu ölçülüp yazıldı.
 
 ## 7. Bu plan bittiğinde
 

@@ -107,6 +107,12 @@ Kullanıcının 21 sayfalık "Lisans Seviyesi Kamu İlanları — Tam Takip Rehb
 | A17 | Toplayıcılar (resmî değil) | ilan.memurlar.net, kamuis.com.tr, isinolsa.com, kamuilan.net, kamuajans.com, kamupersoneli.net | Hızlı derleme; başvuru öncesi orijinal ilan şart |
 | A18 | Sosyal | LinkedIn kurum sayfaları, Telegram/X bilişim hesapları | En hızlı duyuru kanalları |
 
+> ⚠️ **2026-09-05 güncellemesi (Claude Code):** Aşağıdaki listede geçen
+> **LinkedIn KULLANILMAYACAK** — `robots.txt`'te `User-agent: *` → `Disallow: /`
+> (tüm site) ve ayrıca `User-agent: anthropic-ai` → `Disallow: /`. Kanıt ve
+> diğer kısıtlı kaynaklar: `PLAN_KARIYER_YOL_HARITASI.md` §3.2 "KAPALI KAPILAR".
+> Adaptör yazmadan önce her kaynağın robots iznini yol bazında doğrula.
+
 ### Hat B — Özel sektör TR (career-ops `portals.yml`'den, satır referanslı)
 
 Site-sorgu deseni (`site:` + WebSearch, herkese açık ATS API'si yok — `portals.yml:459`):
