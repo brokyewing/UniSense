@@ -84,6 +84,10 @@ ignore = [
     # (UTC+3) 00:00-03:00 arasi gunu KAYDIRIR — davranis degisikligi, urun
     # karari gerektirir. Europe/Istanbul'a gecirilecekse ayrica ele alinmali.
     "DTZ011",
+    # TRY004: bozuk yapilandirmada TypeError onerir; kod bilincli olarak
+    # ValueError firlatiyor ve testler bunu bekliyor (test_kariyer.py:349,353).
+    # Tip degistirmek genel sozlesmeyi kirar.
+    "TRY004",
 ]
 
 [tool.ruff.lint.flake8-bugbear]
