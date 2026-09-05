@@ -22,5 +22,17 @@
    "hata": ""
   }
  },
- "toplam_kayit": 552
+ "toplam_kayit": 552,
+ "gecmis": [
+  {
+   "tarih": "2026-09-05",
+   "cekilen": {
+    "careerjet": 174,
+    "jooble": 385,
+    "kamuilan": 76,
+    "rg": 1
+   }
+  }
+ ],
+ "alarm": []
 }

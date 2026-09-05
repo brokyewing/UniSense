@@ -576,6 +576,37 @@ def _kosu_raporu(yeni: list[dict], eski_idler: set[str],
     return {"tarih": bugun, "kaynaklar": rapor}
 
 
+GECMIS_UZUNLUK = 10
+OLU_KOSU_SAYISI = 3  # üst üste bu kadar 0 çekiş = alarm
+
+
+def _gecmis_guncelle(kosu_dosya: Path, bugun: str, cekilen: dict[str, int]) -> tuple[list[dict], list[str]]:
+    """Koşu geçmişine bugünü ekler (aynı gün tekrar koşarsa üzerine yazar).
+
+    Döner: (son N koşu, alarm veren kaynaklar — son 3 koşuda hep 0 çekenler).
+    Dosya yoksa/bozuksa boş geçmişten başlar (sessizce, alarm üretmez).
+    """
+    gecmis: list[dict] = []
+    try:
+        if kosu_dosya.exists():
+            data = json.loads(kosu_dosya.read_text(encoding="utf-8"))
+            if isinstance(data, dict) and isinstance(data.get("gecmis"), list):
+                gecmis = [g for g in data["gecmis"]
+                          if isinstance(g, dict) and g.get("tarih") != bugun]
+    except (json.JSONDecodeError, OSError):
+        gecmis = []
+    gecmis.append({"tarih": bugun, "cekilen": cekilen})
+    gecmis = gecmis[-GECMIS_UZUNLUK:]
+    alarmlar: list[str] = []
+    if len(gecmis) >= OLU_KOSU_SAYISI:
+        son3 = gecmis[-OLU_KOSU_SAYISI:]
+        kodlar = {kod for g in son3 for kod in (g.get("cekilen") or {})}
+        for kod in sorted(kodlar):
+            if all((g.get("cekilen") or {}).get(kod, 0) == 0 for g in son3):
+                alarmlar.append(kod)
+    return gecmis, alarmlar
+
+
 def _merge(yeni: list[dict], eski: list[dict]) -> list[dict]:
     """id'ye göre birleştir: eski kaydın ilk_gorulme'si korunur, gerisi güncellenir.
 
@@ -630,8 +661,13 @@ def main() -> None:
     for kod, satir in rapor["kaynaklar"].items():
         print(f"  ▸ {kod}: çekilen={satir['cekilen']} yeni={satir['yeni']}"
               + (f" HATA={satir['hata']}" if satir["hata"] else ""))
+    cekilen_map = {kod: s["cekilen"] for kod, s in rapor["kaynaklar"].items()}
+    gecmis, alarmlar = _gecmis_guncelle(KOSU_DOSYA, bugun_str, cekilen_map)
+    for kod in alarmlar:
+        print(f"  🚨 {kod}: son {OLU_KOSU_SAYISI} koşuda 0 ilan — sessizce ölmüş olabilir!")
     KOSU_DOSYA.write_text(json.dumps(
-        {**rapor, "toplam_kayit": len(birlesik)}, ensure_ascii=False, indent=1),
+        {**rapor, "toplam_kayit": len(birlesik), "gecmis": gecmis,
+         "alarm": alarmlar}, ensure_ascii=False, indent=1),
         encoding="utf-8")
     from collections import Counter as _Counter
     print(f"  calisma_sekli dagilimi: "
