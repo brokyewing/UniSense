@@ -76,7 +76,7 @@ Bunlar kurum-kurum gidilmesi **gerekçeli** olan yerler:
 |---|---|---|
 | **KPSS'siz doğrudan alım yapan kurumlar** (ASELSAN, HAVELSAN, TÜRKSAT, STM, TÜBİTAK, Ziraat Teknoloji) | Resmî ilan zorunluluğu dışında, kendi portallarından alıyorlar | Yol haritası F3.6 — her biri ayrı adaptör, sayıları az (~10) |
 | **Vizyoner Genç** | Savunma sanayii ortak portalı, BİK'e girmiyor | F3.5 |
-| **Akademik kadro** | Ayrı mevzuat (ALES/YDS) | F3.3 — `ilan.yok.gov.tr` hostname'i **çözülmedi**, doğru adres bulunmalı |
+| ~~Akademik kadro~~ | — | ❌ **BOŞLUK DEĞİL** (§6.1): BİK kategori `73`/`8`'de. Ayrı adaptör gereksiz. |
 | **Özel sektör il bazlı derinlik** | Jooble/Careerjet büyük şehir ağırlıklı | ATS adaptörleri (F4.3) + OSB firmaları (aşağıda) |
 | **OSB firmaları** (organize sanayi bölgeleri) | Bölgesel işveren yoğunluğu, hiçbir toplayıcıda toplu yok | **Yeni iz:** OSBÜK'te OSB listesi var → `https://www.osbuk.org/view/sayilarlaosb/osbliste.php`. İl bazlı sanayi işvereni haritası için başlangıç noktası. |
 
@@ -168,8 +168,30 @@ alımları da toplayıcılarda. Geriye kalan gerçek boşluk **yalnızca**:
 2. Vizyoner Genç
 3. Özel sektörde il bazlı derinlik (ATS adaptörleri + OSB firmaları)
 
+---
+
+## 8. Üçüncü keşif turu — kurum RSS'leri: HEPSİ YANLIŞ POZİTİF ❌
+
+KPSS'siz alım yapan kurumlarda hızlı bir RSS kazancı var mı diye bakıldı.
+`/rss`, `/feed`, `/rss.xml` denendi; ilk bakışta umut verici görünenler
+**içerik doğrulamasında elendi.** (Bu, §4'teki soft-404 kuralının işe yaradığı
+somut örnek.)
+
+| Kurum | Ham sonuç | Uydurma yol testi | Gerçek durum |
+|---|---|---|---|
+| kariyer.tubitak.gov.tr | /rss, /feed, /rss.xml **hepsi 200** | uydurma yol da **200** | ❌ soft-404, RSS yok |
+| www.vizyonergenc.com | /rss, /feed, /rss.xml **hepsi 200** | uydurma yol da **200** | ❌ soft-404, RSS yok |
+| www.aselsan.com | /rss.xml **200** | uydurma yol **404** (dürüst) | ❌ ama `content-type: text/html`, **0 `<item>`** → RSS değil, HTML sayfası |
+| kariyer.havelsan.com.tr | üçü de 404 | — | ❌ RSS yok |
+| www.stm.com.tr | üçü de 404 | — | ❌ RSS yok |
+
+**Sonuç:** Bu kurumların hiçbirinde RSS yok. F3.5 (Vizyoner Genç) ve F3.6
+(kurum portalları) için **kısa yol yok** — her biri için tarayıcı ağ sekmesiyle
+JSON API aramak gerekecek (§3 madde 1). Sayıları az (~10) olduğu için
+katlanılabilir, ama "RSS bulup hızlı bitiririz" beklentisi kurulmasın.
+
 **Sıradaki keşif turları** (henüz yapılmadı):
 
 - [ ] Faal 302 OSB'nin en yoğun 8-10 ildeki sitelerinde ilan sayfası örneklemi
-- [ ] ASELSAN/HAVELSAN/TÜBİTAK kariyer sayfalarında RSS veya JSON API var mı
-- [ ] Vizyoner Genç SPA'sının API'si (ağ sekmesi)
+- [ ] Vizyoner Genç ve TÜBİTAK SPA'larının JSON API'si (tarayıcı ağ sekmesi;
+      RSS olmadığı kesinleşti, doğrudan API aranacak)

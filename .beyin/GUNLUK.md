@@ -37,3 +37,4 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 08:20 | Claude Code | Kapali kapilar bolumu eklendi: LinkedIn robots ile tamamen yasak (anthropic-ai dahil), Indeed kisitli, kariyer.net ilan yollari serbest; repo 230 MB sismesi F5.3 olarak yazildi.
 2026-09-05 09:05 | Claude Code | KAYNAK_HARITASI.md yazildi: kurum-kurum yaklasimi olculerek elendi (ortak desen yok, soft-404), toplayici-once stratejisi BIK mevzuatiyla dogrulandi; OSB izi acildi.
 2026-09-05 09:40 | Claude Code | Ikinci kesif turu: akademik+saglik alimlari BIKte cikti (ayri adaptor gereksiz), OSBUK 302 faal OSB 78/81 ilde haritalandi, odalar kaynak degil diye kapatildi.
+2026-09-05 10:05 | Claude Code | 3. kesif turu: KPSS siz alim yapan 5 kurumda RSS aranmis, hepsi yanlis pozitif cikti (TUBITAK/VizyonerGenc soft-404, ASELSAN rss.xml aslinda HTML); kisa yol yok, API aranacak.
