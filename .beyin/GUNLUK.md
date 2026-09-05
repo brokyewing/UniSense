@@ -41,3 +41,4 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 10:05 | Claude Code | 3. kesif turu: KPSS siz alim yapan 5 kurumda RSS aranmis, hepsi yanlis pozitif cikti (TUBITAK/VizyonerGenc soft-404, ASELSAN rss.xml aslinda HTML); kisa yol yok, API aranacak.
 2026-09-05 10:55 | Claude Code | 4. tur: TOBB firma veri tabani ilan kaynagi degil (uyelik + sadece firma kaydi, eski PHP uclari olu); ATS yolu dogrulandi (Lever/Greenhouse acik JSON API) ama slug cakismasi tuzagi tespit edildi.
 2026-09-05 11:20 | Claude Code | ATS kesfi olculdu: okunan slug 3/3 basarili (trendyol 27, dreamgames 19, iyzico 12 = 58 ilan), tahmin edilen 0/6. Kariyer sayfasi taramasi verimi 2/10 (cogu JS).
+2026-09-05 11:50 | Claude Code | Vizyoner Genc cozuldu: site savunmakariyer.com olmus, tam acik REST API bulundu (24 ilan + 81 il + 343 onayli firma, auth yok). ASELSAN/HAVELSAN/ROKETSAN/STM/BAYKAR bu tek kaynakta -> F3.6 kapsami daraldi.

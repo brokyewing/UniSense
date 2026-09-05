@@ -241,14 +241,19 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
       *Bitti:* bölge/il/çalışma şekli facet'leri gerçek sayılarla dönüyor.
 - [x] **F1.3** Sıralama (opencode, 2026-09-05, 2c99e58): `tarih desc`
       (varsayılan), `son_basvuru asc` (tarihsizler sonda).
-- [ ] **F1.4** Filtre paneli: bölge → il → ilçe kademeli seçim; çalışma şekli
-      çoklu seçim; istihdam türü; deneyim; KPSS var/yok anahtarı.
-- [ ] **F1.5** Arama kutusu (başlık + kurum); filtre durumu URL'ye yansısın
-      (paylaşılabilir link).
-- [ ] **F1.6** İlan kartı: kurum, il/ilçe, çalışma şekli rozeti, tarih,
-      "bugün yeni" rozeti, son başvuru sayacı.
-- [ ] **F1.7** Mobil: 360px'te taşmasız; filtre paneli çekmece. Boş durum ve
-      yükleniyor durumu; sonuç sayısı görünür.
+- [x] **F1.4** Filtre paneli (opencode, 2026-09-05, aaf76f9): bölge → il → ilçe
+      kademeli seçim (facet `bolge` alanıyla); çalışma şekli çoklu seçim
+      (API liste-parametreye genişletildi); KPSS 3-durum anahtarı.
+      Not: istihdam/deneyim panelde yok — veride yalnız `bilinmiyor` var,
+      API destekliyor; veri gelince panel genişler.
+- [x] **F1.5** Arama kutusu (opencode, 2026-09-05, aaf76f9): başlık + kurum;
+      TÜM filtre durumu URL'de (`useSearchParams`) — paylaşılabilir link.
+- [x] **F1.6** İlan kartı (opencode, 2026-09-05, aaf76f9): kurum, il/ilçe,
+      çalışma şekli rozeti, tarih, "yeni" rozeti, son başvuru sayacı
+      (son X gün / son gün / süresi dolmuş).
+- [x] **F1.7** Mobil (opencode, 2026-09-05, aaf76f9): 360px grid'ler tek sütuna
+      iniyor (mevcut shell), filtre paneli çekmece (mobilde kapalı, `aktif`
+      rozeti), boş durum + temizleme butonu + sonuç sayısı.
 
 ### F2 — Kaynak eklemeden ÖNCE gereken emniyet
 
@@ -289,10 +294,19 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
       gereksiz. Ayrıntı: `KAYNAK_HARITASI.md` §6.1-6.2.
 - [ ] **F3.4** `ilangovtr` adaptörü — §3.1'deki oturum şartını çöz. Çözülemezse
       `[!]` yaz, §3 madde 4 (sunucu-tarafı HTML) alternatifini dene, geç.
-- [ ] **F3.5** Vizyoner Genç (A9) — SPA; API'si ağ sekmesiyle bulunacak.
-      KPSS'siz savunma sanayii ilanları.
-- [ ] **F3.6** TÜBİTAK + kurum portalları (A10/A13/A14): HAVELSAN, ASELSAN,
-      TÜRKSAT, STM, Ziraat Teknoloji. Her biri ayrı adaptör, aynı desen.
+- [ ] **F3.5** **Savunma Kariyer** (eski adı Vizyoner Genç — site
+      `savunmakariyer.com`'a taşınmış). **API TAMAMEN ÇÖZÜLDÜ**, keşif gerekmez
+      (`KAYNAK_HARITASI.md` §10): `POST /api/career-core/public/jobs`
+      `{"page":1,"size":100}` → 24 ilan; `GET /api/common/public/city` → 81 il;
+      `GET /api/corporate/public/approved-companies?page=1&size=200` → 343 firma.
+      Kimlik doğrulama yok. `jobLocation` il veriyor, `endDate` son başvuru.
+      *Bitti:* 24 ilan v2 şemasında, `il`/`bolge`/`son_basvuru` dolu.
+- [ ] **F3.6** Kurum portalları — **kapsam DARALDI.** F3.5'teki tek adaptör
+      ASELSAN, HAVELSAN, ROKETSAN, STM, BAYKAR, TUSAŞ, TEI, MKE, FNSS, Nurol'ü
+      zaten getiriyor (§10.3). **Önce F3.5'i bitir, sonra neyin eksik kaldığını
+      ÖLÇ.** Geriye muhtemelen yalnız TÜBİTAK, Türksat, Ziraat Teknoloji kalır.
+      *Bitti:* F3.5 sonrası eksik kurum listesi ölçülmüş ve yalnız onlar için
+      adaptör yazılmış.
 - [ ] **F3.7** İŞKUR (A6) — WAF teyitli. §3 madde 6: resmî ayna / toplayıcı.
       Olmuyorsa `[!]` işaretle, geç.
 - [ ] **F3.8** `kpss` alanı: ilan metninde "KPSS" geçiyor mu + puan türü

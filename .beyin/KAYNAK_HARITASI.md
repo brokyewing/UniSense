@@ -287,6 +287,65 @@ topla (ucuz), JS'lileri sonraya bırak.
 
 ---
 
+## 10. Beşinci tur — Vizyoner Genç ÇÖZÜLDÜ, üstelik F3.6'yı da kapsıyor ✅✅
+
+### 10.1 Site taşınmış
+
+`vizyonergenc.com` → **`savunmakariyer.com`** ("Savunma Kariyer | Savunma Sanayi
+İş ve Staj İlanları"). Plandaki eski ad güncellenmeli.
+
+Ham HTML işe yaramaz: ana sayfa 2.266 bayt SPA kabuğu, `/sitemap.xml` ve
+`/wp-json` bile `text/html` dönüyor (soft-404). Tarayıcı ağ sekmesiyle
+**tam açık bir REST API** bulundu.
+
+### 10.2 Uç noktalar — hepsi `public`, KİMLİK DOĞRULAMASIZ
+
+| Uç nokta | Yöntem | Sonuç |
+|---|---|---|
+| `/api/career-core/public/jobs` | **POST** `{"page":1,"size":100}` | **24 aktif ilan** |
+| `/api/common/public/city` | GET | **81 il** (`id` + `name`) |
+| `/api/corporate/public/approved-companies?page=1&size=200` | GET | **343 onaylı firma** |
+
+Tek 401: `/api/user-profile/user/visitor` (kullanıcı profili) — ilan verisi açık.
+
+**Yanıt sarmalayıcı:** `{timestamp, httpStatus, header, message, isSuccess, data}`.
+Sayfalama `data`: `{content[], totalElements, totalPages, currentPage, jobStats}`.
+
+**İlan kaydı → şema v2 eşlemesi (doğrudan oturuyor):**
+
+| API alanı | v2 alanı |
+|---|---|
+| `jobTitle` | `baslik` |
+| `companyName` | `kurum` |
+| **`jobLocation`** (ör. "Ankara") | `il` → `il_to_bolge()` ile `bolge` |
+| `startDate` | `tarih` |
+| **`endDate`** | `son_basvuru` |
+| `redirectUrl` / `/ilanlar?selectedJob=<id>` | `url` |
+| `jobStatus` (`PUBLISHED`), `visible`, `applicable` | süzme için |
+
+Örnek: "ASELSAN Sayısal Tasarım Speed Bootcamp", Aselsan, Ankara,
+04.09–21.09.2026.
+
+### 10.3 Bu tek kaynak F3.6'nın çoğunu kapsıyor 🎯
+
+Planda ASELSAN/HAVELSAN/TÜRKSAT/STM/TÜBİTAK için **~10 ayrı adaptör**
+yazılacaktı. Gerek yok:
+
+- **Onaylı firma dizininde varlar:** Aselsan (+ Global, Konya, Sivas, Aselsannet),
+  BAYKAR Makina, HAVELSAN, Havelsan Teknoloji Radar, ROKETSAN, STM.
+- **İlan akışında zaten görünüyorlar:** TUSAŞ 3, TEI 5, Aselsan 1,
+  Havelsan Teknoloji Radar 1, MKE 1, FNSS 2, Nurol Teknoloji 2,
+  TÜSSAF 5, TEITECH 1, Tomtaş 1, Koluman 1.
+- **İl dağılımı geliyor:** Ankara 11, Eskişehir 6, Bursa 5, Kayseri 1, Mersin 1.
+
+→ **F3.5 ve F3.6 tek adaptöre indi.** Yalnız bu dizinde olmayan kurumlar
+(ör. TÜBİTAK, Türksat, Ziraat Teknoloji) için ayrıca bakılır.
+
+⚠️ Bu bir **savunma sanayii** portalı; kapsamı sektörel. Genel kamu için K1/K2
+gerekli, onun yerine geçmez.
+
+---
+
 **Sıradaki keşif turları** (henüz yapılmadı):
 
 - [ ] Faal 302 OSB'nin en yoğun 8-10 ildeki sitelerinde ilan sayfası örneklemi
