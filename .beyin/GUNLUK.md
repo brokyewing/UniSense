@@ -51,3 +51,4 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 13:15 | Claude Code | 7. tur: kodilan.com artik is sitesi degil (alan adi el degistirmis, kumar sitesi) -> listeden cikarildi; TUBITAK kariyer statik tanitim sayfasi, ilan yok; techcareer/youthall/yenibiris/eleman.net beslemesi yok.
 2026-09-05 13:40 | Claude Code | SAHIPLIK.md yazildi (dosya sahipligi + cakisma onleme protokolu); PLAN_KARIYER.mddeki iki yanlis iddia duzeltildi (ATS APIsi yok / tek TR ATS Getir).
 2026-09-05 14:05 | Claude Code | ATS haritasi: getmidas 13, insiderone 117 (kuresel, Istanbul 10), codeway 0 eklendi -> TR ilgili ~101 ilan. papara/useinsider/colendi arama sonucunda vardi ama 404 (bayat indeks) -> "aramadan geleni API de dogrula" kurali yazildi.
+2026-09-05 14:40 | Claude Code | Kaynak rehberi icin 9 yeni girdi + 6 duzeltme hazirlandi (KAYNAK_REHBERI_ONERILERI.md); kodilan girdisi kumar sitesine donustugu icin silinmeli olarak isaretlendi.

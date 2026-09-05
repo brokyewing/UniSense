@@ -43,6 +43,26 @@ Canlı API yanıtı incelenerek bulundu, ikisi de gerçek kullanıcıyı etkiliy
       *opencode'a düşen:* normalize fonksiyonlarında `sehir` yerine bu çağrılsın,
       `il`/`ilce`/`bolge` alanları buradan doldurulsun (şema v2, F0.1/F0.2).
 
+## Kaynak rehberi — düzeltme + yeni girdiler (Claude Code, 2026-09-05)
+
+Hazır teslim: **`.beyin/KAYNAK_REHBERI_ONERILERI.md`** — hepsi canlı doğrulandı,
+rehberin kendi JSON biçiminde yazıldı. `_KAYNAKLAR` opencode'un alanı, dokunmadım.
+
+- [ ] 🚨 **`kodilan` girdisini SİL** — alan adı el değiştirmiş, ana sayfa
+      "Download & Play BDG Game/BDG Win to Earn Real Money". İş arayanı kumar
+      sitesine yönlendiriyoruz.
+- [ ] `kariyer-kapisi` notu yanlış: "e-Devlet girişi gerekir" — liste için
+      GEREKMİYOR (e-Devlet yalnız başvuruda). RSS de eklensin.
+- [ ] `ilan-gov-tr` notu yanlış: "Botlara API kapalı" — API açık ve
+      kimlik doğrulamasız.
+- [ ] `ilan-yok` girdisi geçersiz (adres hiç çözülmüyor) → AkademikAğ ile değiştir.
+- [ ] `vizyoner-genc` → `savunmakariyer.com` olarak güncellenmeli (site taşındı).
+- [ ] `kamu-sosyal` (LinkedIn) kalsın ama nota "UniSense bu kaynaktan çekmez,
+      robots taramaya kapalı" eklensin.
+- [ ] 9 yeni girdi eklensin (Savunma Kariyer, ilan.gov.tr Akademik, AkademikAğ,
+      isbul.net, ATS panoları, Wellfound/RemoteOK/Bionluk, OSBÜK, TOBB Sanayi).
+      Rehber 42 → 50 kaynak.
+
 ## Bitti
 - [x] Ruff bulguları temizlendi, `<0.16` üst sınırı kaldırıldı (bb9bc50)
 - [x] TUS/DUS + KPSS Data Sync gerçek Actions koşusunda YEŞİL (dispatch, 2026-09-04)
