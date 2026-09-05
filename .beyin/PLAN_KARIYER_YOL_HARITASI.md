@@ -106,6 +106,18 @@ Bir kaynak için **sırayla** dene, ilk çalışanda dur:
    kurumun kendi RSS/duyuru sayfası; olmuyorsa `[!]` işaretle ve geç.
 7. **Hiçbiri yoksa** → kayıt defterine `erisim: yok` + sebep yaz, sıradakine geç.
 
+**e-Devlet / giriş duvarı — kesin kural.** Kamu portallarında e-Devlet girişi
+**BAŞVURU** içindir, **İLAN LİSTESİ** için değil. Bir sayfa giriş istiyor gibi
+duruyorsa önce listeyi giriş olmadan denemek gerekir; çoğu zaman açıktır
+(Kariyer Kapısı bunun kanıtı: `/RSS` herkese açık, 33 ilan).
+
+- e-Devlet/OAuth girişi **ASLA otomatikleştirilmez.** Kimlik bilgisi girilmez,
+  oturum taklit edilmez, çerez çalınmaz. Hem yasal/ToS riski hem de gereksiz.
+- Modelimiz: **ilanı biz gösteririz, başvuruya kaynağa yönlendiririz.** §1'deki
+  "orijinal ilana link zorunlu" kuralı zaten bunu söylüyor.
+- Gerçekten giriş arkasındaki bir liste varsa o kaynak `erisim: giris_gerekli`
+  ile işaretlenir ve **atlanır** — kullanıcıya kaynağın linki gösterilir.
+
 **Uyulacaklar:** `robots.txt`'e uy; User-Agent gerçekçi ve sabit; istekler arası
 en az 1 sn bekle; aynı kaynağa günde tek koşu; oturum/giriş gerektiren yerlere
 girme.
@@ -120,7 +132,7 @@ girme.
 | kamuilan.sbb.gov.tr | 🟡 | HTTP 200, ~207 KB sunucu-tarafı HTML → parse edilebilir. Arşiv niteliğinde, başvuru alınmaz. |
 | TÜBİTAK kariyer | 🟡 | HTTP 200, ~22 KB. İncelenecek. |
 | Vizyoner Genç | 🟡 | HTTP 200 ama ~1.5 KB → SPA kabuğu. API'si ağ sekmesiyle aranmalı. |
-| Kariyer Kapısı | ❓ | `kariyerkapisi.gov.tr` bu makineden çözülemedi. Runner'dan veya tarayıcıdan tekrar denenmeli; **en kritik kamu kanalı (A1).** |
+| **Kariyer Kapısı** | ✅ **RSS bulundu** | `https://kariyerkapisi.gov.tr/RSS` → `application/xml`, **33 ilan**, GİRİŞ GEREKTİRMİYOR. Alanlar: `title` ("KURUM - İlan adı"), `category` ("Sözleşmeli Personel İlanları" vb.), `link`/`guid` (`/IlanDetay?i=<uuid>`), `pubDate` (RFC-822). Sayfada `robots: index, follow`. e-Devlet bağlantısı yalnız **başvuru** içindir (`giris.turkiye.gov.tr/OAuth2...`), listeyi engellemiyor. **DNS UYARISI:** `kariyerkapisi.gov.tr` bu makinenin yerel çözümleyicisinde çözülmüyor ama 8.8.8.8/1.1.1.1 çözüyor (94.55.123.141) — yerel ISS sorunu, CI runner'da olmayacak. Yerelde denemek için `curl --resolve kariyerkapisi.gov.tr:443:94.55.123.141`. |
 | ÖSYM | ✅ çözüldü | `_osym.py` hazır: `fetch_tolerant` + `/Duyurular/Index` keşfi. Kariyer için yeniden kullan. |
 
 ---
@@ -227,13 +239,18 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
 > görev de belirsizdi (ilan.gov.tr oturum şartı çözülmemiş, Kariyer Kapısı DNS
 > çözülemiyor) — adaptör deseni oturmadan iki bilinmeyene çarpmak momentum kırar.
 
-- [ ] **F3.1** kamuilan.sbb.gov.tr (A4) — sunucu-tarafı HTML, ~207 KB, erişim
-      teyitli. **İlk adaptör bu olsun**, desen gerçek bir kaynakla otursun.
-- [ ] **F3.2** ilan.yok.gov.tr (A8) — akademik kadro.
-- [ ] **F3.3** `ilangovtr` adaptörü — §3.1'deki oturum şartını çöz. Çözülemezse
+- [ ] **F3.1** **Kariyer Kapısı (A1) — RSS adaptörü.** En kritik kamu kanalı ve
+      erişimi ARTIK KESİN: `https://kariyerkapisi.gov.tr/RSS` (§3.1). Giriş yok,
+      33 ilan, yapılandırılmış. **İlk adaptör bu olsun** — hem en değerli hem
+      en az riskli. `category` alanı `hat=kamu` + ilan türü için kullanılır;
+      `title`'daki "KURUM - başlık" kalıbından `kurum` ayrıştırılır.
+      *Bitti:* 33 ilan v2 şemasında, `kurum` ve `tarih` dolu, bekçi devrede.
+- [ ] **F3.2** kamuilan.sbb.gov.tr (A4) — sunucu-tarafı HTML, ~207 KB, erişim
+      teyitli.
+- [ ] **F3.3** ilan.yok.gov.tr (A8) — akademik kadro. **Not:** bu hostname
+      8.8.8.8'de de çözülmedi; doğru adres önce teyit edilmeli.
+- [ ] **F3.4** `ilangovtr` adaptörü — §3.1'deki oturum şartını çöz. Çözülemezse
       `[!]` yaz, §3 madde 4 (sunucu-tarafı HTML) alternatifini dene, geç.
-- [ ] **F3.4** Kariyer Kapısı (A1) — **en kritik kamu kanalı**, ama DNS bu
-      makineden çözülemedi; runner'dan/tarayıcıdan dene.
 - [ ] **F3.5** Vizyoner Genç (A9) — SPA; API'si ağ sekmesiyle bulunacak.
       KPSS'siz savunma sanayii ilanları.
 - [ ] **F3.6** TÜBİTAK + kurum portalları (A10/A13/A14): HAVELSAN, ASELSAN,
