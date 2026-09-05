@@ -61,6 +61,14 @@ kaynaklar:
     aktif: true
     not: SSR tablo (şu an 0 açık pozisyon); yapı hazır, ilan çıkınca akar.
 
+  - kod: ats
+    ad: Şirket ATS panoları
+    hat: ozel
+    url: https://api.lever.co/
+    erisim: api
+    aktif: true
+    not: Defterdeki sirket_ats girdileri (Lever + Ashby); pano başına toleranslı.
+
   - kod: iskur
     ad: İŞKUR e-Şube
     hat: kamu
@@ -121,3 +129,19 @@ sirket_ats:
   - {sirket: "Codeway", ats: ashby, pano: "codeway", durum: aktif}
   - {sirket: "HotelRunner", ats: breezy, pano: "hotelrunner", durum: aday}
   - {sirket: "Softtech", ats: successfactors, pano: "softtech", durum: aday}
+
+# robots.txt kararları (F4.5, 2026-09-05 — canlı doğrulamalı). erisim:robots_yasak
+# olanlar kazınmaz.
+robots_kontrol:
+  - {pano: "kariyer.net", erisim: kismi,
+     not: "ilan yollari serbest; /filtre* ve /ozgecmis/* YASAK — filtre URL'si kullanılmayacak"}
+  - {pano: "secretcv.com", erisim: kismi,
+     not: "kök serbest; arama/query URL'leri (*ara?k=*, ?k=, ?s= ...) YASAK"}
+  - {pano: "yenibiris.com", erisim: bot_duvari,
+     not: "Cloudflare challenge (robots.txt bile alınamadı)"}
+  - {pano: "eleman.net", erisim: kismi,
+     not: "arama/query (?t=*, ilan_id ...) ve başvuru yolları YASAK; statik yollar serbest"}
+  - {pano: "tr.indeed.com", erisim: robots_yasak,
+     not: "468 disallow; /jobs/TR/ ve /viewjob kapalı (F4.6)"}
+  - {pano: "linkedin.com", erisim: robots_yasak,
+     not: "kalıcı olarak kapalı (yol haritası kararı)"}

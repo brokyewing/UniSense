@@ -306,29 +306,35 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
       gerçek kategori süzgeci gerekir. Ayrıntı: `KAYNAK_HARITASI` §11.5-DÜZELTME.
       *Bitti:* personel alımı ilanları v2 şemasında, il/ilçe dolu,
       `cityCounts` facet olarak saklanmış.
-- [ ] **F3.5** **Savunma Kariyer** (eski adı Vizyoner Genç — site
+- [x] **F3.5** **Savunma Kariyer** (eski adı Vizyoner Genç — site
       `savunmakariyer.com`'a taşınmış). **API TAMAMEN ÇÖZÜLDÜ**, keşif gerekmez
       (`KAYNAK_HARITASI.md` §10): `POST /api/career-core/public/jobs`
       `{"page":1,"size":100}` → 24 ilan; `GET /api/common/public/city` → 81 il;
       `GET /api/corporate/public/approved-companies?page=1&size=200` → 343 firma.
       Kimlik doğrulama yok. `jobLocation` il veriyor, `endDate` son başvuru.
-      *Bitti:* 24 ilan v2 şemasında, `il`/`bolge`/`son_basvuru` dolu.
-- [ ] **F3.6** Kurum portalları — **kapsam DARALDI.** F3.5'teki tek adaptör
-      ASELSAN, HAVELSAN, ROKETSAN, STM, BAYKAR, TUSAŞ, TEI, MKE, FNSS, Nurol'ü
-      zaten getiriyor (§10.3). **Önce F3.5'i bitir, sonra neyin eksik kaldığını
-      ÖLÇ.** Geriye muhtemelen yalnız TÜBİTAK, Türksat, Ziraat Teknoloji kalır.
-      *Bitti:* F3.5 sonrası eksik kurum listesi ölçülmüş ve yalnız onlar için
-      adaptör yazılmış.
-- [ ] **F3.7** İŞKUR (A6) — WAF teyitli. §3 madde 6: resmî ayna / toplayıcı.
-      Olmuyorsa `[!]` işaretle, geç.
-- [ ] **F3.8** `kpss` alanı: ilan metninde "KPSS" geçiyor mu + puan türü
-      (P3/P93/P94) çıkarımı. Mevcut `kpss_service` ile bağ kurulabilir.
+      *Bitti (opencode, 2026-09-05, 059dc20):* adaptör bağımsız yazıldı, 23 ilan
+      canlı (ACTIVITY elendi), testli.
+- [x] **F3.6** Kurum portalları — ölçüm yapıldı (opencode, 2026-09-05, a9abc2e):
+      SK platformu TUSAŞ/FNSS/MKE/Nurol'ü getiriyor; TÜBİTAK BİK'te (2 ilan);
+      "Ziraat" vuruşları Ziraat Mühendisi (tarımsal) yanlış-pozitifi.
+      TÜRKSAT için SSR tablo adaptörü yazıldı (şu an 0 açık pozisyon).
+      Ziraat Teknoloji (ilan sayfası yok) ve TÜBİTAK (SPA, API bulunamadı)
+      `[!]` — toplayıcılardan akmaya devam ediyor.
+- [!] **F3.7** İŞKUR (opencode, 2026-09-05) — WAF teyitli: esube + www her şeyi
+      reddediyor (robots.txt dahil). Liste aynası yok (MEB aynası yalnız meslek
+      kılavuzu). Toplayıcılarda 0 İŞKUR kaydı ölçüldü → deftere `erisim: yok`.
+- [x] **F3.8** `kpss` alanı (opencode, 2026-09-05, 95b976d): başlık+özet
+      çıkarımı + kamuilan PDF detayları (Referer şartı bulundu; kesik kod
+      404 veriyordu, tam kod düzeltildi). *Bitti:* canlı 13 KPSS kaydı
+      (11 P3 + 1 P93), detay bayrağı ile tekrar indirme yok.
 
 ### F4 — Özel sektör hattı
 
-- [ ] **F4.1** Jooble + Careerjet sorgu listesini genişlet — şu an yalnız
-      mühendislik ağırlıklı; tüm meslek gruplarını kapsasın.
-- [ ] **F4.2** **ATS tespiti** (araştırma): Hat B'deki ~50 şirketin hangisi
+- [x] **F4.1** Jooble + Careerjet sorgu listesini genişlet (opencode, 2026-09-05,
+      9347f2e) — Jooble 10 + Careerjet 7 sorgu (sağlık/öğretmen/muhasebe/satış/
+      hukuk/lojistik eklendi). *Bitti:* canlı 1843 kayıt (1,9 MB).
+- [x] **F4.2** **ATS tespiti** (araştırma + opencode taraması, 2026-09-05,
+      22fcdc7): Hat B'deki ~50 şirketin hangisi
       Lever / Greenhouse / Workable kullanıyor, listele.
       **Uç noktalar doğrulandı** (`KAYNAK_HARITASI.md` §9.2):
       Lever `api.lever.co/v0/postings/<slug>?mode=json` (Dream Games → 19 ilan),
@@ -338,10 +344,15 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
       getirdi (New York/Singapore ilanları). Şirketin kariyer sayfasındaki
       bağlantıyı OKU, ayrıca çekilen konumları `il_to_bolge` ile doğrula.
       *Bitti:* şirket → ATS eşlemesi `is_kaynaklari.yml`'de, her eşleme
-      konum doğrulamasından geçmiş.
-- [ ] **F4.3** Tespit edilen her ATS için **tek adaptör** yaz (Lever, Greenhouse,
-      Workable). En verimli yol: bir adaptör onlarca şirketi çeker.
-      *Bitti:* en az bir ATS üzerinden ≥3 şirketin ilanları geliyor.
+      konum doğrulamasından geçmiş. (opencode: 53 şirket tarandı; Lever 4
+      [Spyke/Midas/Iyzico/Ciceksepeti], Ashby 2 [Bigger/Codeway], Breezy 1,
+      SuccessFactors 1; 11 şirket bot-duvarı/ölü.)
+- [x] **F4.3** Tespit edilen her ATS için **tek adaptör** yaz (opencode,
+      2026-09-05, d29270d): Lever + Ashby defterden beslenir (pano başına
+      toleranslı); workplaceType → çalışma şekli; Amazon+Starfield zinciri
+      pakete eklendi.
+      *Bitti:* 6 şirketin ilanları geliyor (Codeway/Midas/Iyzico/Bigger/
+      Spyke/Çiçeksepeti, 62 kayıt).
 - [ ] **F4.4** ATS kullanmayan şirketler için tek tek adaptör — F4.2'deki
       listeden, önce ilan sayısı yüksek olanlar.
 - [ ] **F4.5** kariyer.net / secretcv / yenibiris / eleman.net.
