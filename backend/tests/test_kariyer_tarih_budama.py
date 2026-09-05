@@ -77,3 +77,52 @@ class TestBudama:
             (b + datetime.timedelta(days=180)).isoformat(),
         )
         assert [k["id"] for k in _merge([kayit], [])] == ["t:9"]
+
+
+class TestCalismaSekli:
+    """Ölçüm 2026-09-06: 1935 kayıttan yalnız 27'sinde çalışma şekli vardı (%1,4).
+
+    Doğrudan beyan ("uzaktan", "hibrit") ilanlarda neredeyse hiç geçmiyor; bu
+    yüzden dolaylı sinyal (mağaza/fabrika/şantiye) ve kamu varsayımı devrede.
+    İkisi de `detay.calisma_sekli_kaynak` ile işaretleniyor — arayüz bunları
+    beyan gibi göstermemeli. Kapsam 27 -> 568 (%29,4).
+    """
+
+    def _v2(self, **alan):
+        from unisense.infrastructure.scrapers.kariyer_scraper import v2_kayit
+        temel = {"id": "x:1", "kaynak": "T", "baslik": "", "ozet": "",
+                 "url": "http://x/1", "tarih": BUGUN}
+        return v2_kayit({**temel, **alan})
+
+    @pytest.mark.parametrize(
+        ("baslik", "beklenen", "kaynak"),
+        [
+            ("Uzaktan Yazılım Geliştirici", "online", "beyan"),
+            ("Backend Developer (Home Office)", "online", "beyan"),
+            ("Hibrit çalışma - Veri Analisti", "hibrit", "beyan"),
+            ("Ofiste çalışma / Muhasebe", "yuzyuze", "beyan"),
+            ("Mağaza Satış Danışmanı", "yuzyuze", "dolayli"),
+            ("Fabrika Üretim Operatörü", "yuzyuze", "dolayli"),
+            ("Yazılım Uzmanı", "bilinmiyor", "-"),
+        ],
+    )
+    def test_metinden_cikarim(self, baslik, beklenen, kaynak):
+        k = self._v2(baslik=baslik)
+        assert k["calisma_sekli"] == beklenen
+        if kaynak != "-":
+            assert k["detay"]["calisma_sekli_kaynak"] == kaynak
+
+    def test_kamu_varsayimi_isaretlenir(self):
+        """Kamu kadrosu yerinde varsayılır ama 'varsayim' diye damgalanır."""
+        k = self._v2(baslik="Sözleşmeli Personel Alımı", hat="kamu")
+        assert k["calisma_sekli"] == "yuzyuze"
+        assert k["detay"]["calisma_sekli_kaynak"] == "varsayim"
+
+    def test_ozel_hatta_varsayim_yok(self):
+        assert self._v2(baslik="Uzman", hat="ozel")["calisma_sekli"] == "bilinmiyor"
+
+    def test_kaynak_degeri_ezilmez(self):
+        """Lever `workplaceType` gibi kaynak alanı çıkarımdan üstündür."""
+        k = self._v2(baslik="Mağaza Müdürü", calisma_sekli="online")
+        assert k["calisma_sekli"] == "online"
+        assert k["detay"]["calisma_sekli_kaynak"] == "kaynak"

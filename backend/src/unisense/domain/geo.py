@@ -128,6 +128,35 @@ KURUM_IL_ISTISNA: dict[str, str] = {
 }
 
 
+@lru_cache(maxsize=1)
+def _ilce_il_indeksi() -> dict[str, str]:
+    """Katlanmış ilçe adı → il. `turkey_geo.json` içindeki `central_districts`
+    tablosundan türetilir (30 il, merkez ilçeler).
+
+    Neden: bazı kaynaklar il yazmadan yalnız ilçe/mahalle veriyor
+    ("Sarıyer, Maslak", "Sincan, Yenikent"). Bunlar ilçe adından çözülür.
+    Çakışan ilçe adları (birden çok ilde aynı ad) DIŞARIDA bırakılır —
+    yanlış il atamaktansa "Bilinmiyor" bırakmak yeğdir.
+    """
+    sayac: dict[str, set[str]] = {}
+    for il, ilceler in (_load_geo_json().get("central_districts") or {}).items():
+        for ilce in ilceler:
+            sayac.setdefault(_katla(ilce), set()).add(il)
+    return {k: next(iter(v)) for k, v in sayac.items() if len(v) == 1}
+
+
+def ilceden_il_bul(metin: str | None) -> str | None:
+    """İl yazmayan konum metninde ilçe adından il bul. Yoksa None."""
+    if not metin:
+        return None
+    idx = _ilce_il_indeksi()
+    for parca in re.split(r"[,/|\-]+", metin):
+        anahtar = _katla(parca.strip())
+        if anahtar in idx:
+            return _KANONIK_IL.get(anahtar_il := idx[anahtar], anahtar_il)
+    return None
+
+
 def metinden_il_bul(metin: str | None) -> str | None:
     """Serbest metinde geçen il adını bul (kurum adı, başlık vb.).
 
@@ -196,6 +225,10 @@ def il_ilce_ayikla(konum: str | None) -> tuple[str | None, str | None, str]:
             if il:
                 break
     if il is None:
+        # İl yazılmamış olabilir ("Sarıyer, Maslak") — ilçe adından çöz.
+        ilceden = ilceden_il_bul(konum)
+        if ilceden:
+            return ilceden, parcalar[0], _BOLGE_INDEX.get(_katla(ilceden), "Bilinmiyor")
         return None, None, "Bilinmiyor"
 
     # İlçe, EŞLEŞEN HAM parçadan hesaplanır; kanonikleştirme en sonda yapılır.

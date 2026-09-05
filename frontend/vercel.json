@@ -12,18 +12,6 @@
     },
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.unisense.site" }],
-      "destination": "https://www.unisense.com.tr/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "unisense.site" }],
-      "destination": "https://www.unisense.com.tr/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/:path*",
       "has": [{ "type": "host", "value": "unisense.com.tr" }],
       "destination": "https://www.unisense.com.tr/:path*",
       "permanent": true
