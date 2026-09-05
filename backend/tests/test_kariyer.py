@@ -1,6 +1,5 @@
 """Kariyer servisi + scraper saf fonksiyon testleri (dosya/ağ yok)."""
 from datetime import date
-from typing import ClassVar
 
 from unisense.application.services.kariyer_service import (
     _KAYNAKLAR,
@@ -238,25 +237,25 @@ class TestSemaV2:
 
 class TestCalismaSekli:
     def test_online(self):
-        from unisense.core.text import fold_tr
         from unisense.infrastructure.scrapers.kariyer_scraper import _calisma_sekli
+        from unisense.core.text import fold_tr
         assert _calisma_sekli(fold_tr("Uzaktan çalışma, remote ekip")) == "online"
         assert _calisma_sekli(fold_tr("Home office imkânı")) == "online"
 
     def test_hibrit_oncelikli(self):
-        from unisense.core.text import fold_tr
         from unisense.infrastructure.scrapers.kariyer_scraper import _calisma_sekli
+        from unisense.core.text import fold_tr
         # Açık "hibrit" anahtarı + remote sinyali → hibrit kazanır
         assert _calisma_sekli(fold_tr("Hibrit çalışma, remote günler mevcut")) == "hibrit"
 
     def test_yuzyuze(self):
-        from unisense.core.text import fold_tr
         from unisense.infrastructure.scrapers.kariyer_scraper import _calisma_sekli
+        from unisense.core.text import fold_tr
         assert _calisma_sekli(fold_tr("Yerinde çalışma, ofis ortamında")) == "yuzyuze"
 
     def test_bilinmiyor(self):
-        from unisense.core.text import fold_tr
         from unisense.infrastructure.scrapers.kariyer_scraper import _calisma_sekli
+        from unisense.core.text import fold_tr
         assert _calisma_sekli(fold_tr("Mühendis aranıyor")) == "bilinmiyor"
 
     def test_geriye_donuk_cikarim(self):
@@ -275,7 +274,6 @@ class TestKamuilan:
 
     def test_tr_tarih(self):
         from datetime import date
-
         from unisense.infrastructure.scrapers.kariyer_scraper import _tr_tarih
         assert _tr_tarih("4", "Eylül", date(2026, 9, 5)) == "2026-09-04"
         assert _tr_tarih("18", "Eylül", date(2026, 9, 5)) == "2026-09-18"
@@ -285,8 +283,8 @@ class TestKamuilan:
         import re
         li = self.ORNEK_LI
         a = re.search(r"<a\s+href='(ilanDetay\.aspx\?kod=[^']+)'", li)
-        kurum = re.search(r"<p class='alt_p1'>(.*?)</p>", li, re.DOTALL)
-        baslik = re.search(r"<p class='alt_p2'>(.*?)<em", li, re.DOTALL)
+        kurum = re.search(r"<p class='alt_p1'>(.*?)</p>", li, re.S)
+        baslik = re.search(r"<p class='alt_p2'>(.*?)<em", li, re.S)
         assert a and kurum and baslik
         assert "KARADENİZ" in kurum.group(1)
         assert "SÖZLEŞMELİ" in baslik.group(1)
@@ -343,9 +341,8 @@ class TestDefter:
         assert d["rg"]["params"]["max_pdf_mb"] == 64
 
     def test_bozuk_defter_reddedilir(self, tmp_path):
-        import pytest
-
         from unisense.infrastructure.scrapers.kariyer_registry import yukle
+        import pytest
         p = tmp_path / "defter.yml"
         p.write_text("kaynaklar:\n  - {kod: x, ad: X}\n", encoding="utf-8")
         with pytest.raises(ValueError):
@@ -372,7 +369,6 @@ class TestKosuRaporu:
 
     def test_olu_kaynak_alarmi(self, tmp_path):
         import json
-
         from unisense.infrastructure.scrapers.kariyer_scraper import _gecmis_guncelle
         p = tmp_path / "kosu.json"
 
@@ -386,7 +382,7 @@ class TestKosuRaporu:
         assert a1 == []  # geçmiş yetersiz
         _, a2 = kos("2026-09-04", {"jooble": 0, "rg": 1})
         assert a2 == []
-        _g3, a3 = kos("2026-09-05", {"jooble": 0, "rg": 1})
+        g3, a3 = kos("2026-09-05", {"jooble": 0, "rg": 1})
         assert a3 == ["jooble"]  # üst üste 3×0
         # Aynı gün tekrar koşu üzerine yazar, şişirmez; alarm kalkar
         g4, a4 = kos("2026-09-05", {"jooble": 3, "rg": 1})
@@ -474,7 +470,7 @@ class TestAkademiktr:
 
 
 class TestIlangovtr:
-    ORNEK_AD: ClassVar[dict] = {
+    ORNEK_AD = {
         "id": 2211464, "title": "Kurum X 2 Mühendis Alacak", "adNo": "ILN02540001",
         "advertiserName": "Kurum X", "addressCityName": "Ankara",
         "addressCountyName": "Çankaya", "publishStartDate": "2026-09-03T21:00:00Z",
@@ -604,16 +600,16 @@ class TestTurksat:
 
 class TestKpssCikarim:
     def test_kpss_var_ve_tur(self):
-        from unisense.core.text import fold_tr
         from unisense.infrastructure.scrapers.kariyer_scraper import _kpss_bilgi
+        from unisense.core.text import fold_tr
         var_mi, tur = _kpss_bilgi(fold_tr("KPSS P3 puanıyla mühendis alımı"))
         assert var_mi is True and tur == "P3"
         var_mi, tur = _kpss_bilgi(fold_tr("P93 puan türünden en az 70"))
         assert var_mi is True and tur == "P93"
 
     def test_kpss_yoksa_none(self):
-        from unisense.core.text import fold_tr
         from unisense.infrastructure.scrapers.kariyer_scraper import _kpss_bilgi
+        from unisense.core.text import fold_tr
         assert _kpss_bilgi(fold_tr("Yazılım geliştirici aranıyor")) == (None, None)
 
     def test_geriye_donuk_v2(self):
@@ -638,8 +634,8 @@ class TestSirketAts:
 
 class TestAts:
     def test_workplace_esleme(self):
-        from unisense.core.text import fold_tr
         from unisense.infrastructure.scrapers.kariyer_scraper import _ats_calisma
+        from unisense.core.text import fold_tr
         assert _ats_calisma("Onsite", fold_tr("x")) == "yuzyuze"
         assert _ats_calisma("REMOTE", fold_tr("x")) == "online"
         assert _ats_calisma("Hybrid", fold_tr("x")) == "hibrit"
@@ -675,4 +671,41 @@ class TestRobotsKontrol:
         assert d["kariyer.net"]["erisim"] == "kismi"
         assert d["yenibiris.com"]["erisim"] == "bot_duvari"
         assert len(d) >= 6
+
+
+class TestHatFiltresi:
+    def test_ayni_gun_birlesir(self, tmp_path):
+        from unisense.infrastructure.scrapers.kariyer_scraper import _gecmis_guncelle
+        p = tmp_path / "kosu.json"
+        import json
+        g1, _ = _gecmis_guncelle(p, "2026-09-05", {"rg": 1, "kamuilan": 5})
+        p.write_text(json.dumps({"gecmis": g1}), encoding="utf-8")
+        g2, _ = _gecmis_guncelle(p, "2026-09-05", {"jooble": 10})
+        assert len(g2) == 1  # aynı gün tek kayıt
+        assert g2[0]["cekilen"] == {"rg": 1, "kamuilan": 5, "jooble": 10}
+
+    def test_scrape_hat_kisitlama(self, monkeypatch):
+        from unisense.infrastructure.scrapers import kariyer_scraper as ks
+        cagrilan = []
+
+        def sahte(ad):
+            def _f(session, *a, **k):
+                cagrilan.append(ad)
+                return []
+            return _f
+
+        monkeypatch.setattr(ks, "_scrape_rg", sahte("rg"))
+        monkeypatch.setattr(ks, "_scrape_hatb", sahte("hatb"))
+        monkeypatch.setattr(ks, "_scrape_kamuilan", sahte("kamuilan"))
+        monkeypatch.setattr(ks, "_scrape_kariyerkapisi", sahte("kk"))
+        monkeypatch.setattr(ks, "_scrape_akademiktr", sahte("ak"))
+        monkeypatch.setattr(ks, "_scrape_ilangovtr", sahte("bg"))
+        monkeypatch.setattr(ks, "_scrape_savunmakariyer", sahte("sk"))
+        monkeypatch.setattr(ks, "_scrape_turksat", sahte("tt"))
+        monkeypatch.setattr(ks, "_scrape_ats", sahte("at"))
+        monkeypatch.setattr(ks, "_session", lambda: object())
+        out, _ = ks.scrape(hatlar={"ozel"})
+        assert out == []
+        assert "hatb" in cagrilan and "at" in cagrilan
+        assert "rg" not in cagrilan and "kam" not in "".join(cagrilan)
 
