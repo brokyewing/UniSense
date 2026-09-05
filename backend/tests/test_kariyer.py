@@ -218,3 +218,34 @@ class TestHatB:
         monkeypatch.delenv("JOOBLE_API_KEY", raising=False)
         monkeypatch.delenv("CAREERJET_API_KEY", raising=False)
         assert _scrape_hatb(requests.Session()) == []
+
+
+class TestDefter:
+    def test_varsayilan_defter_yuklenir(self):
+        from unisense.infrastructure.scrapers.kariyer_registry import yukle
+        girdiler = yukle()
+        kodlar = {g["kod"] for g in girdiler if g.get("aktif")}
+        assert {"rg", "jooble", "careerjet"} <= kodlar
+
+    def test_davranis_paritesi(self):
+        # Defter değerleri eski gömülü sabitlerle aynı olmalı
+        from unisense.infrastructure.scrapers import kariyer_scraper as ks
+        from unisense.infrastructure.scrapers.kariyer_registry import yukle
+        d = {g["kod"]: g for g in yukle()}
+        assert [(s["keywords"], s.get("location", "")) for s in d["jooble"]["sorgular"]] == list(ks._HATB_JOOBLE_SORGULAR)
+        assert list(d["careerjet"]["sorgular"]) == list(ks._HATB_CJ_SORGULAR)
+        assert d["jooble"]["sayfa"] == ks._HATB_SAYFA_JOOBLE
+        assert d["careerjet"]["sayfa"] == ks._HATB_SAYFA_CJ
+        assert d["rg"]["params"]["max_pdf_mb"] == 64
+
+    def test_bozuk_defter_reddedilir(self, tmp_path):
+        from unisense.infrastructure.scrapers.kariyer_registry import yukle
+        import pytest
+        p = tmp_path / "defter.yml"
+        p.write_text("kaynaklar:\n  - {kod: x, ad: X}\n", encoding="utf-8")
+        with pytest.raises(ValueError):
+            yukle(p)
+        p.write_text("kaynaklar:\n  - {kod: x, ad: X, hat: kamu, url: u, erisim: ufo}\n",
+                     encoding="utf-8")
+        with pytest.raises(ValueError):
+            yukle(p)
