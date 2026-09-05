@@ -251,6 +251,40 @@ doğrula (`geo.il_to_bolge()` ile), uyuşmuyorsa kaynağı reddet.
 → Yol haritası **F4.2** (ATS tespiti) ve **F4.3** (ATS adaptörü) bu bulguyla
 uygulanabilir durumda. Tek adaptör onlarca şirketi çeker.
 
+### 9.3 ATS keşfi — ölçülmüş sonuç ve HAZIR eşleme tablosu
+
+10 Türk şirketinin kariyer sayfası tarandı, HTML'de ATS bağlantısı arandı.
+Bulunan slug'lar Lever API'sinde doğrulandı.
+
+**"Slug'ı oku, tahmin etme" kuralı ampirik olarak kanıtlandı:**
+
+| Yöntem | Başarı |
+|---|---|
+| Kariyer sayfasından **okunan** slug | **3/3** ✅ |
+| Şirket adından **tahmin edilen** slug | **0/6** ❌ (getir, peak, papara, jotform, hepsiburada, insider — hepsi geçersiz yanıt) |
+
+**Doğrulanmış eşleme — `is_kaynaklari.yml`'e doğrudan girilebilir:**
+
+| Şirket | Platform | Slug | İlan | Konum dağılımı |
+|---|---|---|---|---|
+| Trendyol | Lever | `trendyol` | **27** | İstanbul/Maslak 13, Bükreş 4, Kocaeli/Gebze 2, Riyad 1 |
+| Dream Games | Lever | `dreamgames` | **19** | İstanbul 18, Londra 1 |
+| iyzico | Lever | `iyzico` | **12** | İstanbul 12 |
+
+Tek adaptörle **58 gerçek ilan**. Uç nokta:
+`https://api.lever.co/v0/postings/<slug>?mode=json` — kimlik doğrulama yok.
+
+⚠️ **Yabancı konumlar var** (Bükreş, Riyad, Londra). Bu, `il_to_bolge()` ile
+konum doğrulamasının neden zorunlu olduğunu gösteriyor: Türkiye dışı ilanlar
+ya elenmeli ya da `il/bolge = null` ile işaretlenmeli — sessizce
+"Bilinmiyor" bölgesine düşürülmemeli.
+
+**Kariyer sayfası taramasının verimi düşük (2/10).** Getir, Peak, Papara,
+Jotform, Hepsiburada, Insider'ın kariyer sayfaları **JS ile üretiliyor**, ATS
+bağlantısı ham HTML'de yok. Bunlar için tarayıcı ağ sekmesi gerekir — yani
+şirket başına elle iş. **Öneri:** önce ham HTML taramasıyla kolay bulunanları
+topla (ucuz), JS'lileri sonraya bırak.
+
 ---
 
 **Sıradaki keşif turları** (henüz yapılmadı):
