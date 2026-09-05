@@ -222,9 +222,18 @@ class TestSemaV2:
         # il artık KANONİK (şema v2: "BÜYÜK, TR normalize"); 355 farklı
         # değer 65 ile indi, İstanbul'un ~95 varyantı tek değerde toplandı.
         assert k["il"] == "İSTANBUL" and k["bolge"] == "Marmara"
-        assert k["calisma_sekli"] == "bilinmiyor" and k["kpss"] is None
+        # kamu varsayımı: metinden çıkmadıysa kamu → yuzyuze + kaynak işaretli
+        assert k["calisma_sekli"] == "yuzyuze"
+        assert k["detay"]["calisma_sekli_kaynak"] == "varsayim"
+        assert k["kpss"] is None
         assert len(k["ozet"]) == 300
         assert k["ilk_gorulme"] == "2026-09-01"  # korunur
+
+    def test_kayipsiz_tasima_ozel_hatta_varsayim_yok(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import v2_kayit
+        k = v2_kayit({**_k("a", hat="ozel"), "ozet": "düz ilan metni"})
+        assert k["calisma_sekli"] == "bilinmiyor"
+        assert "calisma_sekli_kaynak" not in (k.get("detay") or {})
 
     def test_merge_eski_yeni_id_esisir(self):
         eski = [{**_k("a", ilk="2026-09-01"), "id": "jooble-123",
