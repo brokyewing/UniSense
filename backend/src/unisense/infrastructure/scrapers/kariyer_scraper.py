@@ -218,6 +218,24 @@ BÖLÜM_ANAHTAR: dict[str, list[str]] = {
 }
 
 
+# Çalışma şekli kalıpları (fold'lu). Öncelik: hibrit > online > yuzyuze —
+# "haftada 2 gün ofis, gerisi remote" gibi ilanlar hibrit yakalanır.
+CALISMA_ONLINE = ["uzaktan", "remote", "home office", "evden calisma", "remotely"]
+CALISMA_HIBRIT = ["hibrit", "hybrid"]
+CALISMA_YUZYUZE = ["yuzyuze", "yuz yuze", "ofiste calisma", "ofis ortaminda",
+                   "yerinde calisma", "sahada calisma"]
+
+
+def _calisma_sekli(fold_metin: str) -> str:
+    if any(a in fold_metin for a in CALISMA_HIBRIT):
+        return "hibrit"
+    if any(a in fold_metin for a in CALISMA_ONLINE):
+        return "online"
+    if any(a in fold_metin for a in CALISMA_YUZYUZE):
+        return "yuzyuze"
+    return "bilinmiyor"
+
+
 def _bolum_etiketle(fold_metin: str) -> list[str]:
     """Çift taraflı etiket: uyan TÜM bölümler döner (tekil değil)."""
     return [bolum for bolum, anahtarlar in BÖLÜM_ANAHTAR.items()
@@ -235,6 +253,7 @@ def _jooble_normalize(job: dict, bugun: str) -> dict | None:
         return None
     jid = str(job.get("id") or hashlib.sha1(link.encode()).hexdigest()[:12])
     ozet = _temizle_ham(job.get("snippet") or "")[:500]
+    metin = fold_tr(f"{baslik} {ozet}")
     return {
         "id": f"jooble:{jid}",
         "hat": "ozel",
@@ -247,7 +266,8 @@ def _jooble_normalize(job: dict, bugun: str) -> dict | None:
         "ozet": ozet,
         "detay": {"maas": (job.get("salary") or "").strip(), "tur": (job.get("type") or "").strip()},
         "ilk_gorulme": bugun,
-        "bolumler": _bolum_etiketle(fold_tr(f"{baslik} {ozet}")),
+        "bolumler": _bolum_etiketle(metin),
+        "calisma_sekli": _calisma_sekli(metin),
     }
 
 
@@ -257,6 +277,7 @@ def _careerjet_normalize(job: dict, bugun: str) -> dict | None:
     if not baslik or not link.startswith("http"):
         return None
     ozet = _temizle_ham(job.get("description") or "")[:500]
+    metin = fold_tr(f"{baslik} {ozet}")
     return {
         "id": f"careerjet:{hashlib.sha1(link.encode()).hexdigest()[:12]}",
         "hat": "ozel",
@@ -269,7 +290,8 @@ def _careerjet_normalize(job: dict, bugun: str) -> dict | None:
         "ozet": ozet,
         "detay": {"maas": (job.get("salary") or "").strip(), "site": (job.get("site") or "").strip()},
         "ilk_gorulme": bugun,
-        "bolumler": _bolum_etiketle(fold_tr(f"{baslik} {ozet}")),
+        "bolumler": _bolum_etiketle(metin),
+        "calisma_sekli": _calisma_sekli(metin),
     }
 
 
@@ -369,7 +391,10 @@ def v2_kayit(kayit: dict) -> dict:
     k["il"] = il
     k["ilce"] = (k.get("ilce") or "").strip()
     k["bolge"] = il_to_bolge(il) if il else "Bilinmiyor"
-    k.setdefault("calisma_sekli", V2_BILINMIYOR)
+    if not k.get("calisma_sekli") or k.get("calisma_sekli") == V2_BILINMIYOR:
+        # Eski kayıtlardaki başlık+özetten geriye dönük çıkarım
+        k["calisma_sekli"] = _calisma_sekli(
+            fold_tr(f"{k.get('baslik', '')} {k.get('ozet', '')}"))
     k.setdefault("istihdam_turu", V2_BILINMIYOR)
     k.setdefault("deneyim", V2_BILINMIYOR)
     k.setdefault("pozisyon_etiket", [])
@@ -433,6 +458,9 @@ def main() -> None:
         except Exception as e:
             print(f"  ⚠️ mevcut dosya okunamadı: {e}")
     birlesik = _migrate(_merge(yeni, eski))
+    from collections import Counter as _Counter
+    print(f"  calisma_sekli dagilimi: "
+          f"{dict(_Counter(x.get('calisma_sekli', '?') for x in birlesik))}")
     try:
         write_json_guarded(OUT, birlesik, label="kariyer")
     except ScrapeGuardError as e:

@@ -159,6 +159,36 @@ class TestSemaV2:
         assert len(out) == 1 and out[0]["ilk_gorulme"] == "2026-09-01"
 
 
+class TestCalismaSekli:
+    def test_online(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import _calisma_sekli
+        from unisense.core.text import fold_tr
+        assert _calisma_sekli(fold_tr("Uzaktan çalışma, remote ekip")) == "online"
+        assert _calisma_sekli(fold_tr("Home office imkânı")) == "online"
+
+    def test_hibrit_oncelikli(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import _calisma_sekli
+        from unisense.core.text import fold_tr
+        # Açık "hibrit" anahtarı + remote sinyali → hibrit kazanır
+        assert _calisma_sekli(fold_tr("Hibrit çalışma, remote günler mevcut")) == "hibrit"
+
+    def test_yuzyuze(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import _calisma_sekli
+        from unisense.core.text import fold_tr
+        assert _calisma_sekli(fold_tr("Yerinde çalışma, ofis ortamında")) == "yuzyuze"
+
+    def test_bilinmiyor(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import _calisma_sekli
+        from unisense.core.text import fold_tr
+        assert _calisma_sekli(fold_tr("Mühendis aranıyor")) == "bilinmiyor"
+
+    def test_geriye_donuk_cikarim(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import v2_kayit
+        k = v2_kayit({**_k("a"), "baslik": "Uzaktan yazılım geliştirici",
+                      "ozet": "", "calisma_sekli": "bilinmiyor"})
+        assert k["calisma_sekli"] == "online"
+
+
 class TestHatB:
     def test_jooble_normalize(self):
         k = _jooble_normalize(
