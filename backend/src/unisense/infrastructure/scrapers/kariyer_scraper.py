@@ -458,6 +458,56 @@ def _migrate(kayitlar: list[dict]) -> list[dict]:
     return [v2_kayit(k) for k in kayitlar]
 
 
+def _anahtar(k: dict) -> str | None:
+    """Çapraz-kaynak eşleşme anahtarı: (başlık, kurum, il) fold'lu.
+
+    Başlık veya kurum boşsa None → tekilleştirilmez (yanlış birleşme yok).
+    """
+    b = fold_tr(k.get("baslik") or "").strip()
+    ku = fold_tr(k.get("kurum") or "").strip()
+    il = fold_tr(k.get("il") or "").strip()
+    if not b or not ku:
+        return None
+    return f"{b}|{ku}|{il}"
+
+
+def _dedup_capraz(kayitlar: list[dict]) -> tuple[list[dict], int]:
+    """Aynı ilan farklı kaynaklardaysa tekilleştir (saf).
+
+    Kazanan: kamu hattı önce; eşitlikte ilk_gorulme eski olan. Kaybedenin
+    bölüm etiketleri kazananla birleştirilir (bilgi kaybı yok).
+    Döner: (tekil liste, birleşen sayısı).
+    """
+    gruplar: dict[str, list[dict]] = {}
+    tekiller: list[dict] = []
+    for k in kayitlar:
+        a = _anahtar(k)
+        if a is None:
+            tekiller.append(k)
+        else:
+            gruplar.setdefault(a, []).append(k)
+    birlesen = 0
+    for grup in gruplar.values():
+        if len(grup) == 1:
+            tekiller.append(grup[0])
+            continue
+        sirali = sorted(grup, key=lambda x: (
+            0 if x.get("hat") == "kamu" else 1, x.get("ilk_gorulme", "")))
+        kazanan = dict(sirali[0])
+        etiketler: list[str] = list(kazanan.get("bolumler") or [])
+        ilkler = [d.get("ilk_gorulme", "") for d in sirali if d.get("ilk_gorulme")]
+        for diger in sirali[1:]:
+            for b in diger.get("bolumler") or []:
+                if b not in etiketler:
+                    etiketler.append(b)
+            birlesen += 1
+        kazanan["bolumler"] = etiketler
+        if ilkler:
+            kazanan["ilk_gorulme"] = min(ilkler)  # ilk görülme korunur
+        tekiller.append(kazanan)
+    return tekiller, birlesen
+
+
 # === Hat A2: kamuilan.sbb.gov.tr (WebForms postback) ===
 # Ana sayfadaki boş arama postback'i güncel ilanları timeline olarak döner:
 # ul#nav2 > li > time(h4 gün, h3 ay) + a[href=ilanDetay.aspx?kod=..] >
@@ -656,6 +706,9 @@ def main() -> None:
             print(f"  ⚠️ mevcut dosya okunamadı: {e}")
     eski_idler = {_v2_id(x) for x in eski if x.get("id")}
     birlesik = _migrate(_merge(yeni, eski))
+    birlesik, capraz = _dedup_capraz(birlesik)
+    if capraz:
+        print(f"  ⇄ {capraz} kayıt çapraz-kaynakta birleşti (kamu öncelikli)")
     bugun_str = date.today().isoformat()
     rapor = _kosu_raporu(yeni, eski_idler, hatalar, bugun_str)
     for kod, satir in rapor["kaynaklar"].items():
