@@ -566,3 +566,32 @@ class TestSavunmakariyer:
         assert out[0]["son_basvuru"] == "2026-09-20"
         assert out[0]["kpss"] is False
 
+
+class TestTurksat:
+    BOS = ('<table class="G GE"><tr><td><table class="no-record">'
+           '<tr><td>Yayınlanmış bir açık pozisyon bulunamadı.</td></tr>'
+           '</table></td></tr></table>')
+    DOLU = ('<table class="G GE"><tr><td><a href="/jobs/123">Yazılım Mühendisi</a>'
+            ' - Ankara, son başvuru 20.09.2026</td></tr></table>')
+
+    def test_bos_durum(self):
+        from unisense.infrastructure.scrapers import kariyer_scraper as ks
+
+        class SahteOturum:
+            def get(self, *a, **k):
+                class R:
+                    text = TestTurksat.BOS
+                return R()
+
+        assert ks._scrape_turksat(SahteOturum()) == []
+
+    def test_dolu_satir_parse(self):
+        import re
+        m = re.search(r'href="(/jobs?/[^"]+|/job[^"]+|/ilan[^"]+)"', self.DOLU)
+        assert m and m.group(1) == "/jobs/123"
+
+    def test_varsayilan_defter_turksat(self):
+        from unisense.infrastructure.scrapers.kariyer_registry import yukle
+        d = {g["kod"]: g for g in yukle()}
+        assert d["turksat"]["erisim"] == "html"
+

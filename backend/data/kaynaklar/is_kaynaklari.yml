@@ -53,6 +53,14 @@ kaynaklar:
     aktif: true
     not: Herkese açık jobs API (auth yok); ACTIVITY atlanır; KPSS'siz savunma ilanları.
 
+  - kod: turksat
+    ad: TÜRKSAT Kariyer
+    hat: kamu
+    url: https://kariyer.turksat.com.tr/jobs
+    erisim: html
+    aktif: true
+    not: SSR tablo (şu an 0 açık pozisyon); yapı hazır, ilan çıkınca akar.
+
   - kod: jooble
     ad: Jooble
     hat: ozel
