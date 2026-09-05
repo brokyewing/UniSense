@@ -8,7 +8,7 @@
   },
   "ats": {
    "cekilen": 62,
-   "yeni": 58,
+   "yeni": 52,
    "hata": ""
   },
   "careerjet": {
@@ -22,8 +22,8 @@
    "hata": ""
   },
   "jooble": {
-   "cekilen": 911,
-   "yeni": 186,
+   "cekilen": 910,
+   "yeni": 191,
    "hata": ""
   },
   "kamuilan": {
@@ -47,7 +47,7 @@
    "hata": ""
   }
  },
- "toplam_kayit": 1965,
+ "toplam_kayit": 1935,
  "gecmis": [
   {
    "tarih": "2026-09-05",
@@ -56,7 +56,7 @@
     "ats": 62,
     "careerjet": 774,
     "ilangovtr": 9,
-    "jooble": 911,
+    "jooble": 910,
     "kamuilan": 76,
     "kariyerkapisi": 33,
     "rg": 1,

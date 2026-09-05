@@ -80,7 +80,44 @@ _CHAIN = Path(__file__).resolve().parent / "tls_extra_chain.pem"
 
 MAX_PDF_BYTES = 64 * 1024 * 1024   # yedek varsayılan; defter params.max_pdf_mb ezer
 REQUEST_TIMEOUT = 60
-KIBAR_BEKELEME = 1.0               # PDF araları sn
+KIBAR_BEKELEME = 1.0      # istek araları sn (F5.2: tek merkez)
+MAKS_DENEME = 3           # geçici hatalarda yeniden deneme sayısı
+DENEME_KATSAYI = 2.0      # bekleme: 1s, 2s, 4s (üstel geri çekilme)
+
+
+def _istek(session: requests.Session, yontem: str, url: str, **kw) -> requests.Response:
+    """Merkezi istek politikası (F5.2): üstel geri çekilmeli yeniden deneme.
+
+    Geçici arızalarda (timeout/bağlantı/5xx/429) MAKS_DENEME kez dener;
+    4xx'te (404/403) hemen bırakır — ölü ucu zorlamanın anlamı yok.
+    """
+    kw.setdefault("timeout", REQUEST_TIMEOUT)
+    son_hata: Exception | None = None
+    for deneme in range(1, MAKS_DENEME + 1):
+        try:
+            r = session.request(yontem, url, **kw)
+            if r.status_code == 429 or r.status_code >= 500:
+                raise requests.HTTPError(f"HTTP {r.status_code}", response=r)
+            r.raise_for_status()
+            return r
+        except requests.HTTPError as e:
+            kod = e.response.status_code if e.response is not None else 0
+            if 400 <= kod < 500:
+                raise  # kalıcı hata — yeniden deneme
+            son_hata = e
+        except (requests.Timeout, requests.ConnectionError) as e:
+            son_hata = e
+        if deneme < MAKS_DENEME:
+            time.sleep(KIBAR_BEKELEME * (DENEME_KATSAYI ** (deneme - 1)))
+    raise son_hata  # type: ignore[misc]
+
+
+def _get(session: requests.Session, url: str, **kw) -> requests.Response:
+    return _istek(session, "GET", url, **kw)
+
+
+def _post(session: requests.Session, url: str, **kw) -> requests.Response:
+    return _istek(session, "POST", url, **kw)
 
 # Bilişim + mühendis + genel personel alımı sinyalleri (fold'lu eşleşir)
 ANAHTAR_KELIMELER = {
@@ -122,7 +159,7 @@ def _gunluk_sayilar(html: str) -> dict[str, list[str]]:
 
 def _pdf_metni(session: requests.Session, url: str, limit: int) -> tuple[str, int] | None:
     """PDF'i indirip metnini çıkarır. (metin, sayfa_sayısı) ya da None."""
-    r = session.get(url, timeout=REQUEST_TIMEOUT)
+    r = _get(session, url)
     r.raise_for_status()
     if len(r.content) > limit:
         return None
@@ -146,7 +183,7 @@ def _scrape_rg(session: requests.Session) -> list[dict]:
     """Resmî Gazete günlük sayıları (sinyal kayıtları)."""
     kayitlar: list[dict] = []
     rg_url, pdf_limit = _rg_ayar()
-    r = session.get(rg_url, timeout=REQUEST_TIMEOUT)
+    r = _get(session, rg_url)
     r.raise_for_status()
     sayilar = _gunluk_sayilar(r.text)
     print(f"  RG ana sayfa: {len(sayilar)} günlük sayı bulundu")
@@ -210,7 +247,7 @@ def scrape(bilinen: set[str] | None = None,
     if "kamu" in kos:
         try:
             rg = _scrape_rg(session)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print(f"  ⚠️ rg düştü: {type(e).__name__}: {e}")
             hatalar["rg"] = f"{type(e).__name__}: {e}"
             rg = []
@@ -219,43 +256,43 @@ def scrape(bilinen: set[str] | None = None,
         print(f"  Hat B: {len(hatb)} ilan (jooble+careerjet)")
     try:
         kam = _scrape_kamuilan(session, detayli) if "kamu" in kos else []
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 — kısmi başarı normal (§5)
         print(f"  ⚠️ kamuilan düşti: {type(e).__name__}: {e}")
         hatalar["kamuilan"] = f"{type(e).__name__}: {e}"
         kam = []
     try:
         kk = _scrape_kariyerkapisi(session) if "kamu" in kos else []
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"  ⚠️ kariyerkapisi düştü: {type(e).__name__}: {e}")
         hatalar["kariyerkapisi"] = f"{type(e).__name__}: {e}"
         kk = []
     try:
         ak = _scrape_akademiktr(session) if "kamu" in kos else []
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"  ⚠️ akademiktr düştü: {type(e).__name__}: {e}")
         hatalar["akademiktr"] = f"{type(e).__name__}: {e}"
         ak = []
     try:
         bg = _scrape_ilangovtr(session, bilinen) if "kamu" in kos else []
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"  ⚠️ ilangovtr düştü: {type(e).__name__}: {e}")
         hatalar["ilangovtr"] = f"{type(e).__name__}: {e}"
         bg = []
     try:
         sk = _scrape_savunmakariyer(session) if "kamu" in kos else []
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"  ⚠️ savunmakariyer düştü: {type(e).__name__}: {e}")
         hatalar["savunmakariyer"] = f"{type(e).__name__}: {e}"
         sk = []
     try:
         tt = _scrape_turksat(session) if "kamu" in kos else []
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"  ⚠️ turksat düştü: {type(e).__name__}: {e}")
         hatalar["turksat"] = f"{type(e).__name__}: {e}"
         tt = []
     try:
         at = _scrape_ats(session) if "ozel" in kos else []
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"  ⚠️ ats düştü: {type(e).__name__}: {e}")
         hatalar["ats"] = f"{type(e).__name__}: {e}"
         at = []
@@ -468,9 +505,8 @@ def _scrape_hatb(session: requests.Session) -> list[dict]:
                 if isinstance(soru, dict) else (soru, "Türkiye")
             for page in range(1, sayfa_n + 1):
                 try:
-                    r = session.post(f"https://tr.jooble.org/api/{jooble_key}",
-                                     json={"keywords": keywords, "location": location, "page": page},
-                                     timeout=REQUEST_TIMEOUT)
+                    r = _post(session, f"https://tr.jooble.org/api/{jooble_key}",
+                              json={"keywords": keywords, "location": location, "page": page})
                     r.raise_for_status()
                     jobs = r.json().get("jobs") or []
                 except Exception as e:
@@ -494,12 +530,12 @@ def _scrape_hatb(session: requests.Session) -> list[dict]:
         for keywords in cj_sorgular:
             for page in range(1, cj_sayfa + 1):
                 try:
-                    r = session.get(_CJ_UC, params={
+                    r = _get(session, _CJ_UC, params={
                         "locale_code": "tr_TR", "keywords": keywords, "location": "",
                         "affid": cj_affid, "user_ip": "127.0.0.1",
                         "user_agent": HEADERS["User-Agent"],
                         "page": page, "pagesize": 50,
-                    }, headers={"Referer": _CJ_REFERER}, timeout=REQUEST_TIMEOUT)
+                    }, headers={"Referer": _CJ_REFERER})
                     r.raise_for_status()
                     data = r.json()
                 except Exception as e:
@@ -695,8 +731,7 @@ def _kamuilan_hidden(html: str, name: str) -> str:
 
 def _kamuilan_detay(session: requests.Session, url: str) -> str:
     """İlan PDF'ini indirip metnini çıkarır (boş string de olabilir)."""
-    r = session.get(url, headers={"Referer": KAMUILAN_URL},
-                    timeout=REQUEST_TIMEOUT)
+    r = _get(session, url, headers={"Referer": KAMUILAN_URL})
     r.raise_for_status()
     if len(r.content) > KAMUILAN_PDF_TAVAN or not r.content.startswith(b"%PDF"):
         return ""
@@ -710,7 +745,7 @@ def _kamuilan_detay(session: requests.Session, url: str) -> str:
 def _scrape_kamuilan(session: requests.Session,
                      detayli: set[str] | None = None) -> list[dict]:
     """Güncel kamu ilanları (postback + timeline parse)."""
-    h = session.get(KAMUILAN_URL, timeout=REQUEST_TIMEOUT).text
+    h = _get(session, KAMUILAN_URL).text
     data = {
         "__VIEWSTATE": _kamuilan_hidden(h, "__VIEWSTATE"),
         "__VIEWSTATEGENERATOR": _kamuilan_hidden(h, "__VIEWSTATEGENERATOR"),
@@ -718,23 +753,24 @@ def _scrape_kamuilan(session: requests.Session,
         "txb_ara": "",
         "bt_ara": "ARA",
     }
-    t = session.post(KAMUILAN_URL, data=data, timeout=REQUEST_TIMEOUT * 2).text
+    t = _post(session, KAMUILAN_URL, data=data,
+              timeout=REQUEST_TIMEOUT * 2).text  # postback yavaş olabilir
     kayitlar: list[dict] = []
     bugun = date.today().isoformat()
     bugun_d = date.today()
     detayli = detayli or set()
     detay_sayac = 0
     # Timeline tarih-grupludur: bir <li> = bir gün, içinde birden çok ilan.
-    gruplar = re.findall(r"<li>(.*?)</li>\s*(?:<li>|</ul>)", t, re.DOTALL)
+    gruplar = re.findall(r"<li>(.*?)</li>\s*(?:<li>|</ul>)", t, re.S)
     for li in gruplar:
-        tm = re.search(r"<time[^>]*><h4>(.*?)</h4><h3>(.*?)</h3></time>", li, re.DOTALL)
+        tm = re.search(r"<time[^>]*><h4>(.*?)</h4><h3>(.*?)</h3></time>", li, re.S)
         gun = re.sub(r"<[^>]+>", "", tm.group(1)).strip() if tm else ""
         ay = re.sub(r"<[^>]+>", "", tm.group(2)).strip() if tm else ""
         for m in re.finditer(
                 r"<a\s+href='(ilanDetay\.aspx\?kod=[^']+)'[^>]*>.*?"
                 r"<p class='alt_p1'>(.*?)</p>.*?"
                 r"<p class='alt_p2'>(.*?)<em[^>]*>(.*?)</em>",
-                li, re.DOTALL):
+                li, re.S):
             link, kurum_h, baslik_h, em_h = m.groups()
             b = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", baslik_h)).strip()
             k = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", kurum_h)).strip()
@@ -753,7 +789,7 @@ def _scrape_kamuilan(session: requests.Session,
                 try:
                     dmetin = _kamuilan_detay(session, link_tam)
                     time.sleep(KIBAR_BEKELEME)
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001
                     print(f"  ⚠️ kamuilan detay: {type(e).__name__}")
                     dmetin = ""
                 if dmetin:
@@ -863,24 +899,23 @@ def _scrape_kariyerkapisi(session: requests.Session) -> list[dict]:
     from email.utils import parsedate_to_datetime
     kayitlar: list[dict] = []
     bugun = date.today().isoformat()
-    r = session.get(KK_RSS_URL, timeout=REQUEST_TIMEOUT)
+    r = _get(session, KK_RSS_URL)
     r.raise_for_status()
     kok = ET.fromstring(r.content)
-    def metin(dugum, etiket: str) -> str:
-        el = dugum.find(etiket)
-        return (el.text or "").strip() if el is not None else ""
-
     for item in kok.iter("item"):
-        baslik = metin(item, "title")
-        link = metin(item, "link") or metin(item, "guid")
+        def metin(etiket: str) -> str:
+            el = item.find(etiket)
+            return (el.text or "").strip() if el is not None else ""
+        baslik = metin("title")
+        link = metin("link") or metin("guid")
         if not baslik or not link:
             continue
         kurum, _, _kisa = baslik.partition(" - ")
         try:
-            tarih = parsedate_to_datetime(metin(item, "pubDate")).date().isoformat()
+            tarih = parsedate_to_datetime(metin("pubDate")).date().isoformat()
         except (ValueError, TypeError):
             tarih = ""
-        category = metin(item, "category")
+        category = metin("category")
         metin_fold = fold_tr(f"{baslik} {category}")
         anahtar = re.search(r"[?&]i=([0-9a-f-]{8,})", link)
         kayitlar.append({
@@ -932,7 +967,7 @@ def _akademiktr_parse_liste(html: str) -> list[str]:
 
 def _akademiktr_parse_detay(html: str) -> dict:
     def ilk(desene: str) -> str:
-        m = re.search(desene, html, re.DOTALL)
+        m = re.search(desene, html, re.S)
         return re.sub(r"\s+", " ", m.group(1)).strip() if m else ""
     baslik = ilk(r'<h1 class="detail-title-new">(.*?)</h1>')
     tarihler = re.findall(r"(\d{2})\.(\d{2})\.(\d{4})", html)
@@ -946,8 +981,8 @@ def _scrape_akademiktr(session: requests.Session) -> list[dict]:
     gorulen: set[str] = set()
     for kat in AKADEMIKTR_KATEGORILER:
         try:
-            h = session.get(f"{AKADEMIKTR_URL}/ilan/{kat}", timeout=REQUEST_TIMEOUT).text
-        except Exception as e:
+            h = _get(session, f"{AKADEMIKTR_URL}/ilan/{kat}").text
+        except Exception as e:  # noqa: BLE001
             print(f"  ⚠️ akademiktr/{kat}: {type(e).__name__}")
             continue
         for link in _akademiktr_parse_liste(h):
@@ -955,9 +990,9 @@ def _scrape_akademiktr(session: requests.Session) -> list[dict]:
                 continue
             gorulen.add(link)
             try:
-                d = session.get(AKADEMIKTR_URL + link, timeout=REQUEST_TIMEOUT).text
+                d = _get(session, AKADEMIKTR_URL + link).text
                 time.sleep(KIBAR_BEKELEME)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 print(f"  ⚠️ akademiktr detay: {type(e).__name__}")
                 continue
             p = _akademiktr_parse_detay(d)
@@ -1064,19 +1099,18 @@ def _scrape_ilangovtr(session: requests.Session,
     ardarda_tanidik = 0
     for sayfa in range(ILANGOVTR_SAYFA_TAVAN):
         try:
-            r = session.post(
-                ILANGOVTR_UC,
+            r = _post(
+                session, ILANGOVTR_UC,
                 json={"skipCount": sayfa * 20, "maxResultCount": 20,
                       "sorting": "id desc"},
                 headers={"Referer": "https://www.ilan.gov.tr/",
                          "Origin": "https://www.ilan.gov.tr",
                          "X-Requested-With": "XMLHttpRequest",
                          "Accept": "application/json",
-                         "Content-Type": "application/json-patch+json"},
-                timeout=REQUEST_TIMEOUT)
+                         "Content-Type": "application/json-patch+json"})
             r.raise_for_status()
             ads = (r.json().get("result") or {}).get("ads") or []
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print(f"  ⚠️ ilangovtr s.{sayfa}: {type(e).__name__}")
             break
         if not ads:
@@ -1122,14 +1156,14 @@ def _scrape_savunmakariyer(session: requests.Session) -> list[dict]:
     sayfa, toplam_sayfa = 1, 1
     while sayfa <= toplam_sayfa:
         try:
-            r = session.post(
-                SK_UC, json={"page": sayfa, "size": 25, "sortDirection": "DESC"},
+            r = _post(
+                session, SK_UC,
+                json={"page": sayfa, "size": 25, "sortDirection": "DESC"},
                 headers={"Origin": "https://savunmakariyer.com",
-                         "Referer": "https://savunmakariyer.com/ilanlar"},
-                timeout=REQUEST_TIMEOUT)
+                         "Referer": "https://savunmakariyer.com/ilanlar"})
             r.raise_for_status()
             data = r.json().get("data") or {}
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print(f"  ⚠️ savunmakariyer s.{sayfa}: {type(e).__name__}")
             break
         toplam_sayfa = int(data.get("totalPages") or 1)
@@ -1188,11 +1222,11 @@ TURKSAT_JOBS_URL = "https://kariyer.turksat.com.tr/jobs"
 def _scrape_turksat(session: requests.Session) -> list[dict]:
     kayitlar: list[dict] = []
     bugun = date.today().isoformat()
-    h = session.get(TURKSAT_JOBS_URL, timeout=REQUEST_TIMEOUT).text
+    h = _get(session, TURKSAT_JOBS_URL).text
     if "no-record" in h:
         print("  turksat: açık pozisyon yok")
         return []
-    for m in re.finditer(r"<tr[^>]*>(.*?)</tr>", h, re.DOTALL):
+    for m in re.finditer(r"<tr[^>]*>(.*?)</tr>", h, re.S):
         satir = m.group(1)
         link = re.search(r'href="(/jobs?/[^"]+|/job[^"]+|/ilan[^"]+)"', satir)
         metin = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", satir)).strip()
@@ -1291,8 +1325,7 @@ def _scrape_ats(session: requests.Session) -> list[dict]:
             continue
         try:
             if girdi["ats"] == "lever":
-                r = session.get(f"https://api.lever.co/v0/postings/{pano}?mode=json",
-                                timeout=REQUEST_TIMEOUT)
+                r = _get(session, f"https://api.lever.co/v0/postings/{pano}?mode=json")
                 r.raise_for_status()
                 ads = r.json() or []
                 for ad in ads:
@@ -1314,9 +1347,9 @@ def _scrape_ats(session: requests.Session) -> list[dict]:
                     if k:
                         kayitlar.append(k)
             else:
-                r = session.get(
-                    f"https://api.ashbyhq.com/posting-api/job-board/{pano}",
-                    timeout=REQUEST_TIMEOUT)
+                r = _get(
+                    session,
+                    f"https://api.ashbyhq.com/posting-api/job-board/{pano}")
                 r.raise_for_status()
                 ads = (r.json() or {}).get("jobs") or []
                 for ad in ads:
@@ -1344,7 +1377,7 @@ def _scrape_ats(session: requests.Session) -> list[dict]:
                     if k:
                         kayitlar.append(k)
             print(f"  ats/{pano}: done")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 — pano bazında tolerans
             print(f"  ⚠️ ats/{pano}: {type(e).__name__}")
             continue
     print(f"  ats: {len(kayitlar)} ilan")
