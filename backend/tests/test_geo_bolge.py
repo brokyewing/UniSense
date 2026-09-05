@@ -210,3 +210,37 @@ class TestKanonikIl:
         from unisense.domain.geo import kanonik_il, metinden_il_bul
 
         assert metinden_il_bul("BURSA TEKNİK ÜNİVERSİTESİ") == kanonik_il("Bursa")
+
+
+class TestIlceden:
+    """İl yazılmamış konumlar ("Sarıyer, Maslak") ilçe adından çözülür.
+
+    Kaynak: turkey_geo.json `central_districts`. Birden çok ilde geçen ilçe
+    adları (Yenişehir, Merkez...) indekse ALINMAZ — yanlış il atamaktansa
+    boş bırakmak doğru.
+    """
+
+    @pytest.mark.parametrize(
+        ("konum", "il", "ilce"),
+        [
+            ("Sarıyer, Maslak", "İSTANBUL", "Sarıyer"),
+            ("Sincan, Yenikent", "ANKARA", "Sincan"),
+            ("Bornova, Atatürk", "İZMİR", "Bornova"),
+            ("Nilüfer, İhsaniye", "BURSA", "Nilüfer"),
+            ("Küçükçekmece, Sefaköy", "İSTANBUL", "Küçükçekmece"),
+            ("Ortahisar, Beşirli", "TRABZON", "Ortahisar"),
+        ],
+    )
+    def test_ilceden_il_cozulur(self, konum, il, ilce):
+        from unisense.domain.geo import il_ilce_ayikla
+        assert il_ilce_ayikla(konum)[:2] == (il, ilce)
+
+    @pytest.mark.parametrize("konum", ["Türkiye", "Yenişehir, Egriçam", ""])
+    def test_belirsiz_bos_kalir(self, konum):
+        """Tahmin etmektense bilinmiyor demek doğru."""
+        from unisense.domain.geo import il_ilce_ayikla
+        assert il_ilce_ayikla(konum) == (None, None, "Bilinmiyor")
+
+    def test_il_yaziliysa_ilce_indeksi_devreye_girmez(self):
+        from unisense.domain.geo import il_ilce_ayikla
+        assert il_ilce_ayikla("Ankara, Çankaya")[:2] == ("ANKARA", "Çankaya")

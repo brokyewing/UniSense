@@ -351,20 +351,50 @@ BÖLÜM_ANAHTAR: dict[str, list[str]] = {
 
 # Çalışma şekli kalıpları (fold'lu). Öncelik: hibrit > online > yuzyuze —
 # "haftada 2 gün ofis, gerisi remote" gibi ilanlar hibrit yakalanır.
-CALISMA_ONLINE = ["uzaktan", "remote", "home office", "evden calisma", "remotely"]
-CALISMA_HIBRIT = ["hibrit", "hybrid"]
+CALISMA_ONLINE = ["uzaktan", "remote", "home office", "homeoffice",
+                  "evden calisma", "evden calis", "remotely", "work from home",
+                  "uzaktan calis", "online calis"]
+CALISMA_HIBRIT = ["hibrit", "hybrid", "karma calisma"]
+# Doğrudan beyan: ilan çalışma şeklini açıkça söylüyor.
 CALISMA_YUZYUZE = ["yuzyuze", "yuz yuze", "ofiste calisma", "ofis ortaminda",
-                   "yerinde calisma", "sahada calisma"]
+                   "yerinde calisma", "sahada calisma", "isyerinde calisma",
+                   "is yerinde calisma"]
+# DOLAYLI sinyal: iş yerinin doğası gereği yerinde olduğu anlaşılıyor
+# ("mağaza satış elemanı", "fabrikada üretim"). Beyan değil ÇIKARIM —
+# `detay.calisma_sekli_kaynak = "dolayli"` diye işaretlenir, kullanıcıya
+# kesin bilgi gibi sunulmamalı.
+CALISMA_YUZYUZE_DOLAYLI = ["magaza", "sube", "fabrika", "depo", "santiye",
+                           "restoran", "kafe", "otel", "market", "sahada",
+                           "uretim bandi", "tezgah"]
 
 
 def _calisma_sekli(fold_metin: str) -> str:
+    """Metinden çalışma şekli. Doğrudan beyan öncelikli, sonra dolaylı sinyal."""
     if any(a in fold_metin for a in CALISMA_HIBRIT):
         return "hibrit"
     if any(a in fold_metin for a in CALISMA_ONLINE):
         return "online"
     if any(a in fold_metin for a in CALISMA_YUZYUZE):
         return "yuzyuze"
-    return "bilinmiyor"
+    if any(a in fold_metin for a in CALISMA_YUZYUZE_DOLAYLI):
+        return "yuzyuze"
+    return V2_BILINMIYOR
+
+
+def _calisma_sekli_kaynak(fold_metin: str, hat: str | None) -> str:
+    """Değerin nereden geldiği: beyan | dolayli | varsayim | yok.
+
+    Ölçüm (2026-09-05, 1965 kayıt): doğrudan beyan ilanların yalnız ~%0,5'inde
+    var. Bu yüzden dolaylı sinyal ve kamu varsayımı kullanılıyor — ama ikisi de
+    işaretleniyor ki arayüz "kesin" gibi göstermesin.
+    """
+    if any(a in fold_metin for a in CALISMA_HIBRIT + CALISMA_ONLINE + CALISMA_YUZYUZE):
+        return "beyan"
+    if any(a in fold_metin for a in CALISMA_YUZYUZE_DOLAYLI):
+        return "dolayli"
+    if hat == "kamu":
+        return "varsayim"
+    return "yok"
 
 
 # KPSS çıkarımı (F3.8): metinde KPSS geçiyor mu + puan türü (P3/P93/P94).
@@ -609,10 +639,20 @@ def v2_kayit(kayit: dict) -> dict:
     k["il"] = il or ""
     k["ilce"] = (k.get("ilce") or ilce or "").strip()
     k["bolge"] = bolge
+    _fold_cs = fold_tr(f"{k.get('baslik', '')} {k.get('ozet', '')}")
+    # Kaynağın kendisi söylediyse (ör. Lever `workplaceType`) çıkarım yapma.
+    _cs_kaynak = ("kaynak" if k.get("calisma_sekli") not in (None, "", V2_BILINMIYOR)
+                  else _calisma_sekli_kaynak(_fold_cs, k.get("hat")))
     if not k.get("calisma_sekli") or k.get("calisma_sekli") == V2_BILINMIYOR:
         # Eski kayıtlardaki başlık+özetten geriye dönük çıkarım
-        k["calisma_sekli"] = _calisma_sekli(
-            fold_tr(f"{k.get('baslik', '')} {k.get('ozet', '')}"))
+        k["calisma_sekli"] = _calisma_sekli(_fold_cs)
+        # Kamu kadroları doğası gereği yerinde; metinden çıkmadıysa varsayılan.
+        if k["calisma_sekli"] == V2_BILINMIYOR and k.get("hat") == "kamu":
+            k["calisma_sekli"] = "yuzyuze"
+    if k["calisma_sekli"] != V2_BILINMIYOR:
+        k.setdefault("detay", {})
+        if isinstance(k["detay"], dict):
+            k["detay"]["calisma_sekli_kaynak"] = _cs_kaynak
     if k.get("kpss") is None:
         # F3.8: KPSS şartı + puan türü çıkarımı (yoksa None kalır)
         var_mi, tur = _kpss_bilgi(fold_tr(f"{k.get('baslik', '')} {k.get('ozet', '')}"))
@@ -1486,6 +1526,10 @@ def main(argv: list[str] | None = None) -> None:
     birlesik, capraz = _dedup_capraz(birlesik)
     if capraz:
         print(f"  ⇄ {capraz} kayıt çapraz-kaynakta birleşti (kamu öncelikli)")
+    # Kararlı sıra (F5.3): id'ye göre sırala — içerik değişmeyince günlük
+    # diff ~0 olur, history şişmez. Sıralama ilk koşuda tek seferlik büyük
+    # diff üretir, sonrası yalnız gerçekten değişen kayıtlar.
+    birlesik.sort(key=lambda x: x.get("id", ""))
     bugun_str = date.today().isoformat()
     rapor = _kosu_raporu(yeni, eski_idler, hatalar, bugun_str)
     for kod, satir in rapor["kaynaklar"].items():
