@@ -29,6 +29,7 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 13:09 | opencode | F2.2: olu-kaynak alarmi (10 kosu gecmis, Step Summary; kirmiziya dusurmez karari); 7660aea pushlandi. Siradaki: F2.3 tekillestirme.
 2026-09-05 14:16 | opencode | F2.3: capraz kaynak tekillestirme (kamu kazanir, canli 17 birlesme); da93be9 pushlandi. F2 tamam. Siradaki: F3.1 KK RSS.
 2026-09-05 14:34 | opencode | F3.1: Kariyer Kapisi RSS adaptoru (girissiz, canli 33/30 ilan); 74bd5ea pushlandi. Siradaki: F3.3 ilan.yok.
+2026-09-05 15:27 | opencode | F3.3: ilan.yok olu, akademiktr adaptoru (canli 32); F3.4: BIK API cozumuyle 126 personel ilani + union merge duzeltmesi; b18ebbe pushlandi. Siradaki: F3.5 Vizyoner.
 2026-09-04 23:55 | Claude Code | KPSS veri kaybi geri alindi + bos-sonuc bekcisi, CI pin bypass i duzeltildi (CI artik yesil), tusdus sessiz basarisi giderildi; OSYM URL kesfi engelli.
 2026-09-05 01:40 | Claude Code | OSYM yeni URL semasi cozuldu (chunked-hang toleransli fetch + Duyurular/Index kesfi); KPSS 2026/1, TUS ve DUS 2026 verileri geldi; CI yesil.
 2026-09-05 02:20 | Claude Code | CI kor noktasi kapatildi (haftalik schedule); LGS ve Yearly YKS dispatch ile yesil kosup 2026 verisini commitledi.
@@ -53,3 +54,4 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 14:05 | Claude Code | ATS haritasi: getmidas 13, insiderone 117 (kuresel, Istanbul 10), codeway 0 eklendi -> TR ilgili ~101 ilan. papara/useinsider/colendi arama sonucunda vardi ama 404 (bayat indeks) -> "aramadan geleni API de dogrula" kurali yazildi.
 2026-09-05 14:40 | Claude Code | Kaynak rehberi icin 9 yeni girdi + 6 duzeltme hazirlandi (KAYNAK_REHBERI_ONERILERI.md); kodilan girdisi kumar sitesine donustugu icin silinmeli olarak isaretlendi.
 2026-09-05 15:10 | Claude Code | Kapsama olculdu: 7 kaynak toplaniyor / rehberde 42 / ~35i yalniz link. KAPSAMA_MATRISI.md yazildi; hazir bekleyen iki adaptor (savunmakariyer, Lever ATS) gorev olarak isaretlendi.
+2026-09-05 15:45 | Claude Code | Buyuk paneller olculdu: kariyer.net WAF 403 (elendi), eleman.net schema.org JobPosting JSON-LD ile en zengin kaynak cikti (il+ilce+son basvuru+istihdam turu hazir), yenibiris/isbul erisilebilir ama HTML parse gerekiyor.

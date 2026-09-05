@@ -511,6 +511,64 @@ değerlendirilecek (F4.5/F4.6).
 
 ---
 
+## 13. Sekizinci tur — büyük özel panolar ölçüldü
+
+### 13.1 kariyer.net — 🔴 WAF, ERİŞİM YOK
+
+`/is-ilanlari` ve `/is-ilanlari/bilgisayar-muhendisi` → **HTTP 403**, gövdede
+bot koruması izi. TR'nin en büyük panosu ama **pratikte kapalı.**
+
+⚠️ Bu, §3.2'de yazdığım uyarının somut kanıtı: **robots izin veriyor diye site
+kazımayı hoş karşılıyor demek değil.** kariyer.net robots'unda ilan yolları
+serbest, yine de WAF 403 veriyor. → §3 madde 6: zorlanmayacak.
+
+### 13.2 eleman.net — ✅ EN ZENGİN KAYNAK, JSON-LD ile
+
+`/is-ilanlari` → **HTTP 200, 283 KB, sunucu-tarafı**, sayfada 30 ilan linki
+(`/is-ilani/<slug>-i<id>`).
+
+**Detay sayfasında schema.org `JobPosting` JSON-LD var** — şema v2'nin istediği
+her şey hazır geliyor:
+
+| JSON-LD | Örnek | v2 alanı |
+|---|---|---|
+| `title` | CNC OPERATÖRÜ İLANI | `baslik` |
+| `datePosted` | 2026-09-05 16:07:56 | `tarih` |
+| `validThrough` | 2026-10-05 | **`son_basvuru`** |
+| `employmentType` | Tam Zamanlı | **`istihdam_turu`** |
+| `hiringOrganization.name` | Sofalıne Mobilya | `kurum` |
+| `jobLocation…addressLocality` | **"İstanbul,Kartal"** | **`il` + `ilce`** |
+| `baseSalary` | `{currency: TRY, …}` | `maas` |
+
+Ayrıca `industry`, `occupationalCategory`, `qualifications`, `skills`,
+`workHours`. **Standart olduğu için sayfa tasarımı değişse bile bozulmaz** —
+şimdiye kadar bulunan en sağlam parse yolu.
+
+**robots.txt uygun:** yasaklar `/*.asp$`, `/*.html$`, `/*.htm$` ve sorgu
+kalıpları (`?t=`, `?ilan_id=`, `?tip=`, `?uyelik_tipi=`) + `/favori.php`.
+**`/is-ilanlari` ve `/is-ilani/<slug>` yasak DEĞİL.** Sorgu tabanlı URL
+kullanılmayacak.
+
+**İl yolu çalışıyor ama KATI DEĞİL:** `/is-ilanlari/ankara` → Ankara baskın,
+`/is-ilanlari/trabzon` → Trabzon baskın; ama `/is-ilanlari/hatay` sayfasını
+başka şehirler doldurmuş (o ilde ilan az olduğunda tamamlıyor gibi).
+→ **İl yolunu KEŞİF için kullan, ilin kendisini her ilanın JSON-LD'sindeki
+`addressLocality`'den OKU.** Tek doğruluk kaynağı o.
+
+Sayfalama deseni bulunamadı (`/2`, `?sayfa=2` aynı sonucu veriyor); il yolları
+üzerinden gezinmek şimdilik en pratik kapsama yolu (81 il × ~30 ilan).
+
+### 13.3 yenibiris.com ve isbul.net — ✅ erişilebilir
+
+| Site | Sonuç | Not |
+|---|---|---|
+| yenibiris.com | 200, **572 KB** | Sayfalama görünür: `?sayfa=2` … `?sayfa=100`. JSON-LD **yok**; ilan kartları JS ile geliyor olabilir. |
+| isbul.net | 200, **920 KB** | Gerçek ilan linkleri: `/is-ilani/<firma>-<pozisyon>-<n>`. JSON-LD yok. |
+
+İkisi de sunucu-tarafı içerik veriyor; HTML parse gerekir (JSON-LD kolaylığı yok).
+
+---
+
 **Sıradaki keşif turları** (henüz yapılmadı):
 
 - [ ] Faal 302 OSB'nin en yoğun 8-10 ildeki sitelerinde ilan sayfası örneklemi
