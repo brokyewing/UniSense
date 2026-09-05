@@ -368,6 +368,33 @@ def _temizle_ham(s: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", s or "")).strip()
 
 
+# Jooble `type` alani 744 kayittan 658'inde dolu (%88) — zaten cekiliyordu ama
+# istihdam_turu'ne eslenmedigi icin o alan %94 bos gorunuyordu (olcum 2026-09-05).
+_JOOBLE_ISTIHDAM = {
+    "tam zamanli": "tam_zamanli",
+    "yari zamanli": "yari_zamanli",
+    "staj": "staj",
+    "gecici": "gecici",
+    "donemsel": "gecici",
+    "sozlesmeli": "sozlesmeli",
+}
+
+
+def _istihdam_turu_metinden(ham: str | None) -> str:
+    """Serbest metinden istihdam türü ("Tam zamanlı", "Staj", …).
+
+    Birden çok değer virgülle gelebiliyor ("Tam zamanlı, Yarı zamanlı");
+    ilk tanınan alınır. Tanınmazsa `bilinmiyor`.
+    """
+    if not ham:
+        return V2_BILINMIYOR
+    for parca in str(ham).split(","):
+        anahtar = fold_tr(parca.strip())
+        if anahtar in _JOOBLE_ISTIHDAM:
+            return _JOOBLE_ISTIHDAM[anahtar]
+    return V2_BILINMIYOR
+
+
 def _jooble_normalize(job: dict, bugun: str) -> dict | None:
     baslik = (job.get("title") or "").strip()
     link = (job.get("link") or "").strip()
@@ -390,6 +417,7 @@ def _jooble_normalize(job: dict, bugun: str) -> dict | None:
         "ilk_gorulme": bugun,
         "bolumler": _bolum_etiketle(metin),
         "calisma_sekli": _calisma_sekli(metin),
+        "istihdam_turu": _istihdam_turu_metinden(job.get("type")),
     }
 
 
@@ -549,6 +577,9 @@ def v2_kayit(kayit: dict) -> dict:
             det = dict(k.get("detay") or {})
             det.setdefault("kpss_tur", tur)
             k["detay"] = det
+    if not k.get("istihdam_turu") or k["istihdam_turu"] == V2_BILINMIYOR:
+        # Geriye dönük: Jooble kayıtlarında tür zaten detay.tur'da duruyor
+        k["istihdam_turu"] = _istihdam_turu_metinden((k.get("detay") or {}).get("tur"))
     k.setdefault("istihdam_turu", V2_BILINMIYOR)
     k.setdefault("deneyim", V2_BILINMIYOR)
     k.setdefault("pozisyon_etiket", [])
