@@ -36,6 +36,10 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 21:00 | opencode | F4.1: sorgu genisletme (Jooble 10 + CJ 7; canli 1843 kayit/1.9MB); 9347f2e pushlandi. Siradaki: F4.2 ATS tespiti.
 2026-09-05 21:37 | opencode | F4.2: 53 sirket ATS taramasi (Lever 4 + Ashby 2 dogrulandi; deftere is_kaynaklari.yml); YAML yerlesim hatasi parite testiyle yakalanip duzeltildi; test 65; 22fcdc7 pushlandi. Siradaki: F4.3 ATS adaptorleri.
 2026-09-05 22:03 | opencode | F4.3: Lever+Ashby adaptorleri (6 sirket/62 ilan, Amazon+Starfield zinciri); 1965 kayit, test 68; d29270d pushlandi. Siradaki: F4.4 tek tek sirketler.
+2026-09-05 22:27 | opencode | F4.4-F4.6: tek tek sirket arastirmasi (uygulanabilir adaptor cikmadi) + robots kararlari + indeed yasak; SAHIPLIK.md protokolune gecildi; c94eebd pushlandi. F4 tamam. Siradaki: F5 olcekleme.
+2026-09-05 22:37 | opencode | F5.1 hazirlik: --hat filtresi + gecmis birlesmesi (test 71); workflow bolunmesi Claude'a birakildi (sahiplik); 9f16165 pushlandi. Siradaki: F5.2 hiz sinirlari.
+2026-09-05 23:10 | opencode | F5.2: merkezi istek politikasi (retry+backoff+4xx kurali, 10 cagri noktasi); pre-commit 263 test yesil; 497bdd4 pushlandi. Yol haritasi bitti (F5.3 kullanici karari bekliyor).
+2026-09-05 23:30 | opencode | Claude'un v2 degisikliklerine test uyarlandi (kamu varsayimi; CJ tarih duzeltmesi onda hazirdi); pre-commit 264 yesil; a3a186f pushlandi. SAHIPLIK protokolu dogrulandi.
 2026-09-04 23:55 | Claude Code | KPSS veri kaybi geri alindi + bos-sonuc bekcisi, CI pin bypass i duzeltildi (CI artik yesil), tusdus sessiz basarisi giderildi; OSYM URL kesfi engelli.
 2026-09-05 01:40 | Claude Code | OSYM yeni URL semasi cozuldu (chunked-hang toleransli fetch + Duyurular/Index kesfi); KPSS 2026/1, TUS ve DUS 2026 verileri geldi; CI yesil.
 2026-09-05 02:20 | Claude Code | CI kor noktasi kapatildi (haftalik schedule); LGS ve Yearly YKS dispatch ile yesil kosup 2026 verisini commitledi.
@@ -71,3 +75,4 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 19:40 | Claude Code | calisma_sekli tavani olculdu: Lever %100 (91 kayit), diger kaynaklarda alan YOK; 1843 kayittan 17si dolu. En iyi ihtimalle ~%21 -> urun karari gerekiyor. Budama duzeltmesi dogrulandi: Savunma Kariyer 12->23.
 2026-09-05 20:05 | Claude Code | Bedava kazanc bulundu: Jooble detay.tur %88 dolu (658/744) ama istihdam_turuya eslenmemis. calisma_sekli metin cikarimi tavani %8 olculdu. Careerjet maas ve site alanlari 0/929 (olu).
 2026-09-05 21:00 | Claude Code | Sehir kanoniklestirme (355->65 il) ve Jooble istihdam_turu (%2->%36) baglandi; lint duzeltmeleri 2. kez geri gittigi icin pre-commit kancasi eklendi. robots_kontrol eksik, CI opencode tarafinda kirik.
+2026-09-06 | Claude Code | unisense.site render.yaml+vercel.json'dan silindi; ilce->il indeksi (98 tekil ilce) ve calisma_sekli cikarimi (27->568, %1,4->%29,4) baglandi, kaynak damgasi eklendi; 284 test yesil (83f0e4a).

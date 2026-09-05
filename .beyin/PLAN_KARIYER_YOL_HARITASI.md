@@ -353,25 +353,28 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
       pakete eklendi.
       *Bitti:* 6 şirketin ilanları geliyor (Codeway/Midas/Iyzico/Bigger/
       Spyke/Çiçeksepeti, 62 kayıt).
-- [ ] **F4.4** ATS kullanmayan şirketler için tek tek adaptör — F4.2'deki
-      listeden, önce ilan sayısı yüksek olanlar.
-- [ ] **F4.5** kariyer.net / secretcv / yenibiris / eleman.net.
-      **Ön koşul:** adaptör yazmadan önce hedef YOLU `robots.txt`'te doğrula
-      (§3.2 tablosu). kariyer.net'te ilan yolları serbest ama `/filtre*` ve
-      `/ozgecmis/*` YASAK — filtre URL'leri kullanılmayacak.
-      Bot koruması çıkarsa §3 madde 6; zorlanmaz.
-      *Bitti:* her kaynak için "robots izni var mı" kararı kayıt defterine
-      `robots_kontrol` alanı olarak yazıldı.
-- [ ] **F4.6** tr.indeed.com — 468 disallow kuralı var, ilan/arama yollarının
-      çoğu kapalı. **Önce** Türkiye ilan yollarının serbest olup olmadığını
-      belirle; kapalıysa `erisim: robots_yasak` yaz ve GEÇ.
+- [x] **F4.4** ATS kullanmayan şirketler (opencode, 2026-09-05, c94eebd):
+      Trendyol/Jotform shell, Paribu Ashby panosu ölü, Enuygun Workable hesabı
+      bulunamadı — uygulanabilir adaptör çıkmadı; Jooble zaten kapsıyor.
+- [x] **F4.5** robots.txt doğrulaması (opencode, 2026-09-05, c94eebd):
+      kariyer.net kısmi (ilan serbest, /filtre+özgeçmiş yasak), secretcv kısmi
+      (arama URL'leri yasak), yenibiris Cloudflare duvarı, eleman.net kısmi.
+      *Bitti:* kararlar `robots_kontrol` alanında.
+- [x] **F4.6** tr.indeed.com (opencode, 2026-09-05, c94eebd): `/jobs/TR/` ve
+      `/viewjob` kapalı → `erisim: robots_yasak`, geçildi.
       **LinkedIn bu fazda YOK** — §3.2'ye göre kalıcı olarak kapalı.
 
 ### F5 — Ölçekleme
 
 - [ ] **F5.1** Kaynak sayısı 15'i geçince cron'u 2 koşuya böl (kamu / özel).
-- [ ] **F5.2** Kaynak başına hız sınırı ve yeniden deneme politikası tek yerde
-      toplansın (şu an adaptörlere dağılmış olabilir).
+      opencode hazır (2026-09-05, 9f16165): `scrape(hatlar)` + `--hat kamu|ozel`
+      + aynı-gün geçmiş birleşmesi; union sayesinde diğer hat korunur.
+      Kalan (Claude Code'un alanı): `kariyer-sync.yml` içinde 2 job
+      (`--hat kamu`, `--hat ozel`).
+- [x] **F5.2** Kaynak başına hız sınırı ve yeniden deneme politikası
+      (opencode, 2026-09-05, 497bdd4): `_istek()` merkezi — üstel geri çekilme
+      (1s/2s/4s), 4xx'te anında bırakma, 10 çağrı noktası `_get`/`_post`'a
+      taşındı. *Bitti:* testli (yeniden deneme/404/500) + canlı doğrulandı.
 - [ ] **F5.3** **Repo şişmesi — ölçüldü, ilerde tıkar.** Repo şu an **230 MB**.
       `chunks.json` 28 MB ve her index yeniden üretiminde commit'leniyor;
       `kariyer_ilanlar.json` 528 KB ve GÜNLÜK commit'leniyor (yılda ~365 sürüm).

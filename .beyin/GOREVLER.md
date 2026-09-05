@@ -307,3 +307,16 @@ geldi**. `df00c49`'da 34 hata olarak tekrar ölçüldü ve yeniden düzeltildi.
 - [ ] Kapalı TR şirket URL'leri doğrulanmalı (Getir, Baykar, Roketsan, STM, Papara...; career-ops tarafı)
 - [x] `kaynak_hat: kamu|ozel` alanı + API `hat` filtresi uygulandı
 - Detay: `.beyin/PLAN_KARIYER.md` Ek bölümü (21 sayfalık PDF metni + portals.yml satır referanslı)
+
+## Kariyer — çalışma şekli görüntüleme (ekleyen: Claude Code, 2026-09-06)
+Backend artık `detay.calisma_sekli_kaynak` yazıyor: `beyan` | `dolayli` |
+`varsayim` | `kaynak`. Ölçüm (1935 kayıt): 568 kayıtta çalışma şekli var ama
+bunun **281'i kamu varsayımı, 260'ı dolaylı sinyal** — yani yalnız 27'si
+gerçekten güvenilir.
+
+- [ ] `Kariyer.jsx`: `varsayim` ve `dolayli` rozetleri soluk/işaretli göster
+      (ör. "Yüz yüze (tahmini)"); `beyan`/`kaynak` normal.
+- [ ] Çalışma şekli filtresi `varsayim` kayıtları varsayılan olarak dahil
+      etsin ama "yalnız doğrulanmış" seçeneği bulunsun.
+- Kaynak: `kariyer_scraper.py` `_calisma_sekli_kaynak` (satır ~365).
+
