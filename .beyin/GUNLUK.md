@@ -52,3 +52,4 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 13:40 | Claude Code | SAHIPLIK.md yazildi (dosya sahipligi + cakisma onleme protokolu); PLAN_KARIYER.mddeki iki yanlis iddia duzeltildi (ATS APIsi yok / tek TR ATS Getir).
 2026-09-05 14:05 | Claude Code | ATS haritasi: getmidas 13, insiderone 117 (kuresel, Istanbul 10), codeway 0 eklendi -> TR ilgili ~101 ilan. papara/useinsider/colendi arama sonucunda vardi ama 404 (bayat indeks) -> "aramadan geleni API de dogrula" kurali yazildi.
 2026-09-05 14:40 | Claude Code | Kaynak rehberi icin 9 yeni girdi + 6 duzeltme hazirlandi (KAYNAK_REHBERI_ONERILERI.md); kodilan girdisi kumar sitesine donustugu icin silinmeli olarak isaretlendi.
+2026-09-05 15:10 | Claude Code | Kapsama olculdu: 7 kaynak toplaniyor / rehberde 42 / ~35i yalniz link. KAPSAMA_MATRISI.md yazildi; hazir bekleyen iki adaptor (savunmakariyer, Lever ATS) gorev olarak isaretlendi.

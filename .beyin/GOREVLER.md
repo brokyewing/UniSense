@@ -63,6 +63,25 @@ rehberin kendi JSON biçiminde yazıldı. `_KAYNAKLAR` opencode'un alanı, dokun
       isbul.net, ATS panoları, Wellfound/RemoteOK/Bionluk, OSBÜK, TOBB Sanayi).
       Rehber 42 → 50 kaynak.
 
+## Kapsama — "tek bir site bile kalmasın" (Claude Code, 2026-09-05 ölçtü)
+
+Ölçüm: **7 kaynak fiilen toplanıyor**, rehberde 42 var, **~35'i yalnız link**.
+Ayrıntı ve öncelik sırası: **`.beyin/KAPSAMA_MATRISI.md`**
+
+Araştırması BİTMİŞ, sadece adaptör bekleyen ikisi (sıfır araştırma gerekiyor):
+
+- [ ] **savunmakariyer.com adaptörü** — API tamamen çözüldü
+      (`KAYNAK_HARITASI` §10). 24 ilan + 343 onaylı firma + 81 il; auth yok;
+      `jobLocation`→il, `endDate`→son_basvuru. ASELSAN/HAVELSAN/ROKETSAN/
+      STM/BAYKAR/TUSAŞ/TEI bu tek kaynakta.
+- [ ] **Lever ATS adaptörü** — 6 slug doğrulandı (§9.3): `trendyol`,
+      `peakgames`, `dreamgames`, `getmidas`, `iyzico`, `insiderone`.
+      `api.lever.co/v0/postings/<slug>?mode=json`, auth yok, ~101 TR ilanı.
+      ⚠️ konum alanı bazı şirketlerde bozuk → `il_to_bolge` ile doğrula.
+
+Sonraki öncelikler: kariyer.net (robots ilan yollarına izin veriyor) →
+eleman.net (81 il iddiası) → yenibiris/isbul/secretcv.
+
 ## Bitti
 - [x] Ruff bulguları temizlendi, `<0.16` üst sınırı kaldırıldı (bb9bc50)
 - [x] TUS/DUS + KPSS Data Sync gerçek Actions koşusunda YEŞİL (dispatch, 2026-09-04)
