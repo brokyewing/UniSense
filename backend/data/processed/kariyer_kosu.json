@@ -8,12 +8,17 @@
   },
   "jooble": {
    "cekilen": 385,
-   "yeni": 76,
+   "yeni": 86,
    "hata": ""
   },
   "kamuilan": {
    "cekilen": 76,
    "yeni": 76,
+   "hata": ""
+  },
+  "kariyerkapisi": {
+   "cekilen": 33,
+   "yeni": 33,
    "hata": ""
   },
   "rg": {
@@ -22,7 +27,7 @@
    "hata": ""
   }
  },
- "toplam_kayit": 535,
+ "toplam_kayit": 565,
  "gecmis": [
   {
    "tarih": "2026-09-05",
@@ -30,6 +35,7 @@
     "careerjet": 174,
     "jooble": 385,
     "kamuilan": 76,
+    "kariyerkapisi": 33,
     "rg": 1
    }
   }

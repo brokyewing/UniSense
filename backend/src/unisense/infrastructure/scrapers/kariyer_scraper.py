@@ -211,7 +211,13 @@ def scrape() -> tuple[list[dict], dict[str, str]]:
         print(f"  ⚠️ kamuilan düşti: {type(e).__name__}: {e}")
         hatalar["kamuilan"] = f"{type(e).__name__}: {e}"
         kam = []
-    return rg + hatb + kam, hatalar
+    try:
+        kk = _scrape_kariyerkapisi(session)
+    except Exception as e:  # noqa: BLE001
+        print(f"  ⚠️ kariyerkapisi düştü: {type(e).__name__}: {e}")
+        hatalar["kariyerkapisi"] = f"{type(e).__name__}: {e}"
+        kk = []
+    return rg + hatb + kam + kk, hatalar
 
 
 # === Hat B: Jooble + Careerjet (API anahtarlı) ===
@@ -409,7 +415,7 @@ def _scrape_hatb(session: requests.Session) -> list[dict]:
 # "kaynak:anahtar" — eski "kaynak-anahtar" id'ler _migrate'te deterministik
 # çevrilir (süreklilik korunur, ilk_gorulme sıfırlanmaz).
 KAYNAK_KOD = {"Jooble": "jooble", "Careerjet": "careerjet", "Resmî Gazete": "rg",
-              "kamuilan.sbb.gov.tr": "kamuilan"}
+              "kamuilan.sbb.gov.tr": "kamuilan", "Kariyer Kapısı": "kariyerkapisi"}
 
 V2_BILINMIYOR = "bilinmiyor"
 
@@ -655,6 +661,73 @@ def _gecmis_guncelle(kosu_dosya: Path, bugun: str, cekilen: dict[str, int]) -> t
             if all((g.get("cekilen") or {}).get(kod, 0) == 0 for g in son3):
                 alarmlar.append(kod)
     return gecmis, alarmlar
+
+
+# === Hat A1: Kariyer Kapısı RSS (girişsiz, yapılandırılmış) ===
+# https://kariyerkapisi.gov.tr/RSS — guid/link/category/title/pubDate.
+# category → istihdam türü; "KURUM - başlık" kalıbından kurum ayrışır.
+KK_RSS_URL = "https://kariyerkapisi.gov.tr/RSS"
+KK_ISTIHDAM = {"sözleşmeli": "sozlesmeli", "staj": "staj", "işçi": "tam_zamanli"}
+
+
+def _kk_istihdam(category: str) -> str:
+    f = fold_tr(category)
+    for anahtar, tur in KK_ISTIHDAM.items():
+        if fold_tr(anahtar) in f:
+            return tur
+    return V2_BILINMIYOR
+
+
+def _scrape_kariyerkapisi(session: requests.Session) -> list[dict]:
+    import xml.etree.ElementTree as ET
+    from email.utils import parsedate_to_datetime
+    kayitlar: list[dict] = []
+    bugun = date.today().isoformat()
+    r = session.get(KK_RSS_URL, timeout=REQUEST_TIMEOUT)
+    r.raise_for_status()
+    kok = ET.fromstring(r.content)
+    for item in kok.iter("item"):
+        def metin(etiket: str) -> str:
+            el = item.find(etiket)
+            return (el.text or "").strip() if el is not None else ""
+        baslik = metin("title")
+        link = metin("link") or metin("guid")
+        if not baslik or not link:
+            continue
+        kurum, _, _kisa = baslik.partition(" - ")
+        try:
+            tarih = parsedate_to_datetime(metin("pubDate")).date().isoformat()
+        except (ValueError, TypeError):
+            tarih = ""
+        category = metin("category")
+        metin_fold = fold_tr(f"{baslik} {category}")
+        anahtar = re.search(r"[?&]i=([0-9a-f-]{8,})", link)
+        kayitlar.append({
+            "id": f"kariyerkapisi:{anahtar.group(1)[:24] if anahtar else hashlib.sha1(link.encode()).hexdigest()[:12]}",
+            "hat": "kamu",
+            "kaynak": "Kariyer Kapısı",
+            "kaynak_kod": "kariyerkapisi",
+            "baslik": baslik,
+            "kurum": kurum.strip() or baslik,
+            "il": "",
+            "ilce": "",
+            "bolge": "Bilinmiyor",
+            "tarih": tarih,
+            "son_basvuru": None,
+            "url": link,
+            "ozet": f"{category} — {baslik}"[:300],
+            "detay": {"kategori": category},
+            "ilk_gorulme": bugun,
+            "bolumler": _bolum_etiketle(metin_fold),
+            "calisma_sekli": _calisma_sekli(metin_fold),
+            "istihdam_turu": _kk_istihdam(category),
+            "deneyim": V2_BILINMIYOR,
+            "pozisyon_etiket": [],
+            "kpss": None,
+            "maas": None,
+        })
+    print(f"  kariyerkapisi: {len(kayitlar)} ilan")
+    return kayitlar
 
 
 def _merge(yeni: list[dict], eski: list[dict]) -> list[dict]:

@@ -312,7 +312,7 @@ class TestDefter:
         from unisense.infrastructure.scrapers.kariyer_registry import yukle
         girdiler = yukle()
         kodlar = {g["kod"] for g in girdiler if g.get("aktif")}
-        assert {"rg", "jooble", "careerjet", "kamuilan"} <= kodlar
+        assert {"rg", "jooble", "careerjet", "kamuilan", "kariyerkapisi"} <= kodlar
 
     def test_davranis_paritesi(self):
         # Defter değerleri eski gömülü sabitlerle aynı olmalı
@@ -405,4 +405,32 @@ class TestCaprazDedup:
         b = self._r("b", "ozel", "Mühendis", "X", "İzmir")
         out, n = _dedup_capraz([a, b])
         assert n == 0 and len(out) == 2
+
+
+class TestKariyerKapisi:
+    ORNEK_RSS = """<?xml version="1.0" encoding="utf-8"?><rss><channel>
+    <item><guid isPermaLink="true">https://kariyerkapisi.gov.tr/IlanDetay?i=abc-123</guid>
+    <link>https://kariyerkapisi.gov.tr/IlanDetay?i=abc-123</link>
+    <category>Sözleşmeli Personel İlanları</category>
+    <title>ANKARA ÜNİVERSİTESİ - Sözleşmeli Bilişim Personeli Alım İlanı</title>
+    <description>x</description>
+    <pubDate>Thu, 04 Sep 2026 00:00:00 +0300</pubDate></item>
+    <item><title>Eksik kayıt</title></item>
+    </channel></rss>"""
+
+    def test_rss_parse(self):
+        import xml.etree.ElementTree as ET
+        from email.utils import parsedate_to_datetime
+        kok = ET.fromstring(self.ORNEK_RSS)
+        items = list(kok.iter("item"))
+        assert len(items) == 2
+        baslik = items[0].find("title").text
+        kurum, _, _ = baslik.partition(" - ")
+        assert kurum == "ANKARA ÜNİVERSİTESİ"
+        assert parsedate_to_datetime(items[0].find("pubDate").text).date().isoformat() == "2026-09-04"
+
+    def test_istihdam_esleme(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import _kk_istihdam
+        assert _kk_istihdam("Sözleşmeli Personel İlanları") == "sozlesmeli"
+        assert _kk_istihdam("A Grubu Memur (Kariyer Meslek)") == "bilinmiyor"
 
