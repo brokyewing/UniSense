@@ -230,7 +230,13 @@ def scrape(bilinen: set[str] | None = None) -> tuple[list[dict], dict[str, str]]
         print(f"  ⚠️ ilangovtr düştü: {type(e).__name__}: {e}")
         hatalar["ilangovtr"] = f"{type(e).__name__}: {e}"
         bg = []
-    return rg + hatb + kam + kk + ak + bg, hatalar
+    try:
+        sk = _scrape_savunmakariyer(session)
+    except Exception as e:  # noqa: BLE001
+        print(f"  ⚠️ savunmakariyer düştü: {type(e).__name__}: {e}")
+        hatalar["savunmakariyer"] = f"{type(e).__name__}: {e}"
+        sk = []
+    return rg + hatb + kam + kk + ak + bg + sk, hatalar
 
 
 # === Hat B: Jooble + Careerjet (API anahtarlı) ===
@@ -429,7 +435,8 @@ def _scrape_hatb(session: requests.Session) -> list[dict]:
 # çevrilir (süreklilik korunur, ilk_gorulme sıfırlanmaz).
 KAYNAK_KOD = {"Jooble": "jooble", "Careerjet": "careerjet", "Resmî Gazete": "rg",
               "kamuilan.sbb.gov.tr": "kamuilan", "Kariyer Kapısı": "kariyerkapisi",
-              "AkademikTR": "akademiktr", "ilan.gov.tr": "ilangovtr"}
+              "AkademikTR": "akademiktr", "ilan.gov.tr": "ilangovtr",
+              "Savunma Kariyer": "savunmakariyer"}
 
 V2_BILINMIYOR = "bilinmiyor"
 
@@ -936,6 +943,79 @@ def _scrape_ilangovtr(session: requests.Session,
         else:
             ardarda_tanidik = 0
     print(f"  ilangovtr: {len(kayitlar)} personel ilanı")
+    return kayitlar
+
+
+# === Hat A9: savunmakariyer.com (eski Vizyoner Genç) ===
+# Vite SPA; herkese açık API bulundu (JS paketinden): POST
+# /api/career-core/public/jobs {page, size, sortDirection}. Auth yok.
+# jobType: FULL_TIME|PART_TIME|INTERNSHIP|SCHOLARSHIP alınır, ACTIVITY
+# (etkinlik) atlanır. Detay: /ilanlar/ilanDetay/{id}.
+SK_UC = "https://savunmakariyer.com/api/career-core/public/jobs"
+SK_ISTIHDAM = {"FULL_TIME": "tam_zamanli", "PART_TIME": "yari_zamanli",
+               "INTERNSHIP": "staj"}
+
+
+def _scrape_savunmakariyer(session: requests.Session) -> list[dict]:
+    kayitlar: list[dict] = []
+    bugun = date.today().isoformat()
+    sayfa, toplam_sayfa = 1, 1
+    while sayfa <= toplam_sayfa:
+        try:
+            r = session.post(
+                SK_UC, json={"page": sayfa, "size": 25, "sortDirection": "DESC"},
+                headers={"Origin": "https://savunmakariyer.com",
+                         "Referer": "https://savunmakariyer.com/ilanlar"},
+                timeout=REQUEST_TIMEOUT)
+            r.raise_for_status()
+            data = r.json().get("data") or {}
+        except Exception as e:  # noqa: BLE001
+            print(f"  ⚠️ savunmakariyer s.{sayfa}: {type(e).__name__}")
+            break
+        toplam_sayfa = int(data.get("totalPages") or 1)
+        ads = data.get("content") or []
+        if not ads:
+            break
+        for ad in ads:
+            if not isinstance(ad, dict) or ad.get("jobType") == "ACTIVITY":
+                continue
+            jid = str(ad.get("id") or "").strip()
+            baslik = (ad.get("jobTitle") or "").strip()
+            if not jid or not baslik:
+                continue
+            kurum = (ad.get("companyName") or "").strip()
+            sehir = (ad.get("jobLocation") or "").strip()
+            ozet = _temizle_ham(ad.get("jobDescription") or "")[:300]
+            metin = fold_tr(f"{baslik} {kurum} {ozet}")
+            kayitlar.append({
+                "id": f"savunmakariyer:{jid[:24]}",
+                "hat": "kamu",
+                "kaynak": "Savunma Kariyer",
+                "kaynak_kod": "savunmakariyer",
+                "baslik": baslik,
+                "kurum": kurum,
+                "il": sehir,
+                "ilce": "",
+                "bolge": il_to_bolge(sehir) if sehir else "Bilinmiyor",
+                "tarih": (ad.get("startDate") or ad.get("createdAt") or "")[:10],
+                "son_basvuru": (ad.get("endDate") or "")[:10] or None,
+                "url": f"https://savunmakariyer.com/ilanlar/ilanDetay/{jid}",
+                "ozet": ozet,
+                "detay": {"jobType": ad.get("jobType", ""),
+                          "basvuru_sayisi": ad.get("applicationCount")},
+                "ilk_gorulme": bugun,
+                "bolumler": _bolum_etiketle(metin),
+                "calisma_sekli": _calisma_sekli(metin),
+                "istihdam_turu": SK_ISTIHDAM.get(ad.get("jobType") or "", V2_BILINMIYOR),
+                "deneyim": V2_BILINMIYOR,
+                "pozisyon_etiket": [],
+                "kpss": False,  # savunma şirketleri kendi alımını yapar
+                "maas": None,
+            })
+        print(f"  savunmakariyer s.{sayfa}: {len(ads)} kayıt")
+        time.sleep(KIBAR_BEKELEME)
+        sayfa += 1
+    print(f"  savunmakariyer: {len(kayitlar)} ilan")
     return kayitlar
 
 
