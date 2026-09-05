@@ -63,3 +63,15 @@ def sirket_ats(yol: Path | str | None = None) -> list[dict]:
     if not isinstance(liste, list):
         raise ValueError(f"{p}: 'sirket_ats' liste değil")
     return liste
+
+
+def robots_kontrol(yol: Path | str | None = None) -> list[dict]:
+    """robots.txt kararları (F4.5). erisim: kismi | bot_duvari | robots_yasak."""
+    p = Path(yol) if yol else defter_yolu()
+    data = yaml.safe_load(p.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError(f"{p}: sözlük değil")
+    liste = data.get("robots_kontrol") or []
+    if not isinstance(liste, list):
+        raise ValueError(f"{p}: 'robots_kontrol' liste değil")
+    return liste
