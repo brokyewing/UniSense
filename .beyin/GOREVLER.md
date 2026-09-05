@@ -113,7 +113,7 @@ Silinen gerçek örnekler (hepsi **açık**):
 Toplam **14 açık ilan** kayıp; kaynak eklendikçe büyür. Uzun süre açık kalan
 kurumsal ilanlar (genel başvuru havuzları) sistematik olarak eleniyor.
 
-- [ ] **Düzeltme:** `son_basvuru` DOLU ve gelecekteyse yaş budamasını ATLA.
+- [x] ~~**Düzeltme:** `son_basvuru` DOLU ve gelecekteyse yaş budamasını ATLA.~~ ÇÖZÜLDÜ (88a6d5b)
       Yaş kuralı yalnız `son_basvuru`'su olmayan kayıtlar için çalışsın.
       *Bitti:* Savunma Kariyer 24 (ACTIVITY hariç 23), Kariyer Kapısı 33 kayıt
       yazılıyor; testte açık-ama-eski bir ilan korunuyor.
@@ -132,6 +132,28 @@ kurum adından il çıkarıyor, adında il geçmeyenler için istisna tablosu va
 - [ ] Adaptörlerde `il` boşsa `metinden_il_bul(kurum)` → olmazsa
       `metinden_il_bul(baslik)` çağrılsın; `bolge` bundan türetilsin.
       *Bitti:* ili boş kayıt 128 → ~46'ya düşüyor.
+
+## ⚠️ CI 4 saat kırmızı kaldı — commit öncesi ruff ZORUNLU
+
+CI 2026-09-05 sabahından beri **18 commit boyunca kırmızıydı** ve kimse fark
+etmedi. Sebep birikmiş lint borcu: `kariyer_scraper.py` 17, `test_kariyer.py` 11,
+`kariyer_registry.py` 2 hata. `ba1c12f` ile temizlendi.
+
+- [ ] **Her commit öncesi `ruff check src tests --fix` çalıştır.** Yeşil değilse
+      commit etme. Kırmızı CI'a alışmak, gerçek hataları görünmez yapıyor —
+      bugün Careerjet tarih hatası ve açık-ilan budaması tam bu yüzden günlerce
+      fark edilmedi.
+- [ ] opencode'un çalışma ağacındaki `kariyer_scraper.py` / `test_kariyer.py`
+      kopyaları `ba1c12f`'teki lint düzeltmelerini İÇERMİYOR. Commit'lemeden
+      önce `git pull --rebase` yapıp ruff'ı tekrar çalıştır, yoksa düzeltmeler
+      geri gider.
+
+### Düzeltilenler (bu oturumda, Claude Code)
+
+- [x] Careerjet tarihleri — RFC-822 ayrıştırma (`88a6d5b`), 228 kayıt
+- [x] Açık ilanların budanması — `son_basvuru` varsa yaş kuralı atlanır
+      (`88a6d5b`), 14 açık ilan kurtarıldı
+- [x] Birikmiş lint borcu (`ba1c12f`)
 
 ## Bitti
 - [x] Ruff bulguları temizlendi, `<0.16` üst sınırı kaldırıldı (bb9bc50)
