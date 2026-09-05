@@ -239,6 +239,27 @@ döndürmüyor. Kod doğru okuyor, veri yok.
 - [ ] Ya alanları kaldır ya da Careerjet API çağrısına eksik parametre var mı
       diye bak (dokümanda `site` alanı vaat ediliyor).
 
+## 🚨 Lint düzeltmeleri İKİNCİ KEZ geri gitti — kurulum gerekiyor
+
+`ba1c12f`'te düzelttiğim lint hataları (RUF059 `g3`, RUF012 `ORNEK_AD`, B023
+closure, I001) opencode kendi çalışma kopyasını commit'leyince **aynen geri
+geldi**. `df00c49`'da 34 hata olarak tekrar ölçüldü ve yeniden düzeltildi.
+
+- [ ] **`scripts/pre-commit.sh` kancasını kur** (her araç kendi tarafında):
+      ```
+      git config core.hooksPath scripts/githooks
+      mkdir -p scripts/githooks && cp scripts/pre-commit.sh scripts/githooks/pre-commit
+      chmod +x scripts/githooks/pre-commit
+      ```
+      Commit öncesi ruff + pytest çalıştırır; kırıksa commit'i durdurur.
+      Zorunlu hallerde `git commit --no-verify`.
+
+- [ ] **`robots_kontrol` eksik — CI kırık.** `tests/test_kariyer.py`
+      `kariyer_registry`'den `robots_kontrol` import ediyor ama fonksiyon yok:
+      `ImportError: cannot import name 'robots_kontrol'`. Test, uygulamasından
+      önce commit'lenmiş. **Bu opencode'un yarım özelliği**, dokunmadım —
+      fonksiyon eklenene kadar CI kırmızı kalır.
+
 ## Bitti
 - [x] Ruff bulguları temizlendi, `<0.16` üst sınırı kaldırıldı (bb9bc50)
 - [x] TUS/DUS + KPSS Data Sync gerçek Actions koşusunda YEŞİL (dispatch, 2026-09-04)

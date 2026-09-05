@@ -202,7 +202,7 @@ def scrape(bilinen: set[str] | None = None,
     hatalar: dict[str, str] = {}
     try:
         rg = _scrape_rg(session)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"  ⚠️ rg düştü: {type(e).__name__}: {e}")
         hatalar["rg"] = f"{type(e).__name__}: {e}"
         rg = []
@@ -211,43 +211,43 @@ def scrape(bilinen: set[str] | None = None,
         print(f"  Hat B: {len(hatb)} ilan (jooble+careerjet)")
     try:
         kam = _scrape_kamuilan(session, detayli)
-    except Exception as e:  # noqa: BLE001 — kısmi başarı normal (§5)
+    except Exception as e:
         print(f"  ⚠️ kamuilan düşti: {type(e).__name__}: {e}")
         hatalar["kamuilan"] = f"{type(e).__name__}: {e}"
         kam = []
     try:
         kk = _scrape_kariyerkapisi(session)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"  ⚠️ kariyerkapisi düştü: {type(e).__name__}: {e}")
         hatalar["kariyerkapisi"] = f"{type(e).__name__}: {e}"
         kk = []
     try:
         ak = _scrape_akademiktr(session)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"  ⚠️ akademiktr düştü: {type(e).__name__}: {e}")
         hatalar["akademiktr"] = f"{type(e).__name__}: {e}"
         ak = []
     try:
         bg = _scrape_ilangovtr(session, bilinen)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"  ⚠️ ilangovtr düştü: {type(e).__name__}: {e}")
         hatalar["ilangovtr"] = f"{type(e).__name__}: {e}"
         bg = []
     try:
         sk = _scrape_savunmakariyer(session)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"  ⚠️ savunmakariyer düştü: {type(e).__name__}: {e}")
         hatalar["savunmakariyer"] = f"{type(e).__name__}: {e}"
         sk = []
     try:
         tt = _scrape_turksat(session)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"  ⚠️ turksat düştü: {type(e).__name__}: {e}")
         hatalar["turksat"] = f"{type(e).__name__}: {e}"
         tt = []
     try:
         at = _scrape_ats(session)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"  ⚠️ ats düştü: {type(e).__name__}: {e}")
         hatalar["ats"] = f"{type(e).__name__}: {e}"
         at = []
@@ -717,16 +717,16 @@ def _scrape_kamuilan(session: requests.Session,
     detayli = detayli or set()
     detay_sayac = 0
     # Timeline tarih-grupludur: bir <li> = bir gün, içinde birden çok ilan.
-    gruplar = re.findall(r"<li>(.*?)</li>\s*(?:<li>|</ul>)", t, re.S)
+    gruplar = re.findall(r"<li>(.*?)</li>\s*(?:<li>|</ul>)", t, re.DOTALL)
     for li in gruplar:
-        tm = re.search(r"<time[^>]*><h4>(.*?)</h4><h3>(.*?)</h3></time>", li, re.S)
+        tm = re.search(r"<time[^>]*><h4>(.*?)</h4><h3>(.*?)</h3></time>", li, re.DOTALL)
         gun = re.sub(r"<[^>]+>", "", tm.group(1)).strip() if tm else ""
         ay = re.sub(r"<[^>]+>", "", tm.group(2)).strip() if tm else ""
         for m in re.finditer(
                 r"<a\s+href='(ilanDetay\.aspx\?kod=[^']+)'[^>]*>.*?"
                 r"<p class='alt_p1'>(.*?)</p>.*?"
                 r"<p class='alt_p2'>(.*?)<em[^>]*>(.*?)</em>",
-                li, re.S):
+                li, re.DOTALL):
             link, kurum_h, baslik_h, em_h = m.groups()
             b = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", baslik_h)).strip()
             k = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", kurum_h)).strip()
@@ -745,7 +745,7 @@ def _scrape_kamuilan(session: requests.Session,
                 try:
                     dmetin = _kamuilan_detay(session, link_tam)
                     time.sleep(KIBAR_BEKELEME)
-                except Exception as e:  # noqa: BLE001
+                except Exception as e:
                     print(f"  ⚠️ kamuilan detay: {type(e).__name__}")
                     dmetin = ""
                 if dmetin:
@@ -854,20 +854,21 @@ def _scrape_kariyerkapisi(session: requests.Session) -> list[dict]:
     r = session.get(KK_RSS_URL, timeout=REQUEST_TIMEOUT)
     r.raise_for_status()
     kok = ET.fromstring(r.content)
+    def metin(dugum, etiket: str) -> str:
+        el = dugum.find(etiket)
+        return (el.text or "").strip() if el is not None else ""
+
     for item in kok.iter("item"):
-        def metin(etiket: str) -> str:
-            el = item.find(etiket)
-            return (el.text or "").strip() if el is not None else ""
-        baslik = metin("title")
-        link = metin("link") or metin("guid")
+        baslik = metin(item, "title")
+        link = metin(item, "link") or metin(item, "guid")
         if not baslik or not link:
             continue
         kurum, _, _kisa = baslik.partition(" - ")
         try:
-            tarih = parsedate_to_datetime(metin("pubDate")).date().isoformat()
+            tarih = parsedate_to_datetime(metin(item, "pubDate")).date().isoformat()
         except (ValueError, TypeError):
             tarih = ""
-        category = metin("category")
+        category = metin(item, "category")
         metin_fold = fold_tr(f"{baslik} {category}")
         anahtar = re.search(r"[?&]i=([0-9a-f-]{8,})", link)
         kayitlar.append({
@@ -919,7 +920,7 @@ def _akademiktr_parse_liste(html: str) -> list[str]:
 
 def _akademiktr_parse_detay(html: str) -> dict:
     def ilk(desene: str) -> str:
-        m = re.search(desene, html, re.S)
+        m = re.search(desene, html, re.DOTALL)
         return re.sub(r"\s+", " ", m.group(1)).strip() if m else ""
     baslik = ilk(r'<h1 class="detail-title-new">(.*?)</h1>')
     tarihler = re.findall(r"(\d{2})\.(\d{2})\.(\d{4})", html)
@@ -934,7 +935,7 @@ def _scrape_akademiktr(session: requests.Session) -> list[dict]:
     for kat in AKADEMIKTR_KATEGORILER:
         try:
             h = session.get(f"{AKADEMIKTR_URL}/ilan/{kat}", timeout=REQUEST_TIMEOUT).text
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             print(f"  ⚠️ akademiktr/{kat}: {type(e).__name__}")
             continue
         for link in _akademiktr_parse_liste(h):
@@ -944,7 +945,7 @@ def _scrape_akademiktr(session: requests.Session) -> list[dict]:
             try:
                 d = session.get(AKADEMIKTR_URL + link, timeout=REQUEST_TIMEOUT).text
                 time.sleep(KIBAR_BEKELEME)
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 print(f"  ⚠️ akademiktr detay: {type(e).__name__}")
                 continue
             p = _akademiktr_parse_detay(d)
@@ -1063,7 +1064,7 @@ def _scrape_ilangovtr(session: requests.Session,
                 timeout=REQUEST_TIMEOUT)
             r.raise_for_status()
             ads = (r.json().get("result") or {}).get("ads") or []
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             print(f"  ⚠️ ilangovtr s.{sayfa}: {type(e).__name__}")
             break
         if not ads:
@@ -1116,7 +1117,7 @@ def _scrape_savunmakariyer(session: requests.Session) -> list[dict]:
                 timeout=REQUEST_TIMEOUT)
             r.raise_for_status()
             data = r.json().get("data") or {}
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             print(f"  ⚠️ savunmakariyer s.{sayfa}: {type(e).__name__}")
             break
         toplam_sayfa = int(data.get("totalPages") or 1)
@@ -1179,7 +1180,7 @@ def _scrape_turksat(session: requests.Session) -> list[dict]:
     if "no-record" in h:
         print("  turksat: açık pozisyon yok")
         return []
-    for m in re.finditer(r"<tr[^>]*>(.*?)</tr>", h, re.S):
+    for m in re.finditer(r"<tr[^>]*>(.*?)</tr>", h, re.DOTALL):
         satir = m.group(1)
         link = re.search(r'href="(/jobs?/[^"]+|/job[^"]+|/ilan[^"]+)"', satir)
         metin = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", satir)).strip()
@@ -1331,7 +1332,7 @@ def _scrape_ats(session: requests.Session) -> list[dict]:
                     if k:
                         kayitlar.append(k)
             print(f"  ats/{pano}: done")
-        except Exception as e:  # noqa: BLE001 — pano bazında tolerans
+        except Exception as e:
             print(f"  ⚠️ ats/{pano}: {type(e).__name__}")
             continue
     print(f"  ats: {len(kayitlar)} ilan")
