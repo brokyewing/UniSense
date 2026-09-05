@@ -374,3 +374,35 @@ class TestKosuRaporu:
         assert len(g4) == 3 and g4[-1]["cekilen"]["jooble"] == 3
         assert a4 == []
 
+
+class TestCaprazDedup:
+    def _r(self, id_, hat, baslik, kurum, il, ilk="2026-09-05", bolumler=None):
+        return {"id": id_, "hat": hat, "baslik": baslik, "kurum": kurum,
+                "il": il, "ilk_gorulme": ilk, "bolumler": bolumler or []}
+
+    def test_kamu_kazanir(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import _dedup_capraz
+        ozel = self._r("jooble:1", "ozel", "Bilgisayar Mühendisi", "X Kurumu",
+                       "Ankara", ilk="2026-09-01", bolumler=["bilgisayar"])
+        kamu = self._r("kamuilan:9", "kamu", "bilgisayar MÜHENDİSİ ", "x kurumu ",
+                       "ankara", ilk="2026-09-05", bolumler=["yazilim"])
+        out, n = _dedup_capraz([ozel, kamu])
+        assert n == 1 and len(out) == 1
+        assert out[0]["hat"] == "kamu"  # kamu kazandı
+        assert out[0]["ilk_gorulme"] == "2026-09-01"  # eski tarih korundu
+        assert set(out[0]["bolumler"]) == {"bilgisayar", "yazilim"}  # etiket birleşti
+
+    def test_bos_baslik_kurum_birlesmez(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import _dedup_capraz
+        a = self._r("a", "ozel", "", "X", "Ankara")
+        b = self._r("b", "ozel", "", "X", "Ankara")
+        out, n = _dedup_capraz([a, b])
+        assert n == 0 and len(out) == 2
+
+    def test_farkli_il_birlesmez(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import _dedup_capraz
+        a = self._r("a", "ozel", "Mühendis", "X", "Ankara")
+        b = self._r("b", "ozel", "Mühendis", "X", "İzmir")
+        out, n = _dedup_capraz([a, b])
+        assert n == 0 and len(out) == 2
+
