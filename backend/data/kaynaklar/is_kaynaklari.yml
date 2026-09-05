@@ -1,0 +1,43 @@
+# Kaynak kayıt defteri — KOD DEĞİL VERİ.
+# Yeni kaynak = bu dosyaya girdi + scrapers/kariyer/<kod>.py adaptörü (desen: F0.4).
+# erisim: api | rss | sitemap | html | toleransli | yok
+# aktif: false olan kaynak koşuda atlanır (silinmez — URL doğrulaması bekleyenler).
+kaynaklar:
+  - kod: rg
+    ad: Resmî Gazete
+    hat: kamu
+    url: https://www.resmigazete.gov.tr/
+    erisim: html
+    aktif: true
+    not: Günlük sayı PDF'leri + bilişim/personel-alımı sinyal taraması.
+    params:
+      max_pdf_mb: 64
+
+  - kod: jooble
+    ad: Jooble
+    hat: ozel
+    url: https://tr.jooble.org
+    erisim: api
+    aktif: true
+    env_key: JOOBLE_API_KEY
+    not: Toplayıcı API (ülke subdomaini şart). Anahtar yoksa atlanır.
+    sorgular:
+      - {keywords: "mühendis", location: "Türkiye"}
+      - {keywords: "yazılım", location: "Türkiye"}
+      - {keywords: "teknik", location: "Türkiye"}
+      - {keywords: "bilgisayar", location: "Türkiye"}
+    sayfa: 5
+
+  - kod: careerjet
+    ad: Careerjet
+    hat: ozel
+    url: https://www.careerjet.com.tr
+    erisim: api
+    aktif: true
+    env_key: CAREERJET_API_KEY
+    not: Toplayıcı API (locale tr_TR). Anahtar yoksa atlanır.
+    sorgular:
+      - "mühendis"
+      - "yazılım"
+      - "tekniker"
+    sayfa: 3

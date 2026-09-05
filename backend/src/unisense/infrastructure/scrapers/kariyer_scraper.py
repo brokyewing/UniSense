@@ -53,10 +53,22 @@ import requests
 from unisense.core.text import fold_tr
 from unisense.domain.geo import il_to_bolge
 from unisense.infrastructure.scrapers._guard import ScrapeGuardError, write_json_guarded
+from unisense.infrastructure.scrapers.kariyer_registry import aktifler as _aktif_kaynaklar
 
 RG_HOME = "https://www.resmigazete.gov.tr/"
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 OUT = Path(__file__).resolve().parents[4] / "data" / "processed" / "kariyer_ilanlar.json"
+
+
+def _defter() -> dict[str, dict]:
+    """Kayıt defteri (kod → girdi). Yoksa/kırıksa hata (sessiz başarı yasak)."""
+    return {g["kod"]: g for g in _aktif_kaynaklar()}
+
+
+def _rg_ayar() -> tuple[str, int]:
+    g = _defter().get("rg", {})
+    return (g.get("url") or RG_HOME,
+            int((g.get("params") or {}).get("max_pdf_mb", 64)) * 1024 * 1024)
 
 # RG ve Jooble sunucuları ara sertifikayı göndermiyor; Windows deposu
 # önbellekten tamamlıyor ama çıplak OpenSSL/certifi zinciri kuramıyor
@@ -64,7 +76,7 @@ OUT = Path(__file__).resolve().parents[4] / "data" / "processed" / "kariyer_ilan
 # (aralar + kökler, sır değil) repoda paketlenir, oturum bunu kullanır.
 _CHAIN = Path(__file__).resolve().parent / "tls_extra_chain.pem"
 
-MAX_PDF_BYTES = 64 * 1024 * 1024   # ana sayı ~30MB olur; daha büyükler atlanır
+MAX_PDF_BYTES = 64 * 1024 * 1024   # yedek varsayılan; defter params.max_pdf_mb ezer
 REQUEST_TIMEOUT = 60
 KIBAR_BEKELEME = 1.0               # PDF araları sn
 
@@ -106,11 +118,11 @@ def _gunluk_sayilar(html: str) -> dict[str, list[str]]:
     return bulunan
 
 
-def _pdf_metni(session: requests.Session, url: str) -> tuple[str, int] | None:
+def _pdf_metni(session: requests.Session, url: str, limit: int) -> tuple[str, int] | None:
     """PDF'i indirip metnini çıkarır. (metin, sayfa_sayısı) ya da None."""
     r = session.get(url, timeout=REQUEST_TIMEOUT)
     r.raise_for_status()
-    if len(r.content) > MAX_PDF_BYTES:
+    if len(r.content) > limit:
         return None
     doc = fitz.open(stream=r.content, filetype="pdf")
     try:
@@ -131,7 +143,8 @@ def _eslesme_say(metin_fold: str) -> dict[str, int]:
 def scrape() -> list[dict]:
     kayitlar: list[dict] = []
     session = _session()
-    r = session.get(RG_HOME, timeout=REQUEST_TIMEOUT)
+    rg_url, pdf_limit = _rg_ayar()
+    r = session.get(rg_url, timeout=REQUEST_TIMEOUT)
     r.raise_for_status()
     sayilar = _gunluk_sayilar(r.text)
     print(f"  RG ana sayfa: {len(sayilar)} günlük sayı bulundu")
@@ -142,7 +155,7 @@ def scrape() -> list[dict]:
         atlanan = 0
         for url in pdfler:
             try:
-                sonuc = _pdf_metni(session, url)
+                sonuc = _pdf_metni(session, url, pdf_limit)
             except Exception as e:
                 print(f"  ⚠️ {gun} {url.rsplit('/', 1)[-1]} indirilemedi: {type(e).__name__}")
                 atlanan += 1
@@ -179,6 +192,8 @@ def scrape() -> list[dict]:
 
 
 # === Hat B: Jooble + Careerjet (API anahtarlı) ===
+# Sorgu/sayfa/anahtar adı kayıt defterinden gelir (F0.4); buradaki listeler
+# yalnız defter yoksa düşülen yedek varsayılanlardır.
 
 # Geniş çekim: bölüm-agnostik sorgular, etiketleme yerelde yapılır.
 _HATB_JOOBLE_SORGULAR = [
@@ -299,10 +314,16 @@ def _scrape_hatb(session: requests.Session) -> list[dict]:
     """Jooble + Careerjet sorguları. Anahtar yoksa [] döner (atlama, hata değil)."""
     kayitlar: list[dict] = []
     bugun = date.today().isoformat()
-    jooble_key = os.environ.get("JOOBLE_API_KEY", "").strip()
+    defter = _defter()
+    jooble_key = os.environ.get(
+        (defter.get("jooble") or {}).get("env_key", "JOOBLE_API_KEY"), "").strip()
     if jooble_key:
-        for keywords, location in _HATB_JOOBLE_SORGULAR:
-            for page in range(1, _HATB_SAYFA_JOOBLE + 1):
+        sorgular = (defter.get("jooble") or {}).get("sorgular") or _HATB_JOOBLE_SORGULAR
+        sayfa_n = int((defter.get("jooble") or {}).get("sayfa", _HATB_SAYFA_JOOBLE))
+        for soru in sorgular:
+            keywords, location = (soru["keywords"], soru.get("location", "")) \
+                if isinstance(soru, dict) else (soru, "Türkiye")
+            for page in range(1, sayfa_n + 1):
                 try:
                     r = session.post(f"https://tr.jooble.org/api/{jooble_key}",
                                      json={"keywords": keywords, "location": location, "page": page},
@@ -322,10 +343,13 @@ def _scrape_hatb(session: requests.Session) -> list[dict]:
                 time.sleep(KIBAR_BEKELEME)
     else:
         print("  ○ JOOBLE_API_KEY yok — Jooble atlandı")
-    cj_affid = os.environ.get("CAREERJET_API_KEY", "").strip()
+    cj_affid = os.environ.get(
+        (defter.get("careerjet") or {}).get("env_key", "CAREERJET_API_KEY"), "").strip()
     if cj_affid:
-        for keywords in _HATB_CJ_SORGULAR:
-            for page in range(1, _HATB_SAYFA_CJ + 1):
+        cj_sorgular = (defter.get("careerjet") or {}).get("sorgular") or _HATB_CJ_SORGULAR
+        cj_sayfa = int((defter.get("careerjet") or {}).get("sayfa", _HATB_SAYFA_CJ))
+        for keywords in cj_sorgular:
+            for page in range(1, cj_sayfa + 1):
                 try:
                     r = session.get(_CJ_UC, params={
                         "locale_code": "tr_TR", "keywords": keywords, "location": "",
