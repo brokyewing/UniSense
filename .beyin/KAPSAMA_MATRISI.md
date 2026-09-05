@@ -92,6 +92,10 @@ robots.txt izin veriyor ya da kısmen veriyor; WAF/JS durumu ölçülmeli.
 
 ## 4. ÖNCELİK SIRASI (kapsamı en hızlı büyüten)
 
+0. **🥇 Workable genel arama API'si** — 2026-09-06'da bulundu
+   (`KAYNAK_HARITASI` §17). 288 ilan / 77 şirket, **284'ü yeni**; üstelik
+   `workplace` alanı %100 dolu → çalışma şekli sorununu kaynağından çözüyor.
+   Tek uç nokta, kimlik doğrulama yok. **Sıradaki iş bu.**
 1. **savunmakariyer** — hazır, 24 ilan + 343 firma, sıfır araştırma
 2. **Lever ATS** — hazır, ~101 ilan, tek adaptör N şirket
 3. **eleman.net** — 🥇 JSON-LD JobPosting ile en temiz parse; il+ilçe, son

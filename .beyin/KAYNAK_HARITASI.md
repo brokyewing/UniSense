@@ -693,3 +693,93 @@ On tur sonunda aday havuzu tükendi. Özet:
 - [ ] Faal 302 OSB'nin en yoğun 8-10 ildeki sitelerinde ilan sayfası örneklemi
 - [ ] Vizyoner Genç ve TÜBİTAK SPA'larının JSON API'si (tarayıcı ağ sekmesi;
       RSS olmadığı kesinleşti, doğrudan API aranacak)
+
+---
+
+## 17. On birinci tur — WORKABLE GENEL ARAMA API'si ÇÖZÜLDÜ ✅✅✅ (2026-09-06)
+
+Keşif fazı §16'da kapatılmıştı; bu bulgu onu yeniden açıyor. **Tek istekle 288
+TR ilanı, 77 şirket** — üstelik çalışma şekli alanı %100 dolu.
+
+### 17.1 Uç nokta
+
+```
+GET https://jobs.workable.com/api/v1/jobs?query=&location=Turkey&limit=20
+GET .../jobs?query=&location=Turkey&limit=20&pageToken=<nextPageToken>
+```
+
+- **Kimlik doğrulama YOK.**
+- `limit` **en fazla 20** — 25 ve üstü `HTTP 400`. (Ölçüldü.)
+- Sayfalama parametresi **`pageToken`**. `nextPageToken`, `token`, `cursor`
+  isimleri de 200 dönüyor AMA **aynı sayfayı** veriyor — sessiz tuzak.
+  Yanlış parametreyle döngü sonsuza kadar ilk 20 kaydı çeker.
+  Doğrulama: ilk kaydın `id`'si değişmeli.
+- 15 sayfa = 288 tekil kayıt, `totalSize` ile birebir uyuştu.
+
+### 17.2 Alanlar (ölçülen doluluk, 288 kayıt)
+
+| Alan | Doluluk | Not |
+|---|---|---|
+| `workplace` | **288/288 (%100)** | `on_site` 146 / `remote` 106 / `hybrid` 36 |
+| `location.countryName` | %100 | hepsi "Turkey" |
+| `location.city` | 201/288 (%70) | Istanbul 91, İzmir 19, Ankara 16, Antalya 7... |
+| `employmentType` | 214/288 (%74) | Full-time 148, Contract 26, Part-time 14 |
+| `company.title` + `website` | %100 | 77 tekil şirket |
+| `url`, `created`, `description` | %100 | `description` tam HTML gövde |
+
+`workplace` alanı tek başına **`calisma_sekli` sorununu kökten çözüyor**:
+bugün tüm veri setinde kaynak-beyanlı çalışma şekli olan 27 kayıt var,
+bu kaynak tek başına 288 getiriyor.
+
+### 17.3 Mükerrerlik ölçümü — kazanç gerçek
+
+Mevcut 1935 kayıtla karşılaştırıldı: başlık eşleşmesi **4**, kurum eşleşmesi
+**1** (VavaCars). Yani **284 kayıt tamamen yeni.** Jooble ve Careerjet bu
+şirketleri getirmiyor.
+
+Şirketler (ilan sayısı): CXG 20, Vertigo 19, Guess Europe 18, Sanction Scanner
+13, SIHAMCO 12, Wingie Enuygun 11, UserWise 11, Lucida AI 11, PEOPLECERT 10,
+Rapsodo 10, Pulse Games 9, VavaCars 9 + 65 şirket daha.
+
+### 17.4 robots.txt
+
+```
+User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /search/*
+Disallow: /search*?*   Disallow: /search   Disallow: /profile*
+```
+
+`/api/` yolu **yasaklanmamış**. `Content-Signal` arama amaçlı kullanımı açıkça
+`yes` diyor, model eğitimini `no`. Bizim kullanımımız arama/indeksleme →
+uygun. Yine de `/search` HTML yolu taranmamalı, yalnız API kullanılmalı.
+
+### 17.5 Elenen benzer uç noktalar (aynı turda ölçüldü)
+
+| Aday | Sonuç |
+|---|---|
+| `api.smartrecruiters.com/v1/postings?country=tr` | HTTP 404 — genel arama yok. Şirket bazlı `/v1/companies/<id>/postings` çalışıyor ama `id` tam eşleşme istiyor ("Trendyol" → `totalFound: 0`). |
+| `jobs.recruitee.com/api/offers` | 200 ama **9 kayıtlık örnek besleme**, filtre parametrelerini yok sayıyor (hepsi Amsterdam). Ölü. |
+| `jobs.ashbyhq.com/api/non-user-graphql` | 200 ama hata gövdesi; genel arama yok. Şirket bazlı `api.ashbyhq.com/posting-api/job-board/<slug>` çalışıyor. |
+| Teamtailor / JOIN genel arama | 404. |
+
+### 17.6 Yeni doğrulanmış ATS slug'ları
+
+| Sağlayıcı | Slug | İlan | TR ilanı |
+|---|---|---|---|
+| Lever | `picus` (Picus Security) | 8 | 2 |
+| Lever | `ciceksepeti` | 1 | 1 |
+| Lever | `insiderone` | 117 | **20** (§9.3'te doğrulandı, yeniden teyit edildi) |
+| Greenhouse | `dreamgames` | 1 | — |
+| Greenhouse | `insider`, `udemy` | 9 / 12 | **0 TR** — eklemeye değmez |
+
+⚠️ Tek seferlik yoklama **yanılabiliyor**: `insiderone` ilk toplu taramada
+"bulunamadı" dedi, tek başına denenince 117 ilan döndü (geçici ağ hatası).
+Slug elemeden önce ikinci kez doğrula.
+
+60 büyük TR şirketi (bankalar, holdingler, perakende, havacılık, savunma)
+Lever/Greenhouse/Ashby/Workable/Recruitee/Personio/Teamtailor'da tarandı —
+**hiçbiri yok**. Bu şirketler kendi İK yazılımlarını ya da kariyer.net'i
+kullanıyor. §1'deki "kurum kurum gitmek çalışmaz" bulgusu geçerliliğini
+koruyor; ATS taraması yalnız teknoloji şirketlerinde verimli.
+

@@ -40,6 +40,7 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 22:37 | opencode | F5.1 hazirlik: --hat filtresi + gecmis birlesmesi (test 71); workflow bolunmesi Claude'a birakildi (sahiplik); 9f16165 pushlandi. Siradaki: F5.2 hiz sinirlari.
 2026-09-05 23:10 | opencode | F5.2: merkezi istek politikasi (retry+backoff+4xx kurali, 10 cagri noktasi); pre-commit 263 test yesil; 497bdd4 pushlandi. Yol haritasi bitti (F5.3 kullanici karari bekliyor).
 2026-09-05 23:30 | opencode | Claude'un v2 degisikliklerine test uyarlandi (kamu varsayimi; CJ tarih duzeltmesi onda hazirdi); pre-commit 264 yesil; a3a186f pushlandi. SAHIPLIK protokolu dogrulandi.
+2026-09-06 00:05 | opencode | Tam dogrulama: backend 284 test yesil + frontend build temiz (631 URL). Yol haritasinda bana dusen acik is kalmadi (F5.1 Claude'da, F5.3 kullanici kararinda).
 2026-09-04 23:55 | Claude Code | KPSS veri kaybi geri alindi + bos-sonuc bekcisi, CI pin bypass i duzeltildi (CI artik yesil), tusdus sessiz basarisi giderildi; OSYM URL kesfi engelli.
 2026-09-05 01:40 | Claude Code | OSYM yeni URL semasi cozuldu (chunked-hang toleransli fetch + Duyurular/Index kesfi); KPSS 2026/1, TUS ve DUS 2026 verileri geldi; CI yesil.
 2026-09-05 02:20 | Claude Code | CI kor noktasi kapatildi (haftalik schedule); LGS ve Yearly YKS dispatch ile yesil kosup 2026 verisini commitledi.
@@ -76,3 +77,4 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 20:05 | Claude Code | Bedava kazanc bulundu: Jooble detay.tur %88 dolu (658/744) ama istihdam_turuya eslenmemis. calisma_sekli metin cikarimi tavani %8 olculdu. Careerjet maas ve site alanlari 0/929 (olu).
 2026-09-05 21:00 | Claude Code | Sehir kanoniklestirme (355->65 il) ve Jooble istihdam_turu (%2->%36) baglandi; lint duzeltmeleri 2. kez geri gittigi icin pre-commit kancasi eklendi. robots_kontrol eksik, CI opencode tarafinda kirik.
 2026-09-06 | Claude Code | unisense.site render.yaml+vercel.json'dan silindi; ilce->il indeksi (98 tekil ilce) ve calisma_sekli cikarimi (27->568, %1,4->%29,4) baglandi, kaynak damgasi eklendi; 284 test yesil (83f0e4a).
+2026-09-06 | Claude Code | Workable genel arama API'si bulundu: 288 TR ilani / 77 sirket, 284'u yeni, workplace alani %100 dolu (calisma sekli sorununu kokten cozuyor). Yeni Lever slug: picus, ciceksepeti. SmartRecruiters/Recruitee/Ashby/Teamtailor genel aramasi elendi.

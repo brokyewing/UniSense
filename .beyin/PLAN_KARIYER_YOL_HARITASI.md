@@ -330,6 +330,46 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
 
 ### F4 — Özel sektör hattı
 
+- [ ] **F4.0 — ÖNCELİK 1: Workable genel arama adaptörü** (keşif bitti,
+      Claude Code 2026-09-06; ayrıntı `KAYNAK_HARITASI.md` §17)
+
+      ```
+      GET https://jobs.workable.com/api/v1/jobs?query=&location=Turkey&limit=20
+      ...&pageToken=<nextPageToken>          # sayfalama parametresi ADI ÖNEMLİ
+      ```
+
+      **Ölçülen kazanç: 288 ilan / 77 şirket, 284'ü tamamen yeni** (mevcut
+      1935 kayıtla başlık eşleşmesi yalnız 4). Kimlik doğrulama yok.
+
+      Eşleme:
+      | v2 alanı | Workable alanı |
+      |---|---|
+      | `baslik` | `title` |
+      | `kurum` | `company.title` (⚠️ Jooble'daki gibi pano adı DEĞİL, gerçek işveren) |
+      | `il` / `ilce` | `location.city` + `location.subregion` → `il_ilce_ayikla` |
+      | `calisma_sekli` | `workplace`: `on_site`→yuzyuze, `remote`→online, `hybrid`→hibrit |
+      | `istihdam_turu` | `employmentType` (Full-time/Part-time/Contract/Temporary) |
+      | `tarih` | `created` |
+      | `url` | `url` |
+
+      `detay.calisma_sekli_kaynak = "kaynak"` yaz — bu alan %100 dolu ve
+      **beyan**, çıkarım değil. Bugün tüm veri setinde beyanlı çalışma şekli
+      olan 27 kayıt var; bu kaynak tek başına 288 getiriyor.
+
+      ⚠️ **Sessiz tuzak:** `limit` en fazla 20 (25+ → HTTP 400). Sayfalama
+      parametresi `pageToken`; `token`/`cursor`/`nextPageToken` de 200 dönüyor
+      ama **aynı sayfayı** verir → sonsuz döngü. İlk kaydın `id`'si her
+      sayfada değişmeli, buna assert koy.
+
+      Doğrulama: 15 sayfa, 288 tekil kayıt, `totalSize` ile birebir.
+
+- [ ] **F4.2.b** Yeni doğrulanmış Lever slug'ları kayıt defterine ekle:
+      `picus` (8 ilan / 2 TR), `ciceksepeti` (1/1). `insiderone` yeniden
+      teyit edildi (117 ilan / 20 TR). Greenhouse `insider` ve `udemy`
+      **TR ilanı sıfır** — ekleme.
+      ⚠️ Toplu tarama tek yoklamada yanılabiliyor (`insiderone` ilk turda
+      "yok" dedi, tekil denemede 117 döndü). Elemeden önce ikinci kez dene.
+
 - [x] **F4.1** Jooble + Careerjet sorgu listesini genişlet (opencode, 2026-09-05,
       9347f2e) — Jooble 10 + Careerjet 7 sorgu (sağlık/öğretmen/muhasebe/satış/
       hukuk/lojistik eklendi). *Bitti:* canlı 1843 kayıt (1,9 MB).
