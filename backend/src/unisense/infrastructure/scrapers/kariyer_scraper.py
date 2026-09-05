@@ -190,17 +190,19 @@ def _scrape_rg(session: requests.Session) -> list[dict]:
     return kayitlar
 
 
-def scrape(bilinen: set[str] | None = None) -> tuple[list[dict], dict[str, str]]:
+def scrape(bilinen: set[str] | None = None,
+           detayli: set[str] | None = None) -> tuple[list[dict], dict[str, str]]:
     """Tüm adaptörler; kısmi başarı normal — her adaptörün hatası kaydedilir.
 
     bilinen: önceki koşudan id seti (BİK artımlı taraması erken dursun diye).
+    detayli: PDF detayı okunmuş kamuilan id'leri (tekrar indirilmez).
     Hiçbir adaptör veri üretemezse liste boş döner → main guard ile exit 1.
     """
     session = _session()
     hatalar: dict[str, str] = {}
     try:
         rg = _scrape_rg(session)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"  ⚠️ rg düştü: {type(e).__name__}: {e}")
         hatalar["rg"] = f"{type(e).__name__}: {e}"
         rg = []
@@ -208,38 +210,38 @@ def scrape(bilinen: set[str] | None = None) -> tuple[list[dict], dict[str, str]]
     if hatb:
         print(f"  Hat B: {len(hatb)} ilan (jooble+careerjet)")
     try:
-        kam = _scrape_kamuilan(session)
-    except Exception as e:
+        kam = _scrape_kamuilan(session, detayli)
+    except Exception as e:  # noqa: BLE001 — kısmi başarı normal (§5)
         print(f"  ⚠️ kamuilan düşti: {type(e).__name__}: {e}")
         hatalar["kamuilan"] = f"{type(e).__name__}: {e}"
         kam = []
     try:
         kk = _scrape_kariyerkapisi(session)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"  ⚠️ kariyerkapisi düştü: {type(e).__name__}: {e}")
         hatalar["kariyerkapisi"] = f"{type(e).__name__}: {e}"
         kk = []
     try:
         ak = _scrape_akademiktr(session)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"  ⚠️ akademiktr düştü: {type(e).__name__}: {e}")
         hatalar["akademiktr"] = f"{type(e).__name__}: {e}"
         ak = []
     try:
         bg = _scrape_ilangovtr(session, bilinen)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"  ⚠️ ilangovtr düştü: {type(e).__name__}: {e}")
         hatalar["ilangovtr"] = f"{type(e).__name__}: {e}"
         bg = []
     try:
         sk = _scrape_savunmakariyer(session)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"  ⚠️ savunmakariyer düştü: {type(e).__name__}: {e}")
         hatalar["savunmakariyer"] = f"{type(e).__name__}: {e}"
         sk = []
     try:
         tt = _scrape_turksat(session)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"  ⚠️ turksat düştü: {type(e).__name__}: {e}")
         hatalar["turksat"] = f"{type(e).__name__}: {e}"
         tt = []
@@ -304,6 +306,21 @@ def _calisma_sekli(fold_metin: str) -> str:
     if any(a in fold_metin for a in CALISMA_YUZYUZE):
         return "yuzyuze"
     return "bilinmiyor"
+
+
+# KPSS çıkarımı (F3.8): metinde KPSS geçiyor mu + puan türü (P3/P93/P94).
+# Yoksa None (bilinmiyor) — uydurma yok. kpss_service ile bağ ileride.
+KPSS_TUR_RE = r"\bp\s?(\d{1,3})\b"
+
+
+def _kpss_bilgi(fold_metin: str) -> tuple[bool | None, str | None]:
+    tur = None
+    m = re.search(KPSS_TUR_RE, fold_metin)
+    if m:
+        tur = f"P{m.group(1)}"
+    if "kpss" in fold_metin or tur:
+        return True, tur
+    return None, None
 
 
 def _bolum_etiketle(fold_metin: str) -> list[str]:
@@ -498,6 +515,14 @@ def v2_kayit(kayit: dict) -> dict:
         # Eski kayıtlardaki başlık+özetten geriye dönük çıkarım
         k["calisma_sekli"] = _calisma_sekli(
             fold_tr(f"{k.get('baslik', '')} {k.get('ozet', '')}"))
+    if k.get("kpss") is None:
+        # F3.8: KPSS şartı + puan türü çıkarımı (yoksa None kalır)
+        var_mi, tur = _kpss_bilgi(fold_tr(f"{k.get('baslik', '')} {k.get('ozet', '')}"))
+        k["kpss"] = var_mi
+        if tur:
+            det = dict(k.get("detay") or {})
+            det.setdefault("kpss_tur", tur)
+            k["detay"] = det
     k.setdefault("istihdam_turu", V2_BILINMIYOR)
     k.setdefault("deneyim", V2_BILINMIYOR)
     k.setdefault("pozisyon_etiket", [])
@@ -567,10 +592,14 @@ def _dedup_capraz(kayitlar: list[dict]) -> tuple[list[dict], int]:
 # Ana sayfadaki boş arama postback'i güncel ilanları timeline olarak döner:
 # ul#nav2 > li > time(h4 gün, h3 ay) + a[href=ilanDetay.aspx?kod=..] >
 # p.alt_p1 (kurum) + p.alt_p2 (başlık + em içinde "4 Eylül - 21 Eylül").
+# Detay: ilanDetay.aspx İLAN PDF'ini döner (Referer şart; kod KESILMEZ —
+# kesik kod 404 verir). PDF metninden KPSS bilgisi çıkarılır.
 TR_AYLAR = {"ocak": 1, "subat": 2, "mart": 3, "nisan": 4, "mayis": 5,
             "haziran": 6, "temmuz": 7, "agustos": 8, "eylul": 9,
             "ekim": 10, "kasim": 11, "aralik": 12}
 KAMUILAN_URL = "https://kamuilan.sbb.gov.tr/"
+KAMUILAN_DETAY_TAVAN = 25  # koşu başına PDF detayı (kibarlık + süre)
+KAMUILAN_PDF_TAVAN = 8 * 1024 * 1024
 
 
 def _tr_tarih(gun: str, ay: str, bugun: date) -> str:
@@ -599,7 +628,22 @@ def _kamuilan_hidden(html: str, name: str) -> str:
     return m.group(1) if m else ""
 
 
-def _scrape_kamuilan(session: requests.Session) -> list[dict]:
+def _kamuilan_detay(session: requests.Session, url: str) -> str:
+    """İlan PDF'ini indirip metnini çıkarır (boş string de olabilir)."""
+    r = session.get(url, headers={"Referer": KAMUILAN_URL},
+                    timeout=REQUEST_TIMEOUT)
+    r.raise_for_status()
+    if len(r.content) > KAMUILAN_PDF_TAVAN or not r.content.startswith(b"%PDF"):
+        return ""
+    doc = fitz.open(stream=r.content, filetype="pdf")
+    try:
+        return "\n".join(page.get_text() for page in doc)[:20000]
+    finally:
+        doc.close()
+
+
+def _scrape_kamuilan(session: requests.Session,
+                     detayli: set[str] | None = None) -> list[dict]:
     """Güncel kamu ilanları (postback + timeline parse)."""
     h = session.get(KAMUILAN_URL, timeout=REQUEST_TIMEOUT).text
     data = {
@@ -613,17 +657,19 @@ def _scrape_kamuilan(session: requests.Session) -> list[dict]:
     kayitlar: list[dict] = []
     bugun = date.today().isoformat()
     bugun_d = date.today()
+    detayli = detayli or set()
+    detay_sayac = 0
     # Timeline tarih-grupludur: bir <li> = bir gün, içinde birden çok ilan.
-    gruplar = re.findall(r"<li>(.*?)</li>\s*(?:<li>|</ul>)", t, re.DOTALL)
+    gruplar = re.findall(r"<li>(.*?)</li>\s*(?:<li>|</ul>)", t, re.S)
     for li in gruplar:
-        tm = re.search(r"<time[^>]*><h4>(.*?)</h4><h3>(.*?)</h3></time>", li, re.DOTALL)
+        tm = re.search(r"<time[^>]*><h4>(.*?)</h4><h3>(.*?)</h3></time>", li, re.S)
         gun = re.sub(r"<[^>]+>", "", tm.group(1)).strip() if tm else ""
         ay = re.sub(r"<[^>]+>", "", tm.group(2)).strip() if tm else ""
         for m in re.finditer(
                 r"<a\s+href='(ilanDetay\.aspx\?kod=[^']+)'[^>]*>.*?"
                 r"<p class='alt_p1'>(.*?)</p>.*?"
                 r"<p class='alt_p2'>(.*?)<em[^>]*>(.*?)</em>",
-                li, re.DOTALL):
+                li, re.S):
             link, kurum_h, baslik_h, em_h = m.groups()
             b = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", baslik_h)).strip()
             k = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", kurum_h)).strip()
@@ -635,8 +681,22 @@ def _scrape_kamuilan(session: requests.Session) -> list[dict]:
                 bit = parca[1].strip().split()
                 son_basvuru = _tr_tarih(bit[-2] if len(bit) >= 2 else "", bit[-1], bugun_d)
             metin = fold_tr(f"{b} {k}")
+            link_tam = (KAMUILAN_URL + link).replace(" ", "%20")
+            rid = f"kamuilan:{hashlib.sha1(link_tam.encode()).hexdigest()[:16]}"
+            kpss, kpss_tur, detay_okundu = None, None, False
+            if rid not in detayli and detay_sayac < KAMUILAN_DETAY_TAVAN:
+                try:
+                    dmetin = _kamuilan_detay(session, link_tam)
+                    time.sleep(KIBAR_BEKELEME)
+                except Exception as e:  # noqa: BLE001
+                    print(f"  ⚠️ kamuilan detay: {type(e).__name__}")
+                    dmetin = ""
+                if dmetin:
+                    kpss, kpss_tur = _kpss_bilgi(fold_tr(f"{b} {k} {dmetin}"))
+                    detay_okundu = True
+                    detay_sayac += 1
             kayitlar.append({
-                "id": f"kamuilan:{link.split('kod=')[1][:24]}",
+                "id": rid,
                 "hat": "kamu",
                 "kaynak": "kamuilan.sbb.gov.tr",
                 "kaynak_kod": "kamuilan",
@@ -647,18 +707,20 @@ def _scrape_kamuilan(session: requests.Session) -> list[dict]:
                 "bolge": "Bilinmiyor",
                 "tarih": _tr_tarih(gun, ay, bugun_d),
                 "son_basvuru": son_basvuru or None,
-                "url": (KAMUILAN_URL + link).replace(" ", "%20"),
+                "url": link_tam,
                 "ozet": b[:300],
-                "detay": {},
+                "detay": {"detay_okundu": detay_okundu,
+                          **({"kpss_tur": kpss_tur} if kpss_tur else {})},
                 "ilk_gorulme": bugun,
                 "bolumler": _bolum_etiketle(metin),
                 "calisma_sekli": _calisma_sekli(metin),
                 "istihdam_turu": V2_BILINMIYOR,
                 "deneyim": V2_BILINMIYOR,
                 "pozisyon_etiket": [],
-                "kpss": None,
+                "kpss": kpss,
                 "maas": None,
             })
+    print(f"  kamuilan: {len(kayitlar)} ilan ({detay_sayac} detay okundu)")
     print(f"  kamuilan: {len(kayitlar)} ilan")
     return kayitlar
 
@@ -735,21 +797,20 @@ def _scrape_kariyerkapisi(session: requests.Session) -> list[dict]:
     r = session.get(KK_RSS_URL, timeout=REQUEST_TIMEOUT)
     r.raise_for_status()
     kok = ET.fromstring(r.content)
-    def metin(dugum, etiket: str) -> str:
-        el = dugum.find(etiket)
-        return (el.text or "").strip() if el is not None else ""
-
     for item in kok.iter("item"):
-        baslik = metin(item, "title")
-        link = metin(item, "link") or metin(item, "guid")
+        def metin(etiket: str) -> str:
+            el = item.find(etiket)
+            return (el.text or "").strip() if el is not None else ""
+        baslik = metin("title")
+        link = metin("link") or metin("guid")
         if not baslik or not link:
             continue
         kurum, _, _kisa = baslik.partition(" - ")
         try:
-            tarih = parsedate_to_datetime(metin(item, "pubDate")).date().isoformat()
+            tarih = parsedate_to_datetime(metin("pubDate")).date().isoformat()
         except (ValueError, TypeError):
             tarih = ""
-        category = metin(item, "category")
+        category = metin("category")
         metin_fold = fold_tr(f"{baslik} {category}")
         anahtar = re.search(r"[?&]i=([0-9a-f-]{8,})", link)
         kayitlar.append({
@@ -801,7 +862,7 @@ def _akademiktr_parse_liste(html: str) -> list[str]:
 
 def _akademiktr_parse_detay(html: str) -> dict:
     def ilk(desene: str) -> str:
-        m = re.search(desene, html, re.DOTALL)
+        m = re.search(desene, html, re.S)
         return re.sub(r"\s+", " ", m.group(1)).strip() if m else ""
     baslik = ilk(r'<h1 class="detail-title-new">(.*?)</h1>')
     tarihler = re.findall(r"(\d{2})\.(\d{2})\.(\d{4})", html)
@@ -816,7 +877,7 @@ def _scrape_akademiktr(session: requests.Session) -> list[dict]:
     for kat in AKADEMIKTR_KATEGORILER:
         try:
             h = session.get(f"{AKADEMIKTR_URL}/ilan/{kat}", timeout=REQUEST_TIMEOUT).text
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print(f"  ⚠️ akademiktr/{kat}: {type(e).__name__}")
             continue
         for link in _akademiktr_parse_liste(h):
@@ -826,7 +887,7 @@ def _scrape_akademiktr(session: requests.Session) -> list[dict]:
             try:
                 d = session.get(AKADEMIKTR_URL + link, timeout=REQUEST_TIMEOUT).text
                 time.sleep(KIBAR_BEKELEME)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 print(f"  ⚠️ akademiktr detay: {type(e).__name__}")
                 continue
             p = _akademiktr_parse_detay(d)
@@ -945,7 +1006,7 @@ def _scrape_ilangovtr(session: requests.Session,
                 timeout=REQUEST_TIMEOUT)
             r.raise_for_status()
             ads = (r.json().get("result") or {}).get("ads") or []
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print(f"  ⚠️ ilangovtr s.{sayfa}: {type(e).__name__}")
             break
         if not ads:
@@ -998,7 +1059,7 @@ def _scrape_savunmakariyer(session: requests.Session) -> list[dict]:
                 timeout=REQUEST_TIMEOUT)
             r.raise_for_status()
             data = r.json().get("data") or {}
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print(f"  ⚠️ savunmakariyer s.{sayfa}: {type(e).__name__}")
             break
         toplam_sayfa = int(data.get("totalPages") or 1)
@@ -1061,7 +1122,7 @@ def _scrape_turksat(session: requests.Session) -> list[dict]:
     if "no-record" in h:
         print("  turksat: açık pozisyon yok")
         return []
-    for m in re.finditer(r"<tr[^>]*>(.*?)</tr>", h, re.DOTALL):
+    for m in re.finditer(r"<tr[^>]*>(.*?)</tr>", h, re.S):
         satir = m.group(1)
         link = re.search(r'href="(/jobs?/[^"]+|/job[^"]+|/ilan[^"]+)"', satir)
         metin = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", satir)).strip()
@@ -1171,7 +1232,10 @@ def main() -> None:
         except Exception as e:
             print(f"  ⚠️ mevcut dosya okunamadı: {e}")
     try:
-        yeni, hatalar = scrape({_v2_id(x) for x in eski if x.get("id")})
+        bilinen = {_v2_id(x) for x in eski if x.get("id")}
+        detayli = {x.get("id") for x in eski
+                   if (x.get("detay") or {}).get("detay_okundu")}
+        yeni, hatalar = scrape(bilinen, detayli)
     except Exception as e:
         print(f"\n⛔ scrape çöktü ({type(e).__name__}: {e}) — {OUT.name} GÜNCELLENMEDİ")
         sys.exit(1)

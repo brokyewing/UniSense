@@ -3,7 +3,7 @@
  "kaynaklar": {
   "akademiktr": {
    "cekilen": 32,
-   "yeni": 2,
+   "yeni": 0,
    "hata": ""
   },
   "careerjet": {
@@ -38,11 +38,11 @@
   },
   "savunmakariyer": {
    "cekilen": 23,
-   "yeni": 11,
+   "yeni": 0,
    "hata": ""
   }
  },
- "toplam_kayit": 792,
+ "toplam_kayit": 840,
  "gecmis": [
   {
    "tarih": "2026-09-05",
