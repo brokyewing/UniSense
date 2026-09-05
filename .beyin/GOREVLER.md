@@ -155,6 +155,30 @@ etmedi. Sebep birikmiş lint borcu: `kariyer_scraper.py` 17, `test_kariyer.py` 1
       (`88a6d5b`), 14 açık ilan kurtarıldı
 - [x] Birikmiş lint borcu (`ba1c12f`)
 
+## Denetim bulguları — veri kalitesi (Claude Code, 2026-09-05)
+
+**1. Jooble `kurum` alanı yanlış — kullanıcı işveren yerine site adı görüyor.**
+302 kaydın tamamında `kurum` = kaynak pano (`yenibiris.com` 117,
+`elemanonline.com.tr` 62, `bakiciburada.com` 56, `secretcv.com` 31,
+`isbul.net` 16…). Kodda not düşülmüş ("Jooble kaynak panoyu verir, işvereni
+değil") ama alan yine de `kurum`'a yazılıyor.
+
+- [ ] `kurum` boş bırakılsın, pano adı `detay.kaynak_pano`'ya taşınsın.
+      Kartta "yenibiris.com" işveren gibi görünmemeli.
+
+**2. `calisma_sekli` neredeyse tamamen boş — online/yüz yüze filtresi çalışmaz.**
+840 kayıttan **832'si `bilinmiyor`** (4 online, 4 yüz yüze). F0.3 kalıp tablosu
+yazıldı ama Jooble/Careerjet özetleri çok kısa olduğu için eşleşme çıkmıyor.
+
+- [ ] Çıkarımı ilan **detay sayfasından** yap ya da kaynak alanlarını kullan
+      (Lever `workplaceType`, eleman.net JSON-LD `jobLocationType`).
+      *Bitti:* `bilinmiyor` oranı %99'dan belirgin şekilde düşüyor.
+
+**3. `istihdam_turu` de %94 boş** (791/840). Savunma Kariyer (`jobType`) ve
+Kariyer Kapısı (`category`) dolduruyor; toplayıcılar doldurmuyor.
+
+**4. Careerjet'te 103 kayıtta `kurum` boş** (256 kaydın %40'ı).
+
 ## Bitti
 - [x] Ruff bulguları temizlendi, `<0.16` üst sınırı kaldırıldı (bb9bc50)
 - [x] TUS/DUS + KPSS Data Sync gerçek Actions koşusunda YEŞİL (dispatch, 2026-09-04)

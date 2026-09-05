@@ -14,7 +14,32 @@ otomatik toplamak. Bu dosya *nerede olduğumuzu* ve *ne kaldığını* sayıyla 
 Toplanan 7: `rg`, `kamuilan`, `kariyerkapisi`, `akademiktr`, `ilangovtr`
 (kamu) + `jooble`, `careerjet` (özel toplayıcı).
 
-⚠️ **Toplayıcıların kapsamı ÖLÇÜLEMİYOR.** Jooble ve Careerjet ilan
+## ✅ ÇÖZÜLDÜ: Jooble'ın kapsamı görünüyor (2026-09-05)
+
+Aşağıdaki "ölçülemiyor" notu **geçersiz**. Cevap veride duruyormuş: Jooble
+`kurum` alanına işvereni değil **kaynak panoyu** yazıyor.
+
+| Jooble üzerinden gelen site | İlan |
+|---|---|
+| **yenibiris.com** | **117** |
+| elemanonline.com.tr | 62 |
+| bakiciburada.com | 56 |
+| **secretcv.com** | 31 |
+| **isbul.net** | 16 |
+| cvbenim.com | 6 |
+| bizdeisvar.com.tr | 3 |
+
+**Sonuç — öncelik sırası değişiyor:** yenibiris, secretcv ve isbul için ayrı
+adaptör yazmak **mükerrer iş**. Jooble zaten getiriyor. Bu üçü listeden
+düşürülmeli; Jooble sorgu listesini genişletmek daha verimli.
+
+Ayrıca üç yeni site öğrenildi (elemanonline, bakiciburada, cvbenim,
+bizdeisvar) — rehbere eklenebilir.
+
+⚠️ **Ama `kurum` alanı YANLIŞ:** kullanıcı işveren yerine "yenibiris.com"
+görüyor. Bu bir görüntüleme hatası (aşağıda görev).
+
+⚠️ ~~**Toplayıcıların kapsamı ÖLÇÜLEMİYOR.**~~ Jooble ve Careerjet ilan
 linklerini kendi yönlendirme adresleriyle veriyor (`tr.jooble.org`,
 `jobviewtrack.com`); Careerjet API'sinin `site` alanı boş dönüyor (eşleme
 doğru — `_careerjet_normalize` zaten `job.get("site")` okuyor, API vermiyor).
@@ -71,7 +96,8 @@ robots.txt izin veriyor ya da kısmen veriyor; WAF/JS durumu ölçülmeli.
 2. **Lever ATS** — hazır, ~101 ilan, tek adaptör N şirket
 3. **eleman.net** — 🥇 JSON-LD JobPosting ile en temiz parse; il+ilçe, son
    başvuru, istihdam türü hazır geliyor. Bölge kapsamı için en değerlisi.
-4. **yenibiris + isbul** — erişilebilir, HTML parse gerekir
+4. ~~yenibiris + isbul~~ — **GEREKSİZ**: Jooble zaten getiriyor
+   (yenibiris 117, isbul 16, secretcv 31). Ayrı adaptör mükerrer iş olur.
 5. ~~kariyer.net~~ — **WAF 403, elendi**
 6. ~~Kamu kurum siteleri~~ — **ölçüldü, önceliği düştü** (§14.2). Düzenleyici ve
    güvenlik kurumları hiçbir toplayıcıda yok ama hazır beslemeleri de yok;
