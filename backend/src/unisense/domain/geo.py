@@ -4,9 +4,8 @@ Sahil/metropol/merkez ilçe metadatası `data/raw/turkey_geo.json` dosyasından 
 """
 from __future__ import annotations
 
-import re
-
 import json
+import re
 from functools import lru_cache
 from pathlib import Path
 
