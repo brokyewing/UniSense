@@ -236,7 +236,13 @@ def scrape(bilinen: set[str] | None = None) -> tuple[list[dict], dict[str, str]]
         print(f"  ⚠️ savunmakariyer düştü: {type(e).__name__}: {e}")
         hatalar["savunmakariyer"] = f"{type(e).__name__}: {e}"
         sk = []
-    return rg + hatb + kam + kk + ak + bg + sk, hatalar
+    try:
+        tt = _scrape_turksat(session)
+    except Exception as e:  # noqa: BLE001
+        print(f"  ⚠️ turksat düştü: {type(e).__name__}: {e}")
+        hatalar["turksat"] = f"{type(e).__name__}: {e}"
+        tt = []
+    return rg + hatb + kam + kk + ak + bg + sk + tt, hatalar
 
 
 # === Hat B: Jooble + Careerjet (API anahtarlı) ===
@@ -436,7 +442,7 @@ def _scrape_hatb(session: requests.Session) -> list[dict]:
 KAYNAK_KOD = {"Jooble": "jooble", "Careerjet": "careerjet", "Resmî Gazete": "rg",
               "kamuilan.sbb.gov.tr": "kamuilan", "Kariyer Kapısı": "kariyerkapisi",
               "AkademikTR": "akademiktr", "ilan.gov.tr": "ilangovtr",
-              "Savunma Kariyer": "savunmakariyer"}
+              "Savunma Kariyer": "savunmakariyer", "TÜRKSAT Kariyer": "turksat"}
 
 V2_BILINMIYOR = "bilinmiyor"
 
@@ -1016,6 +1022,56 @@ def _scrape_savunmakariyer(session: requests.Session) -> list[dict]:
         time.sleep(KIBAR_BEKELEME)
         sayfa += 1
     print(f"  savunmakariyer: {len(kayitlar)} ilan")
+    return kayitlar
+
+
+# === Hat A13: TÜRKSAT kariyer (SSR tablo; şu an 0 açık pozisyon) ===
+# https://kariyer.turksat.com.tr/jobs — table.G satırları; boşken "no-record"
+# mesajı döner. Yapı hazır, ilan çıkınca otomatik akar.
+TURKSAT_JOBS_URL = "https://kariyer.turksat.com.tr/jobs"
+
+
+def _scrape_turksat(session: requests.Session) -> list[dict]:
+    kayitlar: list[dict] = []
+    bugun = date.today().isoformat()
+    h = session.get(TURKSAT_JOBS_URL, timeout=REQUEST_TIMEOUT).text
+    if "no-record" in h:
+        print("  turksat: açık pozisyon yok")
+        return []
+    for m in re.finditer(r"<tr[^>]*>(.*?)</tr>", h, re.S):
+        satir = m.group(1)
+        link = re.search(r'href="(/jobs?/[^"]+|/job[^"]+|/ilan[^"]+)"', satir)
+        metin = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", satir)).strip()
+        if len(metin) < 10:
+            continue
+        url = ("https://kariyer.turksat.com.tr" + link.group(1)
+               if link else TURKSAT_JOBS_URL)
+        fold = fold_tr(metin)
+        kayitlar.append({
+            "id": f"turksat:{hashlib.sha1((url + metin[:80]).encode()).hexdigest()[:16]}",
+            "hat": "kamu",
+            "kaynak": "TÜRKSAT Kariyer",
+            "kaynak_kod": "turksat",
+            "baslik": metin[:200],
+            "kurum": "TÜRKSAT",
+            "il": "",
+            "ilce": "",
+            "bolge": "Bilinmiyor",
+            "tarih": bugun,
+            "son_basvuru": None,
+            "url": url,
+            "ozet": metin[:300],
+            "detay": {},
+            "ilk_gorulme": bugun,
+            "bolumler": _bolum_etiketle(fold),
+            "calisma_sekli": _calisma_sekli(fold),
+            "istihdam_turu": V2_BILINMIYOR,
+            "deneyim": V2_BILINMIYOR,
+            "pozisyon_etiket": [],
+            "kpss": False,  # KPSS'siz doğrudan alım (rehber bulgusu)
+            "maas": None,
+        })
+    print(f"  turksat: {len(kayitlar)} ilan")
     return kayitlar
 
 
