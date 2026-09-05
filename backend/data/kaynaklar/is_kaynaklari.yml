@@ -13,6 +13,14 @@ kaynaklar:
     params:
       max_pdf_mb: 64
 
+  - kod: kamuilan
+    ad: kamuilan.sbb.gov.tr
+    hat: kamu
+    url: https://kamuilan.sbb.gov.tr/
+    erisim: html
+    aktif: true
+    not: WebForms postback (boş arama) + timeline parse; güncel kamu ilanları.
+
   - kod: jooble
     ad: Jooble
     hat: ozel
