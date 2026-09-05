@@ -611,6 +611,8 @@ class KariyerIlan(BaseModel):
 
 class KariyerIlanlarResponse(BaseModel):
     toplam: int
+    sayfa: int = 1
+    boyut: int = 20
     ilanlar: list[KariyerIlan]
 
 
@@ -646,3 +648,18 @@ class KariyerBolum(BaseModel):
 class KariyerBolumlerResponse(BaseModel):
     toplam: int
     bolumler: list[KariyerBolum]
+
+
+class KariyerFacetItem(BaseModel):
+    id: str = ""
+    sayi: int = 0
+
+
+class KariyerFiltrelerResponse(BaseModel):
+    hat: list[KariyerFacetItem] = []
+    bolge: list[KariyerFacetItem] = []
+    il: list[KariyerFacetItem] = []
+    calisma_sekli: list[KariyerFacetItem] = []
+    istihdam_turu: list[KariyerFacetItem] = []
+    deneyim: list[KariyerFacetItem] = []
+    kaynak: list[KariyerFacetItem] = []

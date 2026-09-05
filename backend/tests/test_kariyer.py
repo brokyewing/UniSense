@@ -28,27 +28,28 @@ def _k(id_, hat="kamu", baslik="Test", kurum="", sehir="", tarih="2026-09-05",
 class TestFiltrele:
     def test_hat(self):
         ks = [_k("a", hat="kamu"), _k("b", hat="ozel")]
-        assert [x["id"] for x in filtrele(ks, hat="kamu", bugun=BUGUN)] == ["a"]
+        assert [x["id"] for x in filtrele(ks, hat="kamu", bugun=BUGUN)[0]] == ["a"]
 
     def test_q_turkce_duyarsiz(self):
         ks = [_k("a", baslik="Sözleşmeli Bilişim Personeli Alımı")]
-        assert len(filtrele(ks, q="sozlesmeli bilisim", bugun=BUGUN)) == 1
-        assert filtrele(ks, q="hemşire", bugun=BUGUN) == []
+        assert len(filtrele(ks, q="sozlesmeli bilisim", bugun=BUGUN)[0]) == 1
+        assert filtrele(ks, q="hemşire", bugun=BUGUN)[0] == []
 
     def test_sehir(self):
         ks = [_k("a", sehir="İstanbul"), _k("b", sehir="Ankara")]
-        assert [x["id"] for x in filtrele(ks, sehir="ankara", bugun=BUGUN)] == ["b"]
+        assert [x["id"] for x in filtrele(ks, sehir="ankara", bugun=BUGUN)[0]] == ["b"]
 
     def test_yeni_bayragi_ve_filtre(self):
         ks = [_k("yeni", ilk="2026-09-04"), _k("eski", ilk="2026-08-20")]
-        hepsi = {x["id"]: x["yeni"] for x in filtrele(ks, bugun=BUGUN)}
+        hepsi = {x["id"]: x["yeni"] for x in filtrele(ks, bugun=BUGUN)[0]}
         assert hepsi == {"yeni": True, "eski": False}
-        assert [x["id"] for x in filtrele(ks, sadece_yeni=True, bugun=BUGUN)] == ["yeni"]
+        assert [x["id"] for x in filtrele(ks, sadece_yeni=True, bugun=BUGUN)[0]] == ["yeni"]
 
     def test_limit_ve_sira(self):
         ks = [_k(f"k{i}", tarih=f"2026-09-0{i}") for i in range(1, 6)]
-        out = filtrele(ks, limit=2, bugun=BUGUN)
+        out, toplam = filtrele(ks, limit=2, bugun=BUGUN)
         assert [x["id"] for x in out] == ["k5", "k4"]  # en güncel önce
+        assert toplam == 5
 
 
 class TestScraperSaf:
@@ -119,7 +120,61 @@ class TestBolum:
         a["bolumler"] = ["bilgisayar", "yazilim"]
         b = _k("b", ilk="2026-09-05")
         b["bolumler"] = ["insaat"]
-        assert [x["id"] for x in filtrele([a, b], bolum="yazilim", bugun=BUGUN)] == ["a"]
+        assert [x["id"] for x in filtrele([a, b], bolum="yazilim", bugun=BUGUN)[0]] == ["a"]
+
+
+class TestFiltrelerF11:
+    def _r(self, id_, **kw):
+        d = _k(id_, ilk="2026-09-05")
+        d.update(kw)
+        return d
+
+    def test_il_alt_dize(self):
+        a = self._r("a", il="İstanbul", sehir="")
+        b = self._r("b", il="", sehir="Ankara, Türkiye")
+        assert [x["id"] for x in filtrele([a, b], il="ankara", bugun=BUGUN)[0]] == ["b"]
+
+    def test_bolge_birebir(self):
+        a = self._r("a", bolge="Marmara")
+        b = self._r("b", bolge="Ege")
+        assert [x["id"] for x in filtrele([a, b], bolge="marmara", bugun=BUGUN)[0]] == ["a"]
+
+    def test_calisma_istihdam_deneyim(self):
+        a = self._r("a", calisma_sekli="online", istihdam_turu="tam_zamanli",
+                    deneyim="yeni_mezun")
+        b = self._r("b", calisma_sekli="yuzyuze", istihdam_turu="staj",
+                    deneyim="2_5")
+        r = filtrele([a, b], calisma_sekli="online", istihdam_turu="tam_zamanli",
+                      deneyim="yeni_mezun", bugun=BUGUN)[0]
+        assert [x["id"] for x in r] == ["a"]
+
+    def test_kpss_uc_durum(self):
+        a = self._r("a", kpss=True)
+        b = self._r("b", kpss=False)
+        c = self._r("c", kpss=None)
+        assert [x["id"] for x in filtrele([a, b, c], kpss=True, bugun=BUGUN)[0]] == ["a"]
+        assert [x["id"] for x in filtrele([a, b, c], kpss=False, bugun=BUGUN)[0]] == ["b"]
+        assert len(filtrele([a, b, c], bugun=BUGUN)[0]) == 3
+
+    def test_sayfalama(self):
+        ks = [self._r(f"k{i}", tarih=f"2026-09-0{i}") for i in range(1, 6)]
+        s1, t1 = filtrele(ks, sayfa=1, boyut=2, bugun=BUGUN)
+        s2, t2 = filtrele(ks, sayfa=2, boyut=2, bugun=BUGUN)
+        assert [x["id"] for x in s1] == ["k5", "k4"]
+        assert [x["id"] for x in s2] == ["k3", "k2"]
+        assert t1 == t2 == 5
+
+    def test_legacy_limit_calismaya_devam(self):
+        ks = [self._r(f"k{i}") for i in range(5)]
+        out, toplam = filtrele(ks, limit=3, bugun=BUGUN)
+        assert len(out) == 3 and toplam == 5
+
+    def test_siralama_son_basvuru(self):
+        a = self._r("a", tarih="2026-09-05", son_basvuru="2026-09-20")
+        b = self._r("b", tarih="2026-09-05", son_basvuru="2026-09-08")
+        c = self._r("c", tarih="2026-09-05", son_basvuru=None)
+        out, _ = filtrele([a, b, c], sira="son_basvuru_asc", bugun=BUGUN)
+        assert [x["id"] for x in out] == ["b", "a", "c"]
 
     def test_merge_30gun_budama(self):
         taze = _k("taze", tarih="2026-09-05", ilk="2026-09-05")
