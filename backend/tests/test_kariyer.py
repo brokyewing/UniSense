@@ -629,3 +629,34 @@ class TestSirketAts:
         lever = [e for e in liste if e.get("ats") == "lever"]
         assert all(e.get("pano") for e in lever)
 
+
+class TestAts:
+    def test_workplace_esleme(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import _ats_calisma
+        from unisense.core.text import fold_tr
+        assert _ats_calisma("Onsite", fold_tr("x")) == "yuzyuze"
+        assert _ats_calisma("REMOTE", fold_tr("x")) == "online"
+        assert _ats_calisma("Hybrid", fold_tr("x")) == "hibrit"
+        assert _ats_calisma(None, fold_tr("uzaktan ekip")) == "online"
+        assert _ats_calisma("", fold_tr("düz ilan")) == "bilinmiyor"
+
+    def test_ms_tarih(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import _ms_tarih
+        assert _ms_tarih(1666349132260) == "2022-10-21"
+        assert _ms_tarih(None) == "" and _ms_tarih("x") == ""
+
+    def test_ats_kayit(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import _ats_kayit
+        k = _ats_kayit(kaynak_id="ats-lever:spyke:x", kaynak_ad="Lever",
+                       sirket="Spyke Games", baslik="Backend Developer",
+                       sehir="Istanbul", tarih="2026-09-05",
+                       url="https://jobs.lever.co/spyke/x", ozet="Java",
+                       workplace="Hybrid", bugun="2026-09-05",
+                       ek_detay={"takim": "Eng"})
+        assert k["kaynak_kod"] == "ats" and k["kurum"] == "Spyke Games"
+        assert k["bolge"] == "Marmara" and k["calisma_sekli"] == "hibrit"
+        assert k["kpss"] is False
+        assert _ats_kayit(kaynak_id="x", kaynak_ad="L", sirket="S", baslik="",
+                          sehir="", tarih="", url="http://e.c", ozet="",
+                          workplace=None, bugun="d") is None
+

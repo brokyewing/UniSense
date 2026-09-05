@@ -6,6 +6,11 @@
    "yeni": 0,
    "hata": ""
   },
+  "ats": {
+   "cekilen": 62,
+   "yeni": 58,
+   "hata": ""
+  },
   "careerjet": {
    "cekilen": 774,
    "yeni": 774,
@@ -18,7 +23,7 @@
   },
   "jooble": {
    "cekilen": 911,
-   "yeni": 623,
+   "yeni": 186,
    "hata": ""
   },
   "kamuilan": {
@@ -27,9 +32,9 @@
    "hata": ""
   },
   "kariyerkapisi": {
-   "cekilen": 0,
-   "yeni": 0,
-   "hata": "ConnectionError: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))"
+   "cekilen": 33,
+   "yeni": 3,
+   "hata": ""
   },
   "rg": {
    "cekilen": 1,
@@ -42,17 +47,18 @@
    "hata": ""
   }
  },
- "toplam_kayit": 1843,
+ "toplam_kayit": 1965,
  "gecmis": [
   {
    "tarih": "2026-09-05",
    "cekilen": {
     "akademiktr": 32,
+    "ats": 62,
     "careerjet": 774,
     "ilangovtr": 9,
     "jooble": 911,
     "kamuilan": 76,
-    "kariyerkapisi": 0,
+    "kariyerkapisi": 33,
     "rg": 1,
     "savunmakariyer": 23
    }
