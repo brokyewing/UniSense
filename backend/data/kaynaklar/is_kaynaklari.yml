@@ -37,6 +37,14 @@ kaynaklar:
     aktif: true
     not: Akademik kadro toplayıcısı (ilan.yok.gov.tr ölü); kategori + detay SSR.
 
+  - kod: ilangovtr
+    ad: ilan.gov.tr
+    hat: kamu
+    url: https://www.ilan.gov.tr/ilan/tum-ilanlar/personel-alimi?ats=5
+    erisim: api
+    aktif: true
+    not: BİK API (sorting "id desc" şart); PERSONEL ALIMI yerelde süzülür; sayfa tavanı 20.
+
   - kod: jooble
     ad: Jooble
     hat: ozel

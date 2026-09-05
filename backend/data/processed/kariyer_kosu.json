@@ -3,12 +3,17 @@
  "kaynaklar": {
   "akademiktr": {
    "cekilen": 32,
-   "yeni": 32,
+   "yeni": 2,
    "hata": ""
   },
   "careerjet": {
    "cekilen": 174,
    "yeni": 174,
+   "hata": ""
+  },
+  "ilangovtr": {
+   "cekilen": 126,
+   "yeni": 117,
    "hata": ""
   },
   "jooble": {
@@ -32,13 +37,14 @@
    "hata": ""
   }
  },
- "toplam_kayit": 595,
+ "toplam_kayit": 732,
  "gecmis": [
   {
    "tarih": "2026-09-05",
    "cekilen": {
     "akademiktr": 32,
     "careerjet": 174,
+    "ilangovtr": 126,
     "jooble": 385,
     "kamuilan": 76,
     "kariyerkapisi": 33,
