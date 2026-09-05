@@ -253,13 +253,21 @@ def scrape(bilinen: set[str] | None = None,
 # yalnız defter yoksa düşülen yedek varsayılanlardır.
 
 # Geniş çekim: bölüm-agnostik sorgular, etiketleme yerelde yapılır.
+# F4.1: tüm meslek grupları (mühendislik + sağlık/eğitim/muhasebe/satış/hukuk/lojistik).
 _HATB_JOOBLE_SORGULAR = [
     ("mühendis", "Türkiye"),
     ("yazılım", "Türkiye"),
     ("teknik", "Türkiye"),
     ("bilgisayar", "Türkiye"),
+    ("sağlık", "Türkiye"),
+    ("öğretmen", "Türkiye"),
+    ("muhasebe", "Türkiye"),
+    ("satış", "Türkiye"),
+    ("hukuk", "Türkiye"),
+    ("lojistik", "Türkiye"),
 ]
-_HATB_CJ_SORGULAR = ["mühendis", "yazılım", "tekniker"]
+_HATB_CJ_SORGULAR = ["mühendis", "yazılım", "tekniker", "sağlık",
+                     "öğretmen", "muhasebe", "satış"]
 _HATB_SAYFA_JOOBLE = 5
 _HATB_SAYFA_CJ = 3
 SAKLA_GUN = 30  # kayan pencere: daha eskiler _merge'de budanır
