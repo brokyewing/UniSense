@@ -50,3 +50,16 @@ def yukle(yol: Path | str | None = None) -> list[dict]:
 
 def aktifler(yol: Path | str | None = None) -> list[dict]:
     return [g for g in yukle(yol) if g.get("aktif")]
+
+
+def sirket_ats(yol: Path | str | None = None) -> list[dict]:
+    """Şirket → ATS eşlemesi (F4.2). Doğrulamasız geçirir (adaptör kullanırken
+    API'yi kendisi dener); kayıt defteri şeması değişirse burası güncellenir."""
+    p = Path(yol) if yol else defter_yolu()
+    data = yaml.safe_load(p.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError(f"{p}: sözlük değil")
+    liste = data.get("sirket_ats") or []
+    if not isinstance(liste, list):
+        raise ValueError(f"{p}: 'sirket_ats' liste değil")
+    return liste

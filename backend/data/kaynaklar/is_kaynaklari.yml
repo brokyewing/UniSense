@@ -107,3 +107,17 @@ kaynaklar:
       - "muhasebe"
       - "satış"
     sayfa: 3
+
+# Şirket → ATS eşlemesi (F4.2 taraması, 2026-09-05; F4.3 adaptörleri buradan beslenir).
+# Dogrulanan panolar: Lever (api.lever.co), Ashby (api.ashbyhq.com).
+# Dogrulanamayanlar (bot duvarı/ölü URL): hepsiburada, sahibinden, papara,
+# craftgate, peakgames, havelsan, baykar, roketsan, stm, btcturk, getir (lever panosu 404).
+sirket_ats:
+  - {sirket: "Spyke Games", ats: lever, pano: "spyke-games", durum: aktif}
+  - {sirket: "Midas", ats: lever, pano: "getmidas", durum: aktif}
+  - {sirket: "Iyzico", ats: lever, pano: "iyzico", durum: aday}
+  - {sirket: "Çiçeksepeti", ats: lever, pano: "ciceksepeti", durum: aday}
+  - {sirket: "Bigger Games", ats: ashby, pano: "biggergames", durum: aktif}
+  - {sirket: "Codeway", ats: ashby, pano: "codeway", durum: aktif}
+  - {sirket: "HotelRunner", ats: breezy, pano: "hotelrunner", durum: aday}
+  - {sirket: "Softtech", ats: successfactors, pano: "softtech", durum: aday}
