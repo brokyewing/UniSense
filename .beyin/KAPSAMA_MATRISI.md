@@ -48,7 +48,7 @@ robots.txt izin veriyor ya da kısmen veriyor; WAF/JS durumu ölçülmeli.
 | akademikag.com | ölçülmedi | Akademik toplayıcı. |
 | tr.indeed.com | 🔴 468 kural, 128'i ilan/arama | TR yolları ayrıca teyit edilmeli. |
 | Greenhouse ATS | ✅ açık API | TR şirketi henüz bulunamadı; slug avı sürmeli. |
-| Kamu kurum siteleri (TCMB, BDDK, SPK, Sayıştay, MSB, Jandarma, EGM…) | genelde serbest | Her biri ayrı; önce ilanlarının BİK'te görünüp görünmediği ölçülmeli — görünüyorsa adaptör GEREKSİZ. |
+| Düzenleyici + güvenlik kurumları (TCMB, BDDK, SPK, Sayıştay, BTK, EPDK, Rekabet, Jandarma, MSB, EGM) | siteler erişilebilir (200) | ⬇️ **ÖNCELİK DÜŞÜK** (ölçüldü §14.2): ne BİK'te ne Kariyer Kapısı'nda görünüyorlar; hazır besleme yok (BDDK /rss 404, Rekabet /rss HTML, BTK RSS var ama içerik ilan değil). Seyrek alım + ayrı HTML parse = düşük verim. Rehberde link kalsın. |
 
 ---
 
@@ -72,8 +72,9 @@ robots.txt izin veriyor ya da kısmen veriyor; WAF/JS durumu ölçülmeli.
    başvuru, istihdam türü hazır geliyor. Bölge kapsamı için en değerlisi.
 4. **yenibiris + isbul** — erişilebilir, HTML parse gerekir
 5. ~~kariyer.net~~ — **WAF 403, elendi**
-6. **Kamu kurum siteleri** — önce BİK'te görünüp görünmediklerini ölç; çoğu için
-   adaptör gereksiz çıkabilir
+6. ~~Kamu kurum siteleri~~ — **ölçüldü, önceliği düştü** (§14.2). Düzenleyici ve
+   güvenlik kurumları hiçbir toplayıcıda yok ama hazır beslemeleri de yok;
+   seyrek alım + kurum başına HTML parse = düşük verim. Rehberde link kalsınlar.
 
 ---
 

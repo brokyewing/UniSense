@@ -600,6 +600,51 @@ Sayfalama deseni bulunamadı (`/2`, `?sayfa=2` aynı sonucu veriyor); il yollar�
 
 ---
 
+## 14. Dokuzuncu tur — kurum kapsaması: iki toplayıcı TAMAMLAYICI, düzenleyiciler İKİSİNDE DE YOK
+
+### 14.1 Kariyer Kapısı RSS — kurum dağılımı (33 ilan, 31 kurum)
+
+| Kategori | Adet |
+|---|---|
+| Sözleşmeli Personel İlanları | 28 |
+| A Grubu Memur (Kariyer Meslek) | 2 |
+| Yurt Dışı Eğitim İlanları | 2 |
+| Görevde Yükselme / Unvan Değişikliği | 1 |
+
+**BİK'in kaçırdığı kurumları kapsıyor:** Dışişleri Bakanlığı, Göç İdaresi
+Başkanlığı, **Siber Güvenlik Başkanlığı**, TİKA, Kamu İhale Kurumu, Türk
+Standardları Enstitüsü, Adli Tıp Kurumu, Merkezi Finans ve İhale Birimi,
+Üniversitelerarası Kurul, Atatürk Orman Çiftliği + kalkınma ajansları (BEBKA,
+Kuzey Anadolu).
+
+→ **BİK ve Kariyer Kapısı TAMAMLAYICI, biri diğerinin yerine geçmez.** BİK
+üniversite/belediye ağırlıklı; Kariyer Kapısı bakanlık/kurum ağırlıklı.
+İkisi de toplanmalı (ikisi de zaten kayıt defterinde ✅).
+
+### 14.2 Düzenleyici ve güvenlik kurumları — hiçbir toplayıcıda YOK
+
+TCMB, BDDK, SPK, Sayıştay, BTK, EPDK, Rekabet Kurumu, Jandarma, MSB, EGM, MİT
+→ **ne BİK örnekleminde ne Kariyer Kapısı RSS'inde görüldü.**
+
+Siteleri erişilebilir (hepsi HTTP 200; MSB 302 yönlendirme). **Ama hazır besleme
+yok:**
+
+- BDDK: ana sayfada RSS bağlantısı yok; `/Rss` ve `/rss` **404**. (Sayfadaki
+  "rss" geçen 13 iz sahte — script metni.)
+- Rekabet Kurumu: `/rss` → 200 ama `text/html`, 0 item → RSS değil.
+- **BTK: `/rss` → JSON besleme DİZİNİ** döndürüyor:
+  `{"data":{"feeds":[{"title":"News","url":".../rss/news"},{"title":"Announcements","url":".../rss/announcements"},{"title":"Public opinions",...}]}}`
+  Beslemeler çalışıyor (50'şer kayıt) **ama içerik iş ilanı DEĞİL** — düzenleyici
+  duyurular, kamuoyu görüşleri, haberler. Örneklemde personel alımı yok.
+
+→ **Öneri: düzenleyici kurum adaptörleri ÖNCELİĞİ DÜŞÜK.** Bu kurumlar seyrek
+alım yapıyor, hazır besleme yok, her biri ayrı HTML parse ister — düşük verim.
+Rehberde **link olarak kalsınlar**; Kariyer Kapısı zaten bir kısım kurumu
+getiriyor. BTK gibi RSS'i olanlar ileride anahtar kelime süzgeciyle
+izlenebilir ("personel alım", "sınav ilanı"), ama bu ayrı bir iş.
+
+---
+
 **Sıradaki keşif turları** (henüz yapılmadı):
 
 - [ ] Faal 302 OSB'nin en yoğun 8-10 ildeki sitelerinde ilan sayfası örneklemi
