@@ -48,3 +48,4 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 12:15 | Claude Code | ATS haritasi genisledi: peakgames 20 ilan (slug aramayla bulundu, "peak" tutmuyordu) -> toplam 78 ilan. Peak Lever alanlari bozuk (location=Full-time) -> ATS alanlarina korlemesine guvenme kurali yazildi.
 2026-09-05 12:45 | Claude Code | ilan.gov.tr COZULDU: sorun oturum degil gecersiz sorting degeriymis (API sessizce 0 donuyor). sorting=id desc, sayfa tavani 20, 25.061 ilan, cityCounts 81 il; personel alimi orani %10,5 (~2.600 ilan).
 2026-09-05 13:15 | Claude Code | 7. tur: kodilan.com artik is sitesi degil (alan adi el degistirmis, kumar sitesi) -> listeden cikarildi; TUBITAK kariyer statik tanitim sayfasi, ilan yok; techcareer/youthall/yenibiris/eleman.net beslemesi yok.
+2026-09-05 13:40 | Claude Code | SAHIPLIK.md yazildi (dosya sahipligi + cakisma onleme protokolu); PLAN_KARIYER.mddeki iki yanlis iddia duzeltildi (ATS APIsi yok / tek TR ATS Getir).

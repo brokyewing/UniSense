@@ -115,13 +115,25 @@ Kullanıcının 21 sayfalık "Lisans Seviyesi Kamu İlanları — Tam Takip Rehb
 
 ### Hat B — Özel sektör TR (career-ops `portals.yml`'den, satır referanslı)
 
-Site-sorgu deseni (`site:` + WebSearch, herkese açık ATS API'si yok — `portals.yml:459`):
+Site-sorgu deseni (`site:` + WebSearch).
+
+> ⚠️ **DÜZELTME (Claude Code, 2026-09-05 — ölçüldü):** Bu satırdaki
+> *"herkese açık ATS API'si yok"* iddiası **YANLIŞ**. Lever ve Greenhouse'un
+> kimlik doğrulamasız açık JSON API'leri var ve çalışıyor:
+> `api.lever.co/v0/postings/<slug>?mode=json`,
+> `boards-api.greenhouse.io/v1/boards/<slug>/jobs`.
+> Doğrulanmış: trendyol 27, peakgames 20, dreamgames 19, iyzico 12 ilan.
+> Aynı şekilde aşağıdaki *"taranabilir tek TR ATS: Getir Lever panosu"* notu da
+> **yanlış** — `getir` slug'ı Lever'da geçersiz, bulunan dört şirket başka.
+> Ayrıntı ve slug tuzakları: `KAYNAK_HARITASI.md` §9.2-9.3.
 
 - kariyer.net (Backend açık / Frontend kapalı), yenibiris.com, secretcv.com,
   isinolsun.com, eleman.net, tr.indeed.com (Backend + AI/ML), careerjet.com.tr
   (`provider: careerjet`, `locale tr_TR` — `portals.yml:2126`), techcareer.net
   (Backend + AI/Python), ~~kodilan.com~~ (⚠️ ARTIK İŞ SİTESİ DEĞİL — alan adı el değiştirmiş, kumar/oyun sitesi; bkz. KAYNAK_HARITASI §12.1), youthall.com + toptalent.co (yeni mezun),
-  LinkedIn Turkey (genel + junior sorguları + Apify actor girdisi).
+  ~~LinkedIn Turkey~~ (🚫 **KULLANILMAYACAK** — `robots.txt` tüm siteyi
+  yasaklıyor, `anthropic-ai` için ayrıca; bkz. `KAYNAK_HARITASI` / yol haritası
+  §3.2 "Kapalı Kapılar").
 - Konum filtresi Türkiye-öncelikli (`location_filter`, 2026-09-02 notu);
   TR pazar notları (net maaş, yemek kartı, deneme süresi 2 ay) `portals.yml:1627-1633`.
 
@@ -133,7 +145,9 @@ Segmentify, HotelRunner, Vispera, ASELSAN, HAVELSAN, TUSAŞ, n11, Çiçeksepeti,
 Modanisa, Armut, Enuygun, Obilet, Codeway, Turkish Technology, Türk Telekom.
 Kapalı (URL doğrulanacak): Getir, Peak, Yemeksepeti, Akbank, Papara, Ace,
 Masomo, Intertech, BtcTurk, Logo, Baykar, Roketsan, STM, Vodafone.
-Not: "şu an taranabilir tek TR ATS: Getir Lever panosu" (`portals.yml:1625`).
+~~Not: "şu an taranabilir tek TR ATS: Getir Lever panosu"~~ — **geçersiz**,
+yukarıdaki düzeltmeye bakınız. Doğrulanmış TR ATS panoları (2026-09-05):
+`trendyol`, `peakgames`, `dreamgames`, `iyzico` (hepsi Lever).
 
 ### Revize mimari (iki hat)
 
