@@ -645,7 +645,50 @@ izlenebilir ("personel alım", "sınav ilanı"), ama bu ayrı bir iş.
 
 ---
 
-**Sıradaki keşif turları** (henüz yapılmadı):
+## 15. Onuncu tur — son üç aday, KEŞİF FAZI KAPANDI
+
+### 15.1 tr.indeed.com — 🔴 robots ile KAPALI (kesin)
+
+`robots.txt`'te **hepsi yasak**: `Disallow: /jobs`, `/viewjob`, `/q-`,
+`/jobs/TR/`. Yani ilan listesi de detay sayfası da arama da kapalı.
+→ **Kapalı Kapılar'a taşındı.** Rehberde link olarak kalır.
+
+### 15.2 secretcv.com — 🟡 zor, önceliği düşük
+
+`/is-ilanlari` → 200, 338 KB, sayfada 79 "pozisyon/başvur" izi **ama ham HTML'de
+tekil ilan linki YOK**. Tarayıcıda render edildikten sonra bile: 289 link,
+203'ü "ilan benzeri" ama hepsi genel sayfalara (`/is-ilanlari`,
+`/is-ilani-ver`) — **tekil ilan URL'si üretilmiyor**. JSON-LD'de yalnız
+`BreadcrumbList`, `JobPosting` yok.
+→ İlan detayları farklı bir akışta (arama/filtre etkileşimi gerekiyor).
+eleman.net her şeyi temiz verirken buraya yatırım yapmak mantıksız.
+
+### 15.3 akademikag.com — 🟡 küçük
+
+`/akademik-ilanlar` → 200, 57 KB. Ham HTML'de yalnız filtre linkleri
+(`?tur=Araştırma`, `?tur=Resmi`, `?tur=Sosyal`, `?tur=Uluslararası`); tekil ilan
+linki yok → JS ile geliyor. Zaten `akademiktr` adaptörü akademik kadroyu
+topluyor (kayıt defterinde ✅), bu ikinci bir akademik toplayıcı.
+→ Düşük öncelik.
+
+---
+
+## 16. KEŞİF FAZI SONUCU
+
+On tur sonunda aday havuzu tükendi. Özet:
+
+| Durum | Kaynaklar |
+|---|---|
+| ✅ **Toplanıyor (7)** | ilan.gov.tr, Kariyer Kapısı, kamuilan.sbb, AkademikTR, Resmî Gazete, Jooble, Careerjet |
+| 🟢 **Hazır, kod bekliyor (2)** | savunmakariyer.com (API tam belgeli), Lever ATS (6 slug) |
+| 🟢 **Ölçüldü, yazılabilir (3)** | eleman.net (JSON-LD 🥇), yenibiris, isbul.net |
+| 🟡 **Zor / düşük verim (3)** | secretcv, akademikag, düzenleyici kurumlar |
+| 🔴 **Kapalı (5)** | LinkedIn (robots), kariyer.net (WAF 403), tr.indeed.com (robots), İŞKUR (WAF), kodilan (site ölü) |
+
+**Sonraki değerli iş artık araştırma değil, UYGULAMA.** Beş adaptör (2 hazır +
+3 ölçülmüş) yazıldığında kapsam 7 → 12 kaynağa çıkar.
+
+
 
 - [ ] Faal 302 OSB'nin en yoğun 8-10 ildeki sitelerinde ilan sayfası örneklemi
 - [ ] Vizyoner Genç ve TÜBİTAK SPA'larının JSON API'si (tarayıcı ağ sekmesi;

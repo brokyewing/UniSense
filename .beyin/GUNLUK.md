@@ -30,6 +30,7 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 14:16 | opencode | F2.3: capraz kaynak tekillestirme (kamu kazanir, canli 17 birlesme); da93be9 pushlandi. F2 tamam. Siradaki: F3.1 KK RSS.
 2026-09-05 14:34 | opencode | F3.1: Kariyer Kapisi RSS adaptoru (girissiz, canli 33/30 ilan); 74bd5ea pushlandi. Siradaki: F3.3 ilan.yok.
 2026-09-05 15:27 | opencode | F3.3: ilan.yok olu, akademiktr adaptoru (canli 32); F3.4: BIK API cozumuyle 126 personel ilani + union merge duzeltmesi; b18ebbe pushlandi. Siradaki: F3.5 Vizyoner.
+2026-09-05 17:44 | opencode | F3.5: savunmakariyer API adaptoru (JS paketinden, 23 ilan canli, Sectigo zinciri); 059dc20 pushlandi. 8 kaynak/777 kayit. Siradaki: F3.6 olcum.
 2026-09-04 23:55 | Claude Code | KPSS veri kaybi geri alindi + bos-sonuc bekcisi, CI pin bypass i duzeltildi (CI artik yesil), tusdus sessiz basarisi giderildi; OSYM URL kesfi engelli.
 2026-09-05 01:40 | Claude Code | OSYM yeni URL semasi cozuldu (chunked-hang toleransli fetch + Duyurular/Index kesfi); KPSS 2026/1, TUS ve DUS 2026 verileri geldi; CI yesil.
 2026-09-05 02:20 | Claude Code | CI kor noktasi kapatildi (haftalik schedule); LGS ve Yearly YKS dispatch ile yesil kosup 2026 verisini commitledi.
@@ -57,3 +58,4 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 15:45 | Claude Code | Buyuk paneller olculdu: kariyer.net WAF 403 (elendi), eleman.net schema.org JobPosting JSON-LD ile en zengin kaynak cikti (il+ilce+son basvuru+istihdam turu hazir), yenibiris/isbul erisilebilir ama HTML parse gerekiyor.
 2026-09-05 16:20 | Claude Code | DUZELTME: ilan.gov.tr id desc kronolojik degil (skip 0=2022, skip 100=2026) -> artimli tarama plani gecersiz; personel ilani orani %10,5 degil ~%1,4, "2.600 ilan" tahmini sisikti. Kamu kurumlarinin cogu BIKte YOK (15 kurumun 13u universite).
 2026-09-05 16:55 | Claude Code | Kurum kapsamasi olculdu: BIK ve Kariyer Kapisi TAMAMLAYICI (BIK universite/belediye, KK bakanlik/kurum); duzenleyici+guvenlik kurumlari ikisinde de YOK ama hazir beslemeleri de yok -> onceligi dusuruldu.
+2026-09-05 17:25 | Claude Code | KESIF FAZI KAPANDI: indeed robotsla kapali (jobs/viewjob/q-/jobs-TR hepsi yasak), secretcv render sonrasi bile tekil ilan URLsi vermiyor, akademikag JS. Ozet: 7 toplaniyor, 2 hazir, 3 yazilabilir, 5 kapali.

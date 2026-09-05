@@ -43,10 +43,10 @@ robots.txt izin veriyor ya da kısmen veriyor; WAF/JS durumu ölçülmeli.
 | ~~kariyer.net~~ | robots serbest AMA **HTTP 403 + WAF** (ölçüldü) | 🔴 **ERİŞİM YOK** → bölüm 3'e taşındı |
 | yenibiris.com | ✅ yasak yok | 200, 572 KB, sayfalama `?sayfa=1..100`. JSON-LD yok → HTML parse. |
 | isbul.net | ✅ | 200, 920 KB, ilan linkleri `/is-ilani/<slug>`. JSON-LD yok → HTML parse. |
-| secretcv.com | 🟡 4 ilan/arama yasağı | Yol bazında bakılmalı. |
+| secretcv.com | 🟡 | Render sonrası bile tekil ilan URL'si yok; JSON-LD'de JobPosting yok. **Düşük öncelik.** |
 | **eleman.net** | ✅ `/is-ilani*` yasak değil | 🥇 **EN İYİ ADAY**: 200, sunucu-tarafı, **schema.org JobPosting JSON-LD** (başlık/tarih/son başvuru/istihdam türü/kurum/il+ilçe/maaş). İl yolu `/is-ilanlari/<il>` keşif için çalışıyor. |
-| akademikag.com | ölçülmedi | Akademik toplayıcı. |
-| tr.indeed.com | 🔴 468 kural, 128'i ilan/arama | TR yolları ayrıca teyit edilmeli. |
+| akademikag.com | 🟡 | Ham HTML'de yalnız filtre linkleri, ilanlar JS ile. `akademiktr` zaten akademik kadroyu topluyor. **Düşük öncelik.** |
+
 | Greenhouse ATS | ✅ açık API | TR şirketi henüz bulunamadı; slug avı sürmeli. |
 | Düzenleyici + güvenlik kurumları (TCMB, BDDK, SPK, Sayıştay, BTK, EPDK, Rekabet, Jandarma, MSB, EGM) | siteler erişilebilir (200) | ⬇️ **ÖNCELİK DÜŞÜK** (ölçüldü §14.2): ne BİK'te ne Kariyer Kapısı'nda görünüyorlar; hazır besleme yok (BDDK /rss 404, Rekabet /rss HTML, BTK RSS var ama içerik ilan değil). Seyrek alım + ayrı HTML parse = düşük verim. Rehberde link kalsın. |
 
@@ -56,6 +56,7 @@ robots.txt izin veriyor ya da kısmen veriyor; WAF/JS durumu ölçülmeli.
 
 | Kaynak | Sebep |
 |---|---|
+| **tr.indeed.com** | `robots.txt`: `/jobs`, `/viewjob`, `/q-`, `/jobs/TR/` **hepsi yasak** (2026-09-05 ölçüldü). |
 | **kariyer.net** | HTTP **403** + bot koruması (2026-09-05 ölçüldü). robots izin verse de sunucu reddediyor — §3 madde 6: zorlanmaz. |
 | **LinkedIn** | `robots.txt`: `User-agent: *` → `Disallow: /`, ayrıca `anthropic-ai` için özel yasak. İzin alınmadan tek satır çekilmez. |
 | **İŞKUR e-Şube** | WAF — `robots.txt` bile "Request Rejected". İlanları BİK/Kariyer Kapısı'nda göründüğü için kapsama kaybı sınırlı. |
