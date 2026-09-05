@@ -61,12 +61,12 @@ class TestIlIlceAyikla:
     @pytest.mark.parametrize(
         ("konum", "beklenen"),
         [
-            ("Ankara, Çankaya", ("Ankara", "Çankaya", "İç Anadolu")),
-            ("Konak, İzmir", ("İzmir", "Konak", "Ege")),          # ters sıra
-            ("Şişli / İstanbul", ("İstanbul", "Şişli", "Marmara")),  # eğik çizgi
-            ("İstanbul", ("İstanbul", None, "Marmara")),          # yalnız il
-            ("İstanbul Avrupa", ("İstanbul", "Avrupa", "Marmara")),  # yaka etiketi
-            ("İstanbul Anadolu Yakası", ("İstanbul", "Anadolu Yakası", "Marmara")),
+            ("Ankara, Çankaya", ("ANKARA", "Çankaya", "İç Anadolu")),
+            ("Konak, İzmir", ("İZMİR", "Konak", "Ege")),          # ters sıra
+            ("Şişli / İstanbul", ("İSTANBUL", "Şişli", "Marmara")),  # eğik çizgi
+            ("İstanbul", ("İSTANBUL", None, "Marmara")),          # yalnız il
+            ("İstanbul Avrupa", ("İSTANBUL", "Avrupa", "Marmara")),  # yaka etiketi
+            ("İstanbul Anadolu Yakası", ("İSTANBUL", "Anadolu Yakası", "Marmara")),
         ],
     )
     def test_cozulen_konumlar(self, konum, beklenen):
@@ -165,3 +165,48 @@ class TestMetindenIlBul:
         for metin in ("KARADENİZ TEKNİK ÜNİVERSİTESİ", "ARDAHAN ÜNİVERSİTESİ"):
             il = metinden_il_bul(metin)
             assert il and il_to_bolge(il) != "Bilinmiyor"
+
+
+class TestKanonikIl:
+    """İl adı tek yazıma indirgenmeli.
+
+    Ölçüm (2026-09-05, 1965 kayıt): `il` alanında 355 farklı değer vardı;
+    yalnız İstanbul'un ~95 varyantı ("İstanbul", "İSTANBUL", "İstanbul Avrupa",
+    "Ataşehir, İstanbul", "Istanbul"…). Kanonikleştirmeyle 65 ile indi,
+    İstanbul tek değerde (955 kayıt) toplandı.
+    """
+
+    @pytest.mark.parametrize(
+        "yazim", ["İSTANBUL", "istanbul", "Istanbul", "İstanbul", " İstanbul "]
+    )
+    def test_ayni_kanonik_deger(self, yazim):
+        from unisense.domain.geo import kanonik_il
+
+        assert kanonik_il(yazim) == kanonik_il("İstanbul")
+
+    @pytest.mark.parametrize("gecersiz", [None, "", "yokboyle", "Türkiye"])
+    def test_taninmayan_none(self, gecersiz):
+        from unisense.domain.geo import kanonik_il
+
+        assert kanonik_il(gecersiz) is None
+
+    @pytest.mark.parametrize(
+        "konum",
+        [
+            "İstanbul", "İSTANBUL", "Istanbul", "İstanbul Avrupa",
+            "İstanbul Anadolu Yakası", "Ataşehir, İstanbul", "İstanbul, Fatih",
+            "Şişli / İstanbul",
+        ],
+    )
+    def test_tum_varyantlar_tek_ile_iner(self, konum):
+        """Kullanıcının bildirdiği sorun: aynı şehir birden çok kez görünüyordu."""
+        from unisense.domain.geo import il_ilce_ayikla, kanonik_il
+
+        il, _, bolge = il_ilce_ayikla(konum)
+        assert il == kanonik_il("İstanbul")
+        assert bolge == "Marmara"
+
+    def test_metinden_il_bul_de_kanonik_doner(self):
+        from unisense.domain.geo import kanonik_il, metinden_il_bul
+
+        assert metinden_il_bul("BURSA TEKNİK ÜNİVERSİTESİ") == kanonik_il("Bursa")

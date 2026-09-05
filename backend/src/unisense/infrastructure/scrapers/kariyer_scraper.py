@@ -52,7 +52,7 @@ import fitz  # PyMuPDF
 import requests
 
 from unisense.core.text import fold_tr
-from unisense.domain.geo import il_to_bolge
+from unisense.domain.geo import il_ilce_ayikla, il_to_bolge, metinden_il_bul
 from unisense.infrastructure.scrapers._guard import ScrapeGuardError, write_json_guarded
 from unisense.infrastructure.scrapers.kariyer_registry import aktifler as _aktif_kaynaklar
 
@@ -522,10 +522,21 @@ def v2_kayit(kayit: dict) -> dict:
     k["id"] = _v2_id(k)
     if not k.get("kaynak_kod"):
         k["kaynak_kod"] = KAYNAK_KOD.get(k.get("kaynak") or "", "diger")
-    il = (k.get("il") or k.get("sehir") or "").strip()
-    k["il"] = il
-    k["ilce"] = (k.get("ilce") or "").strip()
-    k["bolge"] = il_to_bolge(il) if il else "Bilinmiyor"
+    # Konum normalizasyonu. Ham konum tek alanda ve çok biçimli geliyor
+    # ("İstanbul", "İSTANBUL", "İstanbul Avrupa", "Ataşehir, İstanbul",
+    # "Konak, İzmir", "Istanbul"). Ölçüm 2026-09-05: `il` alanında 355 farklı
+    # değer vardı, yalnız İstanbul'un ~95 varyantı. il_ilce_ayikla sırayı
+    # önemsemez ve KANONİK il adı döndürür -> 355 değer 65 ile indi.
+    ham_konum = (k.get("il") or k.get("sehir") or "").strip()
+    il, ilce, bolge = il_ilce_ayikla(ham_konum)
+    if not il:
+        # Kamu kaynaklarının çoğu şehir alanı vermiyor; il yalnız kurum adında
+        # geçiyor ("ARDAHAN ÜNİVERSİTESİ"). 128 ilsiz kaydın 82'si böyle çözülüyor.
+        il = metinden_il_bul(k.get("kurum")) or metinden_il_bul(k.get("baslik"))
+        bolge = il_to_bolge(il) if il else "Bilinmiyor"
+    k["il"] = il or ""
+    k["ilce"] = (k.get("ilce") or ilce or "").strip()
+    k["bolge"] = bolge
     if not k.get("calisma_sekli") or k.get("calisma_sekli") == V2_BILINMIYOR:
         # Eski kayıtlardaki başlık+özetten geriye dönük çıkarım
         k["calisma_sekli"] = _calisma_sekli(
