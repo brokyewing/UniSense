@@ -45,6 +45,7 @@ import re
 import sys
 import time
 from datetime import UTC, date, datetime
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 import fitz  # PyMuPDF
@@ -311,6 +312,27 @@ def _bolum_etiketle(fold_metin: str) -> list[str]:
             if any(a in fold_metin for a in anahtarlar)]
 
 
+_ISO_TARIH = re.compile(r"^\d{4}-\d{2}-\d{2}")
+
+
+def _tarih_iso(ham: str | None, bugun: str) -> str:
+    """Kaynak tarihini ISO (YYYY-MM-DD) yap.
+
+    Careerjet RFC-822 veriyor ("Wed, 29 Jun 2026 10:00:00 GMT"); buna [:10]
+    uygulamak "Wed, 29 Ju" gibi bozuk değer üretiyordu — 228 kaydın tamamı
+    böyleydi. Jooble'ın `updated` alanı zaten ISO, o yol korunur.
+    """
+    ham = (ham or "").strip()
+    if not ham:
+        return bugun
+    if _ISO_TARIH.match(ham):
+        return ham[:10]
+    try:
+        return parsedate_to_datetime(ham).date().isoformat()
+    except (TypeError, ValueError):
+        return bugun
+
+
 def _temizle_ham(s: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", s or "")).strip()
 
@@ -330,7 +352,7 @@ def _jooble_normalize(job: dict, bugun: str) -> dict | None:
         "baslik": baslik,
         "kurum": (job.get("source") or "").strip(),  # Jooble kaynak panoyu verir, işvereni değil
         "sehir": (job.get("location") or "").strip(),
-        "tarih": (job.get("updated") or bugun)[:10],
+        "tarih": _tarih_iso(job.get("updated"), bugun),
         "url": link,
         "ozet": ozet,
         "detay": {"maas": (job.get("salary") or "").strip(), "tur": (job.get("type") or "").strip()},
@@ -354,7 +376,7 @@ def _careerjet_normalize(job: dict, bugun: str) -> dict | None:
         "baslik": baslik,
         "kurum": (job.get("company") or "").strip(),
         "sehir": (job.get("locations") or "").strip(),
-        "tarih": (job.get("date") or bugun)[:10],
+        "tarih": _tarih_iso(job.get("date"), bugun),
         "url": link,
         "ozet": ozet,
         "detay": {"maas": (job.get("salary") or "").strip(), "site": (job.get("site") or "").strip()},
@@ -1107,6 +1129,20 @@ def _merge(yeni: list[dict], eski: list[dict]) -> list[dict]:
             continue
         birlesik.append(x)
     for k in list(birlesik):
+        # son_basvuru VARSA tek ölçüt odur: dolmuşsa at, dolmamışsa KORU.
+        # Yaş kuralı uygulanmaz — aksi halde uzun süre açık kalan ilanlar
+        # (kurumsal genel başvuru havuzları) yayın tarihi eskidiği için
+        # siliniyordu: Savunma Kariyer 24 -> 12, Kariyer Kapısı 33 -> 30
+        # (14 AÇIK ilan kaybı, 2026-09-05 ölçümü).
+        ksb = (k.get("son_basvuru") or "")[:10]
+        if ksb:
+            try:
+                if (bugun - date.fromisoformat(ksb)).days > 7:
+                    birlesik.remove(k)
+                    budanan += 1
+            except ValueError:
+                pass
+            continue
         ref = (k.get("tarih") or k.get("ilk_gorulme") or "")[:10]
         try:
             yas = (bugun - date.fromisoformat(ref)).days if ref else 0
