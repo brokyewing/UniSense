@@ -268,16 +268,35 @@ Bulunan slug'lar Lever API'sinde doğrulandı.
 | Şirket | Platform | Slug | İlan | Konum dağılımı |
 |---|---|---|---|---|
 | Trendyol | Lever | `trendyol` | **27** | İstanbul/Maslak 13, Bükreş 4, Kocaeli/Gebze 2, Riyad 1 |
+| Peak Games | Lever | `peakgames` | **20** | ⚠️ konum alanı bozuk (aşağı bak) |
 | Dream Games | Lever | `dreamgames` | **19** | İstanbul 18, Londra 1 |
 | iyzico | Lever | `iyzico` | **12** | İstanbul 12 |
 
-Tek adaptörle **58 gerçek ilan**. Uç nokta:
+Tek adaptörle **78 gerçek ilan**. Uç nokta:
 `https://api.lever.co/v0/postings/<slug>?mode=json` — kimlik doğrulama yok.
 
 ⚠️ **Yabancı konumlar var** (Bükreş, Riyad, Londra). Bu, `il_to_bolge()` ile
 konum doğrulamasının neden zorunlu olduğunu gösteriyor: Türkiye dışı ilanlar
 ya elenmeli ya da `il/bolge = null` ile işaretlenmeli — sessizce
 "Bilinmiyor" bölgesine düşürülmemeli.
+
+#### ⚠️ ATS alanlarına körlemesine güvenme — Peak Games örneği
+
+`peakgames` kaydında `categories.location` = **"Full-time" / "Part-time"**
+(yani aslında çalışma süresi), `team` gerçek departmanı tutuyor, `country`
+**null**, `workplaceType` = `onsite`. Şirket Lever'ı yanlış yapılandırmış.
+
+→ **Kural:** `categories.location` değerini `il_to_bolge()`'den geçir. Türk
+iline çözülmüyorsa **konum olarak KABUL ETME**; `workplaceType`/`country`'ye
+düş, o da yoksa `il=null, bolge="Bilinmiyor"` yaz. Aynı doğrulama yabancı
+konumları (Bükreş, Riyad, Londra) da eler.
+
+#### Slug varyantları — tahmin neden çalışmıyor
+
+`peakgames` slug'ı **aramayla** bulundu; şirketin adı "Peak" olduğu için
+`peak` denenmişti ve tutmamıştı. Denenen ve tutmayan diğer varyantlar:
+`getirtech`, `getir-technology`, `papara-tech`, `jotformcareers`,
+Greenhouse'ta `peakgames`/`getir`/`papara`. **Tahmin toplam skoru: 1/14.**
 
 **Kariyer sayfası taramasının verimi düşük (2/10).** Getir, Peak, Papara,
 Jotform, Hepsiburada, Insider'ın kariyer sayfaları **JS ile üretiliyor**, ATS
