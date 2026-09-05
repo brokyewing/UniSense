@@ -617,3 +617,15 @@ class TestKpssCikarim:
         assert k["kpss"] is True
         assert k["detay"]["kpss_tur"] == "P3"
 
+
+class TestSirketAts:
+    def test_esleme_yuklenir(self):
+        from unisense.infrastructure.scrapers.kariyer_registry import sirket_ats
+        liste = sirket_ats()
+        assert len(liste) >= 8
+        aktif = [e for e in liste if e.get("durum") == "aktif"]
+        assert {e["pano"] for e in aktif} >= {"spyke-games", "getmidas",
+                                             "biggergames", "codeway"}
+        lever = [e for e in liste if e.get("ats") == "lever"]
+        assert all(e.get("pano") for e in lever)
+
