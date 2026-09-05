@@ -245,7 +245,13 @@ def scrape(bilinen: set[str] | None = None,
         print(f"  ⚠️ turksat düştü: {type(e).__name__}: {e}")
         hatalar["turksat"] = f"{type(e).__name__}: {e}"
         tt = []
-    return rg + hatb + kam + kk + ak + bg + sk + tt, hatalar
+    try:
+        at = _scrape_ats(session)
+    except Exception as e:  # noqa: BLE001
+        print(f"  ⚠️ ats düştü: {type(e).__name__}: {e}")
+        hatalar["ats"] = f"{type(e).__name__}: {e}"
+        at = []
+    return rg + hatb + kam + kk + ak + bg + sk + tt + at, hatalar
 
 
 # === Hat B: Jooble + Careerjet (API anahtarlı) ===
@@ -514,7 +520,8 @@ def v2_kayit(kayit: dict) -> dict:
     """Eski kaydı v2 şemasına taşır (kayıpsız; eksikler bilinmiyor/null)."""
     k = dict(kayit)
     k["id"] = _v2_id(k)
-    k["kaynak_kod"] = KAYNAK_KOD.get(k.get("kaynak") or "", "diger")
+    if not k.get("kaynak_kod"):
+        k["kaynak_kod"] = KAYNAK_KOD.get(k.get("kaynak") or "", "diger")
     il = (k.get("il") or k.get("sehir") or "").strip()
     k["il"] = il
     k["ilce"] = (k.get("ilce") or "").strip()
@@ -1165,6 +1172,135 @@ def _scrape_turksat(session: requests.Session) -> list[dict]:
         })
     print(f"  turksat: {len(kayitlar)} ilan")
     return kayitlar
+
+
+# === Hat F4.3: şirket ATS panoları (defterdeki sirket_ats'ten beslenir) ===
+# Lever: GET api.lever.co/v0/postings/{slug}?mode=json (auth yok).
+# Ashby: GET api.ashbyhq.com/posting-api/job-board/{slug} (auth yok).
+# workplaceType doğrudan çalışma şekli verir (Onsite/Remote/Hybrid).
+ATS_CALISMA = {"onsite": "yuzyuze", "remote": "online", "hybrid": "hibrit"}
+
+
+def _ats_calisma(workplace: str | None, metin_fold: str) -> str:
+    if workplace:
+        w = ATS_CALISMA.get(workplace.strip().lower())
+        if w:
+            return w
+    return _calisma_sekli(metin_fold)
+
+
+def _ats_kayit(*, kaynak_id: str, kaynak_ad: str, sirket: str, baslik: str,
+               sehir: str, tarih: str, url: str, ozet: str, workplace: str | None,
+               bugun: str, ek_detay: dict | None = None) -> dict | None:
+    baslik = (baslik or "").strip()
+    if not baslik or not url.startswith("http"):
+        return None
+    metin = fold_tr(f"{baslik} {sirket} {ozet}")
+    il = sehir.strip()
+    return {
+        "id": kaynak_id,
+        "hat": "ozel",
+        "kaynak": sirket,
+        "kaynak_kod": "ats",
+        "baslik": baslik,
+        "kurum": sirket,
+        "il": il,
+        "ilce": "",
+        "bolge": il_to_bolge(il) if il else "Bilinmiyor",
+        "tarih": (tarih or "")[:10],
+        "son_basvuru": None,
+        "url": url,
+        "ozet": ozet[:300],
+        "detay": ek_detay or {},
+        "ilk_gorulme": bugun,
+        "bolumler": _bolum_etiketle(metin),
+        "calisma_sekli": _ats_calisma(workplace, metin),
+        "istihdam_turu": V2_BILINMIYOR,
+        "deneyim": V2_BILINMIYOR,
+        "pozisyon_etiket": [],
+        "kpss": False,  # özel sektör ATS panoları
+        "maas": None,
+    }
+
+
+def _scrape_ats(session: requests.Session) -> list[dict]:
+    from unisense.infrastructure.scrapers.kariyer_registry import sirket_ats
+    kayitlar: list[dict] = []
+    bugun = date.today().isoformat()
+    for girdi in sirket_ats():
+        if girdi.get("ats") not in ("lever", "ashby"):
+            continue  # breezy/successfactors sonraki iş
+        sirket = (girdi.get("sirket") or "").strip()
+        pano = (girdi.get("pano") or "").strip()
+        if not sirket or not pano:
+            continue
+        try:
+            if girdi["ats"] == "lever":
+                r = session.get(f"https://api.lever.co/v0/postings/{pano}?mode=json",
+                                timeout=REQUEST_TIMEOUT)
+                r.raise_for_status()
+                ads = r.json() or []
+                for ad in ads:
+                    if not isinstance(ad, dict):
+                        continue
+                    cat = ad.get("categories") or {}
+                    k = _ats_kayit(
+                        kaynak_id=f"ats-lever:{pano}:{ad.get('id')}",
+                        kaynak_ad="Lever", sirket=sirket,
+                        baslik=ad.get("text") or "",
+                        sehir=cat.get("location") or "",
+                        tarih=_ms_tarih(ad.get("createdAt")),
+                        url=ad.get("hostedUrl") or "",
+                        ozet=_temizle_ham(ad.get("descriptionPlain") or ""),
+                        workplace=ad.get("workplaceType"),
+                        bugun=bugun,
+                        ek_detay={"takim": cat.get("team", ""),
+                                  "taahhut": cat.get("commitment", "")})
+                    if k:
+                        kayitlar.append(k)
+            else:
+                r = session.get(
+                    f"https://api.ashbyhq.com/posting-api/job-board/{pano}",
+                    timeout=REQUEST_TIMEOUT)
+                r.raise_for_status()
+                ads = (r.json() or {}).get("jobs") or []
+                for ad in ads:
+                    if not isinstance(ad, dict):
+                        continue
+                    loc = ad.get("location")
+                    if isinstance(loc, dict):
+                        loc = loc.get("name") or ""
+                    adr = ad.get("address") or {}
+                    post = adr.get("postalAddress") or {} if isinstance(adr, dict) else {}
+                    sehir = ((ad.get("locationName") or loc or post.get("addressLocality") or "")
+                             .strip())
+                    k = _ats_kayit(
+                        kaynak_id=f"ats-ashby:{pano}:{ad.get('id')}",
+                        kaynak_ad="Ashby", sirket=sirket,
+                        baslik=ad.get("title") or "",
+                        sehir=sehir,
+                        tarih=(ad.get("publishedAt") or "")[:10],
+                        url=ad.get("jobUrl") or "",
+                        ozet=_temizle_ham(ad.get("descriptionPlain") or ""),
+                        workplace=ad.get("workplaceType"),
+                        bugun=bugun,
+                        ek_detay={"departman": ad.get("department") or "",
+                                  "tur": ad.get("employmentType") or ""})
+                    if k:
+                        kayitlar.append(k)
+            print(f"  ats/{pano}: done")
+        except Exception as e:  # noqa: BLE001 — pano bazında tolerans
+            print(f"  ⚠️ ats/{pano}: {type(e).__name__}")
+            continue
+    print(f"  ats: {len(kayitlar)} ilan")
+    return kayitlar
+
+
+def _ms_tarih(ms) -> str:
+    try:
+        return datetime.fromtimestamp(int(ms) / 1000, tz=UTC).date().isoformat()
+    except (ValueError, TypeError, OSError):
+        return ""
 
 
 def _merge(yeni: list[dict], eski: list[dict]) -> list[dict]:
