@@ -16,6 +16,7 @@ from pathlib import Path
 
 from unisense.core.config import get_settings
 from unisense.core.text import fold_tr
+from unisense.domain.geo import il_to_bolge
 
 YENI_GUN_SAYISI = 7
 MAX_LIMIT = 100
@@ -196,12 +197,20 @@ def _yeni_mi(ilk_gorulme: str, bugun: date, gun: int = YENI_GUN_SAYISI) -> bool:
     return (bugun - d) <= timedelta(days=gun)
 
 
+def _coklu(v: str | list[str] | None) -> set[str] | None:
+    """Tekil ya da çoklu seçim parametresini kümeye çevirir."""
+    if v is None:
+        return None
+    return {v} if isinstance(v, str) else set(v)
+
+
 def filtrele(kayitlar: list[dict], *, hat: str | None = None,
              q: str | None = None, kaynak: str | None = None,
              sehir: str | None = None, bolum: str | None = None,
              il: str | None = None, bolge: str | None = None,
-             ilce: str | None = None, calisma_sekli: str | None = None,
-             istihdam_turu: str | None = None, deneyim: str | None = None,
+             ilce: str | None = None, calisma_sekli: str | list[str] | None = None,
+             istihdam_turu: str | list[str] | None = None,
+             deneyim: str | list[str] | None = None,
              kpss: bool | None = None, sadece_yeni: bool = False,
              yeni_gun: int = YENI_GUN_SAYISI,
              limit: int = 20, sayfa: int = 1, boyut: int = 20,
@@ -216,6 +225,9 @@ def filtrele(kayitlar: list[dict], *, hat: str | None = None,
     qf = fold_tr(q) if q else ""
     ilf = fold_tr(il) if il else ""
     ilcef = fold_tr(ilce) if ilce else ""
+    cs_set = _coklu(calisma_sekli)
+    it_set = _coklu(istihdam_turu)
+    dn_set = _coklu(deneyim)
     out: list[dict] = []
     for k in kayitlar:
         if hat and k.get("hat") != hat:
@@ -232,11 +244,11 @@ def filtrele(kayitlar: list[dict], *, hat: str | None = None,
             continue
         if ilcef and ilcef not in fold_tr(k.get("ilce") or ""):
             continue
-        if calisma_sekli and k.get("calisma_sekli") != calisma_sekli:
+        if cs_set is not None and k.get("calisma_sekli") not in cs_set:
             continue
-        if istihdam_turu and k.get("istihdam_turu") != istihdam_turu:
+        if it_set is not None and k.get("istihdam_turu") not in it_set:
             continue
-        if deneyim and k.get("deneyim") != deneyim:
+        if dn_set is not None and k.get("deneyim") not in dn_set:
             continue
         if kpss is not None and k.get("kpss") is not kpss:
             continue  # None (bilinmiyor) iki filtrede de elenir — uydurma yok
@@ -309,4 +321,7 @@ class KariyerService:
         out = {alan: [{"id": v, "sayi": c} for v, c in
                       sorted(deger.items(), key=lambda x: -x[1])]
                for alan, deger in say.items()}
+        # İl facet'lerine bölge ekle (kademeli seçim için)
+        out["il"] = [{"id": v["id"], "sayi": v["sayi"],
+                      "bolge": il_to_bolge(v["id"])} for v in out.get("il", [])]
         return out

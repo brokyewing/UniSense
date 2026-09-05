@@ -653,6 +653,7 @@ class KariyerBolumlerResponse(BaseModel):
 class KariyerFacetItem(BaseModel):
     id: str = ""
     sayi: int = 0
+    bolge: str = ""
 
 
 class KariyerFiltrelerResponse(BaseModel):

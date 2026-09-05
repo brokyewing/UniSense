@@ -148,6 +148,13 @@ class TestFiltrelerF11:
                       deneyim="yeni_mezun", bugun=BUGUN)[0]
         assert [x["id"] for x in r] == ["a"]
 
+    def test_coklu_secim(self):
+        a = self._r("a", calisma_sekli="online")
+        b = self._r("b", calisma_sekli="hibrit")
+        c = self._r("c", calisma_sekli="yuzyuze")
+        r = filtrele([a, b, c], calisma_sekli=["online", "hibrit"], bugun=BUGUN)[0]
+        assert {x["id"] for x in r} == {"a", "b"}
+
     def test_kpss_uc_durum(self):
         a = self._r("a", kpss=True)
         b = self._r("b", kpss=False)
