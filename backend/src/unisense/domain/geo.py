@@ -82,6 +82,60 @@ def _bolge_indeksi() -> dict[str, str]:
 _BOLGE_INDEX: dict[str, str] = _bolge_indeksi()
 
 
+# Kurum adından il çıkarımı için bilinen istisnalar: adında il geçmeyen ama
+# ili belli kurumlar. Ölçüm (2026-09-05): ili boş 128 kayıttan 64'ü kurum
+# adındaki il adıyla çözülüyor; kalanların çoğu bu tür kurumlar.
+KURUM_IL_ISTISNA: dict[str, str] = {
+    "KARADENIZ TEKNIK": "TRABZON",
+    "ORTA DOGU TEKNIK": "ANKARA",
+    "BOGAZICI": "İSTANBUL",
+    "EGE UNIVERSITESI": "İZMİR",
+    "HACETTEPE": "ANKARA",
+    "GAZI UNIVERSITESI": "ANKARA",
+    "DOKUZ EYLUL": "İZMİR",
+    "ULUDAG": "BURSA",
+    "CUKUROVA": "ADANA",
+    "ATATURK UNIVERSITESI": "ERZURUM",
+    "INONU UNIVERSITESI": "MALATYA",
+    "FIRAT UNIVERSITESI": "ELAZIĞ",
+    "AKDENIZ UNIVERSITESI": "ANTALYA",
+    "ONDOKUZ MAYIS": "SAMSUN",
+    "PAMUKKALE": "DENİZLİ",
+    "SELCUK UNIVERSITESI": "KONYA",
+    "ANADOLU UNIVERSITESI": "ESKİŞEHİR",
+    "MARMARA UNIVERSITESI": "İSTANBUL",
+    "YILDIZ TEKNIK": "İSTANBUL",
+    "GEBZE TEKNIK": "KOCAELİ",
+    "TURKIYE SAGLIK ENSTITULERI": "İSTANBUL",
+    "KUZEY ANADOLU KALKINMA": "KASTAMONU",
+    "INEBOLU": "KASTAMONU",
+}
+
+
+def metinden_il_bul(metin: str | None) -> str | None:
+    """Serbest metinde geçen il adını bul (kurum adı, başlık vb.).
+
+    Kamu kaynaklarının çoğu ayrı bir şehir alanı vermiyor; il bilgisi yalnız
+    kurum adında geçiyor ("ARDAHAN ÜNİVERSİTESİ" → ARDAHAN). Ölçüm
+    (2026-09-05, 128 ilsiz kayıt): kelime taramasıyla 64'ü çözülüyor.
+
+    Önce bilinen istisnalar (adında il geçmeyen kurumlar), sonra kelime
+    taraması. Bulunamazsa None.
+    """
+    if not metin:
+        return None
+    katlanmis = _katla(metin)
+    for anahtar, il in KURUM_IL_ISTISNA.items():
+        if _katla(anahtar) in katlanmis:
+            return il
+    # Kelime bazlı: 2 harften uzun kelimeler, il adıyla birebir eşleşme.
+    # Önek eşleme YAPILMAZ — "VAN" birçok kelimeyi yanlış eşleştirirdi.
+    for kelime in re.split(r"[\s,/|()\-]+", metin):
+        if len(kelime) > 2 and _katla(kelime) in _BOLGE_INDEX:
+            return kelime
+    return None
+
+
 def il_ilce_ayikla(konum: str | None) -> tuple[str | None, str | None, str]:
     """Serbest konum metninden (il, ilce, bolge) çıkar.
 
