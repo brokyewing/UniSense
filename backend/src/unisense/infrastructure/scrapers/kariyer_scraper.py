@@ -189,9 +189,10 @@ def _scrape_rg(session: requests.Session) -> list[dict]:
     return kayitlar
 
 
-def scrape() -> tuple[list[dict], dict[str, str]]:
+def scrape(bilinen: set[str] | None = None) -> tuple[list[dict], dict[str, str]]:
     """Tüm adaptörler; kısmi başarı normal — her adaptörün hatası kaydedilir.
 
+    bilinen: önceki koşudan id seti (BİK artımlı taraması erken dursun diye).
     Hiçbir adaptör veri üretemezse liste boş döner → main guard ile exit 1.
     """
     session = _session()
@@ -223,7 +224,13 @@ def scrape() -> tuple[list[dict], dict[str, str]]:
         print(f"  ⚠️ akademiktr düştü: {type(e).__name__}: {e}")
         hatalar["akademiktr"] = f"{type(e).__name__}: {e}"
         ak = []
-    return rg + hatb + kam + kk + ak, hatalar
+    try:
+        bg = _scrape_ilangovtr(session, bilinen)
+    except Exception as e:  # noqa: BLE001
+        print(f"  ⚠️ ilangovtr düştü: {type(e).__name__}: {e}")
+        hatalar["ilangovtr"] = f"{type(e).__name__}: {e}"
+        bg = []
+    return rg + hatb + kam + kk + ak + bg, hatalar
 
 
 # === Hat B: Jooble + Careerjet (API anahtarlı) ===
@@ -422,7 +429,7 @@ def _scrape_hatb(session: requests.Session) -> list[dict]:
 # çevrilir (süreklilik korunur, ilk_gorulme sıfırlanmaz).
 KAYNAK_KOD = {"Jooble": "jooble", "Careerjet": "careerjet", "Resmî Gazete": "rg",
               "kamuilan.sbb.gov.tr": "kamuilan", "Kariyer Kapısı": "kariyerkapisi",
-              "AkademikTR": "akademiktr"}
+              "AkademikTR": "akademiktr", "ilan.gov.tr": "ilangovtr"}
 
 V2_BILINMIYOR = "bilinmiyor"
 
@@ -819,32 +826,161 @@ def _scrape_akademiktr(session: requests.Session) -> list[dict]:
     return kayitlar
 
 
-def _merge(yeni: list[dict], eski: list[dict]) -> list[dict]:
-    """id'ye göre birleştir: eski kaydın ilk_gorulme'si korunur, gerisi güncellenir.
+# === Hat K1: ilan.gov.tr BİK API (81 il, personel alımı) ===
+# POST /api/api/services/app/Ad/AdsByFilter — kritik detay: sorting "id desc"
+# (diğer değerler sessizce 0 döndürür). Sayfa tavanı 20. Süzgeç parametreleri
+# yok sayılır → adTypeFilters "PERSONEL ALIMI" yerelde süzülür (~%10).
+# Keşif: KAYNAK_HARITASI.md §11 (Claude Code).
+ILANGOVTR_UC = "https://www.ilan.gov.tr/api/api/services/app/Ad/AdsByFilter"
+ILANGOVTR_SAYFA_TAVAN = 300  # 300×20 = 6000 kayıt; günlük artımlıda erken-durur
+ILANGOVTR_ERKEN_BITIS = 2    # üst üste bu kadar sayfada yenilik yoksa dur
 
-    30 günlük kayan pencere: tarihi (yoksa ilk_gorulme'si) SAKLA_GUN'den eski
-    kayıtlar budanır — dosya şişmez, guard tabanı güncel kalır. Tarihsiz kayıt
-    cezalandırılmaz (her zaman korunur).
+
+def _ilangovtr_personel_mi(ad: dict) -> bool:
+    for f in ad.get("adTypeFilters") or []:
+        if isinstance(f, dict) and f.get("value") == "PERSONEL ALIMI":
+            return True
+    return False
+
+
+def _ilangovtr_normalize(ad: dict, bugun: str) -> dict | None:
+    aid = ad.get("id")
+    baslik = (ad.get("title") or "").strip()
+    if not aid or not baslik:
+        return None
+    il = (ad.get("addressCityName") or "").strip().upper()
+    ilce = (ad.get("addressCountyName") or "").strip()
+    kurum = (ad.get("advertiserName") or "").strip()
+    url_rel = (ad.get("urlStr") or "").strip()
+    url = ("https://www.ilan.gov.tr" + url_rel if url_rel.startswith("/")
+           else f"https://www.ilan.gov.tr/ilan/{aid}")
+    metin = fold_tr(f"{baslik} {kurum}")
+    return {
+        "id": f"ilangovtr:{aid}",
+        "hat": "kamu",
+        "kaynak": "ilan.gov.tr",
+        "kaynak_kod": "ilangovtr",
+        "baslik": baslik,
+        "kurum": kurum,
+        "il": il,
+        "ilce": ilce,
+        "bolge": il_to_bolge(il) if il else "Bilinmiyor",
+        "tarih": (ad.get("publishStartDate") or "")[:10],
+        "son_basvuru": None,
+        "url": url,
+        "ozet": f"{ad.get('adNo', '')} — {baslik}"[:300],
+        "detay": {"adNo": ad.get("adNo", ""), "adSourceName": ad.get("adSourceName", "")},
+        "ilk_gorulme": bugun,
+        "bolumler": _bolum_etiketle(metin),
+        "calisma_sekli": _calisma_sekli(metin),
+        "istihdam_turu": V2_BILINMIYOR,
+        "deneyim": V2_BILINMIYOR,
+        "pozisyon_etiket": [],
+        "kpss": None,
+        "maas": None,
+    }
+
+
+def _scrape_ilangovtr(session: requests.Session,
+                      bilinen: set[str] | None = None) -> list[dict]:
+    """BİK personel ilanları (id desc = en yeni önce).
+
+    Günlük artımlı: üst üste ERKEN_BITIS sayfada yenilik yoksa durur — ilk
+    koşuda tavana kadar gider, sonrakiler birkaç sayfada biter. Geriye dönük
+    tam tarama için ILANGOVTR_TAM_TARAMA=1 (erken-duruş atlanır).
+    """
+    tam = bool(os.environ.get("ILANGOVTR_TAM_TARAMA", "").strip())
+    kayitlar: list[dict] = []
+    bugun = date.today().isoformat()
+    gorulen: set[str] = set()
+    bilinen = bilinen or set()
+    ardarda_tanidik = 0
+    for sayfa in range(ILANGOVTR_SAYFA_TAVAN):
+        try:
+            r = session.post(
+                ILANGOVTR_UC,
+                json={"skipCount": sayfa * 20, "maxResultCount": 20,
+                      "sorting": "id desc"},
+                headers={"Referer": "https://www.ilan.gov.tr/",
+                         "Origin": "https://www.ilan.gov.tr",
+                         "X-Requested-With": "XMLHttpRequest",
+                         "Accept": "application/json",
+                         "Content-Type": "application/json-patch+json"},
+                timeout=REQUEST_TIMEOUT)
+            r.raise_for_status()
+            ads = (r.json().get("result") or {}).get("ads") or []
+        except Exception as e:  # noqa: BLE001
+            print(f"  ⚠️ ilangovtr s.{sayfa}: {type(e).__name__}")
+            break
+        if not ads:
+            break
+        yeni_sayfa = 0
+        sayfa_yeni_id = 0
+        for ad in ads:
+            if not _ilangovtr_personel_mi(ad):
+                continue
+            k = _ilangovtr_normalize(ad, bugun)
+            if k and k["id"] not in gorulen:
+                gorulen.add(k["id"])
+                kayitlar.append(k)
+                yeni_sayfa += 1
+                if k["id"] not in bilinen:
+                    sayfa_yeni_id += 1
+        print(f"  ilangovtr s.{sayfa}: {yeni_sayfa} personel ({len(ads)} kayıt)")
+        time.sleep(KIBAR_BEKELEME)
+        if sayfa_yeni_id == 0:
+            ardarda_tanidik += 1
+            if not tam and ardarda_tanidik >= ILANGOVTR_ERKEN_BITIS:
+                print(f"  ilangovtr: {ILANGOVTR_ERKEN_BITIS} sayfadır yenilik yok — erken duruş")
+                break
+        else:
+            ardarda_tanidik = 0
+    print(f"  ilangovtr: {len(kayitlar)} personel ilanı")
+    return kayitlar
+
+
+def _merge(yeni: list[dict], eski: list[dict]) -> list[dict]:
+    """Birleştirme (union): yeniler + eskiden kalanlar.
+
+    Artımlı taramada (BİK erken-duruş) çekilmeyen eski kayıtlar SİLİNMEZ —
+    yoksa her koşu pencereyi daraltır. Temizlik iki koldan: 30 günden
+    eskiler budanır; son_basvurusu 7+ gün geçmişler düşer.
     """
     bugun = date.today()
     eski_map = {_v2_id(x): x for x in eski if x.get("id")}
     birlesik: list[dict] = []
     budanan = 0
+    gorulen: set[str] = set()
     for k in yeni:
         onceki = eski_map.get(_v2_id(k))
         if onceki and onceki.get("ilk_gorulme"):
             k = {**k, "ilk_gorulme": onceki["ilk_gorulme"]}
+        gorulen.add(_v2_id(k))
+        birlesik.append(k)
+    for x in eski:
+        xid = _v2_id(x)
+        if xid in gorulen:
+            continue
+        sb = (x.get("son_basvuru") or "")[:10]
+        try:
+            suresi_dolmus = bool(sb) and (bugun - date.fromisoformat(sb)).days > 7
+        except ValueError:
+            suresi_dolmus = False
+        if suresi_dolmus:
+            budanan += 1
+            continue
+        birlesik.append(x)
+    for k in list(birlesik):
         ref = (k.get("tarih") or k.get("ilk_gorulme") or "")[:10]
         try:
             yas = (bugun - date.fromisoformat(ref)).days if ref else 0
         except ValueError:
             yas = 0
         if yas > SAKLA_GUN:
+            birlesik.remove(k)
             budanan += 1
-            continue
-        birlesik.append(k)
     if budanan:
-        print(f"  ✂ {budanan} kayıt 30 günden eski — budandı")
+        print(f"  ✂ {budanan} kayıt budandı (30 gün / süresi dolmuş)")
     return birlesik
 
 
@@ -854,11 +990,6 @@ def main() -> None:
         # modül import'unda stdout değiştirmek pytest capture'ı bozuyordu.
         import io as _io
         sys.stdout = _io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-    try:
-        yeni, hatalar = scrape()
-    except Exception as e:
-        print(f"\n⛔ scrape çöktü ({type(e).__name__}: {e}) — {OUT.name} GÜNCELLENMEDİ")
-        sys.exit(1)
     eski: list[dict] = []
     if OUT.exists():
         try:
@@ -866,6 +997,11 @@ def main() -> None:
             eski = data if isinstance(data, list) else []
         except Exception as e:
             print(f"  ⚠️ mevcut dosya okunamadı: {e}")
+    try:
+        yeni, hatalar = scrape({_v2_id(x) for x in eski if x.get("id")})
+    except Exception as e:
+        print(f"\n⛔ scrape çöktü ({type(e).__name__}: {e}) — {OUT.name} GÜNCELLENMEDİ")
+        sys.exit(1)
     eski_idler = {_v2_id(x) for x in eski if x.get("id")}
     birlesik = _migrate(_merge(yeni, eski))
     birlesik, capraz = _dedup_capraz(birlesik)

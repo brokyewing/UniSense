@@ -190,6 +190,18 @@ class TestFiltrelerF11:
         out = _merge([taze, bayat, tarihsiz], [])
         assert {x["id"] for x in out} == {"taze", "x"}
 
+    def test_merge_union_eski_korunur(self):
+        # Artımlı taramada çekilmeyen eski kayıt silinmez
+        eski = [_k("eski", tarih="2026-09-01", ilk="2026-09-01")]
+        out = _merge([_k("yeni", tarih="2026-09-05", ilk="2026-09-05")], eski)
+        assert {x["id"] for x in out} == {"yeni", "eski"}
+
+    def test_merge_suresi_dolmus_duser(self):
+        eski = [{**_k("vadesi_gecmis", tarih="2026-08-20", ilk="2026-08-20"),
+                 "son_basvuru": "2026-08-25"}]
+        out = _merge([], eski)
+        assert out == []
+
 
 class TestSemaV2:
     def test_eski_id_cevrilir(self):
@@ -453,4 +465,65 @@ class TestAkademiktr:
         p = _akademiktr_parse_detay(self.DETAY)
         assert p["baslik"].startswith("Ege Üniversitesi")
         assert p["tarihler"] == ["2026-09-01", "2026-09-16"]
+
+
+class TestIlangovtr:
+    ORNEK_AD = {
+        "id": 2211464, "title": "Kurum X 2 Mühendis Alacak", "adNo": "ILN02540001",
+        "advertiserName": "Kurum X", "addressCityName": "Ankara",
+        "addressCountyName": "Çankaya", "publishStartDate": "2026-09-03T21:00:00Z",
+        "urlStr": "/ilan/2211464/kamu-personel-alimi-test",
+        "adTypeFilters": [{"key": "İlan Türü", "value": "PERSONEL ALIMI"}],
+    }
+
+    def test_personel_filtresi(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import _ilangovtr_personel_mi
+        assert _ilangovtr_personel_mi(self.ORNEK_AD) is True
+        assert _ilangovtr_personel_mi({"adTypeFilters": [{"key": "İlan Türü", "value": "İHALE"}]}) is False
+        assert _ilangovtr_personel_mi({}) is False
+
+    def test_normalize(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import _ilangovtr_normalize
+        k = _ilangovtr_normalize(self.ORNEK_AD, "2026-09-05")
+        assert k["id"] == "ilangovtr:2211464"
+        assert k["hat"] == "kamu" and k["il"] == "ANKARA" and k["ilce"] == "Çankaya"
+        assert k["bolge"] == "İç Anadolu" and k["tarih"] == "2026-09-03"
+        assert k["url"].startswith("https://www.ilan.gov.tr/ilan/2211464")
+        assert k["bolumler"] == []  # çıplak "mühendis" bölüm eşlemez (nitelikli kalıp gerekir)
+
+    def test_defter_girdisi(self):
+        from unisense.infrastructure.scrapers.kariyer_registry import yukle
+        d = {g["kod"]: g for g in yukle()}
+        assert d["ilangovtr"]["erisim"] == "api" and d["ilangovtr"]["aktif"] is True
+
+    def test_erken_durus(self):
+        # 2 sayfa üst üste yenilik yoksa durur (günlük artımlı tarama)
+        from unisense.infrastructure.scrapers import kariyer_scraper as ks
+
+        def sahte_ad(i):
+            return {"id": i, "title": "Personel Alınacak", "advertiserName": "K",
+                    "addressCityName": "Ankara", "addressCountyName": "",
+                    "publishStartDate": "2026-09-05T00:00:00Z", "urlStr": f"/ilan/{i}/x",
+                    "adTypeFilters": [{"key": "İlan Türü", "value": "PERSONEL ALIMI"}]}
+
+        sayfalar = [[sahte_ad(1), sahte_ad(2)], [sahte_ad(1)], []]
+
+        class SahteOturum:
+            def __init__(self):
+                self.n = 0
+
+            def post(self, *a, **k):
+                sayfa = sayfalar[min(self.n, len(sayfalar) - 1)]
+                self.n += 1
+
+                class R:
+                    def raise_for_status(self):
+                        pass
+
+                    def json(self):
+                        return {"result": {"ads": sayfa}}
+                return R()
+
+        out = ks._scrape_ilangovtr(SahteOturum(), {"ilangovtr:1", "ilangovtr:2"})
+        assert {k["id"] for k in out} == {"ilangovtr:1", "ilangovtr:2"}
 
