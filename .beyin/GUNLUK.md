@@ -33,6 +33,7 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 17:44 | opencode | F3.5: savunmakariyer API adaptoru (JS paketinden, 23 ilan canli, Sectigo zinciri); 059dc20 pushlandi. 8 kaynak/777 kayit. Siradaki: F3.6 olcum.
 2026-09-05 18:04 | opencode | F3.6: olcum + turksat adaptoru (0 acik); Ziraat/TUBITAK [!]; 792 kayit, test 61; a9abc2e pushlandi. F3 tamam. Siradaki: F3.7 ISKUR.
 2026-09-05 18:43 | opencode | F3.7 ISKUR [!] (WAF her seyi reddediyor) + F3.8 KPSS cikarimi (PDF detay, canli 13 kayit); 95b976d pushlandi. F3 tamam. Siradaki: F4.1 sorgu genisletme.
+2026-09-05 21:00 | opencode | F4.1: sorgu genisletme (Jooble 10 + CJ 7; canli 1843 kayit/1.9MB); 9347f2e pushlandi. Siradaki: F4.2 ATS tespiti.
 2026-09-04 23:55 | Claude Code | KPSS veri kaybi geri alindi + bos-sonuc bekcisi, CI pin bypass i duzeltildi (CI artik yesil), tusdus sessiz basarisi giderildi; OSYM URL kesfi engelli.
 2026-09-05 01:40 | Claude Code | OSYM yeni URL semasi cozuldu (chunked-hang toleransli fetch + Duyurular/Index kesfi); KPSS 2026/1, TUS ve DUS 2026 verileri geldi; CI yesil.
 2026-09-05 02:20 | Claude Code | CI kor noktasi kapatildi (haftalik schedule); LGS ve Yearly YKS dispatch ile yesil kosup 2026 verisini commitledi.
@@ -65,3 +66,4 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 18:30 | Claude Code | Denetim: 792 kaydin 128inde il yok (hepsi kamu kaynagi). geo.metinden_il_bul yazildi + istisna tablosu; 82/128 (%64) kurtariliyor. Careerjet tarih hatasi hala acik (228 kayit).
 2026-09-05 18:55 | Claude Code | Careerjet tarih + acik ilan budama hatalari duzeltildi (88a6d5b); CI 4 saattir kirmiziydi, birikmis lint borcu temizlendi (ba1c12f). Commit oncesi ruff zorunlulugu GOREVLERe yazildi.
 2026-09-05 19:15 | Claude Code | Jooble kapsamı COZULDU: kurum alani kaynak panoyu tutuyor (yenibiris 117, elemanonline 62, bakiciburada 56, secretcv 31, isbul 16) -> bu siteler icin ayri adaptor gereksiz. Kalite: calisma_sekli %99 bos, istihdam_turu %94 bos.
+2026-09-05 19:40 | Claude Code | calisma_sekli tavani olculdu: Lever %100 (91 kayit), diger kaynaklarda alan YOK; 1843 kayittan 17si dolu. En iyi ihtimalle ~%21 -> urun karari gerekiyor. Budama duzeltmesi dogrulandi: Savunma Kariyer 12->23.

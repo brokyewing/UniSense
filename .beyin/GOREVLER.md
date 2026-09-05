@@ -179,6 +179,36 @@ Kariyer Kapısı (`category`) dolduruyor; toplayıcılar doldurmuyor.
 
 **4. Careerjet'te 103 kayıtta `kurum` boş** (256 kaydın %40'ı).
 
+## `calisma_sekli` — gerçekçi tavan ÖLÇÜLDÜ (Claude Code, 2026-09-05)
+
+Kullanıcının "online / yüz yüze" filtresi için kaynakların **fiilen ne verdiği**
+ölçüldü. Sonuç: bu alan kaynakların çoğunda **yok**, metin çıkarımı da zayıf.
+
+| Kaynak | Kayıt | Çalışma şekli alanı | Doluluk |
+|---|---|---|---|
+| **Lever ATS** (henüz eklenmedi) | 91 | **`workplaceType`** | **%100** — hibrit 45, yerinde 44, uzaktan 2 |
+| Savunma Kariyer | 23 | ✗ yok (`jobType` istihdam türü) | %0 |
+| eleman.net | — | `jobLocationType` **hep `None`** | %0 |
+| ilan.gov.tr / Kariyer Kapısı / kamuilan | 226 | ✗ yok | %0 |
+| Jooble + Careerjet | ~1561 | ✗ yok, özetler çok kısa | ~%0 |
+
+**Bugün: 1843 kayıttan yalnız 17'si dolu (%1).**
+
+Gerçekçi tavan:
+- Lever eklenince **+91** (%100 güvenilir)
+- Kamu ilanlarına `yuzyuze` **varsayılanı** verilirse **+282** — devlet kadroları
+  doğası gereği yerinde; ama bu bir VARSAYIM, veri değil. Kabul edilirse
+  `detay.calisma_sekli_kaynak = "varsayim"` diye işaretlenmeli.
+- Kalan ~1470 (Jooble/Careerjet) için tek yol **ilan detay sayfasını çekmek** —
+  toplayıcı linkleri yönlendirme olduğu için maliyetli.
+
+→ **En iyi ihtimalle ~%21 doluluk.** Filtre bu haliyle ilanların çoğunu
+gösteremez.
+
+- [ ] **Ürün kararı gerekiyor:** (a) filtreye "belirtilmemiş" seçeneği ekle ve
+      kısmi doluluğu kabul et, (b) kamu için varsayılan ata, (c) detay sayfası
+      çekmeyi göze al. Öneri: (a)+(b); (c) maliyeti yüksek.
+
 ## Bitti
 - [x] Ruff bulguları temizlendi, `<0.16` üst sınırı kaldırıldı (bb9bc50)
 - [x] TUS/DUS + KPSS Data Sync gerçek Actions koşusunda YEŞİL (dispatch, 2026-09-04)
