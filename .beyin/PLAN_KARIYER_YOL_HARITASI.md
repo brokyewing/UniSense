@@ -269,10 +269,11 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
       + `alarm` listesi; log'da 🚨 + Actions Step Summary özeti. Karar: cron'u
       kırmızıya düşürmez (flaky alarm yorgunluğu; toplam-boşta guard zaten
       exit 1 verir).
-- [ ] **F2.3** **Çapraz kaynak tekilleştirme.** Şu an yalnız kaynak-içi
-      tekilleştirme var (aynı link iki sorguda). §4 kararı: `id` birebir;
-      ayrıca `(normalize(baslik), kurum, il)` çakışırsa **kamu hattı kazanır**.
-      *Bitti:* iki kaynağa aynı ilanı veren sentetik veriyle testli.
+- [x] **F2.3** **Çapraz kaynak tekilleştirme** (opencode, 2026-09-05, da93be9).
+      `id` birebir; ayrıca `(normalize(baslik), kurum, il)` çakışırsa **kamu
+      hattı kazanır**, etiketler birleşir, ilk_gorulme korunur.
+      *Bitti:* sentetik veriyle testli (kamu-kazanır + boş-alan güvenliği +
+      il ayrımı) + canlı 17 birleşme.
 
 ### F3 — Kamu hattı (KPSS'li + KPSS'siz)
 
@@ -280,12 +281,9 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
 > görev de belirsizdi (ilan.gov.tr oturum şartı çözülmemiş, Kariyer Kapısı DNS
 > çözülemiyor) — adaptör deseni oturmadan iki bilinmeyene çarpmak momentum kırar.
 
-- [ ] **F3.1** **Kariyer Kapısı (A1) — RSS adaptörü.** En kritik kamu kanalı ve
-      erişimi ARTIK KESİN: `https://kariyerkapisi.gov.tr/RSS` (§3.1). Giriş yok,
-      33 ilan, yapılandırılmış. **İlk adaptör bu olsun** — hem en değerli hem
-      en az riskli. `category` alanı `hat=kamu` + ilan türü için kullanılır;
-      `title`'daki "KURUM - başlık" kalıbından `kurum` ayrıştırılır.
-      *Bitti:* 33 ilan v2 şemasında, `kurum` ve `tarih` dolu, bekçi devrede.
+- [x] **F3.1** **Kariyer Kapısı (A1) — RSS adaptörü** (opencode, 2026-09-05,
+      74bd5ea). Girişsiz `/RSS` doğrulandı (33 ilan, yapılandırılmış).
+      *Bitti:* 30 ilan v2 şemasında, `kurum` ve `tarih` dolu, bekçi devrede.
 - [x] **F3.2** kamuilan.sbb.gov.tr (opencode, 2026-09-05, 46368bb) — boş-arama
       postback'i + `ul#nav2` timeline parse (kurum, başlık, tarih, son_basvuru,
       bölüm etiketleri). *Bitti:* canlı 76 ilan (68'i pencerede), v2 şemalı,
@@ -296,15 +294,16 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
       (kamu-akademik-personel). Sağlık alımları da aynı şekilde toplayıcıda.
       → K1 adaptörü (F3.4) bu kategorileri de çekince kapsanır; ayrı adaptör
       gereksiz. Ayrıntı: `KAYNAK_HARITASI.md` §6.1-6.2.
-- [ ] **F3.4** `ilangovtr` adaptörü — **ÇÖZÜLDÜ, keşif gerekmez**
-      (`KAYNAK_HARITASI.md` §11). Sorun oturum değil, geçersiz `sorting`
-      değeriymiş; API geçersiz sıralamada sessizce 0 dönüyor.
-      `POST /api/api/services/app/Ad/AdsByFilter`
-      `{"skipCount":0,"maxResultCount":20,"sorting":"id desc"}` — auth yok,
-      sayfa tavanı **20**, `numFound` 25.061, `cityCounts` **81 il** sayılarıyla.
-      Süzgeç parametreleri yok sayılıyor → `adTypeFilters[].value == "PERSONEL
-      ALIMI"` ile **yerelde süz** (verim ~%10,5 ≈ 2.600 ilan).
-      `id desc` en yeni önce → artımlı tarama: görülen id'ye ulaşınca dur.
+      (opencode notu, 2026-09-05: akademiktr adaptörü çalışıyor — 32 kayıt
+      canlıda; F3.4 kat.73/8 kapsamı doğrulanınca kaldırılacak.)
+- [x] **F3.4** `ilangovtr` adaptörü (opencode, 2026-09-05, b18ebbe) — tarif
+      doğrulandı, 126 personel ilanı canlı. Not: artımlı erken-duruş ilk
+      sürümde eski kayıtları siliyordu → union merge + `ILANGOVTR_TAM_TARAMA`
+      bayrağı ile düzeltildi.
+      ⚠️ `id desc` KRONOLOJİK DEĞİL (skip 0'da 2022, skip 100'de 2026 kaydı) —
+      "görülen id'ye gelince dur" stratejisi KAÇIRMA yapar. Personel ilanları
+      dağınık (ilk 1.600'de 23 tane, derin arşivde sıfır) → tam tarama veya
+      gerçek kategori süzgeci gerekir. Ayrıntı: `KAYNAK_HARITASI` §11.5-DÜZELTME.
       *Bitti:* personel alımı ilanları v2 şemasında, il/ilçe dolu,
       `cityCounts` facet olarak saklanmış.
 - [ ] **F3.5** **Savunma Kariyer** (eski adı Vizyoner Genç — site

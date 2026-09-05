@@ -417,8 +417,10 @@ Content-Type: application/json
 - **Kimlik doğrulama YOK.** Çerezlerde yalnız Google Analytics var.
 - **Sayfa boyutu tavanı 20** — `maxResultCount` 50/100/500 verilse de 20 döner.
   Tam tarama: 25.061 / 20 ≈ **1.254 istek.**
-- **`sorting: "id desc"` = en yeni önce** → günlük artımlı tarama için ideal:
-  ilk sayfalardan başla, daha önce görülmüş `id`'ye ulaşınca dur.
+- ~~`sorting: "id desc"` = en yeni önce~~ ⚠️ **YANLIŞ — bkz. 11.5-DÜZELTME.**
+  Sıralama kronolojik değil (skip 0'da 2022 kaydı, skip 100'de 2026).
+  Geçerli bir sıralama değeri ama **tarih sırası vermiyor**; artımlı tarama
+  bu alana dayandırılamaz.
 - Yanıt: `result.ads[]`, `result.numFound`, **`result.cityCounts`**.
 
 ### 11.3 `cityCounts` — 81 il facet'i hazır 🎯
@@ -447,7 +449,34 @@ var** —
 
 → Hepsini sayfala, **yerelde süz.**
 
-### 11.5 Verim ölçümü (200 kayıtlık örneklem)
+### 11.5-DÜZELTME ⚠️ (2026-09-05, daha geniş örneklem)
+
+**Aşağıdaki 200 kayıtlık ilk ölçüm YANILTICIYDI. İki iddiam yanlıştı:**
+
+**(a) "`id desc` = en yeni önce, artımlı tarama ideal" → YANLIŞ.**
+Sıralama kronolojik değil. Ölçüm: `skip=0`'daki ilk kayıt **2022-03-30**
+tarihli, `skip=100`'deki **2026-09-03**. Tarihler karışık geliyor.
+→ "Görülen id'ye ulaşınca dur" stratejisi **çalışmaz**; kaçırma yapar.
+
+**(b) "~2.600 personel ilanı" → ŞİŞKİN.**
+Derinlik taraması (100'er adımla ilk 1.600 kayıt):
+
+```
+skip    0: 9/20     skip  600: 1/20     skip 1100: 4/20
+skip  100: 4/20     skip  700: 5/20     skip 1200-1500: 0/20
+skip  200-500: 0/20 skip  800-1000: 0/20
+```
+İlk 1.600 kayıtta **23 personel ilanı (~%1,4)**.
+
+Arşivin derinliğinde (skip 2.000 / 5.000 / 9.000 / 13.000 / 17.000 / 21.000 /
+24.000 — her biri 20 kayıt) **personel ilanı SIFIR**; tamamı İHALE/İCRA/TEBLİGAT.
+
+→ **Gerçekçi beklenti: birkaç yüz personel ilanı**, 2.600 değil.
+→ Personel ilanları **dağınık**; kestirme yok. Ya tam tarama (1.254 istek,
+istekler arası ≥200 ms) ya da gerçek kategori süzgeci parametresi bulunmalı
+(§11.4'te denenenler tutmadı).
+
+### 11.5-eski Verim ölçümü (200 kayıtlık ilk örneklem — yukarıdaki düzeltmeye bakınız)
 
 | İlan türü | Adet | Oran |
 |---|---|---|
@@ -460,7 +489,9 @@ var** —
 Enstitüleri Başkanlığı (İstanbul), Bursa Teknik Üniversitesi (Bursa),
 Bartın Üniversitesi (Bartın).
 
-→ **Tahmini erişilebilir personel ilanı: 25.061 × %10,5 ≈ 2.600.**
+→ ~~Tahmini erişilebilir personel ilanı: 25.061 × %10,5 ≈ 2.600.~~
+**Geçersiz** — 11.5-DÜZELTME'ye bakınız. Bu örneklem yalnız en yeni 200 kaydı
+kapsadığı için oranı olduğundan yüksek gösterdi.
 
 ⚠️ Tam tarama 1.254 istek — günlük cron için ağır. **Önerilen:** `id desc`
 ile artımlı tara, en son görülen `id`'ye ulaşınca dur. İlk dolum bir kez
