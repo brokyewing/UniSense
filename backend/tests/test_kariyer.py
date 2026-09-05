@@ -527,3 +527,42 @@ class TestIlangovtr:
         out = ks._scrape_ilangovtr(SahteOturum(), {"ilangovtr:1", "ilangovtr:2"})
         assert {k["id"] for k in out} == {"ilangovtr:1", "ilangovtr:2"}
 
+
+class TestSavunmakariyer:
+    def test_kayit_uretim_activity_elenir(self):
+        from unisense.infrastructure.scrapers import kariyer_scraper as ks
+
+        sayfalar = [
+            {"content": [
+                {"id": "a1", "jobTitle": "Yazılım Mühendisi", "companyName": "X",
+                 "jobLocation": "Ankara", "jobType": "FULL_TIME",
+                 "jobDescription": "<p>Java</p>", "startDate": "2026-09-01T00:00:00",
+                 "endDate": "2026-09-20T00:00:00"},
+                {"id": "a2", "jobTitle": "Bootcamp", "companyName": "Y",
+                 "jobType": "ACTIVITY"},
+            ], "totalPages": 2},
+            {"content": [], "totalPages": 2},
+        ]
+
+        class SahteOturum:
+            def __init__(self):
+                self.n = 0
+
+            def post(self, *a, **k):
+                i = min(self.n, 1)
+                self.n += 1
+
+                class R:
+                    def raise_for_status(self):
+                        pass
+
+                    def json(sr):
+                        return {"data": sayfalar[i]}
+                return R()
+
+        out = ks._scrape_savunmakariyer(SahteOturum())
+        assert [k["id"] for k in out] == ["savunmakariyer:a1"]
+        assert out[0]["istihdam_turu"] == "tam_zamanli"
+        assert out[0]["son_basvuru"] == "2026-09-20"
+        assert out[0]["kpss"] is False
+

@@ -45,6 +45,14 @@ kaynaklar:
     aktif: true
     not: BİK API (sorting "id desc" şart); PERSONEL ALIMI yerelde süzülür; sayfa tavanı 20.
 
+  - kod: savunmakariyer
+    ad: Savunma Kariyer (eski Vizyoner Genç)
+    hat: kamu
+    url: https://savunmakariyer.com/ilanlar
+    erisim: api
+    aktif: true
+    not: Herkese açık jobs API (auth yok); ACTIVITY atlanır; KPSS'siz savunma ilanları.
+
   - kod: jooble
     ad: Jooble
     hat: ozel

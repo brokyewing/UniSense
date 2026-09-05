@@ -12,13 +12,13 @@
    "hata": ""
   },
   "ilangovtr": {
-   "cekilen": 126,
-   "yeni": 117,
+   "cekilen": 9,
+   "yeni": 0,
    "hata": ""
   },
   "jooble": {
    "cekilen": 385,
-   "yeni": 86,
+   "yeni": 87,
    "hata": ""
   },
   "kamuilan": {
@@ -35,20 +35,26 @@
    "cekilen": 1,
    "yeni": 0,
    "hata": ""
+  },
+  "savunmakariyer": {
+   "cekilen": 23,
+   "yeni": 23,
+   "hata": ""
   }
  },
- "toplam_kayit": 732,
+ "toplam_kayit": 777,
  "gecmis": [
   {
    "tarih": "2026-09-05",
    "cekilen": {
     "akademiktr": 32,
     "careerjet": 174,
-    "ilangovtr": 126,
+    "ilangovtr": 9,
     "jooble": 385,
     "kamuilan": 76,
     "kariyerkapisi": 33,
-    "rg": 1
+    "rg": 1,
+    "savunmakariyer": 23
    }
   }
  ],
