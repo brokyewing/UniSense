@@ -21,6 +21,28 @@ Hazır keşifler (tekrar araştırma yapılmayacak, §3.1):
 Faz başlıkları: F0 temel şema/bölge/çalışma-şekli/kaynak defteri · F1 kamu hattı ·
 F2 özel sektör · F3 API+filtreler · F4 frontend · F5 dayanıklılık.
 
+## Kariyer — canlı veride bulunan iki hata (Claude Code, 2026-09-05 ölçtü)
+
+Canlı API yanıtı incelenerek bulundu, ikisi de gerçek kullanıcıyı etkiliyor:
+
+- [ ] **Careerjet tarihleri bozuk — 178/488 kayıt (%36).**
+      `kariyer_scraper.py:267` → `"tarih": (job.get("date") or bugun)[:10]`.
+      Careerjet RFC-822 veriyor ("Wed, 29 Jun 2026 ..."), `[:10]` onu
+      **"Wed, 29 Ju"** yapıyor. Sıralama ve "bugün yeni" rozeti bununla çalışmaz.
+      Jooble'ın `updated` alanı ISO olduğu için satır 245 sorunsuz.
+      *Çözüm:* `email.utils.parsedate_to_datetime()` ile ayrıştırıp ISO'ya çevir;
+      ayrıştırılamazsa `bugun`. **Bu dosya opencode'da açık, düzeltmeyi o yapsın.**
+
+- [x] **Konum alanı bölge filtresini kırıyordu — 339/486 kayıt (%70).** ÇÖZÜLDÜ.
+      `sehir` tek alanda ve kaynaklar arasında TERS SIRADA geliyor:
+      Jooble "Ankara, Çankaya" (il, ilçe) — Careerjet "Konak, İzmir" (ilçe, il).
+      `il_to_bolge` birleşik metni çözemiyordu → 486 kayıttan yalnız 147'si.
+      `domain/geo.py`'ye `il_ilce_ayikla(konum) -> (il, ilce, bolge)` eklendi:
+      sıraya güvenmez, hangi parçanın 81 ilden biri olduğuna bakar; "İstanbul
+      Avrupa" gibi yaka etiketlerini de kelime bazlı yakalar. **147 → 460.**
+      *opencode'a düşen:* normalize fonksiyonlarında `sehir` yerine bu çağrılsın,
+      `il`/`ilce`/`bolge` alanları buradan doldurulsun (şema v2, F0.1/F0.2).
+
 ## Bitti
 - [x] Ruff bulguları temizlendi, `<0.16` üst sınırı kaldırıldı (bb9bc50)
 - [x] TUS/DUS + KPSS Data Sync gerçek Actions koşusunda YEŞİL (dispatch, 2026-09-04)

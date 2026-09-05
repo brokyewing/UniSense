@@ -26,3 +26,4 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 04:30 | Claude Code | ruff <0.16 siniri kaldirildi (89 oto + 16 elle duzeltme, kalan 80 gerekceli ignore); TUS-DUS ve KPSS dispatch ile yesil; CI yesil.
 2026-09-05 05:10 | Claude Code | Kariyer yol haritasi yazildi (PLAN_KARIYER_YOL_HARITASI.md); ilan.gov.tr JSON API kesfedildi, ISKUR WAF teyit edildi.
 2026-09-05 05:35 | Claude Code | F0.2 bitti: il_to_bolge yazim farklarina dayanikli hale getirildi (Istanbul/istanbul bolge bulamiyordu), 18 test eklendi.
+2026-09-05 06:20 | Claude Code | il_ilce_ayikla eklendi: birlesik/ters sirali konum alani cozuluyor, bolge kapsami 147->460; Careerjet tarih hatasi (178 kayit) tespit edilip gorev yazildi.
