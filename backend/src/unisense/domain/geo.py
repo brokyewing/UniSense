@@ -131,7 +131,7 @@ def il_ilce_ayikla(konum: str | None) -> tuple[str | None, str | None, str]:
     if not kelimeden:
         kalan = [p for p in parcalar if p is not il]
         ilce = kalan[0] if kalan else None
-    return il, ilce, il_to_bolge(il)
+    return il, ilce, _BOLGE_INDEX.get(_katla(il), "Bilinmiyor")
 
 
 def il_to_bolge(il_adi: str | None) -> str:
@@ -142,7 +142,13 @@ def il_to_bolge(il_adi: str | None) -> str:
     """
     if not il_adi:
         return "Bilinmiyor"
-    return _BOLGE_INDEX.get(_katla(il_adi), "Bilinmiyor")
+    dogrudan = _BOLGE_INDEX.get(_katla(il_adi))
+    if dogrudan:
+        return dogrudan
+    # Çağıranlar konumu çoğu zaman birleşik veriyor ("Ankara, Çankaya",
+    # "Konak, İzmir", "İstanbul Avrupa"). Doğrudan eşleşme tutmazsa ayıklayıcıya
+    # düş — yoksa bölge sessizce "Bilinmiyor" kalıyordu (486 kayıtta 339'u).
+    return il_ilce_ayikla(il_adi)[2]
 
 
 # İl kodu → ad (ÖSYM standart kodları)

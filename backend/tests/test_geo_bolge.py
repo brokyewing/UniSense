@@ -88,3 +88,38 @@ class TestIlIlceAyikla:
 
         _, ilce, _ = il_ilce_ayikla("İstanbul Avrupa")
         assert ilce == "Avrupa", "ilçe alanına tüm metin yazılmamalı"
+
+
+class TestIlToBolgeBirlesikMetin:
+    """il_to_bolge birleşik konum metnine de dayanıklı olmalı.
+
+    Çağıranlar (ör. kariyer_scraper.v2_kayit) konumu çoğu zaman tek parça
+    veriyor: "Ankara, Çankaya". Doğrudan eşleşme tutmayınca bölge sessizce
+    "Bilinmiyor" kalıyordu — 486 kayıttan 339'u. Artık ayıklayıcıya düşüyor.
+    """
+
+    @pytest.mark.parametrize(
+        ("konum", "beklenen"),
+        [
+            ("Ankara, Çankaya", "İç Anadolu"),
+            ("Konak, İzmir", "Ege"),
+            ("İstanbul Avrupa", "Marmara"),
+            ("Şişli / İstanbul", "Marmara"),
+            ("İSTANBUL", "Marmara"),   # doğrudan eşleşme yolu bozulmamalı
+            ("Istanbul", "Marmara"),
+        ],
+    )
+    def test_birlesik_metinden_bolge(self, konum, beklenen):
+        assert il_to_bolge(konum) == beklenen
+
+    def test_ozyineleme_yok(self):
+        """il_to_bolge -> il_ilce_ayikla -> ... sonsuz döngüye girmemeli."""
+        import sys
+
+        eski = sys.getrecursionlimit()
+        sys.setrecursionlimit(100)
+        try:
+            assert il_to_bolge("Ankara, Çankaya") == "İç Anadolu"
+            assert il_to_bolge("bulunamaz bir yer") == "Bilinmiyor"
+        finally:
+            sys.setrecursionlimit(eski)
