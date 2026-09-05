@@ -51,6 +51,7 @@ from unisense.api.v1.schemas import (
     GuideListResponse,
     HealthResponse,
     KariyerBolumlerResponse,
+    KariyerFiltrelerResponse,
     KariyerIlanlarResponse,
     KariyerKaynaklarResponse,
     KariyerMetaResponse,
@@ -652,17 +653,33 @@ def kariyer_ilanlar(
     kaynak: str | None = ApiQuery(None, max_length=80),
     sehir: str | None = ApiQuery(None, max_length=40),
     bolum: str | None = ApiQuery(None, max_length=40),
+    il: str | None = ApiQuery(None, max_length=40),
+    bolge: str | None = ApiQuery(None, max_length=30),
+    ilce: str | None = ApiQuery(None, max_length=60),
+    calisma_sekli: str | None = ApiQuery(None, max_length=20),
+    istihdam_turu: str | None = ApiQuery(None, max_length=20),
+    deneyim: str | None = ApiQuery(None, max_length=20),
+    kpss: bool | None = None,
     sadece_yeni: bool = False,
     limit: int = ApiQuery(20, ge=1, le=100),
+    sayfa: int = ApiQuery(1, ge=1),
+    boyut: int = ApiQuery(20, ge=1, le=100),
+    sira: str = ApiQuery("tarih_desc", max_length=20),
     svc=Depends(kariyer_service_dep),
 ) -> KariyerIlanlarResponse:
     """Günlük kariyer sinyalleri (tarihe göre tersten; `yeni` = son 7 günde görülen).
 
-    Veri yoksa boş liste döner — kaynak rehberi her durumda `/kariyer/kaynaklar`'da.
+    `toplam` sayfalama öncesi kayıt sayısıdır. Eski `limit` korunur:
+    yalnız `limit` verilirse sayfa boyu olur. `sira`: tarih_desc | son_basvuru_asc.
     """
+    if sira not in ("tarih_desc", "son_basvuru_asc"):
+        sira = "tarih_desc"
     result = svc.ilanlar(
         hat=hat, q=q, kaynak=kaynak, sehir=sehir, bolum=bolum,
-        sadece_yeni=sadece_yeni, limit=limit,
+        il=il, bolge=bolge, ilce=ilce, calisma_sekli=calisma_sekli,
+        istihdam_turu=istihdam_turu, deneyim=deneyim, kpss=kpss,
+        sadece_yeni=sadece_yeni, limit=limit, sayfa=sayfa, boyut=boyut,
+        sira=sira,
     )
     return KariyerIlanlarResponse(**result)
 
@@ -697,3 +714,13 @@ def kariyer_bolumler(
 ) -> KariyerBolumlerResponse:
     """Bölüm seçici rehberi: etiket + o bölümdeki kayıt sayısı."""
     return KariyerBolumlerResponse(**svc.bolumler())
+
+
+@router.get("/kariyer/filtreler", response_model=KariyerFiltrelerResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def kariyer_filtreler(
+    request: Request,
+    svc=Depends(kariyer_service_dep),
+) -> KariyerFiltrelerResponse:
+    """Facet: filtre panelini besleyen mevcut değerler + sayıları."""
+    return KariyerFiltrelerResponse(**svc.filtreler())

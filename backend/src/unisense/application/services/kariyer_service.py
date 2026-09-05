@@ -199,12 +199,23 @@ def _yeni_mi(ilk_gorulme: str, bugun: date, gun: int = YENI_GUN_SAYISI) -> bool:
 def filtrele(kayitlar: list[dict], *, hat: str | None = None,
              q: str | None = None, kaynak: str | None = None,
              sehir: str | None = None, bolum: str | None = None,
-             sadece_yeni: bool = False,
+             il: str | None = None, bolge: str | None = None,
+             ilce: str | None = None, calisma_sekli: str | None = None,
+             istihdam_turu: str | None = None, deneyim: str | None = None,
+             kpss: bool | None = None, sadece_yeni: bool = False,
              yeni_gun: int = YENI_GUN_SAYISI,
-             limit: int = 20, bugun: date | None = None) -> list[dict]:
-    """Saf filtre — test edilebilir; cache'li veriyi mutasyona uğratmaz."""
+             limit: int = 20, sayfa: int = 1, boyut: int = 20,
+             sira: str = "tarih_desc", bugun: date | None = None) -> tuple[list[dict], int]:
+    """Saf filtre — test edilebilir; cache'li veriyi mutasyona uğratmaz.
+
+    Döner: (sayfadaki kayıtlar, sayfalama ÖNCESİ toplam).
+    il: il+sehir alanında alt-dize arar (ham API verisi "İstanbul, Türkiye"
+    gibi olabilir); bolge: v2 `bolge` alanında birebir eşleşir.
+    """
     bugun = bugun or date.today()
     qf = fold_tr(q) if q else ""
+    ilf = fold_tr(il) if il else ""
+    ilcef = fold_tr(ilce) if ilce else ""
     out: list[dict] = []
     for k in kayitlar:
         if hat and k.get("hat") != hat:
@@ -215,6 +226,20 @@ def filtrele(kayitlar: list[dict], *, hat: str | None = None,
             continue
         if sehir and fold_tr(sehir) not in fold_tr(k.get("sehir") or ""):
             continue
+        if ilf and ilf not in fold_tr(f"{k.get('il', '')} {k.get('sehir', '')}"):
+            continue
+        if bolge and fold_tr(bolge) != fold_tr(k.get("bolge") or ""):
+            continue
+        if ilcef and ilcef not in fold_tr(k.get("ilce") or ""):
+            continue
+        if calisma_sekli and k.get("calisma_sekli") != calisma_sekli:
+            continue
+        if istihdam_turu and k.get("istihdam_turu") != istihdam_turu:
+            continue
+        if deneyim and k.get("deneyim") != deneyim:
+            continue
+        if kpss is not None and k.get("kpss") is not kpss:
+            continue  # None (bilinmiyor) iki filtrede de elenir — uydurma yok
         if qf:
             blob = fold_tr(f"{k.get('baslik', '')} {k.get('kurum', '')} {k.get('ozet', '')}")
             if qf not in blob:
@@ -224,7 +249,14 @@ def filtrele(kayitlar: list[dict], *, hat: str | None = None,
             continue
         out.append({**k, "yeni": yeni})
     out.sort(key=lambda x: x.get("tarih", ""), reverse=True)
-    return out[: max(1, min(limit, MAX_LIMIT))]
+    if sira == "son_basvuru_asc":
+        # Son başvuru yaklaşan önce; tarihsizler en sonda
+        out.sort(key=lambda x: (not x.get("son_basvuru"), x.get("son_basvuru") or ""))
+    toplam = len(out)
+    sayfa = max(1, sayfa)
+    boyut = max(1, min(limit if limit != 20 else boyut, MAX_LIMIT))
+    basla = (sayfa - 1) * boyut
+    return out[basla:basla + boyut], toplam
 
 
 class KariyerService:
@@ -239,8 +271,13 @@ class KariyerService:
         }
 
     def ilanlar(self, **kwargs) -> dict:
-        kayitlar = filtrele(_load(), **kwargs)
-        return {"toplam": len(kayitlar), "ilanlar": kayitlar}
+        sayfa = max(1, int(kwargs.pop("sayfa", 1) or 1))
+        boyut = max(1, int(kwargs.pop("boyut", 20) or 20))
+        limit = int(kwargs.get("limit", 20) or 20)
+        eff = max(1, min(limit if limit != 20 else boyut, MAX_LIMIT))
+        kayitlar, toplam = filtrele(_load(), sayfa=sayfa, boyut=boyut, **kwargs)
+        return {"toplam": toplam, "sayfa": sayfa, "boyut": eff,
+                "ilanlar": kayitlar}
 
     def kaynaklar(self, hat: str | None = None) -> dict:
         liste = [k for k in _KAYNAKLAR if not hat or k["hat"] == hat]
@@ -255,3 +292,21 @@ class KariyerService:
         liste = [{"id": bid, "label": label, "sayi": say.get(bid, 0)}
                  for bid, label in BOLUM_ETIKETLER.items()]
         return {"toplam": len(liste), "bolumler": liste}
+
+    def filtreler(self) -> dict:
+        """Facet: her filtrenin mevcut değerleri + sayıları (boş seçenek yok)."""
+        say: dict[str, dict[str, int]] = {}
+        for k in _load():
+            for alan in ("hat", "bolge", "calisma_sekli", "istihdam_turu",
+                         "deneyim", "kaynak"):
+                v = k.get(alan) or ("Bilinmiyor" if alan == "bolge" else "bilinmiyor")
+                say.setdefault(alan, {})
+                say[alan][v] = say[alan].get(v, 0) + 1
+            il = (k.get("il") or "").strip()
+            if il:
+                say.setdefault("il", {})
+                say["il"][il] = say["il"].get(il, 0) + 1
+        out = {alan: [{"id": v, "sayi": c} for v, c in
+                      sorted(deger.items(), key=lambda x: -x[1])]
+               for alan, deger in say.items()}
+        return out
