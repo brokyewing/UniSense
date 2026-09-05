@@ -38,3 +38,4 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 09:05 | Claude Code | KAYNAK_HARITASI.md yazildi: kurum-kurum yaklasimi olculerek elendi (ortak desen yok, soft-404), toplayici-once stratejisi BIK mevzuatiyla dogrulandi; OSB izi acildi.
 2026-09-05 09:40 | Claude Code | Ikinci kesif turu: akademik+saglik alimlari BIKte cikti (ayri adaptor gereksiz), OSBUK 302 faal OSB 78/81 ilde haritalandi, odalar kaynak degil diye kapatildi.
 2026-09-05 10:05 | Claude Code | 3. kesif turu: KPSS siz alim yapan 5 kurumda RSS aranmis, hepsi yanlis pozitif cikti (TUBITAK/VizyonerGenc soft-404, ASELSAN rss.xml aslinda HTML); kisa yol yok, API aranacak.
+2026-09-05 10:55 | Claude Code | 4. tur: TOBB firma veri tabani ilan kaynagi degil (uyelik + sadece firma kaydi, eski PHP uclari olu); ATS yolu dogrulandi (Lever/Greenhouse acik JSON API) ama slug cakismasi tuzagi tespit edildi.

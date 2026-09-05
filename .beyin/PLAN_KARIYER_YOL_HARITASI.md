@@ -304,7 +304,15 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
       mühendislik ağırlıklı; tüm meslek gruplarını kapsasın.
 - [ ] **F4.2** **ATS tespiti** (araştırma): Hat B'deki ~50 şirketin hangisi
       Lever / Greenhouse / Workable kullanıyor, listele.
-      *Bitti:* şirket → ATS eşlemesi `is_kaynaklari.yml`'de.
+      **Uç noktalar doğrulandı** (`KAYNAK_HARITASI.md` §9.2):
+      Lever `api.lever.co/v0/postings/<slug>?mode=json` (Dream Games → 19 ilan),
+      Greenhouse `boards-api.greenhouse.io/v1/boards/<slug>/jobs`. Kimlik
+      doğrulama yok; Lever kaydında konum + çalışma şekli + takım hazır geliyor.
+      ⚠️ **Slug TAHMİN ETME** — `insider` slug'ı ABD'li aynı adlı şirketi
+      getirdi (New York/Singapore ilanları). Şirketin kariyer sayfasındaki
+      bağlantıyı OKU, ayrıca çekilen konumları `il_to_bolge` ile doğrula.
+      *Bitti:* şirket → ATS eşlemesi `is_kaynaklari.yml`'de, her eşleme
+      konum doğrulamasından geçmiş.
 - [ ] **F4.3** Tespit edilen her ATS için **tek adaptör** yaz (Lever, Greenhouse,
       Workable). En verimli yol: bir adaptör onlarca şirketi çeker.
       *Bitti:* en az bir ATS üzerinden ≥3 şirketin ilanları geliyor.

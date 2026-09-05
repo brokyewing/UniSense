@@ -190,6 +190,69 @@ somut örnek.)
 JSON API aramak gerekecek (§3 madde 1). Sayıları az (~10) olduğu için
 katlanılabilir, ama "RSS bulup hızlı bitiririz" beklentisi kurulmasın.
 
+---
+
+## 9. Dördüncü tur — "tüm şirketlerin kendi siteleri" sorusu
+
+Kullanıcı isteği: tüm Türkiye'deki iş siteleri **+ tüm şirketlerin kendi
+siteleri**; gerekirse odalar kurumundan firma listesi çekip tek tek bakmak.
+İki yol da denendi.
+
+### 9.1 Odalar / TOBB firma kaydı — şirket evreni var, İLAN yok ⚠️
+
+`sanayi.tobb.org.tr` → `https://sanayi.org.tr/#/sanayi-veri-tabani` yönleniyor
+(yeni SPA). Veri tabanı **kapasite raporu** olan firmaları içeriyor: faaliyet
+alanı, **il dağılımı**, adres, telefon, çalışan sayısı. Erişim için **ücretsiz
+üyelik** isteniyor.
+
+Aramada çıkan eski PHP uçları (`yeni_kod_liste71.php`, `kitap_son2_nace.php`,
+`sifre_giris3.php`) **artık çalışmıyor** — dördü de aynı 3645 baytlık SPA
+kabuğunu döndürüyor. Bayat arama indeksi.
+
+**Değerlendirme — bu yol ilan kaynağı DEĞİL:**
+
+1. Veri tabanı **firma kaydı**, iş ilanı değil. Tam erişsek bile firma adı,
+   adres, çalışan sayısı alırız; ilan almayız.
+2. İlana çevirmek için her firmanın sitesini bulup kariyer sayfasını ayrıştırmak
+   gerekir. On binlerce kayıtlı firma için ölçeklenmez; KOBİ'lerin çoğunda
+   kariyer sayfası **yok**.
+3. Üyelik arkasındaki verinin yeniden dağıtımı muhtemelen ToS kısıtlı.
+
+→ **Şirket evreni referansı olarak** değerli olabilir (hangi ilde hangi sektör
+yoğun), **ilan kaynağı olarak** değil. F4 fazına alınmadı.
+
+### 9.2 ATS platformları — "kendi sitesi" sorusunun ÇALIŞAN cevabı ✅
+
+Kurumsal şirketlerin kariyer sayfaları neredeyse her zaman bir ATS'e
+(Lever / Greenhouse / Workable) bağlı ve bu platformların **herkese açık,
+kimlik doğrulamasız JSON API'leri** var:
+
+| Platform | Uç nokta | Test |
+|---|---|---|
+| **Lever** | `https://api.lever.co/v0/postings/<slug>?mode=json` | ✅ `dreamgames` → **19 ilan** |
+| **Greenhouse** | `https://boards-api.greenhouse.io/v1/boards/<slug>/jobs` | ✅ çalışıyor |
+
+Lever kayıt yapısı (Dream Games örneği): `text` (başlık), `categories`
+(`commitment: Full-time`, `location: Istanbul`, `team: Marketing`,
+`allLocations`), `createdAt`, `descriptionPlain`, `country`, `id`.
+Yani **çalışma şekli, konum ve takım hazır geliyor** — şema v2'ye doğrudan
+oturuyor.
+
+⚠️ **SLUG ÇAKIŞMASI — yanlış pozitif tuzağı.** `boards-api.greenhouse.io/v1/
+boards/insider/jobs` **200 ve 9 ilan** döndürdü ama konumlar *New York* ve
+*Singapore* — bu Türk Insider (useinsider.com) değil, aynı adlı **ABD medya
+şirketi**. Şirket adını slug sanıp denemek yanlış şirketi çeker.
+
+**Doğru yöntem:** slug TAHMİN ETME. Şirketin gerçek kariyer sayfasını aç,
+oradan `jobs.lever.co/<slug>` / `boards.greenhouse.io/<slug>` bağlantısını
+**oku**. Ek emniyet: çekilen ilanların konumları Türkiye ile uyuşuyor mu diye
+doğrula (`geo.il_to_bolge()` ile), uyuşmuyorsa kaynağı reddet.
+
+→ Yol haritası **F4.2** (ATS tespiti) ve **F4.3** (ATS adaptörü) bu bulguyla
+uygulanabilir durumda. Tek adaptör onlarca şirketi çeker.
+
+---
+
 **Sıradaki keşif turları** (henüz yapılmadı):
 
 - [ ] Faal 302 OSB'nin en yoğun 8-10 ildeki sitelerinde ilan sayfası örneklemi
