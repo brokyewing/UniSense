@@ -129,6 +129,36 @@ class TestBolum:
         assert {x["id"] for x in out} == {"taze", "x"}
 
 
+class TestSemaV2:
+    def test_eski_id_cevrilir(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import _v2_id
+        assert _v2_id({"id": "jooble-123", "kaynak": "Jooble"}) == "jooble:123"
+        assert _v2_id({"id": "cj-abc", "kaynak": "Careerjet"}) == "careerjet:abc"
+        assert _v2_id({"id": "rg-2026-09-05", "kaynak": "Resmî Gazete"}) == "rg:2026-09-05"
+        assert _v2_id({"id": "jooble:123", "kaynak": "Jooble"}) == "jooble:123"
+
+    def test_kayipsiz_tasima(self):
+        from unisense.infrastructure.scrapers.kariyer_scraper import v2_kayit
+        k = v2_kayit({**_k("a", tarih="2026-09-05", ilk="2026-09-01"),
+                      "sehir": "İstanbul", "ozet": "x" * 500})
+        for alan in ("id", "kaynak_kod", "il", "ilce", "bolge", "calisma_sekli",
+                     "istihdam_turu", "deneyim", "pozisyon_etiket", "kpss",
+                     "maas", "son_basvuru"):
+            assert alan in k, alan
+        assert k["il"] == "İstanbul" and k["bolge"] == "Marmara"
+        assert k["calisma_sekli"] == "bilinmiyor" and k["kpss"] is None
+        assert len(k["ozet"]) == 300
+        assert k["ilk_gorulme"] == "2026-09-01"  # korunur
+
+    def test_merge_eski_yeni_id_esisir(self):
+        eski = [{**_k("a", ilk="2026-09-01"), "id": "jooble-123",
+                 "kaynak": "Jooble"}]
+        yeni = [{**_k("a", ilk="2026-09-05"), "id": "jooble:123",
+                 "kaynak": "Jooble"}]
+        out = _merge(yeni, eski)
+        assert len(out) == 1 and out[0]["ilk_gorulme"] == "2026-09-01"
+
+
 class TestHatB:
     def test_jooble_normalize(self):
         k = _jooble_normalize(
@@ -136,7 +166,7 @@ class TestHatB:
              "source": "kariyer.net", "location": "İstanbul",
              "snippet": "<b>Java</b> aranıyor", "salary": "100bin", "type": "Tam zamanlı"},
             "2026-09-05")
-        assert k["id"] == "jooble-123"
+        assert k["id"] == "jooble:123"
         assert k["hat"] == "ozel" and k["kurum"] == "kariyer.net"
         assert k["ozet"] == "Java aranıyor"
 
@@ -149,7 +179,7 @@ class TestHatB:
              "locations": "Ankara", "description": "Python <b>bilgisi</b>",
              "date": "2026-09-04", "salary": "", "site": "careerjet.com.tr"},
             "2026-09-05")
-        assert k["id"].startswith("cj-") and k["kurum"] == "Acme"
+        assert k["id"].startswith("careerjet:") and k["kurum"] == "Acme"
         assert k["tarih"] == "2026-09-04"
 
     def test_anahtar_yoksa_atlama(self, monkeypatch):

@@ -51,6 +51,7 @@ import fitz  # PyMuPDF
 import requests
 
 from unisense.core.text import fold_tr
+from unisense.domain.geo import il_to_bolge
 from unisense.infrastructure.scrapers._guard import ScrapeGuardError, write_json_guarded
 
 RG_HOME = "https://www.resmigazete.gov.tr/"
@@ -235,7 +236,7 @@ def _jooble_normalize(job: dict, bugun: str) -> dict | None:
     jid = str(job.get("id") or hashlib.sha1(link.encode()).hexdigest()[:12])
     ozet = _temizle_ham(job.get("snippet") or "")[:500]
     return {
-        "id": f"jooble-{jid}",
+        "id": f"jooble:{jid}",
         "hat": "ozel",
         "kaynak": "Jooble",
         "baslik": baslik,
@@ -257,7 +258,7 @@ def _careerjet_normalize(job: dict, bugun: str) -> dict | None:
         return None
     ozet = _temizle_ham(job.get("description") or "")[:500]
     return {
-        "id": f"cj-{hashlib.sha1(link.encode()).hexdigest()[:12]}",
+        "id": f"careerjet:{hashlib.sha1(link.encode()).hexdigest()[:12]}",
         "hat": "ozel",
         "kaynak": "Careerjet",
         "baslik": baslik,
@@ -334,6 +335,56 @@ def _scrape_hatb(session: requests.Session) -> list[dict]:
     return tekil
 
 
+# === Şema v2 (yol haritası §1) ===
+# v1 alanları korunur; yeniler eksikse bilinmiyor/null dolar. id v2 formatı
+# "kaynak:anahtar" — eski "kaynak-anahtar" id'ler _migrate'te deterministik
+# çevrilir (süreklilik korunur, ilk_gorulme sıfırlanmaz).
+KAYNAK_KOD = {"Jooble": "jooble", "Careerjet": "careerjet", "Resmî Gazete": "rg"}
+
+V2_BILINMIYOR = "bilinmiyor"
+
+
+def _v2_id(kayit: dict) -> str:
+    eski = str(kayit.get("id") or "")
+    if ":" in eski:  # zaten v2
+        return eski
+    kod = KAYNAK_KOD.get(kayit.get("kaynak") or "", "diger")
+    anahtar = eski
+    for prefix in (f"{kod}-", "jooble-", "cj-", "rg-"):
+        if eski.startswith(prefix):
+            anahtar = eski[len(prefix):]
+            break
+    if kod == "diger":
+        kod = {"jooble": "jooble", "cj": "careerjet", "rg": "rg"}.get(
+            eski.split("-")[0], "diger")
+    return f"{kod}:{anahtar}" if anahtar else eski
+
+
+def v2_kayit(kayit: dict) -> dict:
+    """Eski kaydı v2 şemasına taşır (kayıpsız; eksikler bilinmiyor/null)."""
+    k = dict(kayit)
+    k["id"] = _v2_id(k)
+    k["kaynak_kod"] = KAYNAK_KOD.get(k.get("kaynak") or "", "diger")
+    il = (k.get("il") or k.get("sehir") or "").strip()
+    k["il"] = il
+    k["ilce"] = (k.get("ilce") or "").strip()
+    k["bolge"] = il_to_bolge(il) if il else "Bilinmiyor"
+    k.setdefault("calisma_sekli", V2_BILINMIYOR)
+    k.setdefault("istihdam_turu", V2_BILINMIYOR)
+    k.setdefault("deneyim", V2_BILINMIYOR)
+    k.setdefault("pozisyon_etiket", [])
+    k.setdefault("kpss", None)
+    k.setdefault("maas", None)
+    k.setdefault("son_basvuru", None)
+    if k.get("ozet") and len(k["ozet"]) > 300:
+        k["ozet"] = k["ozet"][:300]
+    return k
+
+
+def _migrate(kayitlar: list[dict]) -> list[dict]:
+    return [v2_kayit(k) for k in kayitlar]
+
+
 def _merge(yeni: list[dict], eski: list[dict]) -> list[dict]:
     """id'ye göre birleştir: eski kaydın ilk_gorulme'si korunur, gerisi güncellenir.
 
@@ -342,11 +393,11 @@ def _merge(yeni: list[dict], eski: list[dict]) -> list[dict]:
     cezalandırılmaz (her zaman korunur).
     """
     bugun = date.today()
-    eski_map = {x.get("id"): x for x in eski if x.get("id")}
+    eski_map = {_v2_id(x): x for x in eski if x.get("id")}
     birlesik: list[dict] = []
     budanan = 0
     for k in yeni:
-        onceki = eski_map.get(k["id"])
+        onceki = eski_map.get(_v2_id(k))
         if onceki and onceki.get("ilk_gorulme"):
             k = {**k, "ilk_gorulme": onceki["ilk_gorulme"]}
         ref = (k.get("tarih") or k.get("ilk_gorulme") or "")[:10]
@@ -381,7 +432,7 @@ def main() -> None:
             eski = data if isinstance(data, list) else []
         except Exception as e:
             print(f"  ⚠️ mevcut dosya okunamadı: {e}")
-    birlesik = _merge(yeni, eski)
+    birlesik = _migrate(_merge(yeni, eski))
     try:
         write_json_guarded(OUT, birlesik, label="kariyer")
     except ScrapeGuardError as e:
