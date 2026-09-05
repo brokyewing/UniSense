@@ -260,11 +260,15 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
 > Bu üçü F3/F4'ten önce çünkü 11 kaynak eklemeye başlayınca artık geç olur:
 > hangi kaynağın sessizce öldüğünü göremezsin ve mükerrer ilanlar birikir.
 
-- [ ] **F2.1** Kaynak bazlı koşu raporu: her kaynak için kaç ilan çekildi,
-      kaç yeni, kaç hata → `detay.kosu_raporu` + log.
-      *Bitti:* tek koşuda kaynak başına satır görünüyor.
-- [ ] **F2.2** Bir kaynak 3 koşu üst üste 0 üretirse workflow uyarsın.
-      Sessizce ölen kaynak = fark edilmeyen kayıp (bkz. KPSS `[]` olayı).
+- [x] **F2.1** Kaynak bazlı koşu raporu (opencode, 2026-09-05, a912594): her
+      kaynak için çekilen/yeni/hata → `kariyer_kosu.json` + log satırları +
+      `meta.son_kosu`; adaptör hataları koşuyu düşürmüyor (kısmi başarı).
+      *Bitti:* canlı 4 kaynak satırı görünüyor.
+- [x] **F2.2** Bir kaynak 3 koşu üst üste 0 üretirse workflow uyarsın
+      (opencode, 2026-09-05, 7660aea). `kariyer_kosu.json`'da 10 koşuluk geçmiş
+      + `alarm` listesi; log'da 🚨 + Actions Step Summary özeti. Karar: cron'u
+      kırmızıya düşürmez (flaky alarm yorgunluğu; toplam-boşta guard zaten
+      exit 1 verir).
 - [ ] **F2.3** **Çapraz kaynak tekilleştirme.** Şu an yalnız kaynak-içi
       tekilleştirme var (aynı link iki sorguda). §4 kararı: `id` birebir;
       ayrıca `(normalize(baslik), kurum, il)` çakışırsa **kamu hattı kazanır**.
@@ -292,8 +296,17 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
       (kamu-akademik-personel). Sağlık alımları da aynı şekilde toplayıcıda.
       → K1 adaptörü (F3.4) bu kategorileri de çekince kapsanır; ayrı adaptör
       gereksiz. Ayrıntı: `KAYNAK_HARITASI.md` §6.1-6.2.
-- [ ] **F3.4** `ilangovtr` adaptörü — §3.1'deki oturum şartını çöz. Çözülemezse
-      `[!]` yaz, §3 madde 4 (sunucu-tarafı HTML) alternatifini dene, geç.
+- [ ] **F3.4** `ilangovtr` adaptörü — **ÇÖZÜLDÜ, keşif gerekmez**
+      (`KAYNAK_HARITASI.md` §11). Sorun oturum değil, geçersiz `sorting`
+      değeriymiş; API geçersiz sıralamada sessizce 0 dönüyor.
+      `POST /api/api/services/app/Ad/AdsByFilter`
+      `{"skipCount":0,"maxResultCount":20,"sorting":"id desc"}` — auth yok,
+      sayfa tavanı **20**, `numFound` 25.061, `cityCounts` **81 il** sayılarıyla.
+      Süzgeç parametreleri yok sayılıyor → `adTypeFilters[].value == "PERSONEL
+      ALIMI"` ile **yerelde süz** (verim ~%10,5 ≈ 2.600 ilan).
+      `id desc` en yeni önce → artımlı tarama: görülen id'ye ulaşınca dur.
+      *Bitti:* personel alımı ilanları v2 şemasında, il/ilçe dolu,
+      `cityCounts` facet olarak saklanmış.
 - [ ] **F3.5** **Savunma Kariyer** (eski adı Vizyoner Genç — site
       `savunmakariyer.com`'a taşınmış). **API TAMAMEN ÇÖZÜLDÜ**, keşif gerekmez
       (`KAYNAK_HARITASI.md` §10): `POST /api/career-core/public/jobs`

@@ -365,6 +365,88 @@ gerekli, onun yerine geçmez.
 
 ---
 
+## 11. Altıncı tur — ilan.gov.tr ÇÖZÜLDÜ ✅✅✅
+
+En büyük engel kalktı. Sorun **oturum/token değilmiş** — geçersiz bir
+`sorting` değeriymiş.
+
+### 11.1 Kök sebep
+
+API, geçersiz sıralama alanında **hata vermiyor, sessizce `numFound: 0`
+dönüyor.** Önceki denemelerimde gövdede `sorting: "publishDate desc"` vardı;
+o yüzden hep 0 aldım ve "oturum şartı var" sandım. Yanlış teşhisti.
+
+| Gövde | Sonuç |
+|---|---|
+| `{}` | **25.061** ✅ |
+| `{skipCount:0, maxResultCount:20}` | **25.061** ✅ |
+| `{..., sorting:"id desc"}` | **25.061** ✅ |
+| `{..., sorting:"publishDate desc"}` | **0** ❌ |
+| `{..., sorting:"publishStartDate desc"}` | **0** ❌ |
+| `{..., sorting:"adNo desc"}` | **0** ❌ |
+
+### 11.2 Doğrulanmış çağrı spesifikasyonu
+
+```
+POST https://www.ilan.gov.tr/api/api/services/app/Ad/AdsByFilter
+Content-Type: application/json
+{"skipCount": 0, "maxResultCount": 20, "sorting": "id desc"}
+```
+
+- **Kimlik doğrulama YOK.** Çerezlerde yalnız Google Analytics var.
+- **Sayfa boyutu tavanı 20** — `maxResultCount` 50/100/500 verilse de 20 döner.
+  Tam tarama: 25.061 / 20 ≈ **1.254 istek.**
+- **`sorting: "id desc"` = en yeni önce** → günlük artımlı tarama için ideal:
+  ilk sayfalardan başla, daha önce görülmüş `id`'ye ulaşınca dur.
+- Yanıt: `result.ads[]`, `result.numFound`, **`result.cityCounts`**.
+
+### 11.3 `cityCounts` — 81 il facet'i hazır 🎯
+
+Kullanıcının istediği il/bölge kırılımı doğrudan geliyor:
+
+```json
+{"id": 10, "key": "ADANA", "slug": "ADANA", "count": 684}
+{"id": 11, "key": "ADIYAMAN", "count": 108}
+{"id": 12, "key": "AFYONKARAHİSAR", "count": 298}
+```
+
+**81 il, her biri sayısıyla.** Frontend'in bölge/il facet'i bunu doğrudan
+kullanabilir.
+
+### 11.4 Süzgeç parametreleri bulunamadı → yerelde süz
+
+`cityId/cityIds/cityKeys/citySlugs/cities` ve
+`adTypeSetIds/adTypeSetId/taxIds/categoryIds` **hepsi yok sayılıyor** (aynı
+25.061 ve aynı ilk kayıt). Sorun değil: **her kayıtta gerekli alanlar zaten
+var** —
+
+- `addressCityName` → il, `addressCountyName` → ilçe
+- `adTypeFilters[].key == "İlan Türü"` → tür (`PERSONEL ALIMI` / `İHALE` /
+  `İCRA` / `TEBLİGAT`)
+
+→ Hepsini sayfala, **yerelde süz.**
+
+### 11.5 Verim ölçümü (200 kayıtlık örneklem)
+
+| İlan türü | Adet | Oran |
+|---|---|---|
+| İHALE | 79 | %39,5 |
+| TEBLİGAT | 67 | %33,5 |
+| İCRA | 33 | %16,5 |
+| **PERSONEL ALIMI** | **21** | **%10,5** |
+
+200 kayıtta **51 farklı il**. Örnek personel ilanları: Türkiye Sağlık
+Enstitüleri Başkanlığı (İstanbul), Bursa Teknik Üniversitesi (Bursa),
+Bartın Üniversitesi (Bartın).
+
+→ **Tahmini erişilebilir personel ilanı: 25.061 × %10,5 ≈ 2.600.**
+
+⚠️ Tam tarama 1.254 istek — günlük cron için ağır. **Önerilen:** `id desc`
+ile artımlı tara, en son görülen `id`'ye ulaşınca dur. İlk dolum bir kez
+tam yapılır (istekler arası ≥250 ms bekleyerek; ölçümde bu hızda sorun çıkmadı).
+
+---
+
 **Sıradaki keşif turları** (henüz yapılmadı):
 
 - [ ] Faal 302 OSB'nin en yoğun 8-10 ildeki sitelerinde ilan sayfası örneklemi

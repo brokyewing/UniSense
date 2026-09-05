@@ -26,6 +26,7 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 12:23 | opencode | F1.1-F1.3: API filtreleri + facet + siralama (test 41, canli dogrulandi); 2c99e58 pushlandi. Siradaki: F1.4 filtre paneli.
 2026-09-05 12:39 | opencode | F1.4-F1.7: filtre paneli + URL senkron + kart + mobil (build temiz); aaf76f9 pushlandi. Siradaki: F2.1 kosu raporu.
 2026-09-05 12:49 | opencode | F2.1: kaynak bazli kosu raporu + adaptor hata toleransi (canli 4 satir); a912594 pushlandi. Siradaki: F2.2 olu-kaynak alarmi.
+2026-09-05 13:09 | opencode | F2.2: olu-kaynak alarmi (10 kosu gecmis, Step Summary; kirmiziya dusurmez karari); 7660aea pushlandi. Siradaki: F2.3 tekillestirme.
 2026-09-04 23:55 | Claude Code | KPSS veri kaybi geri alindi + bos-sonuc bekcisi, CI pin bypass i duzeltildi (CI artik yesil), tusdus sessiz basarisi giderildi; OSYM URL kesfi engelli.
 2026-09-05 01:40 | Claude Code | OSYM yeni URL semasi cozuldu (chunked-hang toleransli fetch + Duyurular/Index kesfi); KPSS 2026/1, TUS ve DUS 2026 verileri geldi; CI yesil.
 2026-09-05 02:20 | Claude Code | CI kor noktasi kapatildi (haftalik schedule); LGS ve Yearly YKS dispatch ile yesil kosup 2026 verisini commitledi.
@@ -44,3 +45,4 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 11:20 | Claude Code | ATS kesfi olculdu: okunan slug 3/3 basarili (trendyol 27, dreamgames 19, iyzico 12 = 58 ilan), tahmin edilen 0/6. Kariyer sayfasi taramasi verimi 2/10 (cogu JS).
 2026-09-05 11:50 | Claude Code | Vizyoner Genc cozuldu: site savunmakariyer.com olmus, tam acik REST API bulundu (24 ilan + 81 il + 343 onayli firma, auth yok). ASELSAN/HAVELSAN/ROKETSAN/STM/BAYKAR bu tek kaynakta -> F3.6 kapsami daraldi.
 2026-09-05 12:15 | Claude Code | ATS haritasi genisledi: peakgames 20 ilan (slug aramayla bulundu, "peak" tutmuyordu) -> toplam 78 ilan. Peak Lever alanlari bozuk (location=Full-time) -> ATS alanlarina korlemesine guvenme kurali yazildi.
+2026-09-05 12:45 | Claude Code | ilan.gov.tr COZULDU: sorun oturum degil gecersiz sorting degeriymis (API sessizce 0 donuyor). sorting=id desc, sayfa tavani 20, 25.061 ilan, cityCounts 81 il; personel alimi orani %10,5 (~2.600 ilan).
