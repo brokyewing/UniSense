@@ -61,6 +61,14 @@ kaynaklar:
     aktif: true
     not: SSR tablo (şu an 0 açık pozisyon); yapı hazır, ilan çıkınca akar.
 
+  - kod: iskur
+    ad: İŞKUR e-Şube
+    hat: kamu
+    url: https://esube.iskur.gov.tr/
+    erisim: yok
+    aktif: false
+    not: WAF her şeyi reddediyor (robots.txt dahil); liste aynası yok (MEB aynası yalnız meslek kılavuzu). Toplayıcılarda 0 İŞKUR kaydı ölçüldü.
+
   - kod: jooble
     ad: Jooble
     hat: ozel
@@ -74,6 +82,12 @@ kaynaklar:
       - {keywords: "yazılım", location: "Türkiye"}
       - {keywords: "teknik", location: "Türkiye"}
       - {keywords: "bilgisayar", location: "Türkiye"}
+      - {keywords: "sağlık", location: "Türkiye"}
+      - {keywords: "öğretmen", location: "Türkiye"}
+      - {keywords: "muhasebe", location: "Türkiye"}
+      - {keywords: "satış", location: "Türkiye"}
+      - {keywords: "hukuk", location: "Türkiye"}
+      - {keywords: "lojistik", location: "Türkiye"}
     sayfa: 5
 
   - kod: careerjet
@@ -88,4 +102,8 @@ kaynaklar:
       - "mühendis"
       - "yazılım"
       - "tekniker"
+      - "sağlık"
+      - "öğretmen"
+      - "muhasebe"
+      - "satış"
     sayfa: 3
