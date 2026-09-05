@@ -58,6 +58,7 @@ from unisense.infrastructure.scrapers.kariyer_registry import aktifler as _aktif
 RG_HOME = "https://www.resmigazete.gov.tr/"
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 OUT = Path(__file__).resolve().parents[4] / "data" / "processed" / "kariyer_ilanlar.json"
+KOSU_DOSYA = Path(__file__).resolve().parents[4] / "data" / "processed" / "kariyer_kosu.json"
 
 
 def _defter() -> dict[str, dict]:
@@ -140,9 +141,9 @@ def _eslesme_say(metin_fold: str) -> dict[str, int]:
     }
 
 
-def scrape() -> list[dict]:
+def _scrape_rg(session: requests.Session) -> list[dict]:
+    """Resmî Gazete günlük sayıları (sinyal kayıtları)."""
     kayitlar: list[dict] = []
-    session = _session()
     rg_url, pdf_limit = _rg_ayar()
     r = session.get(rg_url, timeout=REQUEST_TIMEOUT)
     r.raise_for_status()
@@ -170,7 +171,7 @@ def scrape() -> list[dict]:
                 toplam_eslesme[g] += c
             time.sleep(KIBAR_BEKELEME)
         kayitlar.append({
-            "id": f"rg-{gun}",
+            "id": f"rg:{gun}",
             "hat": "kamu",
             "kaynak": "Resmî Gazete",
             "baslik": f"{gun} Resmî Gazete sayıları ({len(pdfler)} PDF)",
@@ -185,6 +186,22 @@ def scrape() -> list[dict]:
         })
         top = {g: c for g, c in toplam_eslesme.items() if c}
         print(f"  {gun}: {len(pdfler)} pdf, {toplam_sayfa} sayfa, sinyal={top or '-'}")
+    return kayitlar
+
+
+def scrape() -> tuple[list[dict], dict[str, str]]:
+    """Tüm adaptörler; kısmi başarı normal — her adaptörün hatası kaydedilir.
+
+    Hiçbir adaptör veri üretemezse liste boş döner → main guard ile exit 1.
+    """
+    session = _session()
+    hatalar: dict[str, str] = {}
+    try:
+        rg = _scrape_rg(session)
+    except Exception as e:  # noqa: BLE001
+        print(f"  ⚠️ rg düştü: {type(e).__name__}: {e}")
+        hatalar["rg"] = f"{type(e).__name__}: {e}"
+        rg = []
     hatb = _scrape_hatb(session)
     if hatb:
         print(f"  Hat B: {len(hatb)} ilan (jooble+careerjet)")
@@ -192,8 +209,9 @@ def scrape() -> list[dict]:
         kam = _scrape_kamuilan(session)
     except Exception as e:  # noqa: BLE001 — kısmi başarı normal (§5)
         print(f"  ⚠️ kamuilan düşti: {type(e).__name__}: {e}")
+        hatalar["kamuilan"] = f"{type(e).__name__}: {e}"
         kam = []
-    return kayitlar + hatb + kam
+    return rg + hatb + kam, hatalar
 
 
 # === Hat B: Jooble + Careerjet (API anahtarlı) ===
@@ -540,6 +558,24 @@ def _scrape_kamuilan(session: requests.Session) -> list[dict]:
     return kayitlar
 
 
+def _kosu_raporu(yeni: list[dict], eski_idler: set[str],
+                 hatalar: dict[str, str], bugun: str) -> dict:
+    """Kaynak bazlı koşu raporu (saf): {kod: {cekilen, yeni, hata}}."""
+    cekilen: dict[str, int] = {}
+    yeniler: dict[str, int] = {}
+    for k in yeni:
+        kod = k.get("kaynak_kod") or KAYNAK_KOD.get(k.get("kaynak") or "", "diger")
+        cekilen[kod] = cekilen.get(kod, 0) + 1
+        if k.get("id") not in eski_idler:
+            yeniler[kod] = yeniler.get(kod, 0) + 1
+    rapor = {}
+    for kod in sorted(set(cekilen) | set(hatalar)):
+        rapor[kod] = {"cekilen": cekilen.get(kod, 0),
+                      "yeni": yeniler.get(kod, 0),
+                      "hata": hatalar.get(kod, "")}
+    return {"tarih": bugun, "kaynaklar": rapor}
+
+
 def _merge(yeni: list[dict], eski: list[dict]) -> list[dict]:
     """id'ye göre birleştir: eski kaydın ilk_gorulme'si korunur, gerisi güncellenir.
 
@@ -576,9 +612,9 @@ def main() -> None:
         import io as _io
         sys.stdout = _io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     try:
-        yeni = scrape()
+        yeni, hatalar = scrape()
     except Exception as e:
-        print(f"\n⛔ RG erişilemedi ({type(e).__name__}: {e}) — {OUT.name} GÜNCELLENMEDİ")
+        print(f"\n⛔ scrape çöktü ({type(e).__name__}: {e}) — {OUT.name} GÜNCELLENMEDİ")
         sys.exit(1)
     eski: list[dict] = []
     if OUT.exists():
@@ -587,7 +623,16 @@ def main() -> None:
             eski = data if isinstance(data, list) else []
         except Exception as e:
             print(f"  ⚠️ mevcut dosya okunamadı: {e}")
+    eski_idler = {_v2_id(x) for x in eski if x.get("id")}
     birlesik = _migrate(_merge(yeni, eski))
+    bugun_str = date.today().isoformat()
+    rapor = _kosu_raporu(yeni, eski_idler, hatalar, bugun_str)
+    for kod, satir in rapor["kaynaklar"].items():
+        print(f"  ▸ {kod}: çekilen={satir['cekilen']} yeni={satir['yeni']}"
+              + (f" HATA={satir['hata']}" if satir["hata"] else ""))
+    KOSU_DOSYA.write_text(json.dumps(
+        {**rapor, "toplam_kayit": len(birlesik)}, ensure_ascii=False, indent=1),
+        encoding="utf-8")
     from collections import Counter as _Counter
     print(f"  calisma_sekli dagilimi: "
           f"{dict(_Counter(x.get('calisma_sekli', '?') for x in birlesik))}")

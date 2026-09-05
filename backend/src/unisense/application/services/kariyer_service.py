@@ -275,11 +275,19 @@ class KariyerService:
     def meta(self) -> dict:
         kayitlar = _load()
         tarihler = sorted({k.get("tarih", "") for k in kayitlar if k.get("tarih")})
+        kosu = {}
+        try:
+            p = Path(get_settings().project_root) / "data" / "processed" / "kariyer_kosu.json"
+            if p.exists():
+                kosu = json.load(open(p, encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            kosu = {}
         return {
             "toplam": len(kayitlar),
             "kaynak_sayisi": len({k.get("kaynak", "") for k in kayitlar}),
             "son_tarih": tarihler[-1] if tarihler else "",
             "rehber_kaynak": len(_KAYNAKLAR),
+            "son_kosu": kosu if isinstance(kosu, dict) else {},
         }
 
     def ilanlar(self, **kwargs) -> dict:
