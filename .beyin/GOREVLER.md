@@ -118,6 +118,21 @@ kurumsal ilanlar (genel başvuru havuzları) sistematik olarak eleniyor.
       *Bitti:* Savunma Kariyer 24 (ACTIVITY hariç 23), Kariyer Kapısı 33 kayıt
       yazılıyor; testte açık-ama-eski bir ilan korunuyor.
 
+## İl bilgisi eksik kayıtlar — yardımcı HAZIR (Claude Code, 2026-09-05)
+
+Denetim: **792 kaydın 128'inde il/bölge YOK** — hepsi kamu kaynağı
+(kamuilan.sbb 67, Kariyer Kapısı 30, AkademikTR 30, Resmî Gazete 1).
+Bölge filtresi bu kayıtlarda çalışmıyor.
+
+`geo.metinden_il_bul(metin)` yazıldı ve testli (`geo.py` benim alanım):
+kurum adından il çıkarıyor, adında il geçmeyenler için istisna tablosu var
+(Karadeniz Teknik→Trabzon, ODTÜ→Ankara, Gebze Teknik→Kocaeli,
+İnebolu→Kastamonu…). **Ölçüm: 128 kayıttan 82'si (%64) kurtarılıyor.**
+
+- [ ] Adaptörlerde `il` boşsa `metinden_il_bul(kurum)` → olmazsa
+      `metinden_il_bul(baslik)` çağrılsın; `bolge` bundan türetilsin.
+      *Bitti:* ili boş kayıt 128 → ~46'ya düşüyor.
+
 ## Bitti
 - [x] Ruff bulguları temizlendi, `<0.16` üst sınırı kaldırıldı (bb9bc50)
 - [x] TUS/DUS + KPSS Data Sync gerçek Actions koşusunda YEŞİL (dispatch, 2026-09-04)

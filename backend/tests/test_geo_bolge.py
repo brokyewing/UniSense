@@ -123,3 +123,45 @@ class TestIlToBolgeBirlesikMetin:
             assert il_to_bolge("bulunamaz bir yer") == "Bilinmiyor"
         finally:
             sys.setrecursionlimit(eski)
+
+
+class TestMetindenIlBul:
+    """Kurum adından il çıkarımı.
+
+    Kamu kaynaklarının çoğu ayrı şehir alanı vermiyor; il yalnız kurum adında
+    geçiyor. Ölçüm (2026-09-05, ili boş 128 kayıt): kelime taraması 64,
+    istisna tablosuyla birlikte 82 kayıt çözülüyor.
+    """
+
+    @pytest.mark.parametrize(
+        ("metin", "beklenen"),
+        [
+            ("ARDAHAN ÜNİVERSİTESİ REKTÖRLÜĞÜ", "ARDAHAN"),
+            ("BURSA TEKNİK ÜNİVERSİTESİ", "BURSA"),
+            ("BARTIN ÜNİVERSİTESİ", "BARTIN"),
+            # adında il geçmeyenler — istisna tablosu
+            ("KARADENİZ TEKNİK ÜNİVERSİTESİ", "TRABZON"),
+            ("ORTA DOĞU TEKNİK ÜNİVERSİTESİ REKTÖRLÜĞÜ", "ANKARA"),
+            ("GEBZE TEKNİK ÜNİVERSİTESİ", "KOCAELİ"),
+            ("İNEBOLU BELEDİYE BAŞKANLIĞI", "KASTAMONU"),
+            ("KUZEY ANADOLU KALKINMA AJANSI", "KASTAMONU"),
+        ],
+    )
+    def test_kurumdan_il_cikar(self, metin, beklenen):
+        from unisense.domain.geo import metinden_il_bul
+
+        assert metinden_il_bul(metin) == beklenen
+
+    @pytest.mark.parametrize("metin", [None, "", "2026-09-05 Resmî Gazete sayıları"])
+    def test_bulunamayan_none_doner(self, metin):
+        from unisense.domain.geo import metinden_il_bul
+
+        assert metinden_il_bul(metin) is None
+
+    def test_cikan_il_bolgeye_cozulur(self):
+        """Çıkarılan il mutlaka il_to_bolge ile bölgeye çözülebilmeli."""
+        from unisense.domain.geo import metinden_il_bul
+
+        for metin in ("KARADENİZ TEKNİK ÜNİVERSİTESİ", "ARDAHAN ÜNİVERSİTESİ"):
+            il = metinden_il_bul(metin)
+            assert il and il_to_bolge(il) != "Bilinmiyor"
