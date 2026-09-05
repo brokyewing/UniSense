@@ -189,6 +189,31 @@ class TestCalismaSekli:
         assert k["calisma_sekli"] == "online"
 
 
+class TestKamuilan:
+    ORNEK_LI = ("<li><time class='cbp_tmtime'><h4>4</h4><h3> Eylül</h3></time>"
+                "<div class='cbp_tmlabel'><a href='ilanDetay.aspx?kod=ABC123' class='xx'>"
+                "<div><p class='alt_p1'>KARADENİZ TEKNİK ÜNİVERSİTESİ</p>"
+                "<p class='alt_p2'> 93 SÖZLEŞMELİ PERSONEL ALACAK"
+                "<em>( 4 Eylül - 18 Eylül) </em></p></div></a></div>")
+
+    def test_tr_tarih(self):
+        from datetime import date
+        from unisense.infrastructure.scrapers.kariyer_scraper import _tr_tarih
+        assert _tr_tarih("4", "Eylül", date(2026, 9, 5)) == "2026-09-04"
+        assert _tr_tarih("18", "Eylül", date(2026, 9, 5)) == "2026-09-18"
+        assert _tr_tarih("x", "Eylül", date(2026, 9, 5)) == ""
+
+    def test_timeline_parse(self):
+        import re
+        li = self.ORNEK_LI
+        a = re.search(r"<a\s+href='(ilanDetay\.aspx\?kod=[^']+)'", li)
+        kurum = re.search(r"<p class='alt_p1'>(.*?)</p>", li, re.S)
+        baslik = re.search(r"<p class='alt_p2'>(.*?)<em", li, re.S)
+        assert a and kurum and baslik
+        assert "KARADENİZ" in kurum.group(1)
+        assert "SÖZLEŞMELİ" in baslik.group(1)
+
+
 class TestHatB:
     def test_jooble_normalize(self):
         k = _jooble_normalize(
@@ -225,7 +250,7 @@ class TestDefter:
         from unisense.infrastructure.scrapers.kariyer_registry import yukle
         girdiler = yukle()
         kodlar = {g["kod"] for g in girdiler if g.get("aktif")}
-        assert {"rg", "jooble", "careerjet"} <= kodlar
+        assert {"rg", "jooble", "careerjet", "kamuilan"} <= kodlar
 
     def test_davranis_paritesi(self):
         # Defter değerleri eski gömülü sabitlerle aynı olmalı

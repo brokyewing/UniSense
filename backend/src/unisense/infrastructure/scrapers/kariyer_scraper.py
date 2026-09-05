@@ -188,7 +188,12 @@ def scrape() -> list[dict]:
     hatb = _scrape_hatb(session)
     if hatb:
         print(f"  Hat B: {len(hatb)} ilan (jooble+careerjet)")
-    return kayitlar + hatb
+    try:
+        kam = _scrape_kamuilan(session)
+    except Exception as e:  # noqa: BLE001 — kısmi başarı normal (§5)
+        print(f"  ⚠️ kamuilan düşti: {type(e).__name__}: {e}")
+        kam = []
+    return kayitlar + hatb + kam
 
 
 # === Hat B: Jooble + Careerjet (API anahtarlı) ===
@@ -385,7 +390,8 @@ def _scrape_hatb(session: requests.Session) -> list[dict]:
 # v1 alanları korunur; yeniler eksikse bilinmiyor/null dolar. id v2 formatı
 # "kaynak:anahtar" — eski "kaynak-anahtar" id'ler _migrate'te deterministik
 # çevrilir (süreklilik korunur, ilk_gorulme sıfırlanmaz).
-KAYNAK_KOD = {"Jooble": "jooble", "Careerjet": "careerjet", "Resmî Gazete": "rg"}
+KAYNAK_KOD = {"Jooble": "jooble", "Careerjet": "careerjet", "Resmî Gazete": "rg",
+              "kamuilan.sbb.gov.tr": "kamuilan"}
 
 V2_BILINMIYOR = "bilinmiyor"
 
@@ -432,6 +438,106 @@ def v2_kayit(kayit: dict) -> dict:
 
 def _migrate(kayitlar: list[dict]) -> list[dict]:
     return [v2_kayit(k) for k in kayitlar]
+
+
+# === Hat A2: kamuilan.sbb.gov.tr (WebForms postback) ===
+# Ana sayfadaki boş arama postback'i güncel ilanları timeline olarak döner:
+# ul#nav2 > li > time(h4 gün, h3 ay) + a[href=ilanDetay.aspx?kod=..] >
+# p.alt_p1 (kurum) + p.alt_p2 (başlık + em içinde "4 Eylül - 21 Eylül").
+TR_AYLAR = {"ocak": 1, "subat": 2, "mart": 3, "nisan": 4, "mayis": 5,
+            "haziran": 6, "temmuz": 7, "agustos": 8, "eylul": 9,
+            "ekim": 10, "kasim": 11, "aralik": 12}
+KAMUILAN_URL = "https://kamuilan.sbb.gov.tr/"
+
+
+def _tr_tarih(gun: str, ay: str, bugun: date) -> str:
+    ay_no = TR_AYLAR.get(fold_tr(ay.strip()), 0)
+    try:
+        gun_no = int(re.search(r"\d+", gun).group())
+    except (AttributeError, ValueError):
+        return ""
+    if not ay_no or not gun_no:
+        return ""
+    yil = bugun.year
+    try:
+        d = date(yil, ay_no, min(gun_no, 28))
+    except ValueError:
+        return ""
+    if (bugun - d).days > 60:  # geçen yılın son ayları bu yıla sarkmış
+        try:
+            d = date(yil + 1, ay_no, min(gun_no, 28))
+        except ValueError:
+            return ""
+    return d.isoformat()
+
+
+def _kamuilan_hidden(html: str, name: str) -> str:
+    m = re.search('id="' + name + '" value="([^"]*)"', html)
+    return m.group(1) if m else ""
+
+
+def _scrape_kamuilan(session: requests.Session) -> list[dict]:
+    """Güncel kamu ilanları (postback + timeline parse)."""
+    h = session.get(KAMUILAN_URL, timeout=REQUEST_TIMEOUT).text
+    data = {
+        "__VIEWSTATE": _kamuilan_hidden(h, "__VIEWSTATE"),
+        "__VIEWSTATEGENERATOR": _kamuilan_hidden(h, "__VIEWSTATEGENERATOR"),
+        "__EVENTVALIDATION": _kamuilan_hidden(h, "__EVENTVALIDATION"),
+        "txb_ara": "",
+        "bt_ara": "ARA",
+    }
+    t = session.post(KAMUILAN_URL, data=data, timeout=REQUEST_TIMEOUT * 2).text
+    kayitlar: list[dict] = []
+    bugun = date.today().isoformat()
+    bugun_d = date.today()
+    # Timeline tarih-grupludur: bir <li> = bir gün, içinde birden çok ilan.
+    gruplar = re.findall(r"<li>(.*?)</li>\s*(?:<li>|</ul>)", t, re.S)
+    for li in gruplar:
+        tm = re.search(r"<time[^>]*><h4>(.*?)</h4><h3>(.*?)</h3></time>", li, re.S)
+        gun = re.sub(r"<[^>]+>", "", tm.group(1)).strip() if tm else ""
+        ay = re.sub(r"<[^>]+>", "", tm.group(2)).strip() if tm else ""
+        for m in re.finditer(
+                r"<a\s+href='(ilanDetay\.aspx\?kod=[^']+)'[^>]*>.*?"
+                r"<p class='alt_p1'>(.*?)</p>.*?"
+                r"<p class='alt_p2'>(.*?)<em[^>]*>(.*?)</em>",
+                li, re.S):
+            link, kurum_h, baslik_h, em_h = m.groups()
+            b = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", baslik_h)).strip()
+            k = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", kurum_h)).strip()
+            if not (b and k):
+                continue
+            son_basvuru = ""
+            parca = re.sub(r"[()]", "", em_h).split("-")
+            if len(parca) == 2 and parca[1].strip().split():
+                bit = parca[1].strip().split()
+                son_basvuru = _tr_tarih(bit[-2] if len(bit) >= 2 else "", bit[-1], bugun_d)
+            metin = fold_tr(f"{b} {k}")
+            kayitlar.append({
+                "id": f"kamuilan:{link.split('kod=')[1][:24]}",
+                "hat": "kamu",
+                "kaynak": "kamuilan.sbb.gov.tr",
+                "kaynak_kod": "kamuilan",
+                "baslik": b,
+                "kurum": k,
+                "il": "",
+                "ilce": "",
+                "bolge": "Bilinmiyor",
+                "tarih": _tr_tarih(gun, ay, bugun_d),
+                "son_basvuru": son_basvuru or None,
+                "url": (KAMUILAN_URL + link).replace(" ", "%20"),
+                "ozet": b[:300],
+                "detay": {},
+                "ilk_gorulme": bugun,
+                "bolumler": _bolum_etiketle(metin),
+                "calisma_sekli": _calisma_sekli(metin),
+                "istihdam_turu": V2_BILINMIYOR,
+                "deneyim": V2_BILINMIYOR,
+                "pozisyon_etiket": [],
+                "kpss": None,
+                "maas": None,
+            })
+    print(f"  kamuilan: {len(kayitlar)} ilan")
+    return kayitlar
 
 
 def _merge(yeni: list[dict], eski: list[dict]) -> list[dict]:
