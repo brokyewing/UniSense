@@ -22,6 +22,7 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 09:43 | opencode | Yol haritasi F0.1: sema v2 + _migrate (487 kayipsiz, id surekliligi korunuyor); 8ebe2f8 pushlandi. Siradaki: F0.3.
 2026-09-05 10:08 | opencode | Yol haritasi F0.3: calisma_sekli cikarimi (testli kalip tablosu, dagilim loglandi 480/2/4); 9fab443 pushlandi. Siradaki: F0.4.
 2026-09-05 10:19 | opencode | Yol haritasi F0.4: kaynak kayit defteri + yukleyici (davranis paritesi testli+canli); 7d6dec3 pushlandi. Siradaki: F1.1.
+2026-09-05 12:12 | opencode | F3.2 kamuilan adaptoru (postback+timeline, canli 76/68 ilan, 46368bb). F1.1/F1.3 arastirmasi: ilangovtr POST bot-skorlamali (GET GetAdsByPublishTime personelsiz), Vizyoner savunmakariyer.com'a tasinmis (keycloak, API yok). Siradaki: F1.1 filtreler.
 2026-09-04 23:55 | Claude Code | KPSS veri kaybi geri alindi + bos-sonuc bekcisi, CI pin bypass i duzeltildi (CI artik yesil), tusdus sessiz basarisi giderildi; OSYM URL kesfi engelli.
 2026-09-05 01:40 | Claude Code | OSYM yeni URL semasi cozuldu (chunked-hang toleransli fetch + Duyurular/Index kesfi); KPSS 2026/1, TUS ve DUS 2026 verileri geldi; CI yesil.
 2026-09-05 02:20 | Claude Code | CI kor noktasi kapatildi (haftalik schedule); LGS ve Yearly YKS dispatch ile yesil kosup 2026 verisini commitledi.
@@ -33,3 +34,4 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 07:15 | Claude Code | Faz sirasi bagimlilik mantigina gore duzeltildi: deger (API+frontend) one alindi, emniyet (rapor+tekillestirme) kaynaklardan once, kamu hattinda kesin kaynaklar basa.
 2026-09-05 07:45 | Claude Code | Kariyer Kapisi RSS bulundu (33 ilan, giris gerekmiyor); e-Devlet kurali plana yazildi: giris BASVURU icin, liste acik; giris asla otomatiklestirilmez.
 2026-09-05 08:20 | Claude Code | Kapali kapilar bolumu eklendi: LinkedIn robots ile tamamen yasak (anthropic-ai dahil), Indeed kisitli, kariyer.net ilan yollari serbest; repo 230 MB sismesi F5.3 olarak yazildi.
+2026-09-05 09:05 | Claude Code | KAYNAK_HARITASI.md yazildi: kurum-kurum yaklasimi olculerek elendi (ortak desen yok, soft-404), toplayici-once stratejisi BIK mevzuatiyla dogrulandi; OSB izi acildi.

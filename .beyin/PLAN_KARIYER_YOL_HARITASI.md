@@ -136,6 +136,15 @@ girme.
 | ÖSYM | ✅ çözüldü | `_osym.py` hazır: `fetch_tolerant` + `/Duyurular/Index` keşfi. Kariyer için yeniden kullan. |
 
 
+### 3.1.b İl/bölge kapsamı — `KAYNAK_HARITASI.md`
+
+81 il kapsamı için ayrı bir keşif dosyası var: **`.beyin/KAYNAK_HARITASI.md`**.
+Özeti: kurum-kurum gitmek çalışmaz (ortak URL deseni yok, üniversite siteleri
+soft-404 veriyor), çünkü kamu ilanları için **yasal olarak zorunlu merkezî
+portal** var — BİK/ilan.gov.tr 81 ildeki resmî ilanları tek merkezden yönetiyor
+ve Hatay Büyükşehir örneğiyle canlı doğrulandı. **Toplayıcı önce**, kurum-kurum
+yalnız toplayıcının kapsamadığı boşluklar için.
+
 ### 3.2 KAPALI KAPILAR — denenmeyecek kaynaklar (2026-09-05 ölçüldü)
 
 Bunlar "henüz yapılmadı" değil, **yapılmayacak**. Vakit harcama, tekrar deneme.
@@ -268,8 +277,10 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
       en az riskli. `category` alanı `hat=kamu` + ilan türü için kullanılır;
       `title`'daki "KURUM - başlık" kalıbından `kurum` ayrıştırılır.
       *Bitti:* 33 ilan v2 şemasında, `kurum` ve `tarih` dolu, bekçi devrede.
-- [ ] **F3.2** kamuilan.sbb.gov.tr (A4) — sunucu-tarafı HTML, ~207 KB, erişim
-      teyitli.
+- [x] **F3.2** kamuilan.sbb.gov.tr (opencode, 2026-09-05, 46368bb) — boş-arama
+      postback'i + `ul#nav2` timeline parse (kurum, başlık, tarih, son_basvuru,
+      bölüm etiketleri). *Bitti:* canlı 76 ilan (68'i pencerede), v2 şemalı,
+      testli (34 kariyer testi).
 - [ ] **F3.3** ilan.yok.gov.tr (A8) — akademik kadro. **Not:** bu hostname
       8.8.8.8'de de çözülmedi; doğru adres önce teyit edilmeli.
 - [ ] **F3.4** `ilangovtr` adaptörü — §3.1'deki oturum şartını çöz. Çözülemezse
