@@ -595,6 +595,18 @@ class KariyerIlan(BaseModel):
     ilk_gorulme: str = ""
     yeni: bool = False
     bolumler: list[str] = []
+    # Şema v2 (eklemeli): eksikler servis tarafında bilinmiyor/null dolar
+    kaynak_kod: str = ""
+    il: str = ""
+    ilce: str = ""
+    bolge: str = ""
+    calisma_sekli: str = "bilinmiyor"
+    istihdam_turu: str = "bilinmiyor"
+    deneyim: str = "bilinmiyor"
+    pozisyon_etiket: list[str] = []
+    kpss: bool | None = None
+    maas: dict | None = None
+    son_basvuru: str | None = None
 
 
 class KariyerIlanlarResponse(BaseModel):
