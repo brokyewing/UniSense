@@ -82,6 +82,42 @@ Araştırması BİTMİŞ, sadece adaptör bekleyen ikisi (sıfır araştırma ge
 Sonraki öncelikler: kariyer.net (robots ilan yollarına izin veriyor) →
 eleman.net (81 il iddiası) → yenibiris/isbul/secretcv.
 
+## 🚨 Budama hatası — AÇIK ilanlar siliniyor (Claude Code ölçtü, 2026-09-05)
+
+`kariyer_scraper.py` `_merge()` içindeki iki budama kuralından **ikincisi
+hatalı**:
+
+```
+~1099  # 1) son_basvuru geçmişse (7 gün tolerans) at   -> DOĞRU
+~1109  # 2) tarih (YAYIN tarihi) 30 günden eskiyse at  -> HATALI
+       ref = k.get("tarih") or k.get("ilk_gorulme")
+       if yas > SAKLA_GUN: birlesik.remove(k)
+```
+
+İkinci kural, **başvurusu hâlâ açık** ilanları siliyor. Süre kontrolü zaten
+1. kuralda `son_basvuru` ile doğru yapılıyor; ikinci kural onu eziyor.
+
+**Ölçülen kayıp (2026-09-05):**
+
+| Kaynak | API/RSS'te | Kaydedilen | Kayıp | Sebep |
+|---|---|---|---|---|
+| Savunma Kariyer | 24 | **12** | 11 | `startDate` 30 günden eski ama `endDate` gelecekte |
+| Kariyer Kapısı | 33 | **30** | 3 | `pubDate` 30 günden eski |
+
+Silinen gerçek örnekler (hepsi **açık**):
+- "Kablaj Teknisyeni" — yayın 2026-06-10, **son başvuru 2026-10-10**
+- "Beyaz Yakalılar Genel Başvuru" — yayın 2026-02-23, **son başvuru 2027-02-23**
+- "Cad-Cam Mühendisi (Kayseri)" — yayın 2026-04-15, **son başvuru 2026-12-15**
+- KAMU İHALE KURUMU personel ilanı — yayın 2026-04-20
+
+Toplam **14 açık ilan** kayıp; kaynak eklendikçe büyür. Uzun süre açık kalan
+kurumsal ilanlar (genel başvuru havuzları) sistematik olarak eleniyor.
+
+- [ ] **Düzeltme:** `son_basvuru` DOLU ve gelecekteyse yaş budamasını ATLA.
+      Yaş kuralı yalnız `son_basvuru`'su olmayan kayıtlar için çalışsın.
+      *Bitti:* Savunma Kariyer 24 (ACTIVITY hariç 23), Kariyer Kapısı 33 kayıt
+      yazılıyor; testte açık-ama-eski bir ilan korunuyor.
+
 ## Bitti
 - [x] Ruff bulguları temizlendi, `<0.16` üst sınırı kaldırıldı (bb9bc50)
 - [x] TUS/DUS + KPSS Data Sync gerçek Actions koşusunda YEŞİL (dispatch, 2026-09-04)
