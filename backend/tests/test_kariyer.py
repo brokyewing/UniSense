@@ -351,3 +351,26 @@ class TestKosuRaporu:
         assert r["kaynaklar"]["jooble"] == {"cekilen": 2, "yeni": 1, "hata": ""}
         assert r["kaynaklar"]["kamuilan"] == {"cekilen": 1, "yeni": 1, "hata": ""}
         assert r["kaynaklar"]["rg"]["hata"].startswith("SSLError")
+
+    def test_olu_kaynak_alarmi(self, tmp_path):
+        import json
+        from unisense.infrastructure.scrapers.kariyer_scraper import _gecmis_guncelle
+        p = tmp_path / "kosu.json"
+
+        def kos(gun, cekilen):
+            # main() akışı: geçmiş oku → güncelle → yaz
+            g, a = _gecmis_guncelle(p, gun, cekilen)
+            p.write_text(json.dumps({"gecmis": g}), encoding="utf-8")
+            return g, a
+
+        _, a1 = kos("2026-09-03", {"jooble": 0, "rg": 1})
+        assert a1 == []  # geçmiş yetersiz
+        _, a2 = kos("2026-09-04", {"jooble": 0, "rg": 1})
+        assert a2 == []
+        g3, a3 = kos("2026-09-05", {"jooble": 0, "rg": 1})
+        assert a3 == ["jooble"]  # üst üste 3×0
+        # Aynı gün tekrar koşu üzerine yazar, şişirmez; alarm kalkar
+        g4, a4 = kos("2026-09-05", {"jooble": 3, "rg": 1})
+        assert len(g4) == 3 and g4[-1]["cekilen"]["jooble"] == 3
+        assert a4 == []
+

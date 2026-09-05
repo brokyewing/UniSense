@@ -46,6 +46,21 @@ jobs:
           CAREERJET_API_KEY: ${{ secrets.CAREERJET_API_KEY }}
         run: python -m unisense.infrastructure.scrapers.kariyer_scraper
 
+      - name: Kosu raporu ozeti (olu-kaynak alarmi)
+        # Kırmızıya düşürmez (flaky kaynaklar alarm yorgunluğu yapar);
+        # özet Actions sayfasında görünür, guard zaten toplam-boşta exit 1 verir.
+        working-directory: backend
+        run: |
+          python -c "
+          import json
+          k = json.load(open('data/processed/kariyer_kosu.json', encoding='utf-8'))
+          print('## Kariyer kosu ozeti', k['tarih'])
+          for kod, s in k['kaynaklar'].items():
+              print(f'- {kod}: cekilen={s[\"cekilen\"]} yeni={s[\"yeni\"]} {s[\"hata\"]}')
+          if k.get('alarm'):
+              print('### OLU KAYNAK ALARMI:', ', '.join(k['alarm']))
+          " | tee -a "$GITHUB_STEP_SUMMARY"
+
       - name: Commit data updates
         run: |
           git config user.name "github-actions[bot]"
