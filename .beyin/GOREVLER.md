@@ -209,6 +209,36 @@ gösteremez.
       kısmi doluluğu kabul et, (b) kamu için varsayılan ata, (c) detay sayfası
       çekmeyi göze al. Öneri: (a)+(b); (c) maliyeti yüksek.
 
+## Toplanmış ama kullanılmayan veri (Claude Code ölçtü, 2026-09-05)
+
+**1. 🎁 Bedava kazanç: Jooble `detay.tur` → `istihdam_turu`.**
+Jooble'ın `type` alanı **744 kayıttan 658'inde dolu (%88)** ve zaten
+`detay.tur`'a yazılıyor — ama `istihdam_turu` alanına eşlenmiyor, o yüzden
+o alan %94 boş görünüyor.
+
+```
+Tam zamanlı 617 | Yarı zamanlı 31 | Staj 6 | Geçici 1 | (boş) 86
+```
+
+- [ ] `detay.tur` → `istihdam_turu` eşlemesi ekle
+      (`tam zamanlı→tam_zamanli`, `yarı zamanlı→yari_zamanli`, `staj→staj`,
+      `geçici→gecici`). **Yeni istek gerekmiyor, veri elde.**
+      *Bitti:* `istihdam_turu` doluluğu %6'dan ~%40'a çıkıyor.
+
+**2. `calisma_sekli` metin çıkarımının tavanı: %8.**
+1965 kaydın başlık+özetinde tarama: **147 yüz yüze, 7 online/hibrit = 154 (%8)**.
+Özetler ortalama 201 karakter — çoğu ilan çalışma şeklini hiç yazmıyor.
+Yakalananlar gerçek ("Uzaktan Yazılım Mühendisi", "Home Office Çağrı Merkezi").
+⚠️ 147 "yüz yüze" mağaza/şube/fabrika kelimelerinden geliyor — dolaylı sinyal,
+`detay.calisma_sekli_kaynak="metin"` diye işaretlenmeli.
+
+**3. Careerjet'te iki ölü alan.**
+`detay.maas` **0/929**, `detay.site` **0/929** — API bu alanları hiç
+döndürmüyor. Kod doğru okuyor, veri yok.
+
+- [ ] Ya alanları kaldır ya da Careerjet API çağrısına eksik parametre var mı
+      diye bak (dokümanda `site` alanı vaat ediliyor).
+
 ## Bitti
 - [x] Ruff bulguları temizlendi, `<0.16` üst sınırı kaldırıldı (bb9bc50)
 - [x] TUS/DUS + KPSS Data Sync gerçek Actions koşusunda YEŞİL (dispatch, 2026-09-04)
