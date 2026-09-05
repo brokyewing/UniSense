@@ -159,9 +159,9 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
 
 ### F0 — Temel (önce bu; yoksa her kaynak geriye dönük düzeltme ister)
 
-- [ ] **F0.1** Şema v2'yi uygula. Mevcut kayıtları taşıyan `_migrate()` yaz
-      (eksik alanlar `bilinmiyor`/`null`).
-      *Bitti:* mevcut 488 kayıt kayıpsız v2'ye geçti, pytest yeşil.
+- [x] **F0.1** Şema v2'yi uygula (opencode, 2026-09-05, 8ebe2f8). Mevcut kayıtları
+      taşıyan `_migrate()` yazıldı (eksik alanlar `bilinmiyor`/`null`).
+      *Bitti:* 487 kayıt kayıpsız v2'ye geçti, pytest yeşil.
 - [x] **F0.2** ~~81 il → bölge tablosu~~ **BİTTİ (Claude Code, 2026-09-05).**
       `REGIONS` + `il_to_bolge()` zaten vardı ama düz `.upper()` kullanıyordu:
       "Istanbul" (ASCII I) ve "istanbul" → "Bilinmiyor" dönüyordu, yani bölge
@@ -169,72 +169,100 @@ Her görev bağımsız ve tanımlı bitişi var. Sırayla ilerle.
       indeks eklendi; "İSTANBUL"/"Istanbul"/"istanbul"/" İstanbul " hepsi
       "Marmara". 81 ilin tamamı eşleşiyor, `tests/test_geo_bolge.py` (18 test).
       Adaptörler `il_to_bolge(il)` çağırıp `bolge` alanını doldurabilir.
-- [ ] **F0.3** `calisma_sekli` çıkarımı: başlık+özette "uzaktan / remote / hibrit /
-      home office / yerinde" kalıpları. Bulunamazsa `bilinmiyor`.
-      *Bitti:* kalıp tablosu testli, mevcut kayıtlardaki dağılım log'lanıyor.
-- [ ] **F0.4** Kaynak kayıt defteri `is_kaynaklari.yml` + adaptör yükleyici.
-      Alanlar: `kod, ad, hat, url, erisim(api|rss|sitemap|html|toleransli|yok),
-      aktif, not`. Jooble/Careerjet/Resmî Gazete bu deftere taşınır.
-      *Bitti:* `kariyer_scraper.py` kaynakları defterden okuyor, davranış aynı.
+- [x] **F0.3** `calisma_sekli` çıkarımı (opencode, 2026-09-05, 9fab443):
+      hibrit > online > yuzyuze kalıp tablosu + normalize ve geriye dönük
+      v2 çıkarımı. *Bitti:* kalıp tablosu testli (5 test), canlı dağılım
+      loglandı: 486 kayıtta 480 bilinmiyor / 2 online / 4 yuzyuze
+      (snippet'lar kısa; `bilinmiyor` meşru değer).
+- [x] **F0.4** Kaynak kayıt defteri `is_kaynaklari.yml` + adaptör yükleyici
+      (opencode, 2026-09-05, 7d6dec3). Jooble/Careerjet/Resmî Gazete deftere
+      taşındı. *Bitti:* `kariyer_scraper.py` kaynakları defterden okuyor,
+      davranış aynı (canlı 486 kayıt, dağılım değişmedi).
 
-### F1 — Kamu hattı (en yüksek değer; KPSS'li + KPSS'siz)
+### F1 — Görünür değer: filtreler ve arayüz (ÖNCE BU)
 
-- [ ] **F1.1** `ilangovtr` adaptörü. **İlk adım: oturum şartını çöz** (§3.1'deki
-      "Copy as cURL" tarifi) — şema ve `cityCounts` zaten doğrulandı, eksik olan
-      yalnızca isteğin kabul edilmesi. Çözülemezse `[!]` yaz ve F1.2'ye geç;
-      §3 madde 4 (sunucu-tarafı HTML) alternatifini dene.
-      *Bitti:* ≥200 personel-alımı ilanı v2 şemasında, il/ilçe dolu.
-- [ ] **F1.2** Kariyer Kapısı (A1) erişimi — runner'dan/tarayıcıdan tekrar dene,
-      §3 ağacını uygula. **En kritik kamu kanalı.**
-- [ ] **F1.3** Vizyoner Genç (A9) — SPA; API'si ağ sekmesiyle bulunacak.
+> **Sıra 2026-09-05'te değiştirildi (Claude Code).** Önceki sürümde API ve
+> frontend, 11 kaynak görevinin ARKASINDAYDI. Ama F0 bitince mevcut ~490 kayıt
+> zaten `il` / `bolge` / `calisma_sekli` taşıyor — yani kullanıcının istediği
+> bölge ve çalışma şekli filtresi BUGÜN çalışabilir durumda. Değeri kaynak
+> sayısının arkasında kilitlemek yanlıştı. Önce çalışan bir ürün, sonra kaynak
+> genişletme.
+
+- [ ] **F1.1** `GET /api/v1/kariyer/ilanlar` filtreleri: `hat, il, bolge, ilce,
+      calisma_sekli, istihdam_turu, deneyim, kpss, q, sayfa, boyut`.
+      Mevcut yol ve alanlar korunur, yalnız parametre eklenir.
+      *Bitti:* her filtre canlı veride doğru sayı döndürüyor, mevcut çağrılar
+      bozulmadı, testli.
+- [ ] **F1.2** `GET /api/v1/kariyer/filtreler` — mevcut değerler + sayıları
+      (facet). Frontend filtre panelini bu besler; boş seçenek gösterilmesin.
+      *Bitti:* bölge/il/çalışma şekli facet'leri gerçek sayılarla dönüyor.
+- [ ] **F1.3** Sıralama: `tarih desc` (varsayılan), `son_basvuru asc`.
+- [ ] **F1.4** Filtre paneli: bölge → il → ilçe kademeli seçim; çalışma şekli
+      çoklu seçim; istihdam türü; deneyim; KPSS var/yok anahtarı.
+- [ ] **F1.5** Arama kutusu (başlık + kurum); filtre durumu URL'ye yansısın
+      (paylaşılabilir link).
+- [ ] **F1.6** İlan kartı: kurum, il/ilçe, çalışma şekli rozeti, tarih,
+      "bugün yeni" rozeti, son başvuru sayacı.
+- [ ] **F1.7** Mobil: 360px'te taşmasız; filtre paneli çekmece. Boş durum ve
+      yükleniyor durumu; sonuç sayısı görünür.
+
+### F2 — Kaynak eklemeden ÖNCE gereken emniyet
+
+> Bu üçü F3/F4'ten önce çünkü 11 kaynak eklemeye başlayınca artık geç olur:
+> hangi kaynağın sessizce öldüğünü göremezsin ve mükerrer ilanlar birikir.
+
+- [ ] **F2.1** Kaynak bazlı koşu raporu: her kaynak için kaç ilan çekildi,
+      kaç yeni, kaç hata → `detay.kosu_raporu` + log.
+      *Bitti:* tek koşuda kaynak başına satır görünüyor.
+- [ ] **F2.2** Bir kaynak 3 koşu üst üste 0 üretirse workflow uyarsın.
+      Sessizce ölen kaynak = fark edilmeyen kayıp (bkz. KPSS `[]` olayı).
+- [ ] **F2.3** **Çapraz kaynak tekilleştirme.** Şu an yalnız kaynak-içi
+      tekilleştirme var (aynı link iki sorguda). §4 kararı: `id` birebir;
+      ayrıca `(normalize(baslik), kurum, il)` çakışırsa **kamu hattı kazanır**.
+      *Bitti:* iki kaynağa aynı ilanı veren sentetik veriyle testli.
+
+### F3 — Kamu hattı (KPSS'li + KPSS'siz)
+
+> **Sıra bilinçli:** önce erişimi KESİN olan kaynaklar. Önceki sürümde ilk iki
+> görev de belirsizdi (ilan.gov.tr oturum şartı çözülmemiş, Kariyer Kapısı DNS
+> çözülemiyor) — adaptör deseni oturmadan iki bilinmeyene çarpmak momentum kırar.
+
+- [ ] **F3.1** kamuilan.sbb.gov.tr (A4) — sunucu-tarafı HTML, ~207 KB, erişim
+      teyitli. **İlk adaptör bu olsun**, desen gerçek bir kaynakla otursun.
+- [ ] **F3.2** ilan.yok.gov.tr (A8) — akademik kadro.
+- [ ] **F3.3** `ilangovtr` adaptörü — §3.1'deki oturum şartını çöz. Çözülemezse
+      `[!]` yaz, §3 madde 4 (sunucu-tarafı HTML) alternatifini dene, geç.
+- [ ] **F3.4** Kariyer Kapısı (A1) — **en kritik kamu kanalı**, ama DNS bu
+      makineden çözülemedi; runner'dan/tarayıcıdan dene.
+- [ ] **F3.5** Vizyoner Genç (A9) — SPA; API'si ağ sekmesiyle bulunacak.
       KPSS'siz savunma sanayii ilanları.
-- [ ] **F1.4** kamuilan.sbb.gov.tr (A4) — sunucu-tarafı HTML parse.
-- [ ] **F1.5** ilan.yok.gov.tr (A8) — akademik kadro.
-- [ ] **F1.6** TÜBİTAK + kurum portalları (A10/A13/A14): HAVELSAN, ASELSAN,
+- [ ] **F3.6** TÜBİTAK + kurum portalları (A10/A13/A14): HAVELSAN, ASELSAN,
       TÜRKSAT, STM, Ziraat Teknoloji. Her biri ayrı adaptör, aynı desen.
-- [ ] **F1.7** İŞKUR (A6) — WAF'lı. §3 madde 6: resmî ayna / toplayıcı üzerinden.
+- [ ] **F3.7** İŞKUR (A6) — WAF teyitli. §3 madde 6: resmî ayna / toplayıcı.
       Olmuyorsa `[!]` işaretle, geç.
-- [ ] **F1.8** `kpss` alanı: ilan metninde "KPSS" geçiyor mu + puan türü
+- [ ] **F3.8** `kpss` alanı: ilan metninde "KPSS" geçiyor mu + puan türü
       (P3/P93/P94) çıkarımı. Mevcut `kpss_service` ile bağ kurulabilir.
 
-### F2 — Özel sektör hattı
+### F4 — Özel sektör hattı
 
-- [ ] **F2.1** Jooble + Careerjet adaptörlerini deftere taşı; sorgu listesini
-      genişlet (yalnız mühendislik değil — tüm meslek grupları).
-- [ ] **F2.2** Şirket kariyer sayfaları (`PLAN_KARIYER.md` Hat B, ~50 şirket).
-      **Verimli yol:** önce ATS tespiti (Lever / Greenhouse / Workable) —
-      aynı ATS'i kullanan şirketler **tek adaptörle** çekilir.
-- [ ] **F2.3** kariyer.net / secretcv / yenibiris / eleman.net — bot koruması
+- [ ] **F4.1** Jooble + Careerjet sorgu listesini genişlet — şu an yalnız
+      mühendislik ağırlıklı; tüm meslek gruplarını kapsasın.
+- [ ] **F4.2** **ATS tespiti** (araştırma): Hat B'deki ~50 şirketin hangisi
+      Lever / Greenhouse / Workable kullanıyor, listele.
+      *Bitti:* şirket → ATS eşlemesi `is_kaynaklari.yml`'de.
+- [ ] **F4.3** Tespit edilen her ATS için **tek adaptör** yaz (Lever, Greenhouse,
+      Workable). En verimli yol: bir adaptör onlarca şirketi çeker.
+      *Bitti:* en az bir ATS üzerinden ≥3 şirketin ilanları geliyor.
+- [ ] **F4.4** ATS kullanmayan şirketler için tek tek adaptör — F4.2'deki
+      listeden, önce ilan sayısı yüksek olanlar.
+- [ ] **F4.5** kariyer.net / secretcv / yenibiris / eleman.net — bot koruması
       beklenir. §3 madde 6; zorlama.
 
-### F3 — API ve filtreler
+### F5 — Ölçekleme
 
-- [ ] **F3.1** `GET /api/v1/kariyer/ilanlar` filtreleri: `hat, il, bolge, ilce,
-      calisma_sekli, istihdam_turu, deneyim, kpss, q, sayfa, boyut`.
-- [ ] **F3.2** `GET /api/v1/kariyer/filtreler` — mevcut değerler + sayıları
-      (facet). Frontend filtre panelini bu besler.
-- [ ] **F3.3** Sıralama: `tarih desc` (varsayılan), `son_basvuru asc`.
-
-### F4 — Frontend (Kariyer.net / Indeed hissi)
-
-- [ ] **F4.1** Filtre paneli: bölge → il → ilçe kademeli seçim; çalışma şekli
-      çoklu seçim; istihdam türü; deneyim; KPSS var/yok anahtarı.
-- [ ] **F4.2** Arama kutusu (başlık + kurum); filtre durumu URL'ye yansısın
-      (paylaşılabilir link).
-- [ ] **F4.3** İlan kartı: kurum, il/ilçe, çalışma şekli rozeti, tarih,
-      "bugün yeni" rozeti, son başvuru sayacı.
-- [ ] **F4.4** Mobil: 360px'te taşmasız; filtre paneli çekmece.
-- [ ] **F4.5** Boş durum + yükleniyor durumu; sonuç sayısı görünür.
-
-### F5 — Dayanıklılık ve gözlemlenebilirlik
-
-- [ ] **F5.1** Kaynak bazlı koşu raporu: kaç ilan, kaç yeni, kaç hata →
-      `detay.kosu_raporu`.
-- [ ] **F5.2** Bir kaynak 3 koşu üst üste 0 üretirse workflow uyarsın
-      (sessizce ölen kaynak = fark edilmeyen kayıp).
-- [ ] **F5.3** Kaynak sayısı 15'i geçince cron'u 2 koşuya böl (kamu / özel).
-
----
+- [ ] **F5.1** Kaynak sayısı 15'i geçince cron'u 2 koşuya böl (kamu / özel).
+- [ ] **F5.2** Kaynak başına hız sınırı ve yeniden deneme politikası tek yerde
+      toplansın (şu an adaptörlere dağılmış olabilir).
 
 ## 7. Bu plan bittiğinde
 

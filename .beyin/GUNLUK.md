@@ -19,6 +19,9 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 01:38 | opencode | Hat B canli tarama yazildi (Jooble+Careerjet, career-ops desenli; anahtarsiz zarif atlama dogrulandi); test 16/16, ruff temiz; 0947055 pushlandi. API anahtarlari bekleniyor.
 2026-09-05 01:52 | opencode | Anahtarlarla canli dogrulama: careerjet 117 + jooble 80 + RG 1 = 198 kayit; Jooble TLS zinciri (WE1+GTS R4) eklendi; 54c1a9b pushlandi.
 2026-09-05 02:11 | opencode | Bolum secici: genis cekim + 12 bolum cift tarafli etiket + 30gun budama + secici UI; 563 cekim/488 kayit; test 21/21; 806961f pushlandi.
+2026-09-05 09:43 | opencode | Yol haritasi F0.1: sema v2 + _migrate (487 kayipsiz, id surekliligi korunuyor); 8ebe2f8 pushlandi. Siradaki: F0.3.
+2026-09-05 10:08 | opencode | Yol haritasi F0.3: calisma_sekli cikarimi (testli kalip tablosu, dagilim loglandi 480/2/4); 9fab443 pushlandi. Siradaki: F0.4.
+2026-09-05 10:19 | opencode | Yol haritasi F0.4: kaynak kayit defteri + yukleyici (davranis paritesi testli+canli); 7d6dec3 pushlandi. Siradaki: F1.1.
 2026-09-04 23:55 | Claude Code | KPSS veri kaybi geri alindi + bos-sonuc bekcisi, CI pin bypass i duzeltildi (CI artik yesil), tusdus sessiz basarisi giderildi; OSYM URL kesfi engelli.
 2026-09-05 01:40 | Claude Code | OSYM yeni URL semasi cozuldu (chunked-hang toleransli fetch + Duyurular/Index kesfi); KPSS 2026/1, TUS ve DUS 2026 verileri geldi; CI yesil.
 2026-09-05 02:20 | Claude Code | CI kor noktasi kapatildi (haftalik schedule); LGS ve Yearly YKS dispatch ile yesil kosup 2026 verisini commitledi.
@@ -27,3 +30,4 @@ Append-only. Her oturum sonunda tek satır: `YYYY-MM-DD HH:MM | araç | ne yapı
 2026-09-05 05:10 | Claude Code | Kariyer yol haritasi yazildi (PLAN_KARIYER_YOL_HARITASI.md); ilan.gov.tr JSON API kesfedildi, ISKUR WAF teyit edildi.
 2026-09-05 05:35 | Claude Code | F0.2 bitti: il_to_bolge yazim farklarina dayanikli hale getirildi (Istanbul/istanbul bolge bulamiyordu), 18 test eklendi.
 2026-09-05 06:20 | Claude Code | il_ilce_ayikla eklendi: birlesik/ters sirali konum alani cozuluyor, bolge kapsami 147->460; Careerjet tarih hatasi (178 kayit) tespit edilip gorev yazildi.
+2026-09-05 07:15 | Claude Code | Faz sirasi bagimlilik mantigina gore duzeltildi: deger (API+frontend) one alindi, emniyet (rapor+tekillestirme) kaynaklardan once, kamu hattinda kesin kaynaklar basa.
