@@ -1,29 +1,29 @@
 {
- "tarih": "2026-09-07",
+ "tarih": "2026-09-08",
  "kaynaklar": {
   "akademiktr": {
-   "cekilen": 32,
-   "yeni": 7,
+   "cekilen": 31,
+   "yeni": 6,
    "hata": ""
   },
   "ats": {
-   "cekilen": 26,
-   "yeni": 22,
+   "cekilen": 28,
+   "yeni": 24,
    "hata": ""
   },
   "careerjet": {
-   "cekilen": 818,
-   "yeni": 818,
+   "cekilen": 778,
+   "yeni": 778,
    "hata": ""
   },
   "ilangovtr": {
-   "cekilen": 19,
-   "yeni": 19,
+   "cekilen": 9,
+   "yeni": 9,
    "hata": ""
   },
   "jooble": {
-   "cekilen": 914,
-   "yeni": 305,
+   "cekilen": 911,
+   "yeni": 344,
    "hata": ""
   },
   "kamuilan": {
@@ -32,8 +32,8 @@
    "hata": "HTTPError: 403 Client Error: Forbidden for url: https://kamuilan.sbb.gov.tr/"
   },
   "kariyerkapisi": {
-   "cekilen": 33,
-   "yeni": 6,
+   "cekilen": 32,
+   "yeni": 5,
    "hata": ""
   },
   "rg": {
@@ -47,7 +47,7 @@
    "hata": ""
   }
  },
- "toplam_kayit": 2888,
+ "toplam_kayit": 3129,
  "gecmis": [
   {
    "tarih": "2026-09-05",
@@ -90,7 +90,23 @@
     "rg": 1,
     "savunmakariyer": 23
    }
+  },
+  {
+   "tarih": "2026-09-08",
+   "cekilen": {
+    "akademiktr": 31,
+    "ats": 28,
+    "careerjet": 778,
+    "ilangovtr": 9,
+    "jooble": 911,
+    "kamuilan": 0,
+    "kariyerkapisi": 32,
+    "rg": 1,
+    "savunmakariyer": 23
+   }
   }
  ],
- "alarm": []
+ "alarm": [
+  "kamuilan"
+ ]
 }
