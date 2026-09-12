@@ -30283,6 +30283,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 365.09252,
     "basariSirasi": 328601,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 60,
     "minPuan1": "364.10431",
     "basariSirasi1": 316002,
@@ -30765,6 +30766,7 @@
     "minPuan": 364.81615,
     "basariSirasi": 329960,
     "akreditasyonAck": "Mesleki Eğitim Değerlendirme ve Akreditasyon Derneği",
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 483000,
     "kosulList": [
       {
@@ -36683,6 +36685,7 @@
     "universiteTuru": "VAKIF",
     "minPuan": 361.48307,
     "basariSirasi": 346970,
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 800000,
     "kosulList": [
       {
@@ -37441,6 +37444,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 361.1815,
     "basariSirasi": 348550,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 50,
     "minPuan1": "355.70544",
     "basariSirasi1": 362974,
@@ -40162,6 +40166,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 359.65891,
     "basariSirasi": 356492,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "351.76638",
     "basariSirasi1": 386706,
@@ -42775,6 +42780,7 @@
     "minPuan": 358.49305,
     "basariSirasi": 362703,
     "akreditasyonAck": "Mesleki Eğitim Değerlendirme ve Akreditasyon Derneği",
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 60,
     "minPuan1": "351.4402",
     "basariSirasi1": 388674,
@@ -43087,6 +43093,7 @@
     "universiteTuru": "VAKIF",
     "minPuan": 358.41924,
     "basariSirasi": 363102,
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 800000,
     "kosulList": [
       {
@@ -43376,6 +43383,7 @@
     "universiteTuru": "VAKIF",
     "minPuan": 358.34444,
     "basariSirasi": 363489,
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 800000,
     "kosulList": [
       {
@@ -47255,6 +47263,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 356.98352,
     "basariSirasi": 371107,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 60,
     "minPuan1": "346.24659",
     "basariSirasi1": 422692,
@@ -48530,6 +48539,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 356.52267,
     "basariSirasi": 373681,
+    "uygulamaliEgitimModeli": "3+1",
     "kosulList": [
       {
         "320": "Yükseköğretim kurumlarında örgün  önlisans veya lisans programında kayıtlı olanlar bu programı tercih edemeyecektir. "
@@ -56496,6 +56506,7 @@
     "minPuan": 353.59087,
     "basariSirasi": 390452,
     "akreditasyonAck": "Mesleki Eğitim Değerlendirme ve Akreditasyon Derneği",
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 483000,
     "kosulList": [
       {
@@ -57916,6 +57927,7 @@
     "universiteTuru": "VAKIF",
     "minPuan": 353.13227,
     "basariSirasi": 393121,
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 800000,
     "kosulList": [
       {
@@ -58484,6 +58496,7 @@
     "universiteTuru": "VAKIF",
     "minPuan": 352.91417,
     "basariSirasi": 394366,
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 483000,
     "kosulList": [
       {
@@ -65840,6 +65853,7 @@
     "minPuan": 350.78859,
     "basariSirasi": 407169,
     "akreditasyonAck": "Mesleki Eğitim Değerlendirme ve Akreditasyon Derneği",
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 483000,
     "kosulList": [
       {
@@ -68596,6 +68610,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 350.04641,
     "basariSirasi": 411746,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 60,
     "minPuan1": "337.11306",
     "basariSirasi1": 488249,
@@ -71685,6 +71700,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 348.94365,
     "basariSirasi": 418607,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "346.07496",
     "basariSirasi1": 423812,
@@ -82574,6 +82590,7 @@
     "universiteTuru": "VAKIF",
     "minPuan": 345.56868,
     "basariSirasi": 440397,
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 399000,
     "kosulList": [
       {
@@ -91950,6 +91967,7 @@
     "minPuan": 342.77113,
     "basariSirasi": 458989,
     "akreditasyonAck": "Mesleki Eğitim Değerlendirme ve Akreditasyon Derneği",
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 483000,
     "kosulList": [
       {
@@ -97779,6 +97797,7 @@
     "minPuan": 341.05342,
     "basariSirasi": 470757,
     "akreditasyonAck": "Mesleki Eğitim Değerlendirme ve Akreditasyon Derneği",
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 60,
     "minPuan1": "341.01891",
     "basariSirasi1": 459246,
@@ -101717,6 +101736,7 @@
     "minPuan": 339.94759,
     "basariSirasi": 478405,
     "akreditasyonAck": "Mesleki Eğitim Değerlendirme ve Akreditasyon Derneği",
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 483000,
     "kosulList": [
       {
@@ -104403,6 +104423,7 @@
     "minPuan": 339.2818,
     "basariSirasi": 483208,
     "akreditasyonAck": "Mesleki Eğitim Değerlendirme ve Akreditasyon Derneği",
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 483000,
     "kosulList": [
       {
@@ -105637,6 +105658,7 @@
     "minPuan": 339.00681,
     "basariSirasi": 485157,
     "akreditasyonAck": "Mesleki Eğitim Değerlendirme ve Akreditasyon Derneği",
+    "uygulamaliEgitimModeli": "3+1",
     "kosulList": [
       {
         "10": "SİVİL HAVACILIK KABİN HİZMETLERİ (ön lisans) eğitimi mesleğini icra edebilmek için aranan nitelikler: 1) Adli sicil kaydı veya Adli Sicil Arşiv Kaydı bulunmamak. 2) Bayanlar için 160 cm-180 cm arası boya sahip olmak (ağırlığı, boy uzunluğunun santimetre olarak ifade edilen değerinin son iki rakamından en çok 5 kilogram fazla veya 15 kilogram noksan ağırlıkta olmak). 3) Erkekler için 170-190 cm arası boya sahip olmak (ağırlığı, boy uzunluğunun santimetre olarak ifade edilen değerinin son iki rakamından en çok 5 kilogram fazla veya 15 kilogram noksan ağırlıkta olmak). 4) Sivil Havacılık Genel Müdürlüğü tarafından yetkilendirilmiş havacılık tıp merkezlerinde yapılan muayene sonucunda uçuşa elverişli olduğuna dair sağlık raporu almak. 5) Kabin memuru üniforması giyildiğinde vücudunun görünecek yerlerinde dövme, yara izi vb. bulunmamak. 6) Bu programa yerleşen aday öğrencilerden programa kayıt esnasında mesleği icra edebilmek için aranan nitelikleri sağlamamalarına rağmen kaydolarak eğitim almak istemeleri halinde adayların bilgilendirilerek Sivil Havacılık Genel Müdürlük tarafından hazırlanan taahhütnamenin adaylar tarafından doldurularak imzalanması durumunda kayıtlarının yapılması  HAVACILIK YÖNETİMİ (lisans) ile SİVİL HAVA ULAŞTIRMA İŞLETMECİLİĞİ (ön lisans) mesleğini icra edebilmek için aranan nitelikler: 1) Havalimanı giriş kartı almasına engel oluşturacak herhangi bir Adli Sicil Kaydı veya Adli Sicil Arşiv Kaydı bulunmamak. 2) Mesleği ve/veya meslekte verilen görevi icra etmesine engel oluşturacak herhangi bir sağlık sorunu bulunmadığına dair tam teşekküllü bir hastaneden son 6 ay içinde almış olmak şartıyla heyet raporu almak (işitme kaybı/ eksikliği, görme kaybı/eksikliği vb). UÇUŞ HAREKAT YÖNETİCİLİĞİ (ön lisans) mesleğini icra edebilmek için aranan nitelikler: 1) Havalimanı giriş kartı almasına engel oluşturacak herhangi bir Adli Sicil Kaydı veya Adli Sicil Arşiv Kaydı bulunmamak. 2) Sivil Havacılık Genel Müdürlüğü tarafından yetkilendirilmiş havacılık tıp merkezlerinde yapılan muayene sonucunda, uçuş harekât uzmanı görevlerini yerine getirmeye engel teşkil edebilecek herhangi bir fiziksel ya da akli hastalığa sahip olmadığını, merkezi sinir sisteminin normal olduğunu, gözlüklü ya da gözlüksüz en az 6/9 görme keskinliğine sahip olduğunu, yeterli işitme kapasitesine sahip olduğunu, kulak, burun ve boğaz\nfonksiyonlarının normal olduğunu belgeleyen sağlık kaydına sahip olmak. HAVACILIK ELEKTRİK VE ELEKTRONİĞİ (lisans) / HAVACILIK ELEKTRONİĞİ (lisans) /UÇAK ELEKTRİK-ELEKTRONİK (lisans) / UÇAK ELEKTRİK VE ELEKTRONİĞİ (lisans) / UÇAK GÖVDE-MOTOR BAKIM (lisans) / UÇAK GÖVDE VE MOTOR BAKIMI (lisans) / UÇAK BAKIM VE ONARIM (lisans) ile UÇAK TEKNOLOJİSİ (ön lisans) eğitimi mesleğini icra edebilmek için aranan nitelikler: 1) Havalimanı giriş kartı almasına engel oluşturacak herhangi bir Adli Sicil Kaydı veya Adli Sicil Arşiv Kaydı bulunmamak. 2) Mesleği ve/veya meslekte verilen görevi icra etmesine engel oluşturacak herhangi bir sağlık sorunu bulunmadığına dair tam teşekküllü bir hastaneden son 6 ay içinde almış olmak şartıyla heyet raporu almak (renk körlüğü, işitme kaybı/eksikliği, görme kaybı/eksikliği vb). HAVA TRAFİK KONTROLÜ mesleğini icra edebilmek için aranan nitelikler:1) Sivil Havacılık Genel Müdürlüğü tarafından yetkilendirilmiş sağlık kurumlarından ICAO Ek-1 Sınıf 3 hükümlerine uygun sağlık raporu almak. 2) Havalimanı giriş kartı almasına engel oluşturacak herhangi bir Adli Sicil Kaydı veya Adli Sicil Arşiv Kaydı bulunmamak. PİLOTAJ (lisans) mesleğini icra edebilmek için aranan nitelikler: 1) Sivil Havacılık Genel Müdürlüğü tarafından yetkilendirilmiş sağlık kurumlarından ICAO Ek-1 Sınıf 1 hükümlerine uygun sağlık raporu almak. 2) Pilot olmasına engel Adli Sicil Kaydı veya Adli Sicil Arşiv Kaydı bulunmamak."
@@ -107440,6 +107462,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 338.52198,
     "basariSirasi": 488708,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 35,
     "minPuan1": "324.25036",
     "basariSirasi1": 595568,
@@ -111318,6 +111341,7 @@
     "universiteTuru": "VAKIF",
     "minPuan": 337.40801,
     "basariSirasi": 496769,
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 399000,
     "kosulList": [
       {
@@ -113035,6 +113059,7 @@
     "minPuan": 336.9712,
     "basariSirasi": 499966,
     "akreditasyonAck": "Mesleki Eğitim Değerlendirme ve Akreditasyon Derneği",
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 483000,
     "kosulList": [
       {
@@ -114804,6 +114829,7 @@
     "universiteTuru": "VAKIF",
     "minPuan": 336.64571,
     "basariSirasi": 502341,
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 483000,
     "kosulList": [
       {
@@ -116793,6 +116819,7 @@
     "universiteTuru": "VAKIF",
     "minPuan": 336.14851,
     "basariSirasi": 505977,
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 483000,
     "kosulList": [
       {
@@ -118087,6 +118114,7 @@
     "universiteTuru": "VAKIF",
     "minPuan": 335.82148,
     "basariSirasi": 508437,
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 602000,
     "kosulList": [
       {
@@ -120342,6 +120370,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 335.28417,
     "basariSirasi": 512475,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 60,
     "minPuan1": "327.06979",
     "basariSirasi1": 570285,
@@ -120804,6 +120833,7 @@
     "eskiKilavuzKodu": 2024,
     "minPuan": 335.20057,
     "basariSirasi": 513124,
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 399000,
     "kosulList": [
       {
@@ -122748,6 +122778,7 @@
     "minPuan": 334.63529,
     "basariSirasi": 517254,
     "akreditasyonAck": "Mesleki Eğitim Değerlendirme ve Akreditasyon Derneği",
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 483000,
     "kosulList": [
       {
@@ -126131,6 +126162,7 @@
     "universiteTuru": "VAKIF",
     "minPuan": 333.6373,
     "basariSirasi": 524944,
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 483000,
     "kosulList": [
       {
@@ -127018,6 +127050,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 333.39845,
     "basariSirasi": 526725,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 25,
     "minPuan1": "326.2207",
     "basariSirasi1": 577809,
@@ -127618,6 +127651,7 @@
     "universiteTuru": "VAKIF",
     "minPuan": 333.20211,
     "basariSirasi": 528201,
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 602000,
     "kosulList": [
       {
@@ -131725,6 +131759,7 @@
     "minPuan": 332.05468,
     "basariSirasi": 537187,
     "akreditasyonAck": "Mesleki Eğitim Değerlendirme ve Akreditasyon Derneği",
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 399000,
     "kosulList": [
       {
@@ -136918,6 +136953,7 @@
     "minPuan": 330.68923,
     "basariSirasi": 548009,
     "akreditasyonAck": "Mesleki Eğitim Değerlendirme ve Akreditasyon Derneği",
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 399000,
     "kosulList": [
       {
@@ -137119,6 +137155,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 330.63717,
     "basariSirasi": 548440,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "328.8356",
     "basariSirasi1": 555138,
@@ -139049,6 +139086,7 @@
     "universiteTuru": "VAKIF",
     "minPuan": 330.20411,
     "basariSirasi": 551925,
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 800000,
     "kosulList": [
       {
@@ -147398,6 +147436,7 @@
     "universiteTuru": "VAKIF",
     "minPuan": 328.26471,
     "basariSirasi": 567733,
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 399000,
     "kosulList": [
       {
@@ -161017,6 +161056,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 324.82761,
     "basariSirasi": 596345,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 60,
     "minPuan1": "324.93656",
     "basariSirasi1": 589284,
@@ -164524,6 +164564,7 @@
     "minPuan": 323.81012,
     "basariSirasi": 605158,
     "akreditasyonAck": "Mesleki Eğitim Değerlendirme ve Akreditasyon Derneği",
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 50,
     "minPuan1": "318.03364",
     "basariSirasi1": 654117,
@@ -171466,6 +171507,7 @@
     "universiteTuru": "VAKIF",
     "minPuan": 321.61985,
     "basariSirasi": 624430,
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 800000,
     "kosulList": [
       {
@@ -172738,6 +172780,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 321.31466,
     "basariSirasi": 627117,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "309.80021",
     "basariSirasi1": 739319,
@@ -176920,6 +176963,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 319.75172,
     "basariSirasi": 641302,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 60,
     "minPuan1": "319.00665",
     "basariSirasi1": 644785,
@@ -177756,6 +177800,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 319.52819,
     "basariSirasi": 643383,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 50,
     "minPuan1": "313.28985",
     "basariSirasi1": 702224,
@@ -177875,6 +177920,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 319.48445,
     "basariSirasi": 643778,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 40,
     "minPuan1": "302.29056",
     "basariSirasi1": 824226,
@@ -178631,6 +178677,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 319.10214,
     "basariSirasi": 647231,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 60,
     "minPuan1": "315.23114",
     "basariSirasi1": 682114,
@@ -180042,6 +180089,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 318.73742,
     "basariSirasi": 650615,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "308.97356",
     "basariSirasi1": 748371,
@@ -194716,6 +194764,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 314.03686,
     "basariSirasi": 695223,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "301.32838",
     "basariSirasi1": 835519,
@@ -196078,6 +196127,7 @@
     "universiteTuru": "VAKIF",
     "minPuan": 313.70542,
     "basariSirasi": 698438,
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 800000,
     "kosulList": [
       {
@@ -208159,6 +208209,7 @@
     "minPuan": 310.24232,
     "basariSirasi": 733033,
     "akreditasyonAck": "Mesleki Eğitim Değerlendirme ve Akreditasyon Derneği",
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 35,
     "minPuan1": "301.60388",
     "basariSirasi1": 832311,
@@ -209624,6 +209675,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 309.67636,
     "basariSirasi": 738825,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 50,
     "minPuan1": "298.50535",
     "basariSirasi1": 869322,
@@ -218107,6 +218159,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 306.87435,
     "basariSirasi": 767981,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 60,
     "minPuan1": "302.85694",
     "basariSirasi1": 817529,
@@ -225595,6 +225648,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 304.87863,
     "basariSirasi": 789465,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 40,
     "minPuan1": "298.09126",
     "basariSirasi1": 874330,
@@ -228527,6 +228581,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 303.80611,
     "basariSirasi": 801045,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 25,
     "minPuan1": "295.61828",
     "basariSirasi1": 904878,
@@ -229551,6 +229606,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 303.54992,
     "basariSirasi": 803867,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 50,
     "minPuan1": "290.68198",
     "basariSirasi1": 967210,
@@ -234692,6 +234748,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 302.40568,
     "basariSirasi": 816465,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "289.38787",
     "basariSirasi1": 984142,
@@ -235944,6 +236001,7 @@
     "minPuan": 302.12956,
     "basariSirasi": 819628,
     "akreditasyonAck": "Turizm Akademisyenleri Derneği (Turizm Eğitimi Değerlendirme ve Akreditasyon Kurulu)",
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 60,
     "minPuan1": "301.05713",
     "basariSirasi1": 838773,
@@ -238392,6 +238450,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 301.69798,
     "basariSirasi": 824546,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "288.9618",
     "basariSirasi1": 989630,
@@ -239319,6 +239378,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 301.50318,
     "basariSirasi": 826682,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "288.20111",
     "basariSirasi1": 999562,
@@ -240911,6 +240971,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 300.87613,
     "basariSirasi": 833595,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 40,
     "minPuan1": "290.06451",
     "basariSirasi1": 975310,
@@ -243230,6 +243291,7 @@
     "minPuan": 300.23201,
     "basariSirasi": 840967,
     "akreditasyonAck": "Mesleki Eğitim Değerlendirme ve Akreditasyon Derneği",
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 50,
     "minPuan1": "290.97414",
     "basariSirasi1": 963420,
@@ -243606,6 +243668,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 300.08953,
     "basariSirasi": 842595,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "290.97825",
     "basariSirasi1": 963354,
@@ -244458,6 +244521,7 @@
     "universiteTuru": "VAKIF",
     "minPuan": 299.89022,
     "basariSirasi": 844867,
+    "uygulamaliEgitimModeli": "3+1",
     "ucret": 800000,
     "kosulList": [
       {
@@ -253343,6 +253407,7 @@
     "minPuan": 297.56435,
     "basariSirasi": 871294,
     "akreditasyonAck": "Mesleki Eğitim Değerlendirme ve Akreditasyon Derneği",
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 25,
     "minPuan1": "291.00162",
     "basariSirasi1": 963041,
@@ -254220,6 +254285,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 297.24176,
     "basariSirasi": 875085,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 50,
     "minPuan1": "290.1316",
     "basariSirasi1": 974405,
@@ -261605,6 +261671,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 295.23382,
     "basariSirasi": 898702,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 40,
     "minPuan1": "280.7227",
     "basariSirasi1": 1100278,
@@ -275384,6 +275451,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 291.70991,
     "basariSirasi": 940652,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "282.97249",
     "basariSirasi1": 1069324,
@@ -287274,6 +287342,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 288.93168,
     "basariSirasi": 974156,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 60,
     "minPuan1": "275.09919",
     "basariSirasi1": 1178445,
@@ -290340,6 +290409,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 288.24773,
     "basariSirasi": 982394,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 50,
     "minPuan1": "270.08145",
     "basariSirasi1": 1250115,
@@ -290697,6 +290767,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 288.14482,
     "basariSirasi": 983689,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 40,
     "minPuan1": "286.46413",
     "basariSirasi1": 1022576,
@@ -291278,6 +291349,7 @@
     "minPuan": 288.04458,
     "basariSirasi": 984877,
     "akreditasyonAck": "Mesleki Eğitim Değerlendirme ve Akreditasyon Derneği",
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "280.60372",
     "basariSirasi1": 1101937,
@@ -294611,6 +294683,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 287.41091,
     "basariSirasi": 992731,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 50,
     "minPuan1": "281.9102",
     "basariSirasi1": 1083839,
@@ -298061,6 +298134,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 286.48017,
     "basariSirasi": 1004477,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 40,
     "minPuan1": "286.62787",
     "basariSirasi1": 1020423,
@@ -308099,6 +308173,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 284.13735,
     "basariSirasi": 1033928,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "274.71477",
     "basariSirasi1": 1183701,
@@ -310910,6 +310985,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 283.47887,
     "basariSirasi": 1042369,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "272.71846",
     "basariSirasi1": 1212157,
@@ -321580,6 +321656,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 281.21838,
     "basariSirasi": 1070824,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "278.3981",
     "basariSirasi1": 1132340,
@@ -326393,6 +326470,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 280.23705,
     "basariSirasi": 1083463,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "261.86462",
     "basariSirasi1": 1368994,
@@ -333501,6 +333579,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 278.61284,
     "basariSirasi": 1104449,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 35,
     "minPuan1": "269.37013",
     "basariSirasi1": 1260208,
@@ -338739,6 +338818,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 277.51611,
     "basariSirasi": 1118911,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "271.89195",
     "basariSirasi1": 1224072,
@@ -340372,6 +340452,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 277.2087,
     "basariSirasi": 1122883,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 55,
     "minPuan1": "260.74735",
     "basariSirasi1": 1385304,
@@ -341902,6 +341983,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 276.85396,
     "basariSirasi": 1127617,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 60,
     "minPuan1": "271.89446",
     "basariSirasi1": 1224043,
@@ -354333,6 +354415,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 274.27349,
     "basariSirasi": 1161729,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 50,
     "minPuan1": "275.00047",
     "basariSirasi1": 1179829,
@@ -360989,6 +361072,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 272.95587,
     "basariSirasi": 1179368,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "264.66665",
     "basariSirasi1": 1328016,
@@ -363430,6 +363514,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 272.37203,
     "basariSirasi": 1187102,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 40,
     "minPuan1": "264.99932",
     "basariSirasi1": 1323190,
@@ -364524,6 +364609,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 272.21513,
     "basariSirasi": 1189197,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 20,
     "minPuan1": "262.04405",
     "basariSirasi1": 1366241,
@@ -376272,6 +376358,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 269.69975,
     "basariSirasi": 1223228,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "258.29559",
     "basariSirasi1": 1421189,
@@ -385523,6 +385610,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 267.81932,
     "basariSirasi": 1249048,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 50,
     "minPuan1": "268.53111",
     "basariSirasi1": 1272315,
@@ -428641,6 +428729,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 258.65696,
     "basariSirasi": 1376372,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "251.08734",
     "basariSirasi1": 1526778,
@@ -437793,6 +437882,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 256.53797,
     "basariSirasi": 1406276,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 35,
     "minPuan1": "241.29827",
     "basariSirasi1": 1670490,
@@ -440299,6 +440389,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 256.02582,
     "basariSirasi": 1413397,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 35,
     "minPuan1": "240.28207",
     "basariSirasi1": 1685522,
@@ -449896,6 +449987,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 253.64635,
     "basariSirasi": 1446893,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 20,
     "minPuan1": "246.03222",
     "basariSirasi1": 1601069,
@@ -451927,6 +452019,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 253.14991,
     "basariSirasi": 1454092,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 50,
     "minPuan1": "246.74701",
     "basariSirasi1": 1590612,
@@ -452764,6 +452857,7 @@
     "eskiKilavuzKodu": 109752061,
     "minPuan": 252.77301,
     "basariSirasi": 1459453,
+    "uygulamaliEgitimModeli": "3+1",
     "kosulList": [
       {
         "320": "Yükseköğretim kurumlarında örgün  önlisans veya lisans programında kayıtlı olanlar bu programı tercih edemeyecektir. "
@@ -454330,6 +454424,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 252.55453,
     "basariSirasi": 1462565,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 35,
     "minPuan1": "250.70051",
     "basariSirasi1": 1532395,
@@ -457851,6 +457946,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 251.663,
     "basariSirasi": 1475368,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 20,
     "minPuan1": "243.83516",
     "basariSirasi1": 1633300,
@@ -458212,6 +458308,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 251.61388,
     "basariSirasi": 1476083,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 40,
     "minPuan1": "243.42121",
     "basariSirasi1": 1639477,
@@ -488557,6 +488654,7 @@
     "universiteTuru": "DEVLET",
     "minPuan": 241.71923,
     "basariSirasi": 1617298,
+    "uygulamaliEgitimModeli": "3+1",
     "gk1": 30,
     "minPuan1": "229.01214",
     "basariSirasi1": 1848853,
