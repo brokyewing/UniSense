@@ -1,34 +1,29 @@
 {
- "tarih": "2026-10-13",
+ "tarih": "2026-10-14",
  "kaynaklar": {
-  "akademiktr": {
-   "cekilen": 41,
-   "yeni": 7,
-   "hata": ""
-  },
   "ats": {
-   "cekilen": 26,
-   "yeni": 18,
+   "cekilen": 28,
+   "yeni": 19,
    "hata": ""
   },
   "careerjet": {
-   "cekilen": 784,
-   "yeni": 784,
+   "cekilen": 787,
+   "yeni": 787,
    "hata": ""
   },
   "jooble": {
-   "cekilen": 881,
-   "yeni": 399,
+   "cekilen": 874,
+   "yeni": 403,
    "hata": ""
   },
   "kamuilan": {
    "cekilen": 0,
    "yeni": 0,
-   "hata": "HTTPError: 403 Client Error: Forbidden for url: https://kamuilan.sbb.gov.tr/"
+   "hata": "ConnectTimeout: HTTPSConnectionPool(host='kamuilan.sbb.gov.tr', port=443): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<HTTPSConnection(host='kamuilan.sbb.gov.tr', port=443) at 0x7f082d29d390>, 'Connection to kamuilan.sbb.gov.tr timed out. (connect timeout=60)'))"
   },
   "kariyerkapisi": {
    "cekilen": 27,
-   "yeni": 4,
+   "yeni": 3,
    "hata": ""
   },
   "rg": {
@@ -37,26 +32,13 @@
    "hata": ""
   },
   "savunmakariyer": {
-   "cekilen": 20,
+   "cekilen": 19,
    "yeni": 0,
    "hata": ""
   }
  },
- "toplam_kayit": 9009,
+ "toplam_kayit": 9215,
  "gecmis": [
-  {
-   "tarih": "2026-10-04",
-   "cekilen": {
-    "akademiktr": 35,
-    "ats": 28,
-    "careerjet": 782,
-    "jooble": 906,
-    "kamuilan": 0,
-    "kariyerkapisi": 24,
-    "rg": 1,
-    "savunmakariyer": 22
-   }
-  },
   {
    "tarih": "2026-10-05",
    "cekilen": {
@@ -172,6 +154,18 @@
     "kariyerkapisi": 27,
     "rg": 1,
     "savunmakariyer": 20
+   }
+  },
+  {
+   "tarih": "2026-10-14",
+   "cekilen": {
+    "ats": 28,
+    "careerjet": 787,
+    "jooble": 874,
+    "kamuilan": 0,
+    "kariyerkapisi": 27,
+    "rg": 1,
+    "savunmakariyer": 19
    }
   }
  ],
