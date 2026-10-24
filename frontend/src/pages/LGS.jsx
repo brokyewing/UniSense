@@ -5,10 +5,9 @@ import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
-import {
-  watchLgsTercih, addToLgsTercih, removeFromLgsTercih, MAX_LGS_TERCIH, lgsTercihKey,
-  getUserProfile,
-} from '../firebase'
+import { useUserProfile } from '@/services/hooks'
+import { watchLgsTercih, addToLgsTercih, removeFromLgsTercih, lgsTercihKey } from '@/services/firestore-prefs'
+import { MAX_LGS_TERCIH } from '@/services/constants'
 import { TERCIH_YILI } from '../lib/donem'
 
 const TUR_STIL = {
@@ -131,10 +130,25 @@ export function LgsRobot() {
   const { user } = useAuth()
   const [tercihIds, setTercihIds] = useState(new Set())
   const [toast, setToast] = useState('')
+  const { profile, loading: profileLoading } = useUserProfile()
 
   useEffect(() => {
     apiFetch('/api/v1/lgs/iller').then((d) => setIller(d.iller || [])).catch(() => {})
   }, [])
+
+  // Profildeki LGS yüzdeliğini otomatik doldur
+  useEffect(() => {
+    if (profileLoading || !profile) return
+    let cancelled = false
+    const y = profile?.lgs?.yuzdelik
+    if (cancelled || y == null) return
+    setYuzdelik((prev) => {
+      if (prev) return prev
+      setAutoNot('Yüzdelik dilimin profilinden geldi')
+      return String(y)
+    })
+    return () => { cancelled = true }
+  }, [profile, profileLoading])
 
   // İlçe filtresi yalnız TEK il seçiliyken anlamlı — seçim değişince yükle/sıfırla
   const tekIl = secliIller.length === 1 && secliIller[0] !== '__ALL__' ? secliIller[0] : null
@@ -167,23 +181,21 @@ export function LgsRobot() {
     return watchLgsTercih(user.uid, (items) => setTercihIds(new Set(items.map((i) => i.id))))
   }, [user])
 
-  // Profildeki LGS yüzdeliğini otomatik doldur (YKS/DGS/KPSS'deki davranışla
-  // tutarlı) — kullanıcı bir şey yazdıysa ÜZERİNE YAZMA
   const [autoNot, setAutoNot] = useState('')
+
+  // Profildeki LGS yüzdeliğini otomatik doldur
   useEffect(() => {
-    if (!user) return
+    if (profileLoading || !profile) return
     let cancelled = false
-    getUserProfile(user.uid).then((p) => {
-      const y = p?.profile?.lgs?.yuzdelik
-      if (cancelled || y == null) return
-      setYuzdelik((prev) => {
-        if (prev) return prev
-        setAutoNot('Yüzdelik dilimin profilinden geldi')
-        return String(y)
-      })
-    }).catch(() => {})
+    const y = profile?.lgs?.yuzdelik
+    if (cancelled || y == null) return
+    setYuzdelik((prev) => {
+      if (prev) return prev
+      setAutoNot('Yüzdelik dilimin profilinden geldi')
+      return String(y)
+    })
     return () => { cancelled = true }
-  }, [user])
+  }, [profile, profileLoading])
 
   function flash(msg) { setToast(msg); setTimeout(() => setToast(''), 2500) }
 

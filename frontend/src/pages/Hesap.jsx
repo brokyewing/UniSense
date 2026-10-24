@@ -52,7 +52,7 @@ import {
 } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import { useAuth } from '../contexts/AuthContext'
-import { getUserProfile, updateUserProfile } from '../firebase'
+import { useUserProfile } from '@/services/hooks'
 import { apiFetch } from '../lib/api'
 import { TERCIH_YILI } from '../lib/donem'
 
@@ -417,6 +417,7 @@ function NetInput({ field, value, onChange }) {
 export default function Hesap() {
   const navigate = useNavigate()
   const { user, isAuthed } = useAuth()
+  const { profile, loading: profileLoading } = useUserProfile()
   const [tab, setTab] = useState('SAY')
   const [diploma100, setDiploma100] = useState('') // YKS: 100'lük, örn: 85
   const [gpa4, setGpa4] = useState('')             // DGS: 4'lük, örn: 3.2
@@ -435,13 +436,11 @@ export default function Hesap() {
 
   // Profile'tan eski değerleri yükle (varsa)
   useEffect(() => {
-    if (!user) return
+    if (profileLoading || !profile) return
     let cancelled = false
     ;(async () => {
       try {
-        const p = await getUserProfile(user.uid)
-        if (cancelled) return
-        const calc = p?.profile?.calculator
+        const calc = profile?.calculator
         if (calc?.netler) setData(calc.netler)
         if (calc?.diploma100 != null) setDiploma100(String(calc.diploma100))
         if (calc?.gpa4 != null) setGpa4(String(calc.gpa4))
@@ -452,13 +451,13 @@ export default function Hesap() {
           if (conv > 0 && conv <= 100) setDiploma100(conv.toFixed(0))
         }
         if (calc?.lastTab) setTab(calc.lastTab)
-        else if (p?.profile?.examTrack === 'DGS') setTab('DGS')
-        else if (p?.profile?.examTrack === 'KPSS') setTab('KPSS')
-        if (p?.profile?.preferredUniType) setUniPref(p.profile.preferredUniType)
+        else if (profile?.examTrack === 'DGS') setTab('DGS')
+        else if (profile?.examTrack === 'KPSS') setTab('KPSS')
+        if (profile?.preferredUniType) setUniPref(profile.preferredUniType)
       } catch {}
     })()
     return () => { cancelled = true }
-  }, [user])
+  }, [profile, profileLoading])
 
   function setField(key, val) {
     setData((prev) => ({ ...prev, [key]: val }))
@@ -647,7 +646,7 @@ export default function Hesap() {
           updatedAt: Date.now(),
         }
       }
-      await updateUserProfile(user.uid, profilePatch)
+      await import('@/services/firestore-core').then(m => m.updateUserProfile(user.uid, profilePatch))
       // Tercih sayfası yalnız YKS/DGS/KPSS puanını kullanır (feedsTercih); ALES/
       // LGS/AGS netleri sadece hesap makinesine geri yüklenir — yanlış vaat verme.
       setSavedMsg({

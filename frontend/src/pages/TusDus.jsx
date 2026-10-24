@@ -5,10 +5,9 @@ import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
-import {
-  watchUzmanlikTercih, addToUzmanlikTercih, removeFromUzmanlikTercih, MAX_TUS_TERCIH,
-  getUserProfile,
-} from '../firebase'
+import { useUserProfile } from '@/services/hooks'
+import { watchUzmanlikTercih, addToUzmanlikTercih, removeFromUzmanlikTercih } from '@/services/firestore-prefs'
+import { MAX_TUS_TERCIH } from '@/services/constants'
 import { TERCIH_YILI } from '../lib/donem'
 
 const SINAVLAR = [
@@ -88,28 +87,20 @@ export function TusRobot() {
   const autoDolduRef = useRef(false) // puan otomatik mi dolduruldu (elle yazımı ayırt et)
   sinavRef.current = sinav
 
-  // Profildeki TUS/DUS puanını otomatik doldur (diğer sınavlarla tutarlı) —
-  // kullanıcı bir şey yazdıysa üzerine yazma. Sınav değişince o sınavın puanı denenir.
-  const [profil, setProfil] = useState(null)
-  const [autoNot, setAutoNot] = useState('')
+  const { profile, loading: profileLoading } = useUserProfile()
+
+  // Profildeki TUS/DUS puanını otomatik doldur (diğer sınavlarla tutarlı)
   useEffect(() => {
-    if (!user) { setProfil(null); return }
-    let cancelled = false
-    getUserProfile(user.uid).then((p) => { if (!cancelled) setProfil(p?.profile || null) }).catch(() => {})
-    return () => { cancelled = true }
-  }, [user])
-  useEffect(() => {
-    // TUS↔DUS geçişinde otomatik-dolan puanı yeni sınavın profil puanıyla DEĞİŞTİR
-    // (eskiden TUS puanı DUS sekmesine taşınıyordu); elle yazılmış değere dokunma.
-    const score = sinav === 'DUS' ? profil?.dus?.score : profil?.tus?.score
+    if (profileLoading || !profile) return
+    const score = sinav === 'DUS' ? profile?.dus?.score : profile?.tus?.score
     setPuan((prev) => {
-      if (prev && !autoDolduRef.current) return prev // kullanıcı elle yazdı → koru
+      if (prev && !autoDolduRef.current) return prev
       if (score == null) { autoDolduRef.current = false; setAutoNot(''); return '' }
       autoDolduRef.current = true
       setAutoNot(`${sinav} puanın profilinden geldi`)
       return String(score)
     })
-  }, [profil, sinav])
+  }, [profile, sinav, profileLoading])
 
   // Aktif sınavın (TUS/DUS) tercih listesini canlı izle → kart butonları senkron
   useEffect(() => {

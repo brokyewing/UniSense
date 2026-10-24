@@ -1,5 +1,21 @@
 {
+  "emulators": {
+    "firestore": {
+      "host": "localhost",
+      "port": 8085
+    },
+    "auth": {
+      "host": "localhost",
+      "port": 9099
+    },
+    "ui": {
+      "enabled": true,
+      "host": "localhost",
+      "port": 4000
+    }
+  },
   "firestore": {
-    "rules": "firestore.rules"
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   }
 }

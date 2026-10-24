@@ -69,7 +69,8 @@ class Settings(BaseSettings):
     rate_limit_ask_daily_global: int = 1200  # tüm site toplamı / gün
     cors_allowed_origins: str = (
         "https://www.unisense.com.tr,https://unisense.com.tr,"
-        "http://localhost:5173,http://localhost:5174"
+        "http://localhost:5173,http://localhost:5174,"
+        "http://127.0.0.1:5173,http://127.0.0.1:5174"
     )
     audit_log_path: str = "./logs/audit.log"
 

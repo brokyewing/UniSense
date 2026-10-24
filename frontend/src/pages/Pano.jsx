@@ -3,9 +3,10 @@ import { LayoutDashboard, Play, Pause, RotateCcw, Trophy, Flame, Clock, ListChec
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { useAuth } from '../contexts/AuthContext'
-import { getIstatistik, sureEkle, recordActivity, getUserProfile, setEmailReminders } from '../firebase'
+import { useIstatistik, useEmailReminders, useUserProfile } from '@/services/hooks'
 import { track } from '../lib/analytics'
 import { hesaplaXP, seviyeBilgi, ROZETLER, kazanilanRozetler, guestStats } from '../lib/oyun'
+import { sureEkle, recordActivity } from '@/services/firestore-plan'
 
 const ODAK = 25 * 60
 const MOLA = 5 * 60
@@ -25,46 +26,34 @@ function guestSureEkle(dk, ders) {
 
 export default function Pano({ embedded = false }) {
   const { user } = useAuth()
-  const [stats, setStats] = useState(null)
-  const [mod, setMod] = useState('odak') // odak | mola
+  const { stats, loading: statsLoading, yukle } = useIstatistik()
+  const { emailOn, loading: emailLoading, toggle: emailToggle } = useEmailReminders()
+  const { profile, loading: profileLoading } = useUserProfile()
+
+  const [mod, setMod] = useState('odak')
   const [kalan, setKalan] = useState(ODAK)
   const [calisiyor, setCalisiyor] = useState(false)
   const [ders, setDers] = useState('')
   const [toast, setToast] = useState('')
-  const [emailOn, setEmailOn] = useState(false)
-
-  const yukle = useCallback(async () => {
-    setStats(user ? await getIstatistik(user.uid) : guestStats())
-  }, [user])
-  useEffect(() => { yukle() }, [yukle])
 
   // E-posta hatırlatma tercihini yükle (girişli)
   useEffect(() => {
     if (!user) return
-    getUserProfile(user.uid).then((p) => setEmailOn(!!p?.emailReminders)).catch(() => {})
+    emailToggle()
   }, [user])
 
-  async function emailToggle() {
-    const v = !emailOn
-    setEmailOn(v)
-    await setEmailReminders(user.uid, v).catch(() => setEmailOn(!v))
-  }
-
-  // Sayaç — DUVAR SAATİNE göre (tick saymak arka plan sekmesinde kısılıyordu:
-  // Chrome 5 dk sonra dakikada 1 tick verir, 25 dk'lık blok fiilen dururdu)
+  // Sayaç — DUVAR SAATİNE göre
   const bitisRef = useRef(null)
   useEffect(() => {
-    if (!calisiyor) { bitisRef.current = null; return undefined }
+    if (!calisiyor) { bitisRef.current = null; return }
     bitisRef.current = Date.now() + kalan * 1000
     const t = setInterval(() => {
       setKalan(Math.max(0, Math.round((bitisRef.current - Date.now()) / 1000)))
     }, 1000)
     return () => clearInterval(t)
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- kalan yalnız başlangıçta okunur
   }, [calisiyor])
 
-  // Pomodoro aktifken uygulama-süresi sayacı (usage.js) dursun — aynı dakika
-  // hem sureDk hem kullanimDk olarak 2× XP saymasın
+  // Pomodoro aktifken uygulama-süresi sayacı dursun
   useEffect(() => {
     try {
       if (calisiyor && mod === 'odak') sessionStorage.setItem('unisense_pomodoro_on', '1')

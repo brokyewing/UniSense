@@ -5,7 +5,7 @@ import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
-import { getUserProfile } from '../firebase'
+import { useUserProfile } from '@/services/hooks'
 
 const SINAVLAR = ['YKS', 'DGS', 'KPSS', 'LGS']
 
@@ -33,6 +33,7 @@ function kartSinavlari(k) {
 // Her kartın kalıcı SEO sayfası var (/ozet/:slug). Veri: /api/v1/ozet-kartlar.
 export default function Ozetler({ embedded = false }) {
   const { user } = useAuth()
+  const { profile, loading: profileLoading } = useUserProfile()
   const [kartlar, setKartlar] = useState([])
   const [notLine, setNotLine] = useState('')
   const [loading, setLoading] = useState(true)
@@ -49,12 +50,10 @@ export default function Ozetler({ embedded = false }) {
 
   // Varsayılan sınav = profildeki examTrack (kullanıcı seçiciden değiştirebilir)
   useEffect(() => {
-    if (!user) return
-    getUserProfile(user.uid).then((p) => {
-      const t = p?.profile?.examTrack
-      if (SINAVLAR.includes(t)) setSinav(t)
-    }).catch(() => {})
-  }, [user])
+    if (profileLoading || !profile) return
+    const t = profile.examTrack
+    if (SINAVLAR.includes(t)) setSinav(t)
+  }, [profile, profileLoading])
 
   const filtered = useMemo(() => {
     const t = q.trim().toLowerCase()

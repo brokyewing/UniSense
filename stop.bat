@@ -1,21 +1,26 @@
 @echo off
-echo Servisler durduruluyor...
+setlocal
+chcp 65001 >nul
+title UniSense Stop
 
-REM Backend (8002)
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":8002.*LISTENING"') do (
-    echo   [Backend] PID %%a kapatiliyor...
-    taskkill /F /PID %%a >nul 2>&1
-)
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0stop-services.ps1" %*
+set "STOP_EXIT=%ERRORLEVEL%"
+echo.
+if /i "%~1"=="-WhatIf" goto preview
+if not "%STOP_EXIT%"=="0" goto failed
+echo UniSense Backend ve Frontend durdurma islemi tamamlandi.
+echo UniSense Firebase Emulator da durduruldu; start.bat temizden baslatabilir.
+echo Emulator icindeki gecici Auth/Firestore test verileri silinebilir.
+goto done
 
-REM Frontend (5174)
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":5174.*LISTENING"') do (
-    echo   [Frontend] PID %%a kapatiliyor...
-    taskkill /F /PID %%a >nul 2>&1
-)
+:preview
+echo Yukaridaki liste onizlemeydi; hicbir surec kapatilmadi.
+goto done
 
-REM Pencere baslik
-taskkill /FI "WindowTitle eq UniSense Backend*" /F >nul 2>&1
-taskkill /FI "WindowTitle eq UniSense Frontend*" /F >nul 2>&1
+:failed
+echo [HATA] Servisleri durdurma betigi hata verdi. Yukaridaki ciktiyi kontrol edin.
 
-echo Tamam.
-timeout /t 2 /nobreak >nul
+:done
+echo.
+pause
+exit /b %STOP_EXIT%
