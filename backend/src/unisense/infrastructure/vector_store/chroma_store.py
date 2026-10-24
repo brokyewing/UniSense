@@ -1,7 +1,7 @@
 """ChromaDB vector store — UniSense.
 
-Embedding'ler Gemini API'den gelir (infrastructure/embeddings.py) —
-lokal model/torch yok. Index, embed CLI'ı ile aynı model+boyutta
+Embedding'ler lokal statik Model2Vec tablosundan gelir (embeddings_local.py) —
+torch yok, API yok. Index, embed CLI'ı ile aynı model+boyutta
 üretilmiş olmalı; boyut uyuşmazsa search hata loglar ve boş döner.
 """
 from __future__ import annotations
@@ -9,13 +9,19 @@ from __future__ import annotations
 import os
 
 import chromadb
+import numpy as np
 
 from unisense.core.config import get_settings
 from unisense.core.logging import get_logger
 from unisense.domain.models import Chunk
-from unisense.infrastructure.embeddings import embed_query
+from unisense.infrastructure.embeddings_local import embed_texts_local
 
 logger = get_logger(__name__)
+
+
+def embed_query(text: str) -> np.ndarray:
+    """Tek kullanıcı sorgusunu embed eder (1D normalize vektör)."""
+    return embed_texts_local([text])[0]
 
 
 class ChromaVectorStore:

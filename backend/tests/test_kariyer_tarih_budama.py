@@ -12,6 +12,7 @@ import datetime
 import pytest
 
 from unisense.infrastructure.scrapers.kariyer_scraper import _merge, _tarih_iso
+from unisense.infrastructure.scrapers.kariyer_merge import v2_kayit
 
 BUGUN = "2026-09-05"
 
@@ -89,7 +90,7 @@ class TestCalismaSekli:
     """
 
     def _v2(self, **alan):
-        from unisense.infrastructure.scrapers.kariyer_scraper import v2_kayit
+        from unisense.infrastructure.scrapers.kariyer_merge import v2_kayit
         temel = {"id": "x:1", "kaynak": "T", "baslik": "", "ozet": "",
                  "url": "http://x/1", "tarih": BUGUN}
         return v2_kayit({**temel, **alan})

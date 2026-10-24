@@ -1,8 +1,18 @@
 """AskService saf fonksiyon testleri — intent çıkarımı ve cache key."""
 from unisense.application.services.ask_service import (
+    _make_cache_key,
+)
+from unisense.application.services.intent_router import (
+    _OBP_KATKI,
+    DGS_RE,
+    GENERIC_PLACEMENT_RE,
+    KPSS_RE,
+    _estimate_kpss_net,
     _estimate_nets,
     _extract_intent,
-    _make_cache_key,
+    _parse_obp_katki,
+    build_kpss_context,
+    routing_text,
 )
 from unisense.domain.models import ChatTurn, Query
 
@@ -107,7 +117,7 @@ class TestListingIntent:
         if not _model_path().exists():
             pytest.skip("static_model.npz yok (HF dataset'ten indirilir)")
 
-        from unisense.infrastructure.embeddings import embed_query
+        from unisense.infrastructure.embeddings_local import embed_query
 
         v1 = embed_query("tıp fakültesi sıralaması")
         v2 = embed_query("tip fakultesi siralamasi")
@@ -175,14 +185,13 @@ class TestKpssService:
 
 class TestSinavRouting:
     def test_kpss_regex(self):
-        from unisense.application.services.ask_service import _DGS_RE, _KPSS_RE
 
-        assert _KPSS_RE.search("kpss 85 puanla nereye atanırım")
-        assert _KPSS_RE.search("memur olmak istiyorum")
+        assert KPSS_RE.search("kpss 85 puanla nereye atanırım")
+        assert KPSS_RE.search("memur olmak istiyorum")
         # YKS bağlamındaki "akademik kadro" KPSS'ye GİTMEMELİ
-        assert not _KPSS_RE.search("hacettepe tıp akademik kadrosu nasıl")
-        assert _DGS_RE.search("dgs 280 puanla hangi bölümlere geçerim")
-        assert _DGS_RE.search("dikey geçiş yapmak istiyorum")
+        assert not KPSS_RE.search("hacettepe tıp akademik kadrosu nasıl")
+        assert DGS_RE.search("dgs 280 puanla hangi bölümlere geçerim")
+        assert DGS_RE.search("dikey geçiş yapmak istiyorum")
 
     def test_dgs_service(self):
         from unisense.application.services.dgs_service import DgsService
@@ -193,9 +202,8 @@ class TestSinavRouting:
         assert all((i["min_puan"] or 0) <= 300 for i in r["items"])
 
     def test_kpss_context_builds(self):
-        from unisense.application.services.ask_service import _build_kpss_context
 
-        ctx = _build_kpss_context("kpss 90 puanla bilgisayar mühendisi nereye atanır")
+        ctx = build_kpss_context("kpss 90 puanla bilgisayar mühendisi nereye atanır")
         # Başlık dönem içerir ama "AKTİF/tarih" HARDCODE ETMEZ (BULGU #15)
         assert "KADRO" in ctx and "kadro" in ctx.lower()
         assert "AKTİF TERCİH" not in ctx
@@ -204,9 +212,8 @@ class TestSinavRouting:
 
     def test_kpss_context_toplam_kontenjan(self):
         """İstatistik sorusu → toplam kontenjan özeti; 'kişilik' bölüm sanılmaz."""
-        from unisense.application.services.ask_service import _build_kpss_context
 
-        ctx = _build_kpss_context("2026/1 kpss de kaç kişilik açıldı")
+        ctx = build_kpss_context("2026/1 kpss de kaç kişilik açıldı")
         # Dönem geneli özet (tekil örnek değil bütün) verilmeli
         assert "DÖNEM GENELİ" in ctx and "kişilik kontenjan" in ctx
         # "kaç kişilik" → "kişilik" YANLIŞLIKLA bölüm sanılmamalı
@@ -215,15 +222,10 @@ class TestSinavRouting:
 
     def test_exam_track_generic_routing(self):
         """Sınav adı yazılmadan 'puanımla nereye yerleşirim' → profil yolu."""
-        from unisense.application.services.ask_service import (
-            _DGS_RE,
-            _GENERIC_PLACEMENT_RE,
-            _KPSS_RE,
-        )
 
         q = "puanımla nereye yerleşebilirim"
-        assert _GENERIC_PLACEMENT_RE.search(q)
-        assert not _KPSS_RE.search(q) and not _DGS_RE.search(q)
+        assert GENERIC_PLACEMENT_RE.search(q)
+        assert not KPSS_RE.search(q) and not DGS_RE.search(q)
 
 
 class TestCountAndTercihIntents:
@@ -305,17 +307,14 @@ class TestNetEstimate:
 
 class TestObpPersonalization:
     def test_parse_obp_direct(self):
-        from unisense.application.services.ask_service import _parse_obp_katki
         assert _parse_obp_katki("obp 450") == 54.0          # 450×0.12
         assert _parse_obp_katki("obp'm 420") == 50.4        # ekli hal
 
     def test_parse_diploma_note(self):
-        from unisense.application.services.ask_service import _parse_obp_katki
         assert _parse_obp_katki("diploma notum 90") == 54.0  # 90×5×0.12
         assert _parse_obp_katki("ortalamam 85") == 51.0
 
     def test_no_obp_returns_none(self):
-        from unisense.application.services.ask_service import _parse_obp_katki
         assert _parse_obp_katki("kaç net gerek") is None
 
     def test_intent_carries_obp_when_net(self):
@@ -331,7 +330,6 @@ class TestObpPersonalization:
 
     def test_default_used_when_obp_none(self):
         # obp_katki=None → varsayılan (~50) ile aynı sonuç
-        from unisense.application.services.ask_service import _OBP_KATKI
         assert _estimate_nets(500.0, "SAY", None) == _estimate_nets(500.0, "SAY", _OBP_KATKI)
 
 
@@ -370,25 +368,21 @@ class TestConversationContext:
         return Query(text=text, top_k=12, history=h, model_preference="gemini")
 
     def test_followup_merges_prev_for_routing(self):
-        from unisense.application.services.ask_service import _KPSS_RE, _routing_text
-        rt = _routing_text(self._q("tüm illerde bak",
+        rt = routing_text(self._q("tüm illerde bak",
                                     prev="kpss bilgisayar mühendisi kadroları"))
-        assert _KPSS_RE.search(rt)  # takip mesajı KPSS bağlamını miras aldı
+        assert KPSS_RE.search(rt)  # takip mesajı KPSS bağlamını miras aldı
 
     def test_new_topic_not_merged(self):
-        from unisense.application.services.ask_service import _routing_text
         # Kendi konusu olan mesaj birleşmez (yeni soru)
-        assert _routing_text(self._q("tıp taban puanı nedir",
+        assert routing_text(self._q("tıp taban puanı nedir",
                                      prev="kpss bilgisayar")) == "tıp taban puanı nedir"
 
     def test_no_history_unchanged(self):
-        from unisense.application.services.ask_service import _routing_text
-        assert _routing_text(self._q("tüm illerde bak")) == "tüm illerde bak"
+        assert routing_text(self._q("tüm illerde bak")) == "tüm illerde bak"
 
     def test_long_message_not_merged(self):
-        from unisense.application.services.ask_service import _routing_text
         uzun = "istanbul ankara izmir bursa hangi üniversitelerde bilgisayar var say"
-        assert _routing_text(self._q(uzun, prev="kpss")) == uzun
+        assert routing_text(self._q(uzun, prev="kpss")) == uzun
 
     def _q_hist(self, text, users):
         # users: sırayla kullanıcı mesajları (aralarına bot cevabı serpilir)
@@ -400,17 +394,15 @@ class TestConversationContext:
 
     def test_multiturn_walks_back_to_topic(self):
         # 3+ tur: konu-kuran mesaj birkaç takip mesajı geride olsa da korunmalı
-        from unisense.application.services.ask_service import _KPSS_RE, _routing_text
         q = self._q_hist("peki en çok hangi ilde",
                          users=["kpss bilgisayar mühendisi kadroları", "tüm illerde bak"])
-        assert _KPSS_RE.search(_routing_text(q))
+        assert KPSS_RE.search(routing_text(q))
 
     def test_topic_change_stops_walkback(self):
         # Konu değiştiyse (yeni bağımsız soru) eski konu TAŞINMAMALI
-        from unisense.application.services.ask_service import _routing_text
         q = self._q_hist("peki ankarada",
                          users=["kpss bilgisayar", "tıp taban puanı nedir istanbul"])
-        rt = _routing_text(q).lower()
+        rt = routing_text(q).lower()
         assert "tıp" in rt and "kpss" not in rt
 
 
@@ -425,16 +417,16 @@ class TestUserExamContextSchema:
 
 class TestProfileContext:
     def test_profile_block_has_scores_and_no_deny_instruction(self):
-        from unisense.application.services.ask_service import _build_profile_context
-        b = _build_profile_context({"yks_puan": 430, "yks_turu": "SAY", "kpss_puan": 78})
+        from unisense.application.services.intent_router import build_profile_context
+        b = build_profile_context({"yks_puan": 430, "yks_turu": "SAY", "kpss_puan": 78})
         assert "430" in b and "78" in b and "SAY" in b
         assert "erişemem" in b.lower()  # YÖNERGE: 'erişemem DEME' talimatı var
         assert "başarı sırası" in b  # tek tutarlı sıra üretildi
 
     def test_profile_block_empty_when_no_data(self):
-        from unisense.application.services.ask_service import _build_profile_context
-        assert _build_profile_context({}) == ""
-        assert _build_profile_context(None) == ""
+        from unisense.application.services.intent_router import build_profile_context
+        assert build_profile_context({}) == ""
+        assert build_profile_context(None) == ""
 
     def test_schema_all_exam_fields(self):
         from unisense.api.v1.schemas import UserExamContext
@@ -444,8 +436,8 @@ class TestProfileContext:
         assert d["tus_puan"] == 55 and d["lgs_yuzdelik"] == 2.5 and d["ags_net"] == 60
 
     def test_study_progress_in_profile_block(self):
-        from unisense.application.services.ask_service import _build_profile_context
-        b = _build_profile_context({
+        from unisense.application.services.intent_router import build_profile_context
+        b = build_profile_context({
             "calisma_toplam_konu": 120, "calisma_kalan_konu": 78,
             "calisma_zayif": ["türev", "optik"],
         })
@@ -464,7 +456,6 @@ class TestProfileContext:
 
 class TestKpssNet:
     def test_kpss_net_reverse(self):
-        from unisense.application.services.ask_service import _estimate_kpss_net
         assert _estimate_kpss_net(85) == 90   # 2×(85-40)
         assert _estimate_kpss_net(70) == 60
         assert _estimate_kpss_net(105) == 120  # tavan
