@@ -1,10 +1,12 @@
 # Devir — UniSense
-**Son araç:** opencode
-**Tarih:** 2026-10-24 17:45
+**Son araç:** Codex
+**Tarih:** 2026-10-24 14:08
 **Durum:** aktif
 
 ## Nerede kaldık
 - **Ponytail refactoring tamamlandı** (208 test yeşil, frontend build başarılı)
+- CI'daki Ruff import hatası düzeltildi ve `551895f` commit'i `origin/main`'e
+  pushlandı; doğrulama: Ruff temiz, 209 test geçti, 1 test atlandı.
 - **Founder validation BAŞLADI** — Board simülasyonu tamamlandı:
   - `founder/idea.md` + `founder/board/brief.md` yazıldı
   - 3 lens memo: Offers (7/10, FUND IF), Monopoly (6/10, FUND IF), Product (8/10, FUND)

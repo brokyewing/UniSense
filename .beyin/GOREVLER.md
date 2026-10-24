@@ -361,3 +361,8 @@ gerçekten güvenilir.
 - **Yerel öncelik** uygulandı: marketing/founder ECC yerine yerel paketler kullanıldı
 - **Karar bekleniyor:** Hangi validation/launch/aditi yönünde devam edilecek?
 
+## CI Ruff Import Hatası (Codex, 2026-10-24)
+- [x] `backend/tests/test_kariyer_tarih_budama.py` içindeki sırasız/tekrarlı
+      `v2_kayit` importu düzeltildi; Ruff ve pytest geçti, `551895f` ile
+      `main` dalına gönderildi.
+
