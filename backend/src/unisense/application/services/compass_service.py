@@ -54,11 +54,11 @@ def _dept_matrix() -> tuple[np.ndarray, list[str]]:
             if cached_names == names and dim_ok:
                 return data["embs"].astype(np.float32), names
             logger.info("compass_dept_cache_stale", cached=len(cached_names), current=len(names))
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             logger.warning("compass_dept_cache_read_failed", error=str(e)[:120])
 
     # Embedlemek için: ad + etiketler + kategori label
-    from unisense.infrastructure.embeddings import embed_texts
+    from unisense.infrastructure.embeddings_local import embed_texts_local as embed_texts
 
     texts = []
     for d in tax["departments"]:
@@ -72,7 +72,7 @@ def _dept_matrix() -> tuple[np.ndarray, list[str]]:
         cache_path.parent.mkdir(parents=True, exist_ok=True)
         np.savez_compressed(cache_path, embs=embs, names=np.array(names))
         logger.info("compass_dept_cache_saved", path=str(cache_path))
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         logger.warning("compass_dept_cache_write_failed", error=str(e)[:120])
 
     return embs, names
@@ -91,7 +91,7 @@ def _axes_matrix() -> tuple[np.ndarray, list[str]]:
 
 
 def _normalize_query(text: str) -> np.ndarray:
-    from unisense.infrastructure.embeddings import embed_texts
+    from unisense.infrastructure.embeddings_local import embed_texts_local as embed_texts
 
     return embed_texts([text], task_type="SEMANTIC_SIMILARITY")[0]
 
@@ -135,8 +135,8 @@ class CompassService:
                 "axis_summary": axes_to_label(d["axes"]),
             })
         # Her kategori içinde program sayısına göre sırala
-        for k in by_cat:
-            by_cat[k].sort(key=lambda x: -x["program_count"])
+        for programs in by_cat.values():
+            programs.sort(key=lambda x: -x["program_count"])
         return {
             "categories": [
                 {

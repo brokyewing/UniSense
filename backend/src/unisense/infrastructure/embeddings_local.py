@@ -94,3 +94,8 @@ def embed_texts_local(texts: list[str]) -> np.ndarray:
 
     norms = np.linalg.norm(out, axis=1, keepdims=True) + 1e-9
     return (out / norms).astype(np.float32)
+
+
+def embed_query(text: str) -> np.ndarray:
+    """Tek kullanıcı sorgusunu embed eder (1D normalize vektör)."""
+    return embed_texts_local([text])[0]

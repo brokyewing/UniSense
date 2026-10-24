@@ -1,0 +1,61 @@
+name: LGS Lise Data Sync
+
+# LGS yerleştirme sonuçları her yıl Ağustos başında açıklanır; taban puanları
+# kısa süre sonra kaynakta (tabanpuanlari.tr → MEB e-Okul verisi) güncellenir.
+# Bu workflow yılda 1 kez (25 Ağustos) LGS lise taban/yüzdelik verisini yeniler.
+# Manuel tetikleme: GitHub Actions → "LGS Lise Data Sync" → Run workflow.
+#
+# Veri küçük (~3.000 lise, ~1 MB JSON) ve RAG index'ini ETKİLEMEZ (chunks'a
+# girmez) → sadece lgs_liseler.json commit'lenir, embed/index rebuild GEREKMEZ.
+
+on:
+  schedule:
+    # Ağustos-Eylül pazartesileri (taban puanlar bu dönemde açıklanır/oturur).
+    # Yılda tek tarih yerine dönemsel-haftalık: GitHub'ın 60 gün inaktivite
+    # kuralı schedule'ı sessizce kapatabildiği için tek atışa güvenilmez;
+    # scraper değişiklik yoksa zaten commit atmaz.
+    - cron: '0 6 * 8,9 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # `python -m unisense...` paketin import edilebilir olmasını gerektirir;
+      # sadece requests kurmak yetmiyordu → ModuleNotFoundError ile 10 sn'de
+      # düşüyordu. --no-deps: lgs_scraper stdlib + requests dışında bir şey
+      # kullanmıyor, chromadb/pandas gibi ağır runtime paketlerini çekmeye gerek yok.
+      - name: Install requests + unisense paketi
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip requests
+          pip install -e . --no-deps
+
+      - name: Scrape — LGS lise taban puanları / yüzdelik dilimleri
+        working-directory: backend
+        run: python -m unisense.infrastructure.scrapers.lgs_scraper
+
+      - name: Commit LGS data update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backend/data/processed/lgs_liseler.json
+          if git diff --staged --quiet; then
+            echo "Hiç değişiklik yok, commit atlandı"
+          else
+            git commit -m "chore(data): LGS lise taban/yüzdelik verisi güncellendi ($(date -u +%Y-%m-%d))"
+            git push
+          fi

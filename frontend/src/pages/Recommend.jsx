@@ -1,15 +1,25 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Loader2, ListChecks, Target, ShieldCheck, Mountain,
   TrendingUp, Building2, MapPin, UserCog, Sparkles,
   Compass, X, ArrowRight, Check, Plus,
+  GraduationCap, Briefcase, AlertTriangle,
 } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import { useAuth } from '../contexts/AuthContext'
-import { getUserProfile, addToTercih, removeFromTercih, watchTercihList } from '../firebase'
+import {
+  getUserProfile, addToTercih, removeFromTercih, watchTercihList,
+  watchDgsTercih, addToDgsTercih, removeFromDgsTercih, MAX_DGS_TERCIH,
+  watchKpssTercih, addToKpssTercih, removeFromKpssTercih, MAX_KPSS_TERCIH,
+} from '../firebase'
 import { apiFetch } from '../lib/api'
+import { dgsLevel, kpssLevel } from '../lib/riskLevels'
+import { TR_ILLER } from '../lib/iller'
+import MiniTrend from '../components/MiniTrend'
+import { LgsRobot } from './LGS'
+import { TusRobot } from './TusDus'
 
 const SCORE_TYPES = [
   { v: 'SAY', label: 'Sayısal', color: 'from-blue-500 to-cyan-400' },
@@ -109,6 +119,31 @@ function ItemCard({ item, isInTercih, onAdd, onRemove, busyCode }) {
         )}
       </div>
 
+      {/* Burs / dil / süre / özel koşul — öğrenci bu bilgi için siteden çıkmasın */}
+      {(item.scholarship || (item.education_language && item.education_language !== 'Türkçe')
+        || item.duration_years || item.osym_conditions?.length > 0) && (
+        <div className="flex flex-wrap items-center gap-1.5 mt-2">
+          {item.scholarship && /burslu|ücretsiz/i.test(item.scholarship) && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">🎓 {item.scholarship}</span>
+          )}
+          {item.scholarship && /ücretli|paralı/i.test(item.scholarship) && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-slate-300 border border-white/10">{item.scholarship}</span>
+          )}
+          {item.education_language && item.education_language !== 'Türkçe' && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/25">{item.education_language}</span>
+          )}
+          {item.duration_years && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/10">{item.duration_years} yıl</span>
+          )}
+          {item.osym_conditions?.slice(0, 2).map((c, i) => (
+            <span key={i} title={c}
+              className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/25 inline-flex items-center gap-0.5">
+              <AlertTriangle size={9} /> {c.length > 28 ? c.slice(0, 28) + '…' : c}
+            </span>
+          ))}
+        </div>
+      )}
+
       {(item.last_year_base_rank || item.last_year_base_score || item.placement_probability != null) && (
         <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-4 text-xs flex-wrap">
           {item.last_year_base_rank && (
@@ -125,6 +160,12 @@ function ItemCard({ item, isInTercih, onAdd, onRemove, busyCode }) {
               <div className="font-mono text-accent-300">
                 {item.last_year_base_score.toFixed(2)}
               </div>
+            </div>
+          )}
+          {item.trend?.filter((t) => t.base_rank != null).length >= 2 && (
+            <div>
+              <div className="text-slate-500">Trend</div>
+              <MiniTrend trend={item.trend} compact />
             </div>
           )}
           {item.placement_probability != null && (() => {
@@ -190,75 +231,646 @@ function ItemCard({ item, isInTercih, onAdd, onRemove, busyCode }) {
   )
 }
 
-// === Pusula yapılmamışsa engel ekran ===
-function PusulaGate() {
-  const navigate = useNavigate()
+
+// === Ortak: kategori grubu başlığı + kart ızgarası ===
+function CategoryGroup({ cat, items, renderItem }) {
+  if (!items || items.length === 0) return null
   return (
-    <>
-      <BackgroundScene />
-      <div className="max-w-2xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4 }}
-          className="card text-center py-10 px-6 border-accent-500/30 bg-gradient-to-br from-accent-500/5 to-emerald-500/5"
-        >
-          <motion.div
-            initial={{ rotate: -10, scale: 0.8 }}
-            animate={{ rotate: 0, scale: 1 }}
-            transition={{ type: 'spring', stiffness: 200 }}
-            className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-brand-500 via-accent-500 to-cyber-pink flex items-center justify-center shadow-2xl shadow-accent-500/30"
-          >
-            <Compass size={40} className="text-white" />
-          </motion.div>
+    <div className="card">
+      <div className="flex items-center gap-3 mb-4">
+        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${cat.color} flex items-center justify-center shadow-lg`}>
+          <cat.icon size={18} className="text-white" />
+        </div>
+        <div>
+          <h3 className="font-display font-semibold text-lg text-white">
+            {cat.label} <span className="text-slate-500 text-sm">({items.length})</span>
+          </h3>
+          <p className="text-xs text-slate-400">{cat.desc}</p>
+        </div>
+      </div>
+      <div className="grid md:grid-cols-2 gap-3">
+        {items.map((it, i) => renderItem(it, i))}
+      </div>
+    </div>
+  )
+}
 
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-3">
-            Önce <span className="gradient-text">İlgilerini Seç</span>
-          </h2>
+function TercihToggleButton({ inList, busy, onToggle }) {
+  return inList ? (
+    <button
+      onClick={onToggle}
+      disabled={busy}
+      title="Tercih listesinden çıkar"
+      className="text-xs px-2.5 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-rose-500/20 text-emerald-300 hover:text-rose-200 border border-emerald-500/30 hover:border-rose-500/40 transition inline-flex items-center gap-1 disabled:opacity-40"
+    >
+      {busy ? <Loader2 size={11} className="animate-spin" /> : <Check size={12} />}
+      Listemde
+    </button>
+  ) : (
+    <button
+      onClick={onToggle}
+      disabled={busy}
+      className="text-xs px-2.5 py-1.5 rounded-lg bg-accent-500/20 hover:bg-accent-500/40 text-accent-200 hover:text-white border border-accent-500/30 transition inline-flex items-center gap-1 disabled:opacity-40"
+    >
+      {busy ? <Loader2 size={11} className="animate-spin" /> : <Plus size={12} />}
+      Tercihe Ekle
+    </button>
+  )
+}
 
-          <p className="text-slate-300 mb-2 max-w-lg mx-auto leading-relaxed">
-            Tercih önerisi alabilmek için önce <strong className="text-accent-300">İlgi Pusulası</strong>'ndan
-            ilgilendiğin alanları belirlemelisin.
-          </p>
-          <p className="text-sm text-slate-400 mb-8 max-w-lg mx-auto">
-            Sadece puanla değil, <strong className="text-emerald-300">karakterine ve ilgilerine uyan</strong> bölümleri öneriyoruz.
-          </p>
+// === DGS önerileri: puan + puan türüne göre lisans programları ===
+function DgsOneriPanel({ user, profile }) {
+  const [puan, setPuan] = useState('')
+  const [pt, setPt] = useState('SAY')
+  const [bolum, setBolum] = useState('')
+  const [il, setIl] = useState('')
+  const [uniType, setUniType] = useState('all')
+  const [res, setRes] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [tercihIds, setTercihIds] = useState(new Set())
+  const [busyCode, setBusyCode] = useState(null)
+  // Önlisans → lisans geçiş yolları (ÖSYM Tablo-2) — Hesap'tan taşındı
+  const [onlisans, setOnlisans] = useState('')
+  const [onlisansListe, setOnlisansListe] = useState([])
+  const [gecis, setGecis] = useState(null)
+  const [gecisLoading, setGecisLoading] = useState(false)
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button
-              onClick={() => navigate('/pusula')}
-              className="btn-primary px-6 py-3 inline-flex items-center justify-center gap-2"
-            >
-              <Compass size={18} />
-              Pusulaya Git
-              <ArrowRight size={16} />
-            </button>
-            <Link to="/search" className="btn-ghost px-6 py-3">
-              Yine de aramak istiyorum →
-            </Link>
+  useEffect(() => {
+    // Autocomplete için önlisans program adları (bir kez).
+    // Set ile teklenir — kaynakta yinelenen adlar var (duplicate React key)
+    apiFetch('/api/v1/dgs/gecis', { method: 'POST', body: { onlisans: '' } })
+      .then((d) => setOnlisansListe([...new Set(d.programlar || [])]))
+      .catch(() => {})
+  }, [])
+
+  async function gecisAra() {
+    if (!onlisans.trim()) return
+    setGecisLoading(true)
+    try {
+      const d = await apiFetch('/api/v1/dgs/gecis', { method: 'POST', body: { onlisans } })
+      setGecis(d.gruplar || [])
+    } catch (e) { setError(e.message) } finally { setGecisLoading(false) }
+  }
+
+  function lisansSec(ad) {
+    // Hedef lisans bölümüne tıkla → bölüm filtresi dolar; puan geçerliyse arar
+    setBolum(ad)
+    setGecis(null)
+    const p = parseFloat(puan)
+    if (p >= 100 && p <= 600) setTimeout(() => ara(ad), 0)
+  }
+
+  // Profil varsayılanları (async yüklenir)
+  useEffect(() => {
+    if (!profile) return
+    if (profile.dgs?.score != null) setPuan(String(profile.dgs.score))
+    if (profile.dgs?.type) setPt(profile.dgs.type)
+    if (profile.preferredUniType) setUniType(profile.preferredUniType)
+  }, [profile])
+
+  useEffect(() => {
+    if (!user) { setTercihIds(new Set()); return }
+    return watchDgsTercih(user.uid, (items) =>
+      setTercihIds(new Set(items.map((i) => String(i.department_code)))))
+  }, [user])
+
+  async function ara(bolumOverride) {
+    const p = parseFloat(puan)
+    if (!p || p < 100 || p > 600) {
+      setError('Geçerli bir DGS puanı gir (100–600) — Hesap sayfasından net girerek hesaplayabilirsin')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      const d = await apiFetch('/api/v1/dgs/programlar', {
+        method: 'POST',
+        body: {
+          puan_turu: pt,
+          puan: p,
+          bolum: bolumOverride ?? bolum,
+          il: il.trim() || null,
+          uni_turu: uniType === 'all' ? null : uniType,
+          oneri: true, // tabanı puanın 10 puana kadar üstündekiler de gelsin (üst seviye)
+          limit: 100,
+        },
+      })
+      setRes({ ...d, puan: p })
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function onSubmit(e) {
+    e.preventDefault()
+    ara()
+  }
+
+  // Üni türü değişince mevcut sonucu otomatik yenile (filtre "çalışmıyor" izlenimi fix)
+  useEffect(() => {
+    if (res) ara()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uniType])
+
+  async function toggleTercih(item) {
+    if (!user) { setError('Tercih listesine eklemek için giriş yap'); return }
+    const code = String(item.department_code)
+    setBusyCode(code)
+    setError('')
+    try {
+      if (tercihIds.has(code)) {
+        await removeFromDgsTercih(user.uid, code)
+      } else {
+        if (tercihIds.size >= MAX_DGS_TERCIH) {
+          setError(`DGS tercih listesi dolu (max ${MAX_DGS_TERCIH}) — önce birkaç tane çıkar`)
+          return
+        }
+        await addToDgsTercih(user.uid, { ...item, puan_turu: pt }, tercihIds.size + 1)
+      }
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setBusyCode(null)
+    }
+  }
+
+  // Kategoriler: paylaşılan eşikler (lib/riskLevels) — Tercih Listem ile aynı
+  const groups = { safe: [], target: [], reach: [], bos: [] }
+  if (res) {
+    for (const it of res.items) {
+      groups[dgsLevel(res.puan, it.min_puan)].push(it)
+    }
+  }
+  const hicYok = res && res.items.length === 0
+
+  const BOS_CAT = {
+    key: 'bos',
+    label: 'Geçen Yıl Boş Kalanlar',
+    icon: GraduationCap,
+    color: 'from-slate-500 to-slate-700',
+    desc: 'Taban oluşmadı — yerleşme şansı yüksek ama kontenjan ve koşulları kontrol et',
+  }
+
+  const renderCard = (p) => {
+    const code = String(p.department_code)
+    return (
+      <motion.div key={code} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+        className="card glass-hover p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-white text-sm">{p.program_adi}</h4>
+            <div className="flex items-center gap-2 mt-1 text-xs text-slate-400 flex-wrap">
+              <span className="flex items-center gap-1"><Building2 size={11} /> {p.university_name}</span>
+              {p.city && <span className="flex items-center gap-1"><MapPin size={11} /> {p.city}</span>}
+            </div>
           </div>
+        </div>
+        <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-4 text-xs flex-wrap">
+          <div>
+            <div className="text-slate-500">Taban{p.yil ? ` (${p.yil})` : ''}</div>
+            <div className="font-mono text-accent-300">
+              {p.min_puan != null ? p.min_puan.toFixed(2) : 'boş kaldı'}
+            </div>
+          </div>
+          <div>
+            <div className="text-slate-500">Kontenjan</div>
+            <div className="font-mono text-cyber-cyan">{p.kontenjan ?? '?'}</div>
+          </div>
+          <div className="ml-auto">
+            <TercihToggleButton
+              inList={tercihIds.has(code)}
+              busy={busyCode === code}
+              onToggle={() => toggleTercih(p)}
+            />
+          </div>
+        </div>
+      </motion.div>
+    )
+  }
 
-          {/* Nasıl çalışır mini özet */}
-          <div className="mt-10 pt-6 border-t border-white/5 text-left grid sm:grid-cols-3 gap-4">
-            {[
-              { n: 1, t: 'İlgilerini seç', d: 'Hasta bakımı, yazılım, tasarım gibi konuları işaretle' },
-              { n: 2, t: 'Bölüm öneri al', d: 'Sana uygun 15 bölüm listesi otomatik çıkar' },
-              { n: 3, t: 'Tercihi yap', d: 'Puanına uygun program kovaları (güvenli/hedef/üst)' },
-            ].map((step) => (
-              <div key={step.n} className="flex gap-2">
-                <div className="w-7 h-7 rounded-full bg-accent-500/20 text-accent-300 flex items-center justify-center text-xs font-bold shrink-0">
-                  {step.n}
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-white">{step.t}</div>
-                  <div className="text-xs text-slate-400 mt-0.5 leading-relaxed">{step.d}</div>
-                </div>
+  return (
+    <div className="space-y-6">
+      {user && profile?.dgs?.score != null && (
+        <div className="card border-accent-500/30 bg-accent-500/10 flex items-center gap-3 text-sm">
+          <Sparkles size={14} className="text-accent-300 shrink-0" />
+          <div className="flex-1 text-accent-100">DGS puanın <strong>profilden geldi</strong>.</div>
+          <Link to="/profil" className="text-xs px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-accent-200 transition shrink-0">
+            <UserCog size={12} className="inline mr-1" />Düzenle
+          </Link>
+        </div>
+      )}
+
+      <form onSubmit={onSubmit} className="card space-y-4">
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">DGS Puanın</label>
+            <input type="number" step="0.01" value={puan} onChange={(e) => setPuan(e.target.value)}
+              placeholder="örn: 285.40" className="input-glass" />
+          </div>
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">Puan Türü</label>
+            <div className="grid grid-cols-3 gap-2">
+              {['SAY', 'EA', 'SÖZ'].map((t) => (
+                <button key={t} type="button" onClick={() => setPt(t)}
+                  className={`px-3 py-2.5 rounded-xl text-sm font-semibold transition ${
+                    pt === t ? 'bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg'
+                             : 'glass glass-hover text-slate-300'
+                  }`}>
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        {/* Önlisans → lisans geçiş yolları (ÖSYM Tablo-2) — bölümünü yaz,
+            geçebileceğin lisans bölümlerini gör, tıkla → filtre dolar */}
+        <div className="rounded-xl bg-white/5 border border-white/5 p-3 space-y-2">
+          <div className="text-xs text-slate-300 font-medium">
+            Önlisans bölümünü yaz → geçebileceğin lisans bölümlerini gör
+          </div>
+          <div className="flex gap-2">
+            <input
+              value={onlisans}
+              onChange={(e) => setOnlisans(e.target.value)}
+              list="dgs-onlisans-programlar"
+              placeholder="örn: Bilgisayar Programcılığı"
+              className="input-glass text-sm flex-1 !py-2"
+            />
+            <datalist id="dgs-onlisans-programlar">
+              {onlisansListe.map((a) => <option key={a} value={a} />)}
+            </datalist>
+            <button type="button" onClick={gecisAra} disabled={gecisLoading || !onlisans.trim()}
+              className="btn-ghost text-xs disabled:opacity-50">
+              {gecisLoading ? <Loader2 size={12} className="animate-spin" /> : 'Geçiş yolları'}
+            </button>
+          </div>
+          {gecis && gecis.length === 0 && (
+            <div className="text-[11px] text-slate-500">Eşleşen alan bulunamadı — farklı yazımla dene</div>
+          )}
+          {gecis && gecis.map((g, gi) => (
+            // key'e index dahil: farklı gruplar aynı temsilci alan adını taşıyabiliyor
+            <div key={`${g.alan}-${gi}`} className="space-y-1.5">
+              <div className="text-[10px] text-slate-500">{g.alan}</div>
+              <div className="flex flex-wrap gap-1.5">
+                {g.lisans.map((l) => (
+                  <button key={l.kod} type="button" onClick={() => lisansSec(l.ad)}
+                    title={`${l.ad} programlarını tabanlarıyla listele`}
+                    className="rounded-lg px-2 py-1 text-[11px] border border-accent-500/30 text-accent-300 hover:bg-accent-500/10">
+                    {l.ad} <span className="text-slate-500">· {l.puan_turu}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">Bölüm filtresi <span className="text-slate-500">(opsiyonel)</span></label>
+            <input value={bolum} onChange={(e) => setBolum(e.target.value)}
+              placeholder="örn: bilgisayar — boş = hepsi" className="input-glass" />
+          </div>
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">Şehir <span className="text-slate-500">(opsiyonel)</span></label>
+            <input value={il} onChange={(e) => setIl(e.target.value)}
+              placeholder="örn: İstanbul" className="input-glass" />
+          </div>
+        </div>
+        <div>
+          <label className="text-sm text-slate-300 mb-2 block">Üniversite Tipi</label>
+          <div className="flex gap-2">
+            {[['all', 'Hepsi'], ['Devlet', 'Devlet'], ['Vakıf', 'Vakıf (Özel)']].map(([v, l]) => (
+              <button key={v} type="button" onClick={() => setUniType(v)}
+                className={`px-3 py-2 rounded-xl text-sm transition ${
+                  uniType === v ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg'
+                                : 'glass glass-hover text-slate-300'
+                }`}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {error && (
+          <div className="text-sm text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-3">
+            ⚠️ {error}
+          </div>
+        )}
+
+        <button type="submit" disabled={loading}
+          className="btn-primary w-full inline-flex items-center justify-center gap-2 disabled:opacity-50">
+          {loading ? (<><Loader2 size={18} className="animate-spin" /> Programlar bulunuyor…</>)
+                   : (<><GraduationCap size={18} /> DGS Puanımla Tercih Öner</>)}
+        </button>
+      </form>
+
+      {res && (
+        <div className="space-y-4">
+          {user && (
+            <div className="flex items-center justify-between gap-3 px-1 text-xs">
+              <span className="text-slate-400">
+                DGS Tercih Listende:{' '}
+                <strong className={tercihIds.size >= MAX_DGS_TERCIH ? 'text-rose-400' : 'text-emerald-400'}>
+                  {tercihIds.size}/{MAX_DGS_TERCIH}
+                </strong>
+              </span>
+              <Link to="/tercih" className="text-accent-300 hover:text-accent-200 transition flex items-center gap-1">
+                Tercih Listemi Gör <ArrowRight size={11} />
+              </Link>
+            </div>
+          )}
+          {error && (
+            <div className="text-sm text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-3">
+              ⚠️ {error}
+            </div>
+          )}
+          {hicYok && (
+            <div className="card border-rose-500/30 bg-rose-500/10 text-center py-8">
+              <div className="text-rose-200 font-medium mb-2">Bu filtrelerle uygun program bulunamadı</div>
+              <div className="text-sm text-rose-200/70">Bölüm/şehir filtresini kaldırmayı veya üniversite tipini genişletmeyi dene.</div>
+            </div>
+          )}
+          {CATEGORIES.map((cat) => (
+            <CategoryGroup key={cat.key} cat={cat} items={groups[cat.key]} renderItem={renderCard} />
+          ))}
+          <CategoryGroup cat={BOS_CAT} items={groups.bos} renderItem={renderCard} />
+          {res.uyari && <div className="text-[11px] text-slate-500 px-1">{res.uyari}</div>}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// === KPSS önerileri: puan + düzey + mezuniyete göre kadrolar ===
+function KpssOneriPanel({ user, profile }) {
+  const [puan, setPuan] = useState('')
+  const [duzey, setDuzey] = useState('lisans')
+  const [bolum, setBolum] = useState('')
+  const [secliIller, setSecliIller] = useState([])  // çoklu şehir seçimi
+  const [res, setRes] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [tercihIds, setTercihIds] = useState(new Set())
+  const [busyCode, setBusyCode] = useState(null)
+
+  useEffect(() => {
+    if (!profile) return
+    if (profile.kpss?.score != null) setPuan(String(profile.kpss.score))
+    if (profile.kpss?.duzey) setDuzey(profile.kpss.duzey)
+    // Profildeki tercih şehirleri varsayılan olarak dolar
+    if (Array.isArray(profile.preferredCities) && profile.preferredCities.length) {
+      setSecliIller((prev) => (prev.length ? prev : profile.preferredCities))
+    }
+  }, [profile])
+
+  function ilEkle(v) {
+    if (!v) return
+    setSecliIller((prev) => (prev.includes(v) ? prev : [...prev, v]))
+  }
+
+  useEffect(() => {
+    if (!user) { setTercihIds(new Set()); return }
+    return watchKpssTercih(user.uid, (items) =>
+      setTercihIds(new Set(items.map((i) => String(i.kadro_kodu)))))
+  }, [user])
+
+  async function onSubmit(e) {
+    e.preventDefault()
+    const p = parseFloat(puan)
+    if (!p || p < 40 || p > 120) {
+      setError('Geçerli bir KPSS GY-GK puanı gir (40–120) — Hesap sayfasından hesaplayabilirsin')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      const d = await apiFetch('/api/v1/kpss/kadrolar', {
+        method: 'POST',
+        body: { bolum, duzey, iller: secliIller.length ? secliIller : null, puan: p, limit: 100 },
+      })
+      setRes({ ...d, puan: p })
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function toggleTercih(k) {
+    if (!user) { setError('Tercih listesine eklemek için giriş yap'); return }
+    const code = String(k.kadro_kodu)
+    setBusyCode(code)
+    setError('')
+    try {
+      if (tercihIds.has(code)) {
+        await removeFromKpssTercih(user.uid, code)
+      } else {
+        if (tercihIds.size >= MAX_KPSS_TERCIH) {
+          setError(`KPSS tercih listesi dolu (max ${MAX_KPSS_TERCIH}) — önce birkaç tane çıkar`)
+          return
+        }
+        await addToKpssTercih(user.uid, k, tercihIds.size + 1)
+      }
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setBusyCode(null)
+    }
+  }
+
+  // Kategoriler: paylaşılan eşikler (lib/riskLevels) — Tercih Listem ile aynı
+  const groups = { safe: [], target: [], reach: [], bilinmez: [] }
+  if (res) {
+    for (const k of res.items) {
+      groups[kpssLevel(res.puan, k.gecmis_taban)].push(k)
+    }
+  }
+  const hicYok = res && res.items.length === 0
+
+  const eslesmeBadge = (e) => {
+    if (!e) return null
+    const cls = e.includes('✓')
+      ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+      : e === 'bölüme özel'
+        ? 'bg-sky-500/15 text-sky-300 border-sky-500/30'
+        : 'bg-white/5 text-slate-400 border-white/10'
+    return <span className={`text-[10px] px-2 py-0.5 rounded-full border ${cls}`}>{e}</span>
+  }
+
+  const renderCard = (k) => {
+    const code = String(k.kadro_kodu)
+    return (
+      <motion.div key={code} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+        className="card glass-hover p-4">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-white text-sm">{k.unvan}</h4>
+            <div className="text-xs text-slate-400 mt-1">{k.kurum}</div>
+            <div className="flex items-center gap-2 mt-1.5 text-[11px] text-slate-500 flex-wrap">
+              {k.il && <span className="flex items-center gap-1"><MapPin size={10} /> {k.il}</span>}
+              <span>{k.duzey}</span>
+              <span className="font-mono">{k.puan_turu}</span>
+              {eslesmeBadge(k.eslesme)}
+            </div>
+          </div>
+        </div>
+        {k.ozel_kosullar?.length > 0 && (
+          <div className="mt-2 space-y-1">
+            {k.ozel_kosullar.map((o, i) => (
+              <div key={i} className="text-[10px] text-amber-300 flex items-start gap-1">
+                <AlertTriangle size={10} className="shrink-0 mt-0.5" /> {o}
               </div>
             ))}
           </div>
-        </motion.div>
-      </div>
-    </>
+        )}
+        <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-4 text-xs flex-wrap">
+          <div>
+            <div className="text-slate-500">Geçmiş taban</div>
+            <div className="font-mono text-accent-300">
+              {k.gecmis_taban != null ? k.gecmis_taban.toFixed(2) : 'bilinmiyor'}
+            </div>
+          </div>
+          <div>
+            <div className="text-slate-500">Kontenjan</div>
+            <div className="font-mono text-cyber-cyan">{k.kontenjan ?? '?'}</div>
+          </div>
+          <div className="ml-auto">
+            <TercihToggleButton
+              inList={tercihIds.has(code)}
+              busy={busyCode === code}
+              onToggle={() => toggleTercih(k)}
+            />
+          </div>
+        </div>
+      </motion.div>
+    )
+  }
+
+  const BILINMEZ_CAT = {
+    key: 'bilinmez',
+    label: 'Taban Bilinmiyor',
+    icon: Briefcase,
+    color: 'from-slate-500 to-slate-700',
+    desc: 'Geçmiş dönem yerleştirme verisi eşleşmedi — nitelikleri kontrol ederek değerlendir',
+  }
+
+  return (
+    <div className="space-y-6">
+      {user && profile?.kpss?.score != null && (
+        <div className="card border-accent-500/30 bg-accent-500/10 flex items-center gap-3 text-sm">
+          <Sparkles size={14} className="text-accent-300 shrink-0" />
+          <div className="flex-1 text-accent-100">KPSS puanın ve düzeyin <strong>profilden geldi</strong>.</div>
+          <Link to="/profil" className="text-xs px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-accent-200 transition shrink-0">
+            <UserCog size={12} className="inline mr-1" />Düzenle
+          </Link>
+        </div>
+      )}
+
+      <form onSubmit={onSubmit} className="card space-y-4">
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">KPSS Puanın (GY-GK)</label>
+            <input type="number" step="0.01" value={puan} onChange={(e) => setPuan(e.target.value)}
+              placeholder="örn: 82.35" className="input-glass" />
+          </div>
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">Düzey</label>
+            <div className="grid grid-cols-3 gap-2">
+              {['lisans', 'önlisans', 'ortaöğretim'].map((d) => (
+                <button key={d} type="button" onClick={() => setDuzey(d)}
+                  className={`px-2 py-2.5 rounded-xl text-xs font-semibold transition ${
+                    duzey === d ? 'bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg'
+                                : 'glass glass-hover text-slate-300'
+                  }`}>
+                  {d}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">Mezun olduğun bölüm <span className="text-slate-500">(nitelik eşleşmesi için)</span></label>
+            <input value={bolum} onChange={(e) => setBolum(e.target.value)}
+              placeholder="örn: Bilgisayar Mühendisliği" className="input-glass" />
+          </div>
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">
+              Şehir ekle <span className="text-slate-500">(birden çok seçebilirsin — boş = tümü)</span>
+            </label>
+            <select value="" onChange={(e) => ilEkle(e.target.value)} className="input-glass w-full">
+              <option value="" disabled>Şehir seçin…</option>
+              {TR_ILLER.filter((i) => !secliIller.includes(i)).map((i) => (
+                <option key={i} value={i}>{i}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Seçili şehirler (chip) */}
+        {secliIller.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {secliIller.map((i) => (
+              <span key={i}
+                className="text-xs px-2.5 py-1 rounded-full bg-sky-500/15 text-sky-200 border border-sky-500/25 inline-flex items-center gap-1.5">
+                {i}
+                <button type="button" onClick={() => setSecliIller((prev) => prev.filter((x) => x !== i))}
+                  className="opacity-60 hover:opacity-100 hover:text-rose-300 transition">✕</button>
+              </span>
+            ))}
+          </div>
+        )}
+
+        {error && (
+          <div className="text-sm text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-3">
+            ⚠️ {error}
+          </div>
+        )}
+
+        <button type="submit" disabled={loading}
+          className="btn-primary w-full inline-flex items-center justify-center gap-2 disabled:opacity-50">
+          {loading ? (<><Loader2 size={18} className="animate-spin" /> Kadrolar bulunuyor…</>)
+                   : (<><Briefcase size={18} /> KPSS Puanımla Kadro Öner</>)}
+        </button>
+      </form>
+
+      {res && (
+        <div className="space-y-4">
+          {user && (
+            <div className="flex items-center justify-between gap-3 px-1 text-xs">
+              <span className="text-slate-400">
+                KPSS Tercih Listende:{' '}
+                <strong className={tercihIds.size >= MAX_KPSS_TERCIH ? 'text-rose-400' : 'text-emerald-400'}>
+                  {tercihIds.size}/{MAX_KPSS_TERCIH}
+                </strong>
+              </span>
+              <Link to="/tercih" className="text-accent-300 hover:text-accent-200 transition flex items-center gap-1">
+                Tercih Listemi Gör <ArrowRight size={11} />
+              </Link>
+            </div>
+          )}
+          {error && (
+            <div className="text-sm text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-3">
+              ⚠️ {error}
+            </div>
+          )}
+          {hicYok && (
+            <div className="card border-rose-500/30 bg-rose-500/10 text-center py-8">
+              <div className="text-rose-200 font-medium mb-2">Bu filtrelerle uygun kadro bulunamadı</div>
+              <div className="text-sm text-rose-200/70">Bölüm adını farklı yazmayı veya şehir filtresini kaldırmayı dene.</div>
+            </div>
+          )}
+          {CATEGORIES.map((cat) => (
+            <CategoryGroup key={cat.key} cat={cat} items={groups[cat.key]} renderItem={renderCard} />
+          ))}
+          <CategoryGroup cat={BILINMEZ_CAT} items={groups.bilinmez} renderItem={renderCard} />
+          {res.uyari && <div className="text-[11px] text-slate-500 px-1">{res.uyari}</div>}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -279,6 +891,10 @@ export default function Recommend() {
   const [busyCode, setBusyCode] = useState(null)
   const [tercihError, setTercihError] = useState('')
   const [uniType, setUniType] = useState('all')  // 'all' | 'Devlet' | 'Vakıf'
+  const [mode, setMode] = useState('YKS')        // YKS | DGS | KPSS — profilden açılır
+  const [profile, setProfile] = useState(null)
+  const [bolumInput, setBolumInput] = useState('')  // elle bölüm filtresi (virgülle çoklu)
+  const userPickedMode = useRef(false)           // kullanıcı elle sekme seçtiyse profil ezmesin
 
   // Pusula sonucunu sessionStorage'tan oku
   useEffect(() => {
@@ -355,6 +971,13 @@ export default function Recommend() {
         if (cancelled) return
         const p = data?.profile
         if (p) {
+          setProfile(p)
+          // Sınav yoluna göre varsayılan sekme (KPSS'li kullanıcı KPSS önerisi görsün).
+          // DUS → TUS sekmesi (TusRobot içinde TUS/DUS toggle var); AGS'nin öneri sekmesi yok.
+          if (!userPickedMode.current) {
+            const t = p.examTrack === 'DUS' ? 'TUS' : p.examTrack
+            if (['DGS', 'KPSS', 'TUS', 'LGS'].includes(t)) setMode(t)
+          }
           let filled = false
           if (p.scoreType) {
             setScoreType(p.scoreType)
@@ -405,26 +1028,24 @@ export default function Recommend() {
     sessionStorage.setItem('pusula_depts', JSON.stringify(next))
   }
 
-  async function onSubmit(e) {
-    e.preventDefault()
+  async function runRecommend() {
     if (!score && !rank) {
       setError('Lütfen puan veya sıralama gir')
-      return
-    }
-    if (!pusulaState?.names?.length) {
-      setError('Önce Pusula\'dan ilgilerini seç')
       return
     }
     setLoading(true)
     setError('')
     try {
+      // Pusula bölümleri + elle yazılan bölümler (virgülle çoklu);
+      // ikisi de boşsa backend puana göre TÜM bölümlerden önerir
+      const manuel = bolumInput.split(',').map((s) => s.trim()).filter(Boolean)
       const data = await apiFetch('/api/v1/recommend', {
         method: 'POST',
         body: {
           score_type: scoreType,
           score: score ? parseFloat(score) : null,
           rank: rank ? parseInt(rank, 10) : null,
-          preferred_departments: pusulaState.names,
+          preferred_departments: [...(pusulaState?.names || []), ...manuel],
           preferred_uni_types: uniType === 'all' ? [] : [uniType],
         },
       })
@@ -436,22 +1057,45 @@ export default function Recommend() {
     }
   }
 
-  // Pusula yapılmamışsa engel ekranı göster
-  if (!pusulaState?.names?.length) {
-    return <PusulaGate />
+  function onSubmit(e) {
+    e.preventDefault()
+    runRecommend()
   }
 
+  // Üni türü değişince mevcut sonucu OTOMATİK yenile — eskiden eski liste
+  // ekranda kalıyordu ve filtre "çalışmıyor" gibi görünüyordu
+  useEffect(() => {
+    if (result && mode === 'YKS') runRecommend()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uniType])
+
   const modeLabel =
-    pusulaState.mode === 'interests' ? 'İlgilerine göre'
-    : pusulaState.mode === 'text' ? 'Yazdığın metne göre'
-    : pusulaState.mode === 'axes' ? '5 sorulu testin sonucuna göre'
+    pusulaState?.mode === 'interests' ? 'İlgilerine göre'
+    : pusulaState?.mode === 'text' ? 'Yazdığın metne göre'
+    : pusulaState?.mode === 'axes' ? '5 sorulu testin sonucuna göre'
     : 'Pusula sonucu'
+
+  const SUBTITLES = {
+    YKS: <>Puanına uygun <strong className="text-emerald-400">güvenli</strong>,{' '}
+      <strong className="text-amber-400">hedef</strong> ve{' '}
+      <strong className="text-rose-400">üst seviye</strong> üniversite tercihleri.</>,
+    DGS: <>DGS puanınla geçebileceğin lisans programları —{' '}
+      <strong className="text-emerald-400">güvenli</strong>,{' '}
+      <strong className="text-amber-400">hedef</strong> ve{' '}
+      <strong className="text-rose-400">üst seviye</strong>.</>,
+    KPSS: <>KPSS puanına ve mezuniyetine göre başvurabileceğin{' '}
+      <strong className="text-accent-300">aktif dönem kadroları</strong>.</>,
+    TUS: <>TUS/DUS puanınla yerleşebileceğin{' '}
+      <strong className="text-sky-300">uzmanlık programları</strong>.</>,
+    LGS: <>LGS yüzdelik dilimine göre girebileceğin{' '}
+      <strong className="text-emerald-300">liseler</strong>.</>,
+  }
 
   return (
     <>
       <BackgroundScene />
 
-      <div className="space-y-6 max-w-5xl mx-auto">
+      <div className="space-y-6">
         {/* Hero */}
         <div className="text-center mb-2">
           <motion.h1
@@ -461,18 +1105,34 @@ export default function Recommend() {
           >
             Tercih <span className="gradient-text">Asistanın</span>
           </motion.h1>
-          <p className="text-slate-400 max-w-xl mx-auto">
-            Pusula'dan seçtiğin <strong className="text-emerald-300">{pusulaState.names.length} bölüm</strong>
-            {uniType === 'Devlet' && <> içinde <strong className="text-emerald-400">sadece devlet</strong></>}
-            {uniType === 'Vakıf'  && <> içinde <strong className="text-rose-400">sadece vakıf</strong></>}
-            {uniType === 'all'    && <> içinde <strong className="text-slate-300">tüm üniversitelerden</strong></>},
-            puanına uygun <strong className="text-emerald-400">güvenli</strong>,{' '}
-            <strong className="text-amber-400">hedef</strong> ve{' '}
-            <strong className="text-rose-400">üst seviye</strong> tercihler.
-          </p>
+          <p className="text-slate-400 max-w-xl mx-auto">{SUBTITLES[mode]}</p>
         </div>
 
-        {/* Pusula sonucu — bölüm chip'leri */}
+        {/* Sınav yolu sekmeleri */}
+        <div className="flex justify-center gap-2 flex-wrap">
+          {['YKS', 'DGS', 'KPSS', 'TUS', 'LGS'].map((m) => (
+            <button
+              key={m}
+              onClick={() => { userPickedMode.current = true; setMode(m) }}
+              className={`px-5 py-2 rounded-xl text-sm font-semibold transition ${
+                mode === m
+                  ? 'bg-gradient-to-br from-brand-500 to-accent-500 text-white shadow-lg'
+                  : 'glass glass-hover text-slate-300'
+              }`}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+
+        {mode === 'DGS' && <DgsOneriPanel user={user} profile={profile} />}
+        {mode === 'KPSS' && <KpssOneriPanel user={user} profile={profile} />}
+        {mode === 'TUS' && <TusRobot />}
+        {mode === 'LGS' && <LgsRobot />}
+        {mode === 'YKS' && (<>
+
+        {/* Pusula sonucu — bölüm chip'leri (Pusula yapıldıysa) */}
+        {pusulaState?.names?.length > 0 ? (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -522,6 +1182,24 @@ export default function Recommend() {
             ))}
           </div>
         </motion.div>
+        ) : (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="card border-accent-500/30 bg-accent-500/5 flex items-center gap-3"
+        >
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center shrink-0">
+            <ListChecks size={16} className="text-white" />
+          </div>
+          <div className="flex-1 text-sm text-slate-200">
+            Aşağıya bölüm yazabilir veya boş bırakıp <strong className="text-accent-200">puana göre tüm bölümlerden</strong> öneri alabilirsin.
+            <span className="text-slate-400"> Ne okuyacağını bilmiyor musun?</span>
+            <button onClick={() => navigate('/pusula')} className="ml-1 text-accent-300 hover:underline inline-flex items-center gap-1">
+              <Compass size={12} /> İlgi Pusulası'yla keşfet →
+            </button>
+          </div>
+        </motion.div>
+        )}
 
         {/* Profil bilgi banner'ı */}
         {user && profileLoaded && (
@@ -538,7 +1216,7 @@ export default function Recommend() {
                 Puan/sıra bilgilerin <strong>profilden geldi</strong>.
               </div>
               <Link
-                to="/profile"
+                to="/profil"
                 className="text-xs px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-accent-200 transition flex items-center gap-1 shrink-0"
               >
                 <UserCog size={12} /> Düzenle
@@ -555,7 +1233,7 @@ export default function Recommend() {
                 Puan/sıra bilgini profiline kaydedersen bir dahaki sefere otomatik dolar.
               </div>
               <Link
-                to="/profile"
+                to="/profil"
                 className="text-xs px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition shrink-0"
               >
                 Profile Git →
@@ -593,6 +1271,21 @@ export default function Recommend() {
                 className="input-glass"
               />
             </div>
+          </div>
+
+          {/* Bölüm filtresi — DGS'deki bölüm aramasının YKS karşılığı.
+              Pusula chip'leriyle BİRLEŞİR; ikisi de boşsa tüm bölümler. */}
+          <div>
+            <label className="text-sm text-slate-300 mb-2 block">
+              Bölüm <span className="text-slate-500 text-xs">(opsiyonel — virgülle birden çok yazabilirsin)</span>
+            </label>
+            <input
+              type="text"
+              value={bolumInput}
+              onChange={(e) => setBolumInput(e.target.value)}
+              placeholder="örn: bilgisayar mühendisliği, yazılım mühendisliği"
+              className="input-glass"
+            />
           </div>
 
           {/* Üniversite Tipi Toggle */}
@@ -651,7 +1344,7 @@ export default function Recommend() {
             ) : (
               <>
                 <ListChecks size={18} />
-                Pusula + Puanla Tercih Öner
+                Tercih Öner
               </>
             )}
           </button>
@@ -744,6 +1437,7 @@ export default function Recommend() {
             </motion.div>
           )}
         </AnimatePresence>
+        </>)}
       </div>
     </>
   )

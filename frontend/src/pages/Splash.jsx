@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { ArrowRight, Sparkles } from 'lucide-react'
 import ThemeToggle from '../components/ThemeToggle'
 import Logo from '../components/Logo'
+import { TERCIH_YILI } from '../lib/donem'
 
 // 3D sahne büyük — Three.js bundle'ı ayrı chunk'tan lazy yükle (ilk paint hızlansın)
 const Scene3D = lazy(() => import('../components/three/Scene3D'))
@@ -62,7 +63,7 @@ export default function Splash() {
           className="badge bg-accent-500/20 text-accent-300 border border-accent-500/30 mb-6"
         >
           <Sparkles size={10} />
-          2026 Tercih Asistanı
+          {TERCIH_YILI} Tercih Asistanı
         </motion.div>
 
         {/* Slogan */}
@@ -93,7 +94,7 @@ export default function Splash() {
           className="flex flex-col sm:flex-row gap-3 items-center"
         >
           <button
-            onClick={() => nav('/home')}
+            onClick={() => nav('/anasayfa')}
             className="btn-primary text-lg px-8 py-4 group flex items-center gap-2"
           >
             Başla
@@ -103,7 +104,7 @@ export default function Splash() {
             />
           </button>
           <button
-            onClick={() => nav('/search')}
+            onClick={() => nav('/arama')}
             className="btn-ghost text-lg px-8 py-4"
           >
             Direkt Sor →

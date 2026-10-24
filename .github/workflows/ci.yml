@@ -4,6 +4,15 @@ on:
   push:
     branches: [main]
   pull_request:
+  # GITHUB_TOKEN ile atilan push'lar (veri sync workflow'larinin bot commit'leri)
+  # yeni workflow TETIKLEMEZ — GitHub'in sonsuz dongu korumasi. Bu kor nokta
+  # yuzunden CI 2026-07-20'den 2026-09-04'e kadar HIC kosmadi ve iki ayri sorun
+  # 6 hafta gizli kaldi: ruff 0.16 kaymasi (149 bulgu) ve kpss_placements.json'in
+  # bot commit'iyle bosaltilmasi (1 MB -> []). Haftalik kosu tetikleyiciden
+  # bagimsiz olarak bu tur kaymayi yakalar.
+  schedule:
+    - cron: '0 6 * * 1'   # her pazartesi 06:00 UTC
+  workflow_dispatch:      # elle dogrulama icin
 
 permissions:
   contents: read
@@ -29,14 +38,19 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install -e . --no-deps
-          pip install pytest ruff
+          # dev araclari (pytest/ruff) pyproject'teki [dev] extra'sindan gelir —
+          # eskiden `pip install pytest ruff` deniyordu ve surum sinirlarini
+          # ATLIYORDU: ruff 0.16 cikinca degismemis kodda 149 bulgu uretip CI'i
+          # kirdi. Tek dogruluk kaynagi pyproject olsun.
+          pip install -e ".[dev]"
 
       - name: Statik embedding modelini indir (HF dataset, public)
         working-directory: backend
         run: |
           mkdir -p data/embeddings
-          curl -fsSL -o data/embeddings/static_model.npz \
+          # --retry: HF ara sıra 5xx/timeout verir; geçici düşüşte CI kırmızı yakmasın
+          curl -fsSL --retry 4 --retry-delay 5 --retry-all-errors --connect-timeout 30 \
+            -o data/embeddings/static_model.npz \
             "https://huggingface.co/datasets/BrokyEwing/unisense-index/resolve/main/static_model.npz"
 
       - name: Lint (ruff)

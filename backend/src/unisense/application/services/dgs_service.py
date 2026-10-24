@@ -7,6 +7,7 @@ doğrudan iliştirilir. "DGS 280 puanla hangi lisans programlarına geçerim?"
 from __future__ import annotations
 
 import json
+import re
 from functools import lru_cache
 from pathlib import Path
 
@@ -28,6 +29,26 @@ def _load() -> list[dict]:
 
     _, departments, uni_lookup = _load_data()
     dept_lookup = {d["code"]: d for d in departments}
+
+    # Kod eşleşmeyen kayıtlar için üni adı → (tür, şehir) yedeği (BULGU #9):
+    # dgs_rankings'in %16.7'si (1216 kayıt) departments.json koduna oturmuyordu,
+    # city/university_type boş kalıp il ve vakıf/devlet filtrelerinden düşüyordu.
+    uni_by_name: dict[str, tuple[str, str]] = {}
+    for u in uni_lookup.values():
+        nm = fold_tr(u.get("name", ""))
+        if nm:
+            uni_by_name[nm] = (u.get("type", ""), u.get("city", ""))
+
+    def _match_uni(name: str) -> tuple[str, str]:
+        f = fold_tr(name)
+        if f in uni_by_name:
+            return uni_by_name[f]
+        for nm, val in uni_by_name.items():
+            if f and (f.startswith(nm) or nm.startswith(f)):
+                return val
+        return ("", "")
+
+    filled = 0
     for r in data:
         d = dept_lookup.get(r["department_code"])
         if d:
@@ -35,7 +56,21 @@ def _load() -> list[dict]:
             uni = uni_lookup.get(d.get("university_code", ""), {})
             r["university_name"] = uni.get("name", "")
             r["university_type"] = uni.get("type", "")
-    logger.info("dgs_data_loaded", kayit=len(data))
+            continue
+        # Yedek: program_adi = "ÜNİVERSİTE ADI (ŞEHİR)/Fakülte/Bölüm..."
+        pa = r.get("program_adi", "")
+        uni_part = pa.split("/", 1)[0]
+        m = re.search(r"\(([^)]+)\)", uni_part)
+        uni_name = re.sub(r"\s*\([^)]*\)", "", uni_part).strip()
+        utype, ucity = _match_uni(uni_name)
+        # Şehir: parantez içinden (kendi metninden — en güvenli); yoksa üni eşleşmesi
+        city = m.group(1).split("-")[-1].strip() if m else ucity
+        r["university_name"] = r.get("university_name") or uni_name
+        r["university_type"] = r.get("university_type") or utype
+        r["city"] = r.get("city") or city
+        if city or utype:
+            filled += 1
+    logger.info("dgs_data_loaded", kayit=len(data), yedek_dolduruldu=filled)
     return data
 
 
@@ -83,12 +118,16 @@ class DgsService:
         puan: float | None = None,
         bolum: str = "",
         il: str | None = None,
+        uni_turu: str | None = None,
+        oneri: bool = False,
         limit: int = 30,
     ) -> dict:
         data = _load()
         pt = "SÖZ" if fold_tr(puan_turu) == "soz" else puan_turu.upper()
         bf = fold_tr(bolum) if bolum else ""
         ilf = fold_tr(il) if il else ""
+        # Prefix eşleşme: "Vakıf" → VAKIF + VAKIF MYO; "all"/boş → filtre yok
+        utf = fold_tr(uni_turu) if uni_turu and fold_tr(uni_turu) != "all" else ""
 
         items = []
         for r in data:
@@ -98,9 +137,12 @@ class DgsService:
                 continue
             if ilf and ilf != fold_tr(r.get("city", "")):
                 continue
+            if utf and not fold_tr(r.get("university_type", "")).startswith(utf):
+                continue
             mp = r.get("min_puan")
-            if puan is not None and mp is not None and mp > puan:
-                continue  # taban puanın üstünde — yerleşilemez
+            ust_pay = 10.0 if oneri else 0.0
+            if puan is not None and mp is not None and mp > puan + ust_pay:
+                continue  # ulaşılamaz (öneri modunda +10'a kadar "üst seviye" sayılır)
             items.append({
                 "department_code": r["department_code"],
                 "program_adi": r.get("program_adi", ""),
@@ -113,12 +155,25 @@ class DgsService:
                 "yil": r.get("yil"),
             })
 
-        # Tabanı puana en yakın (en "değerli" ulaşılabilir) programlar önce;
-        # tabanı olmayanlar (geçen yıl boş kalanlar) sona
-        items.sort(key=lambda x: (x["min_puan"] is None, -(x["min_puan"] or 0)))
+        if oneri and puan is not None:
+            # Öneri modu (BULGU #4): limit, üst-seviye programları alıp
+            # güvenli/hedef'i kesmesin. Sıralama: (1) ULAŞILABİLİR (taban≤puan)
+            # programlar önce → tabanı yüksek "değerli" olan başta; (2) üst-seviye
+            # (taban puan+10'a kadar) sonra; (3) geçen yıl boş kalanlar en sonda.
+            def _oneri_key(x):
+                mp = x["min_puan"]
+                if mp is None:
+                    return (2, 0.0)
+                return (0 if mp <= puan else 1, -mp)
+            items.sort(key=_oneri_key)
+        else:
+            # Normal arama: tabanı puana en yakın (en "değerli" ulaşılabilir) önce
+            items.sort(key=lambda x: (x["min_puan"] is None, -(x["min_puan"] or 0)))
+        yil = items[0]["yil"] if items and items[0].get("yil") else 2025
         return {
             "total": len(items),
+            "yil": yil,  # ask_service başlığı ve frontend etiketleri veriden okusun
             "items": items[:limit],
-            "uyari": (f"Taban puanlar {items[0]['yil'] if items else 2025} DGS "
+            "uyari": (f"Taban puanlar {yil} DGS "
                       "yerleştirmesine aittir; yeni dönemde değişebilir."),
         }

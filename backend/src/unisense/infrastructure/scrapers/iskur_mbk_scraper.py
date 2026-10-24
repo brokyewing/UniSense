@@ -25,6 +25,9 @@ import requests
 
 from unisense.core.text import fold_tr
 
+from ._guard import ScrapeGuardError
+from ._guard import check as guard_check
+
 if sys.platform == "win32":
     import io as _io
     sys.stdout = _io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -97,8 +100,8 @@ def _extract_professions(pdf_path: Path) -> list[dict]:
     for s in sections:
         body = "\n".join(s["body"])
         # sayfa numarası / tekrar eden altbilgileri temizle
-        body = re.sub(r"^\d{1,3}$", "", body, flags=re.M)
-        body = re.sub(r"^Meslek Bilgi Kitapçığı$", "", body, flags=re.M)
+        body = re.sub(r"^\d{1,3}$", "", body, flags=re.MULTILINE)
+        body = re.sub(r"^Meslek Bilgi Kitapçığı$", "", body, flags=re.MULTILINE)
         body = re.sub(r"Meslek ile ilgili detayları diğer\s*\n?sayfada bulabilirsiniz\.?", "", body)
         body = re.sub(r"\n{3,}", "\n\n", body).strip()
         if len(body) >= MIN_BODY_CHARS:
@@ -191,9 +194,15 @@ def main() -> None:
     matched = _match_groups(professions, groups)
     print(f"🔗 Bölüm grubuyla güvenli eşleşen: {len(matched)}")
 
+    guard_check(OUT, matched, label="İŞKUR meslek rehberleri")
     json.dump(matched, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(f"✅ {OUT}")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except ScrapeGuardError as e:
+        print()
+        print(f"⛔ {e}")
+        sys.exit(1)

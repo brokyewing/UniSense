@@ -5,9 +5,9 @@ Sahil/metropol/merkez ilçe metadatası `data/raw/turkey_geo.json` dosyasından 
 from __future__ import annotations
 
 import json
+import re
 from functools import lru_cache
 from pathlib import Path
-
 
 REGIONS: dict[str, list[str]] = {
     "Marmara": [
@@ -50,15 +50,212 @@ REGIONS: dict[str, list[str]] = {
 }
 
 
+# Aksan/Türkçe-harf katlama tablosu. Kaynaklar il adını farklı yazıyor:
+# ilan.gov.tr "İSTANBUL", Jooble/Careerjet gibi yabancı API'ler "Istanbul".
+# Düz .upper() bunları eşleştiremiyordu (I ≠ İ) ve bölge sessizce "Bilinmiyor"
+# kalıyordu — bölge filtresini boş gösteren sinsi hata.
+_KATLAMA = str.maketrans({
+    "İ": "I", "I": "I", "ı": "I", "i": "I",
+    "Ş": "S", "ş": "S", "Ğ": "G", "ğ": "G",
+    "Ü": "U", "ü": "U", "Ö": "O", "ö": "O", "Ç": "C", "ç": "C",
+    "Â": "A", "â": "A", "Î": "I", "î": "I", "Û": "U", "û": "U",
+})
+
+
+def _katla(s: str) -> str:
+    """Karşılaştırma anahtarı: Türkçe harfleri ASCII'ye indir, boşlukları at."""
+    return "".join(ch for ch in s.upper().translate(_KATLAMA) if ch.isalnum())
+
+
+def _bolge_indeksi() -> dict[str, str]:
+    """Katlanmış il adı → bölge. Çakışma olursa import anında patlar."""
+    idx: dict[str, str] = {}
+    for region, cities in REGIONS.items():
+        for city in cities:
+            key = _katla(city)
+            if key in idx and idx[key] != region:
+                raise ValueError(f"Bölge tablosunda çakışma: {city} ({idx[key]} / {region})")
+            idx[key] = region
+    return idx
+
+
+_BOLGE_INDEX: dict[str, str] = _bolge_indeksi()
+
+# Katlanmış ad → REGIONS'taki KANONİK yazım. Çıkarım fonksiyonları eşleşen ham
+# metni değil bunu döndürür; yoksa "İSTANBUL" ve "İstanbul" ayrı il sayılıyordu
+# (ölçüm 2026-09-05: 355 ham değer → 102 il; kanonikleştirmeyle 81'e iner).
+_KANONIK_IL: dict[str, str] = {
+    _katla(city): city
+    for cities in REGIONS.values()
+    for city in cities
+}
+
+
+def kanonik_il(ad: str | None) -> str | None:
+    """İl adını REGIONS'taki tek yazıma çevir. Tanınmıyorsa None."""
+    if not ad:
+        return None
+    return _KANONIK_IL.get(_katla(ad))
+
+
+# Kurum adından il çıkarımı için bilinen istisnalar: adında il geçmeyen ama
+# ili belli kurumlar. Ölçüm (2026-09-05): ili boş 128 kayıttan 64'ü kurum
+# adındaki il adıyla çözülüyor; kalanların çoğu bu tür kurumlar.
+KURUM_IL_ISTISNA: dict[str, str] = {
+    "KARADENIZ TEKNIK": "TRABZON",
+    "ORTA DOGU TEKNIK": "ANKARA",
+    "BOGAZICI": "İSTANBUL",
+    "EGE UNIVERSITESI": "İZMİR",
+    "HACETTEPE": "ANKARA",
+    "GAZI UNIVERSITESI": "ANKARA",
+    "DOKUZ EYLUL": "İZMİR",
+    "ULUDAG": "BURSA",
+    "CUKUROVA": "ADANA",
+    "ATATURK UNIVERSITESI": "ERZURUM",
+    "INONU UNIVERSITESI": "MALATYA",
+    "FIRAT UNIVERSITESI": "ELAZIĞ",
+    "AKDENIZ UNIVERSITESI": "ANTALYA",
+    "ONDOKUZ MAYIS": "SAMSUN",
+    "PAMUKKALE": "DENİZLİ",
+    "SELCUK UNIVERSITESI": "KONYA",
+    "ANADOLU UNIVERSITESI": "ESKİŞEHİR",
+    "MARMARA UNIVERSITESI": "İSTANBUL",
+    "YILDIZ TEKNIK": "İSTANBUL",
+    "GEBZE TEKNIK": "KOCAELİ",
+    "TURKIYE SAGLIK ENSTITULERI": "İSTANBUL",
+    "KUZEY ANADOLU KALKINMA": "KASTAMONU",
+    "INEBOLU": "KASTAMONU",
+}
+
+
+@lru_cache(maxsize=1)
+def _ilce_il_indeksi() -> dict[str, str]:
+    """Katlanmış ilçe adı → il. `turkey_geo.json` içindeki `central_districts`
+    tablosundan türetilir (30 il, merkez ilçeler).
+
+    Neden: bazı kaynaklar il yazmadan yalnız ilçe/mahalle veriyor
+    ("Sarıyer, Maslak", "Sincan, Yenikent"). Bunlar ilçe adından çözülür.
+    Çakışan ilçe adları (birden çok ilde aynı ad) DIŞARIDA bırakılır —
+    yanlış il atamaktansa "Bilinmiyor" bırakmak yeğdir.
+    """
+    sayac: dict[str, set[str]] = {}
+    for il, ilceler in (_load_geo_json().get("central_districts") or {}).items():
+        for ilce in ilceler:
+            sayac.setdefault(_katla(ilce), set()).add(il)
+    return {k: next(iter(v)) for k, v in sayac.items() if len(v) == 1}
+
+
+def ilceden_il_bul(metin: str | None) -> str | None:
+    """İl yazmayan konum metninde ilçe adından il bul. Yoksa None."""
+    if not metin:
+        return None
+    idx = _ilce_il_indeksi()
+    for parca in re.split(r"[,/|\-]+", metin):
+        anahtar = _katla(parca.strip())
+        if anahtar in idx:
+            return _KANONIK_IL.get(anahtar_il := idx[anahtar], anahtar_il)
+    return None
+
+
+def metinden_il_bul(metin: str | None) -> str | None:
+    """Serbest metinde geçen il adını bul (kurum adı, başlık vb.).
+
+    Kamu kaynaklarının çoğu ayrı bir şehir alanı vermiyor; il bilgisi yalnız
+    kurum adında geçiyor ("ARDAHAN ÜNİVERSİTESİ" → ARDAHAN). Ölçüm
+    (2026-09-05, 128 ilsiz kayıt): kelime taramasıyla 64'ü çözülüyor.
+
+    Önce bilinen istisnalar (adında il geçmeyen kurumlar), sonra kelime
+    taraması. Bulunamazsa None.
+    """
+    if not metin:
+        return None
+    katlanmis = _katla(metin)
+    for anahtar, il in KURUM_IL_ISTISNA.items():
+        if _katla(anahtar) in katlanmis:
+            return il
+    # Kelime bazlı: 2 harften uzun kelimeler, il adıyla birebir eşleşme.
+    # Önek eşleme YAPILMAZ — "VAN" birçok kelimeyi yanlış eşleştirirdi.
+    for kelime in re.split(r"[\s,/|()\-]+", metin):
+        if len(kelime) > 2 and _katla(kelime) in _KANONIK_IL:
+            return _KANONIK_IL[_katla(kelime)]
+    return None
+
+
+def il_ilce_ayikla(konum: str | None) -> tuple[str | None, str | None, str]:
+    """Serbest konum metninden (il, ilce, bolge) çıkar.
+
+    İş ilanı kaynakları konumu tek alanda ve **tutarsız sırada** veriyor:
+      Jooble    -> "Ankara, Çankaya"   (il, ilçe)
+      Careerjet -> "Konak, İzmir"      (ilçe, il)
+    Bu yüzden sıraya güvenilmez; hangi parçanın 81 ilden biri olduğuna bakılır.
+
+    Ölçüm (2026-09-05, 487 kayıt): birleşik alan doğrudan `il_to_bolge`'ye
+    verildiğinde 336 kayıtta bölge "Bilinmiyor" kalıyordu (%69).
+
+    Dönüş: il bulunamazsa (None, None, "Bilinmiyor"); ilçe yoksa ilce None.
+    """
+    if not konum:
+        return None, None, "Bilinmiyor"
+
+    parcalar = [p.strip() for p in re.split(r"[,/|]", konum) if p.strip()]
+    if not parcalar:
+        return None, None, "Bilinmiyor"
+
+    il = ilce = None
+    # 1) Parçanın tamamı bir il mi? ("Ankara", "İzmir")
+    for parca in parcalar:
+        if _katla(parca) in _BOLGE_INDEX:
+            il = parca
+            break
+    # 2) Değilse parça içindeki KELİMELERDEN biri il mi?
+    #    "İstanbul Avrupa" / "İstanbul Anadolu Yakası" gibi yakalar (66 kayıt).
+    #    Kelime bazlı; önek eşleme yapılmaz, yoksa "Van" birçok kelimeyi yanlış
+    #    eşleştirirdi.
+    kelimeden = False
+    if il is None:
+        for parca in parcalar:
+            for kelime in parca.split():
+                if _katla(kelime) in _BOLGE_INDEX:
+                    il, kelimeden = kelime, True
+                    # İl kelimesi çıkarılınca kalan varsa o ilçe/yaka etiketidir:
+                    # "İstanbul Avrupa" -> ilçe "Avrupa" (tüm metin DEĞİL).
+                    artik = " ".join(k for k in parca.split() if k != kelime).strip()
+                    ilce = artik or None
+                    break
+            if il:
+                break
+    if il is None:
+        # İl yazılmamış olabilir ("Sarıyer, Maslak") — ilçe adından çöz.
+        ilceden = ilceden_il_bul(konum)
+        if ilceden:
+            return ilceden, parcalar[0], _BOLGE_INDEX.get(_katla(ilceden), "Bilinmiyor")
+        return None, None, "Bilinmiyor"
+
+    # İlçe, EŞLEŞEN HAM parçadan hesaplanır; kanonikleştirme en sonda yapılır.
+    # (Önce kanonikleştirilirse `p is not il` kimlik karşılaştırması tutmaz ve
+    #  "Ankara, Çankaya" için ilçe yanlışlıkla "Ankara" olur.)
+    if not kelimeden:
+        kalan = [p for p in parcalar if p is not il]
+        ilce = kalan[0] if kalan else None
+    kanonik = _KANONIK_IL.get(_katla(il), il)
+    return kanonik, ilce, _BOLGE_INDEX.get(_katla(kanonik), "Bilinmiyor")
+
+
 def il_to_bolge(il_adi: str | None) -> str:
-    """İl adından bölgeyi bul. Bilinmiyorsa 'Bilinmiyor' döner."""
+    """İl adından bölgeyi bul. Bilinmiyorsa 'Bilinmiyor' döner.
+
+    Yazım farklarına dayanıklıdır: "İSTANBUL", "Istanbul", "istanbul",
+    " İstanbul " hepsi "Marmara" döner.
+    """
     if not il_adi:
         return "Bilinmiyor"
-    il_norm = il_adi.strip().upper()
-    for region, cities in REGIONS.items():
-        if il_norm in cities:
-            return region
-    return "Bilinmiyor"
+    dogrudan = _BOLGE_INDEX.get(_katla(il_adi))
+    if dogrudan:
+        return dogrudan
+    # Çağıranlar konumu çoğu zaman birleşik veriyor ("Ankara, Çankaya",
+    # "Konak, İzmir", "İstanbul Avrupa"). Doğrudan eşleşme tutmazsa ayıklayıcıya
+    # düş — yoksa bölge sessizce "Bilinmiyor" kalıyordu (486 kayıtta 339'u).
+    return il_ilce_ayikla(il_adi)[2]
 
 
 # İl kodu → ad (ÖSYM standart kodları)

@@ -1,0 +1,54 @@
+name: Streak Hatırlatma (Push)
+
+# Her gün seri riskteki kullanıcılara "serini koru" push bildirimi yollar.
+# Backend'e (Render) SIFIR yük — tamamen GitHub Actions + Firebase Admin.
+#
+# Kurulum: FIREBASE_SERVICE_ACCOUNT + FIREBASE_PROJECT_ID secret'ları zaten
+# firebase-rules.yml için tanımlı; ek secret gerekmez. Client tarafında
+# VITE_FIREBASE_VAPID_KEY (Vercel env) ayarlıysa kullanıcılar bildirim açabilir.
+
+on:
+  schedule:
+    - cron: '0 16 * * *'   # 16:00 UTC = 19:00 TR (akşam çalışma saati hatırlatması)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Write service account credentials
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "::error::FIREBASE_SERVICE_ACCOUNT secret tanımlı değil (firebase-rules.yml ile aynı secret)."
+            exit 1
+          fi
+          echo "$FIREBASE_SERVICE_ACCOUNT" > /tmp/firebase-sa.json
+
+      # Sürüm pin'li — pin'siz npx/npm install çalışma anında en yeni sürümü +
+      # tüm geçişli ağacı çeker; bu adımda admin service-account anahtarı ortamda
+      # olduğundan kötü niyetli bir sürüm proje ele geçirebilir (bkz. firebase-rules.yml).
+      - name: Install firebase-admin
+        run: npm install --no-save firebase-admin@14.2.0
+
+      - name: Send streak reminders
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-sa.json
+        run: node scripts/send-streak-reminders.mjs
+
+      - name: Cleanup credentials
+        if: always()
+        run: rm -f /tmp/firebase-sa.json

@@ -22,6 +22,9 @@ from typing import Any
 import requests
 from bs4 import BeautifulSoup
 
+from ._guard import ScrapeGuardError
+from ._guard import check as guard_check
+
 if sys.platform == "win32":
     import io as _io
     sys.stdout = _io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -264,6 +267,7 @@ def main() -> None:
             with open(out_file, "w", encoding="utf-8") as f:
                 json.dump(output, f, ensure_ascii=False, indent=2)
 
+    guard_check(out_file, output, label="Wikipedia infobox")
     # Final kayıt
     with open(out_file, "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
@@ -277,4 +281,9 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except ScrapeGuardError as e:
+        print()
+        print(f"⛔ {e}")
+        sys.exit(1)

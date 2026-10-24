@@ -12,12 +12,27 @@ class ChatTurn(BaseModel):
 
 
 class UserExamContext(BaseModel):
-    """Profilden gelen sınav puanları — KPSS/DGS sorularında otomatik kullanılır."""
-    exam_track: str | None = Field(None, pattern="^(YKS|DGS|KPSS)$")
+    """Profilden gelen sınav puanları — YKS/KPSS/DGS sorularında otomatik kullanılır."""
+    exam_track: str | None = Field(None, pattern="^(YKS|DGS|KPSS|LGS)$")
+    # YKS: "puanıma göre X kazanabilir miyim" için profildeki puan/sıra/tür
+    yks_puan: float | None = Field(None, ge=0, le=600)
+    yks_turu: str | None = Field(None, pattern="^(SAY|EA|SÖZ|DİL|TYT)$")
+    yks_sira: int | None = Field(None, ge=1, le=3_500_000)
     kpss_puan: float | None = Field(None, ge=0, le=120)
     kpss_duzey: str | None = Field(None, pattern="^(lisans|önlisans|ortaöğretim)$")
     dgs_puan: float | None = Field(None, ge=0, le=600)
     dgs_turu: str | None = Field(None, pattern="^(SAY|EA|SÖZ)$")
+    # Tüm sınav profili — chat'e tek blok olarak iletilir (KENDİ verisi)
+    tus_puan: float | None = Field(None, ge=0, le=100)
+    dus_puan: float | None = Field(None, ge=0, le=100)
+    lgs_yuzdelik: float | None = Field(None, ge=0, le=100)
+    ags_net: float | None = Field(None, ge=0, le=120)
+    tercih_sehirler: list[str] | None = Field(None, max_length=10)
+    tercih_uni_turu: str | None = Field(None, max_length=20)
+    # Çalışma ilerlemesi (Konu Takibi + Çalışmalarım) — "bana plan yap" tarzı sorular için
+    calisma_kalan_konu: int | None = Field(None, ge=0, le=5000)
+    calisma_toplam_konu: int | None = Field(None, ge=0, le=5000)
+    calisma_zayif: list[str] | None = Field(None, max_length=6)
 
 
 class AskRequest(BaseModel):
@@ -78,10 +93,21 @@ class StudentProfileRequest(BaseModel):
     score_type: ScoreType
     score: float | None = Field(None, ge=0, le=600)
     rank: int | None = Field(None, ge=1)
-    preferred_cities: list[str] = Field(default_factory=list)
-    preferred_uni_types: list[str] = Field(default_factory=list)
-    preferred_languages: list[str] = Field(default_factory=list)
-    preferred_departments: list[str] = Field(default_factory=list)
+    # max_length: aşırı-boyutlu gövde DoS'unu engelle (81 il, birkaç tür/dil
+    # yeter — sınırsız liste 512MB instance'ı OOM'a sürükleyebilir)
+    preferred_cities: list[str] = Field(default_factory=list, max_length=81)
+    preferred_uni_types: list[str] = Field(default_factory=list, max_length=10)
+    preferred_languages: list[str] = Field(default_factory=list, max_length=10)
+    preferred_departments: list[str] = Field(default_factory=list, max_length=50)
+
+
+class SiralamaResponse(BaseModel):
+    """Hesap makinesi: yerleştirme puanından tahmini başarı sırası."""
+    puan: float
+    tur: str
+    tahmini_sira: int
+    # "alt"/"ust" = puan veri aralığının dışında (uçta tahmin daha zayıf); None = aralık içi
+    sinir: str | None = None
 
 
 class RecommendationItem(BaseModel):
@@ -96,6 +122,11 @@ class RecommendationItem(BaseModel):
     placement_probability: float | None = None
     last_year_base_rank: int | None = None
     last_year_base_score: float | None = None
+    scholarship: str = ""
+    education_language: str = ""
+    duration_years: int | None = None
+    osym_conditions: list[str] = []
+    trend: list[dict] = []
 
 
 class RecommendResponse(BaseModel):
@@ -214,7 +245,8 @@ class KpssKadroRequest(BaseModel):
     bolum: str = Field(default="", max_length=120)
     puan: float | None = Field(None, ge=0, le=120)
     duzey: str | None = Field(None, pattern="^(lisans|önlisans|ortaöğretim)$")
-    il: str | None = Field(None, max_length=40)
+    il: str | None = Field(None, max_length=40)          # tekil (geriye uyum)
+    iller: list[str] | None = Field(None, max_length=20)  # çoklu şehir seçimi
     limit: int = Field(default=30, ge=1, le=100)
 
 
@@ -246,6 +278,8 @@ class DgsProgramRequest(BaseModel):
     puan: float | None = Field(None, ge=0, le=600)
     bolum: str = Field(default="", max_length=120)
     il: str | None = Field(None, max_length=40)
+    uni_turu: str | None = Field(None, max_length=20)  # Devlet | Vakıf | all
+    oneri: bool = False  # true → tabanı puanın 10 puana kadar üstünde olanlar da döner (üst seviye)
     limit: int = Field(default=30, ge=1, le=100)
 
 
@@ -298,6 +332,10 @@ class CompareTrendPoint(BaseModel):
 class CompareItem(BaseModel):
     code: str
     found: bool
+    # DGS (dikey geçiş) — kod eşleşirse taban/kontenjan
+    dgs_min_puan: float | None = None
+    dgs_puan_turu: str | None = None
+    dgs_kontenjan: int | None = None
     # Program
     department_name: str = ""
     department_group: str = ""
@@ -371,3 +409,259 @@ class CompassAxesRequest(BaseModel):
     research: float = Field(..., ge=1, le=5)
     field: float = Field(..., ge=1, le=5)
     top_k: int = Field(default=15, ge=3, le=30)
+
+
+# === Bölüm Rehberi (gezilebilir /bolum katalog + detay) ===
+
+class GuideListItem(BaseModel):
+    slug: str
+    name: str
+    category: str = ""
+    program_count: int = 0
+    summary: str = ""
+
+
+class GuideListResponse(BaseModel):
+    total: int
+    items: list[GuideListItem]
+
+
+class GuideProgram(BaseModel):
+    department_code: str
+    university_name: str = ""
+    university_type: str = ""
+    city: str = ""
+    score_type: str = ""
+    base_score: float | None = None
+    base_rank: int | None = None
+    quota: int | None = None
+    scholarship: str = ""
+    education_language: str = ""
+
+
+class GuideDetailResponse(BaseModel):
+    slug: str
+    name: str
+    category: str = ""
+    program_count: int = 0
+    data_yili: int | None = None  # taban/sıra verilerinin yılı (rankings'ten)
+    summary: str = ""
+    content: str = ""
+    programs: list[GuideProgram]
+
+
+# === Haber / Sınav Takvimi ===
+
+class ExamEvent(BaseModel):
+    id: str = ""
+    sinav: str = ""
+    tam_ad: str = ""
+    tur: str = ""          # sinav | sonuc | tercih | yerlestirme | basvuru
+    tarih: str = ""        # ISO (süreli etkinlikte başlangıç)
+    bitis: str | None = None   # süreli etkinlik bitişi (ör. tercih dönemi)
+    devam: bool = False        # başlangıç geçti ama bitiş gelmedi → sürüyor
+    aciklama: str = ""
+    kaynak: str = ""
+    tahmini: bool = False
+    kalan_gun: int = 0
+
+
+class ExamCalendarResponse(BaseModel):
+    guncelleme: str = ""
+    not_: str = Field(default="", alias="not")
+    yaklasan: list[ExamEvent]
+    gecmis: list[ExamEvent] = []
+
+    model_config = {"populate_by_name": True}
+
+
+# === LGS tercih robotu (tersine öneri) ===
+
+class LgsOneriRequest(BaseModel):
+    yuzdelik: float = Field(..., ge=0, le=100)  # Türkiye geneli yüzdelik dilim
+    il: str | None = Field(None, max_length=40)  # tekil (geriye uyum)
+    # max_length: KpssKadroRequest.iller (max 20) ile tutarlı — sınırsız liste
+    # aşırı-boyutlu gövdeyle 512MB instance'ı OOM'a sürükleyebilir (DoS)
+    iller: list[str] | None = Field(None, max_length=81)   # çoklu il seçimi
+    ilce: str | None = Field(None, max_length=60)
+    turler: list[str] | None = Field(None, max_length=20)  # fen, anadolu, sosyal, imam_hatip, meslek...
+    pansiyon: str | None = Field(None, max_length=10)       # 'var' (yatılı) | 'yok' (gündüz) | None
+
+
+class LgsTrendPoint(BaseModel):
+    yil: int
+    yuzdelik: float
+    puan: float | None = None
+
+
+class LgsLise(BaseModel):
+    okul: str
+    il: str = ""
+    ilce: str = ""
+    tur: str = ""
+    dil: str = ""
+    taban_puan: float | None = None
+    yuzdelik: float | None = None
+    kontenjan: int | None = None
+    pansiyon: str | None = None
+    trend: list[LgsTrendPoint] = []
+    # Çok-yıllı arşiv değerlendirmesi: zorlasiyor | kolaylasiyor | istikrarli
+    trend_yonu: str | None = None
+
+
+class LgsOneriResponse(BaseModel):
+    yuzdelik: float
+    guncelleme: str = ""
+    kaynak: str = ""
+    not_: str = Field(default="", alias="not")
+    yil: int | None = None
+    toplam: int | None = None
+    sayilar: dict[str, int]
+    guvenli: list[LgsLise]
+    tutar: list[LgsLise]
+    riskli: list[LgsLise]
+
+    model_config = {"populate_by_name": True}
+
+
+class LgsIllerResponse(BaseModel):
+    iller: list[str]
+
+
+class LgsIlcelerResponse(BaseModel):
+    ilceler: list[str]
+
+
+# === TUS/DUS uzmanlık tercih robotu ===
+
+class TusOneriRequest(BaseModel):
+    puan: float = Field(..., ge=0, le=100)      # K veya T puanı
+    sinav: str = Field("TUS", max_length=10)    # TUS | DUS
+    dal: str | None = Field(None, max_length=120)          # uzmanlık dalı (tam eşleşme)
+    kontenjan_turu: str | None = Field(None, max_length=40)  # Genel | Yabancı Uyruklu
+    kurum: str | None = Field(None, max_length=120)        # kurum adı içinde arama
+
+
+class TusProgram(BaseModel):
+    kod: str = ""
+    ad: str = ""
+    kurum: str | None = None
+    dal: str = ""
+    kontenjan_turu: str = ""
+    kontenjan: int | None = None
+    yerlesen: int | None = None
+    bos: int | None = None
+    min_puan: float | None = None
+    max_puan: float | None = None
+
+
+class TusOneriResponse(BaseModel):
+    sinav: str = "TUS"
+    donem: str = ""
+    puan: float
+    not_: str = Field(default="", alias="not")
+    sayilar: dict[str, int]
+    guvenli: list[TusProgram]
+    tutar: list[TusProgram]
+    riskli: list[TusProgram]
+
+    model_config = {"populate_by_name": True}
+
+
+class TusMetaResponse(BaseModel):
+    sinav: str = "TUS"
+    donem: str = ""
+    guncelleme: str = ""
+    kaynak: str = ""
+    kaynak_url: str = ""
+    toplam: int | None = None
+    taban_puanli: int | None = None
+    dallar: list[str] = []
+
+
+# === Kariyer (günlük ilan sinyalleri + kaynak rehberi) ===
+
+class KariyerIlan(BaseModel):
+    id: str = ""
+    hat: str = ""
+    kaynak: str = ""
+    baslik: str = ""
+    kurum: str = ""
+    sehir: str = ""
+    tarih: str = ""
+    url: str = ""
+    ozet: str = ""
+    detay: dict = {}
+    ilk_gorulme: str = ""
+    yeni: bool = False
+    bolumler: list[str] = []
+    # Şema v2 (eklemeli): eksikler servis tarafında bilinmiyor/null dolar
+    kaynak_kod: str = ""
+    il: str = ""
+    ilce: str = ""
+    bolge: str = ""
+    calisma_sekli: str = "bilinmiyor"
+    istihdam_turu: str = "bilinmiyor"
+    deneyim: str = "bilinmiyor"
+    pozisyon_etiket: list[str] = []
+    kpss: bool | None = None
+    maas: dict | None = None
+    son_basvuru: str | None = None
+
+
+class KariyerIlanlarResponse(BaseModel):
+    toplam: int
+    sayfa: int = 1
+    boyut: int = 20
+    ilanlar: list[KariyerIlan]
+
+
+class KariyerKaynak(BaseModel):
+    id: str = ""
+    hat: str = ""
+    tip: str = ""
+    ad: str = ""
+    url: str = ""
+    not_: str = Field(default="", alias="not")
+
+    model_config = {"populate_by_name": True}
+
+
+class KariyerKaynaklarResponse(BaseModel):
+    toplam: int
+    kaynaklar: list[KariyerKaynak]
+
+
+class KariyerMetaResponse(BaseModel):
+    toplam: int = 0
+    kaynak_sayisi: int = 0
+    son_tarih: str = ""
+    rehber_kaynak: int = 0
+    son_kosu: dict = {}
+
+
+class KariyerBolum(BaseModel):
+    id: str = ""
+    label: str = ""
+    sayi: int = 0
+
+
+class KariyerBolumlerResponse(BaseModel):
+    toplam: int
+    bolumler: list[KariyerBolum]
+
+
+class KariyerFacetItem(BaseModel):
+    id: str = ""
+    sayi: int = 0
+    bolge: str = ""
+
+
+class KariyerFiltrelerResponse(BaseModel):
+    hat: list[KariyerFacetItem] = []
+    bolge: list[KariyerFacetItem] = []
+    il: list[KariyerFacetItem] = []
+    calisma_sekli: list[KariyerFacetItem] = []
+    istihdam_turu: list[KariyerFacetItem] = []
+    deneyim: list[KariyerFacetItem] = []
+    kaynak: list[KariyerFacetItem] = []

@@ -3,6 +3,27 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "uni-sense.vercel.app" }],
+      "destination": "https://www.unisense.com.tr/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "unisense.com.tr" }],
+      "destination": "https://www.unisense.com.tr/:path*",
+      "permanent": true
+    },
+    { "source": "/home", "destination": "/anasayfa", "permanent": true },
+    { "source": "/search", "destination": "/arama", "permanent": true },
+    { "source": "/recommend", "destination": "/oneriler", "permanent": true },
+    { "source": "/login", "destination": "/giris", "permanent": true },
+    { "source": "/profile", "destination": "/profil", "permanent": true },
+    { "source": "/privacy", "destination": "/gizlilik", "permanent": true },
+    { "source": "/compare", "destination": "/karsilastir", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],

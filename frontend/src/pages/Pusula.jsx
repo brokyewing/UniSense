@@ -67,14 +67,26 @@ function CardsMode({ onResult }) {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [savedToProfile, setSavedToProfile] = useState(false)
+  const [examTrack, setExamTrack] = useState('YKS')  // profil sınav yolu
 
-  // İlgi taksonomisini yükle + login user'ın profile'ından önceki ilgileri al
+  // İlgi taksonomisini yükle + login user'ın profile'ından önceki ilgileri al.
+  // Taksonomi nadiren değişir → sessionStorage'dan ANINDA göster, arka planda tazele.
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
     setError('')
 
-    // Paralel: taksonomi + (varsa) kullanıcı profili
+    let cached = null
+    try {
+      const raw = sessionStorage.getItem('compass_interests')
+      if (raw) cached = JSON.parse(raw)
+    } catch { /* cache yok/bozuk */ }
+    if (cached?.categories?.length) {
+      setTaxonomy(cached)
+      setLoading(false)
+    } else {
+      setLoading(true)
+    }
+
     const taxoPromise = apiFetch('/api/v1/compass/interests')
     const profilePromise = user
       ? getUserProfile(user.uid).catch(() => null)
@@ -83,17 +95,21 @@ function CardsMode({ onResult }) {
     Promise.all([taxoPromise, profilePromise])
       .then(([data, profileData]) => {
         if (cancelled) return
-        if (!data?.categories?.length) throw new Error('İlgi listesi boş döndü')
-        setTaxonomy(data)
-        // Önceki ilgileri profilden yükle
+        if (data?.categories?.length) {
+          setTaxonomy(data)
+          try { sessionStorage.setItem('compass_interests', JSON.stringify(data)) } catch { /* kota */ }
+        } else if (!cached) {
+          throw new Error('İlgi listesi boş döndü')
+        }
         const prev = profileData?.profile?.preferredInterests
         if (Array.isArray(prev) && prev.length > 0) {
           setSelected(new Set(prev))
           setSavedToProfile(true)
         }
+        if (profileData?.profile?.examTrack) setExamTrack(profileData.profile.examTrack)
       })
       .catch((e) => {
-        if (cancelled) return
+        if (cancelled || cached) return  // cache varsa arka plan hatasını yut
         console.error('[Pusula interests fetch]', e)
         setError(e.message || String(e))
       })
@@ -157,9 +173,11 @@ function CardsMode({ onResult }) {
             <div className="font-semibold text-rose-200">İlgi listesi yüklenemedi</div>
             <div className="text-sm text-rose-200/80 mt-1">{error}</div>
             <div className="text-xs text-slate-400 mt-3">
-              Backend'in <code className="px-1 rounded bg-black/30">localhost:8002</code>
-              {' '}üzerinde çalıştığından emin ol; gerekirse <code className="px-1 rounded bg-black/30">start.bat</code>
-              {' '}ile yeniden başlat.
+              {import.meta.env.DEV ? (
+                <>Backend'in <code className="px-1 rounded bg-black/30">localhost:8002</code> üzerinde çalıştığından emin ol.</>
+              ) : (
+                'Sunucuya ulaşılamadı — birkaç saniye sonra tekrar dene.'
+              )}
             </div>
           </div>
         </div>
@@ -180,6 +198,19 @@ function CardsMode({ onResult }) {
 
   return (
     <div className="space-y-4">
+      {/* DGS/KPSS kullanıcısına: Pusula YKS bölüm önerisi içindir (BULGU #17) */}
+      {(examTrack === 'DGS' || examTrack === 'KPSS') && (
+        <div className="card border-amber-500/30 bg-amber-500/10 text-sm text-amber-200 flex items-start gap-2">
+          <span className="shrink-0">💡</span>
+          <span>
+            İlgi Pusulası <strong>YKS bölüm önerisi</strong> içindir. Sınav yolun{' '}
+            <strong>{examTrack}</strong>; {examTrack} tercihlerini{' '}
+            <a href="/oneriler" className="text-accent-300 hover:underline">Öneriler</a>{' '}
+            sayfasındaki {examTrack} sekmesinden puanınla yapabilirsin. Yine de
+            ilgilerini keşfetmek istersen buradan devam edebilirsin.
+          </span>
+        </div>
+      )}
       {/* Sayaç + arama + submit */}
       <div className="card flex flex-col md:flex-row gap-3 items-stretch md:items-center">
         <div className="flex-1 flex items-center gap-3 flex-wrap">
@@ -300,7 +331,7 @@ function CardsMode({ onResult }) {
                           ? 'bg-gradient-to-br from-brand-500/30 to-accent-500/30 border-accent-400/50 text-white shadow-lg shadow-accent-500/20'
                           : disabled
                           ? 'border-white/5 bg-white/[0.02] text-slate-500 cursor-not-allowed'
-                          : 'glass glass-hover border-white/10 text-slate-300 hover:border-accent-500/40 hover:text-accent-200'
+                          : 'bg-white/5 hover:bg-white/10 border-white/10 text-slate-300 hover:border-accent-500/40 hover:text-accent-200'
                       }`}
                     >
                       {isSelected && <Check size={11} className="opacity-80" />}
@@ -342,7 +373,7 @@ function TextMode() {
   function ask() {
     const t = text.trim()
     if (t.length < 3) return
-    navigate(`/search?q=${encodeURIComponent(t)}`)
+    navigate(`/arama?q=${encodeURIComponent(t)}`)
   }
 
   return (
@@ -606,7 +637,7 @@ function ResultMatch({ match, index, onRemove }) {
           {match.program_count} program
         </span>
         <Link
-          to={`/search?q=${encodeURIComponent(match.name)}`}
+          to={`/arama?q=${encodeURIComponent(match.name)}`}
           className="text-xs px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-accent-500/20 hover:text-accent-200 text-slate-300 transition flex items-center gap-1"
         >
           Detay <ChevronRight size={12} />
@@ -633,7 +664,7 @@ function ResultsSection({ result, onClear, onRemoveMatch }) {
     } catch (e) {
       console.warn('sessionStorage yazılamadı', e)
     }
-    navigate('/recommend')
+    navigate('/oneriler')
   }
 
   const modeLabel =
@@ -683,7 +714,7 @@ function ResultsSection({ result, onClear, onRemoveMatch }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4 gap-3">
         <AnimatePresence>
           {matches.map((m, i) => (
             <ResultMatch
@@ -723,7 +754,7 @@ export default function Pusula() {
     <>
       <BackgroundScene />
 
-      <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="space-y-6">
         {/* Hero */}
         <div className="text-center mb-2">
           <motion.div

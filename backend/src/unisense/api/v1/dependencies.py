@@ -9,8 +9,14 @@ from unisense.application.services import (
 )
 from unisense.core.di import (
     get_ask_service as _di_ask,
+)
+from unisense.core.di import (
     get_compare_service as _di_compare,
+)
+from unisense.core.di import (
     get_compass_service as _di_compass,
+)
+from unisense.core.di import (
     get_recommendation_service as _di_rec,
 )
 
@@ -39,3 +45,28 @@ def kpss_service_dep():
 def dgs_service_dep():
     from unisense.core.di import get_dgs_service
     return get_dgs_service()
+
+
+def guide_service_dep():
+    from unisense.core.di import get_guide_service
+    return get_guide_service()
+
+
+def news_service_dep():
+    from unisense.core.di import get_news_service
+    return get_news_service()
+
+
+def lgs_service_dep():
+    from unisense.core.di import get_lgs_service
+    return get_lgs_service()
+
+
+def tus_service_dep():
+    from unisense.core.di import get_tus_service
+    return get_tus_service()
+
+
+def kariyer_service_dep():
+    from unisense.core.di import get_kariyer_service
+    return get_kariyer_service()

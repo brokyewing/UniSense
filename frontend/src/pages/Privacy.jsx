@@ -107,7 +107,7 @@ export default function Privacy() {
     <>
       <BackgroundScene />
 
-      <div className="space-y-8 max-w-4xl mx-auto">
+      <div className="space-y-8">
         {/* Hero */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -327,7 +327,7 @@ export default function Privacy() {
           className="text-center py-6"
         >
           <Link
-            to="/home"
+            to="/anasayfa"
             className="text-sm text-slate-400 hover:text-accent-300 transition inline-flex items-center gap-2"
           >
             ← Ana sayfaya dön

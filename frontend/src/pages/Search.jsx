@@ -16,6 +16,7 @@ import {
   getUserProfile,
 } from '../firebase'
 import { apiFetch } from '../lib/api'
+import { eksikKonular } from '../lib/konu'
 
 function Avatar({ kind, photoURL }) {
   if (kind === 'user') {
@@ -280,10 +281,17 @@ export default function Search() {
   // puan yazmaya gerek kalmaz, backend profildekini kullanır
   useEffect(() => {
     if (!user) { setExamCtx(null); return }
-    getUserProfile(user.uid).then((p) => {
+    getUserProfile(user.uid).then(async (p) => {
       const prof = p?.profile || {}
       const ctx = {}
       if (prof.examTrack) ctx.exam_track = prof.examTrack
+      // YKS puanı/sırası — "puanıma göre X kazanabilir miyim" tarzı sorularda
+      // backend profildekini kullanır, kullanıcı tekrar yazmak zorunda kalmaz
+      if (prof.score) {
+        ctx.yks_puan = prof.score
+        if (prof.scoreType) ctx.yks_turu = prof.scoreType
+      }
+      if (prof.rank) ctx.yks_sira = prof.rank
       if (prof.kpss?.score) {
         ctx.kpss_puan = prof.kpss.score
         if (prof.kpss.duzey) ctx.kpss_duzey = prof.kpss.duzey
@@ -291,6 +299,35 @@ export default function Search() {
       if (prof.dgs?.score) {
         ctx.dgs_puan = prof.dgs.score
         if (prof.dgs.type) ctx.dgs_turu = prof.dgs.type
+      }
+      // Tüm sınav profili → bot her sohbette kullanıcının tüm bilgilerine erişir
+      if (prof.tus?.score) ctx.tus_puan = prof.tus.score
+      if (prof.dus?.score) ctx.dus_puan = prof.dus.score
+      if (prof.lgs?.yuzdelik != null) ctx.lgs_yuzdelik = prof.lgs.yuzdelik
+      if (prof.ags?.net != null) ctx.ags_net = prof.ags.net
+      if (prof.preferredCities?.length) ctx.tercih_sehirler = prof.preferredCities.slice(0, 10)
+      if (prof.preferredUniType && prof.preferredUniType !== 'all') {
+        ctx.tercih_uni_turu = prof.preferredUniType
+      }
+      // Çalışma ilerlemesi → AI "bana X günde plan yap" sorularında gerçek veriye dayanır
+      const track = prof.examTrack
+      if (track && ['YKS', 'DGS', 'KPSS', 'LGS'].includes(track)) {
+        try {
+          const checked = JSON.parse(localStorage.getItem('unisense_konu_v1_' + track) || '{}')
+          const konuData = await apiFetch(`/api/v1/konular?sinav=${track}`)
+          const { toplam, eksik } = eksikKonular(konuData, checked)
+          if (toplam) { ctx.calisma_toplam_konu = toplam; ctx.calisma_kalan_konu = eksik.length }
+        } catch { /* konu verisi alınamadı → atla */ }
+        try {
+          const m = new Map()
+          for (const r of JSON.parse(localStorage.getItem('unisense_soru_' + track) || '[]')) {
+            const k = r.konu || r.ders; if (!k) continue
+            const o = m.get(k) || { konu: k, c: 0, d: 0 }
+            o.c += r.cozulen || 0; o.d += r.dogru || 0; m.set(k, o)
+          }
+          const zayif = [...m.values()].filter((o) => o.c >= 5 && o.d / o.c < 0.6).slice(0, 6).map((o) => o.konu)
+          if (zayif.length) ctx.calisma_zayif = zayif
+        } catch { /* noop */ }
       }
       setExamCtx(Object.keys(ctx).length ? ctx : null)
     }).catch(() => {})
@@ -503,12 +540,13 @@ export default function Search() {
       setMessages((m) => [...m, { role: 'bot', loading: true, _temp: true }])
     }
 
-    // Multi-turn için son 4 mesajı (yaklaşık 2 turn) history olarak ekle
-    // Yeni kullanıcı sorgusu HENÜZ messages'a girmemiş olabilir (logged-in için
-    // watchSessionMessages render edecek), o yüzden mevcut messages = öncesi
+    // Multi-turn için son 8 mesajı (~4 turn) history olarak ekle — aynı oturumda
+    // bağlam sürsün, bot eski mesajları hatırlasın. Yeni kullanıcı sorgusu HENÜZ
+    // messages'a girmemiş olabilir (logged-in için watchSessionMessages render
+    // edecek), o yüzden mevcut messages = öncesi.
     const recentHistory = messages
       .filter((m) => !m._temp && !m.loading && m.text)
-      .slice(-4)
+      .slice(-8)
       .map((m) => ({ role: m.role === 'bot' ? 'bot' : 'user', text: m.text }))
 
     try {
@@ -530,12 +568,22 @@ export default function Search() {
       }
 
       if (sid && user) {
-        await addSessionMessage(user.uid, sid, botMsg)
-        // Loading temp'i sil — watchSessionMessages gerçek halini getirecek
-        setMessages((m) => m.filter((x) => !x._temp))
-        // Session başlığını ilk mesajdan sonra güncelle
-        if (messages.length === 0) {
-          await updateSessionTitle(user.uid, sid, text)
+        try {
+          // text rules sınırına (strMax 10000) kırpılır — aşan cevap yazımı reddettirmesin
+          await addSessionMessage(user.uid, sid, { ...botMsg, text: String(botMsg.text).slice(0, 10000) })
+          // Loading temp'i sil — watchSessionMessages gerçek halini getirecek
+          setMessages((m) => m.filter((x) => !x._temp))
+          // Session başlığını ilk mesajdan sonra güncelle
+          if (messages.length === 0) {
+            await updateSessionTitle(user.uid, sid, text).catch(() => {})
+          }
+        } catch {
+          // Kayıt başarısız (rules/offline) olsa bile ALINMIŞ cevabı ekranda göster —
+          // önceden dış catch'e düşüp yanıltıcı 'sunucuya ulaşılamadı' basılıyordu
+          setMessages((m) => [
+            ...m.filter((x) => !x._temp),
+            { role: 'bot', text: botMsg.text, docs: botMsg.docs, latency: botMsg.latency_ms },
+          ])
         }
       } else {
         setMessages((m) => [
@@ -610,7 +658,7 @@ export default function Search() {
         )}
       </AnimatePresence>
 
-      <div className="flex gap-4 max-w-7xl mx-auto -mx-2 lg:-mx-0">
+      <div className="flex gap-4">
         {/* Sidebar — sol */}
         <ChatSidebar
           activeSessionId={activeSessionId}
