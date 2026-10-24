@@ -2210,6 +2210,11 @@
     "puanTuru": "SÖZ"
   },
   {
+    "birimGrupId": 6855,
+    "birimGrupAdi": "Robotik ve Otonom Sistemler Mühendisliği",
+    "puanTuru": "SAY"
+  },
+  {
     "birimGrupId": 6856,
     "birimGrupAdi": "Robotik ve Yapay Zeka",
     "puanTuru": "TYT"
