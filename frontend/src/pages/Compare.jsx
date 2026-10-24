@@ -3,10 +3,11 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   BarChart3, Loader2, AlertCircle, ArrowLeft, TrendingUp,
-  TrendingDown, Minus, Award, Calendar, Users, Building2,
+  Award, Calendar, Users, Building2,
   MapPin, GraduationCap, ExternalLink, X,
 } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
+import MiniTrend from '../components/MiniTrend'
 import { apiFetch } from '../lib/api'
 
 
@@ -23,64 +24,16 @@ function fmtScore(v) {
   return v == null ? '—' : Number(v).toFixed(2)
 }
 
-function fmtFee(v) {
-  if (!v) return 'Devlet (ücretsiz)'
-  return v.toLocaleString('tr-TR') + ' ₺/yıl'
+function fmtFee(it) {
+  const v = it?.fee_try
+  if (v) return v.toLocaleString('tr-TR') + ' ₺/yıl'
+  // Ücret boş: yalnız DEVLET üniversitesiyse ücretsiz; vakıf/özelde veri yok demektir
+  const t = (it?.university_type || '').toLowerCase()
+  return t.includes('devlet') ? 'Devlet (ücretsiz)' : '—'
 }
 
 
 /** Mini SVG line chart for trend (year → rank). Y axis ters (küçük = yukarı). */
-function MiniTrend({ trend }) {
-  if (!trend || trend.length < 2) {
-    return <div className="text-[10px] text-slate-500 italic">Trend verisi yetersiz</div>
-  }
-  const pts = trend.filter((t) => t.base_rank != null)
-  if (pts.length < 2) {
-    return <div className="text-[10px] text-slate-500 italic">Trend verisi yetersiz</div>
-  }
-  const W = 140, H = 50, P = 6
-  const ranks = pts.map((p) => p.base_rank)
-  const minR = Math.min(...ranks)
-  const maxR = Math.max(...ranks)
-  const range = Math.max(maxR - minR, 1)
-
-  const points = pts.map((p, i) => {
-    const x = P + (i / (pts.length - 1)) * (W - P * 2)
-    // Küçük rank = iyi = yukarı (Y küçük)
-    const y = P + ((p.base_rank - minR) / range) * (H - P * 2)
-    return { x, y, p }
-  })
-  const path = points.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${pt.x} ${pt.y}`).join(' ')
-
-  // Momentum: ilk vs son
-  const first = pts[0].base_rank
-  const last = pts[pts.length - 1].base_rank
-  const diff = first - last  // pozitif = iyileşmiş (rank düşmüş)
-  const momentum = Math.abs(diff) < 100 ? 'stable' : diff > 0 ? 'up' : 'down'
-  const momentumColor = momentum === 'up' ? 'text-emerald-400' : momentum === 'down' ? 'text-rose-400' : 'text-slate-400'
-  const MomentumIcon = momentum === 'up' ? TrendingUp : momentum === 'down' ? TrendingDown : Minus
-
-  return (
-    <div>
-      <svg width={W} height={H} className="block">
-        <path d={path} stroke="currentColor" strokeWidth="1.5" fill="none" className="text-accent-400" />
-        {points.map((pt, i) => (
-          <circle key={i} cx={pt.x} cy={pt.y} r="2" className="fill-accent-300" />
-        ))}
-      </svg>
-      <div className="flex items-center justify-between text-[10px] text-slate-500 mt-1">
-        <span>{pts[0].year}</span>
-        <span className={`inline-flex items-center gap-0.5 ${momentumColor}`}>
-          <MomentumIcon size={10} />
-          {Math.abs(diff).toLocaleString('tr-TR')}
-        </span>
-        <span>{pts[pts.length - 1].year}</span>
-      </div>
-    </div>
-  )
-}
-
-
 function DiffMark({ field, code, diffs }) {
   const d = diffs?.[field]
   if (!d) return null
@@ -238,7 +191,7 @@ export default function Compare() {
     <>
       <BackgroundScene />
 
-      <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="space-y-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -330,9 +283,18 @@ export default function Compare() {
                 <Row label="Süre"              items={items} fmt={(it) => it.duration_years ? `${it.duration_years} yıl` : '—'} />
                 <Row label="Eğitim dili"       items={items} fmt={(it) => it.education_language || '—'} />
                 <Row label="Burs"               items={items} fmt={(it) => it.scholarship || '—'} />
-                <Row label="Ücret"              items={items} fmt={(it) => fmtFee(it.fee_try)} diffField="fee_try" diffs={diffs} />
+                <Row label="Ücret"              items={items} fmt={(it) => fmtFee(it)} diffField="fee_try" diffs={diffs} />
                 <Row label="Akreditasyon"      items={items} fmt={(it) => it.accreditation || '—'} />
                 <Row label="Min başarı sırası" items={items} fmt={(it) => it.min_basari_sirasi_kosul || '—'} />
+                {/* DGS (dikey geçiş) — kod eşleşen programlarda; DGS'li kullanıcı
+                    da aynı sekmeden karşılaştırabilsin */}
+                {items.some((it) => it.dgs_min_puan != null) && (<>
+                  <Row label="DGS taban puanı" items={items}
+                    fmt={(it) => it.dgs_min_puan != null
+                      ? `${it.dgs_min_puan.toFixed(2)} (${it.dgs_puan_turu || '?'})` : '—'} />
+                  <Row label="DGS kontenjan" items={items}
+                    fmt={(it) => numberOrDash(it.dgs_kontenjan)} />
+                </>)}
 
                 <div className="h-3" />
 

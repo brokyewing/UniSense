@@ -28,6 +28,14 @@ service cloud.firestore {
             && request.resource.data[field].size() <= n);
     }
 
+    // Alan varsa map tipinde ve anahtar sayısı sınırda olmalı
+    // (fieldCountMax yalnız üst düzeyi sayar — iç map anahtarları şişirilemesin)
+    function mapKeysMax(field, n) {
+      return !(field in request.resource.data)
+        || (request.resource.data[field] is map
+            && request.resource.data[field].keys().size() <= n);
+    }
+
     // Kullanıcı profil dokümanı
     match /users/{uid} {
       allow read, delete: if isOwner(uid);
@@ -35,6 +43,15 @@ service cloud.firestore {
         && fieldCountMax(12)
         && strMax('displayName', 100)
         && strMax('email', 200)
+        // email yazılıyorsa auth token'ındaki e-postayla AYNI olmalı — başkasının
+        // adresi yazılıp e-posta hatırlatma cron'una hedef gösterilemesin.
+        // İstisna: DEĞER DEĞİŞMİYORSA serbest (update'te request.resource.data
+        // dokümanın gelecek TAM halidir — email'e dokunmayan profil yazımları ve
+        // auth e-postası sonradan değişen eski hesaplar kilitlenmesin).
+        && (!('email' in request.resource.data)
+            || request.resource.data.email == request.auth.token.email
+            || (resource != null && 'email' in resource.data
+                && request.resource.data.email == resource.data.email))
         && strMax('photoURL', 1000);
 
       // Tercih listesi (max 24 sıra — sayı sınırı client'ta, boyut sınırı burada)
@@ -62,10 +79,161 @@ service cloud.firestore {
       match /kpss_tercih/{kadroKodu} {
         allow read, delete: if isOwner(uid);
         allow create, update: if isOwner(uid)
-          && fieldCountMax(12)
+          && fieldCountMax(14)
           && strMax('kurum', 300)
           && strMax('unvan', 200)
           && strMax('il', 100);
+      }
+
+      // TUS uzmanlık tercih listesi (max 30)
+      match /tus_tercih/{programKodu} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(12)
+          && strMax('dal', 200)
+          && strMax('kurum', 400)
+          && strMax('kontenjan_turu', 60);
+      }
+
+      // DUS uzmanlık tercih listesi (max 30)
+      match /dus_tercih/{programKodu} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(12)
+          && strMax('dal', 200)
+          && strMax('kurum', 400)
+          && strMax('kontenjan_turu', 60);
+      }
+
+      // LGS lise tercih listesi (max 25)
+      match /lgs_tercih/{liseKey} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(12)
+          && strMax('okul', 300)
+          && strMax('il', 100)
+          && strMax('ilce', 100)
+          && strMax('tur', 60)
+          && strMax('dil', 100);
+      }
+
+      // Konu takip ilerlemesi — sınav başına 1 doküman (checked haritası).
+      // Doküman ID'si 4 sınavla sınırlı → sınırsız doküman üretimi engellenir.
+      match /konu_ilerleme/{sinav} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && sinav in ['YKS', 'KPSS', 'DGS', 'LGS']
+          && fieldCountMax(3)
+          && mapKeysMax('checked', 1500); // konu sayısının çok üstü — şişirme tavanı
+      }
+
+      // Günlük aktivite / seri (streak) — tek "gunluk" dokümanı
+      match /aktivite/{doc} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(6)
+          && strMax('lastDate', 20);
+      }
+
+      // Push (FCM) token'ları — doküman ID = token (cihaz başına tek kayıt).
+      // Gönderici cron admin SDK ile okur (kuralları atlar); client kendi token'ını yazar.
+      match /pushTokens/{token} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(4)
+          && strMax('token', 400)
+          && strMax('ua', 300);
+      }
+
+      // Yanlış Defteri — her yanlış 1 doküman (metin; foto Storage/Blaze gerektirir, yok)
+      match /yanlislar/{id} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(12)
+          && strMax('ders', 40)
+          && strMax('konu', 120)
+          && strMax('soru', 1000)
+          && strMax('neden', 1000)
+          && strMax('sinav', 8)
+          && strMax('nextReview', 20);
+      }
+
+      // Notlar — kullanıcının yapacakları/aklındaki serbest notlar (tamamlandı işareti)
+      match /notlar/{id} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(5)
+          && strMax('metin', 2000);
+      }
+
+      // Bilgi kartları (flashcard) — düz model: her kart 1 doküman, deste alanıyla gruplu
+      match /kartlar/{id} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(12)
+          && strMax('deste', 80)
+          && strMax('on', 500)
+          && strMax('arka', 1000)
+          && strMax('nextReview', 20);
+      }
+
+      // Oyunlaştırma / çalışma süresi (Pomodoro/XP) — tek "genel" dokümanı.
+      // ID sabitlenir (wildcard sınırsız doküman üretimine izin veriyordu) ve
+      // iç map anahtarları sınırlanır (fieldCountMax üst düzeyi sayar; dersSure/
+      // sureHafta anahtar enjeksiyonuyla doküman 1MB'a şişirilebiliyordu).
+      match /istatistik/{doc} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && doc == 'genel'
+          && fieldCountMax(8)
+          && mapKeysMax('dersSure', 60)
+          && mapKeysMax('sureHafta', 800);
+      }
+
+      // Deneme günlüğü — her deneme 1 doküman (ders net haritası + puan/sıra)
+      match /denemeler/{id} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(14)
+          && strMax('sinav', 8)
+          && strMax('type', 8)
+          && strMax('ad', 120)
+          && strMax('tarih', 20);
+      }
+
+      // Çözülen soru kaydı — konu bazında (Çalışmalarım). ders+konu Konular listesinden
+      match /soru_kayit/{id} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(8)
+          && strMax('sinav', 8)
+          && strMax('ders', 60)
+          && strMax('konu', 120)
+          && strMax('tarih', 20);
+      }
+
+      // Çalışma planlayıcısı (Planım) — tekil ayar + hafta başına görev dokümanı.
+      match /plan_config/{doc} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && doc == 'genel'
+          && fieldCountMax(8)
+          && strMax('track', 8);
+      }
+      // plan_gorev/{id} — GÖREV BAŞINA doküman (hafta alanıyla filtrelenir). Dizi-içi
+      // string uzunluğu kuralla sınırlanamadığı için (soru_kayit/notlar gibi) her görev
+      // ayrı doküman → strMax ile doküman-şişirme DoS'u önlenir.
+      match /plan_gorev/{id} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && fieldCountMax(14)
+          && strMax('hafta', 8)
+          && strMax('tarih', 20)
+          && strMax('title', 140)
+          && strMax('ders', 60)
+          && strMax('konu', 120)
+          && strMax('source', 10)
+          && strMax('tur', 10);
       }
 
       // Sorgu geçmişi — sadece ekleme + okuma + silme (değiştirilemez log)
@@ -91,6 +259,29 @@ service cloud.firestore {
             && strMax('text', 10000);
         }
       }
+    }
+
+    // === Sıralama (opt-in liderlik tablosu) ===
+    // Giriş yapan HERKES okur (tabloyu görmek için); kişi yalnız KENDİ dokümanını
+    // yazar/siler. Yalnız takma ad + seviye + xp tutulur — e-posta/gerçek ad YOK.
+    // XP istemcide hesaplandığından değer tavanları anti-abuse amaçlı (Cloud Function yok).
+    match /siralama/{uid} {
+      allow read: if request.auth != null;
+      allow delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && fieldCountMax(4)
+        && request.resource.data.ad is string
+        && request.resource.data.ad.size() >= 2
+        && request.resource.data.ad.size() <= 24
+        // Taklit koruması (ASCII; Türkçe katlama + küfür istemci filtresinde) —
+        // yetkili/marka adıyla kayıt engellenir.
+        && !request.resource.data.ad.lower().matches('.*(admin|unisense|moderator|official).*')
+        && request.resource.data.seviye is number
+        && request.resource.data.seviye >= 1
+        && request.resource.data.seviye <= 500
+        && request.resource.data.xp is number
+        && request.resource.data.xp >= 0
+        && request.resource.data.xp <= 100000000;
     }
 
     // Herhangi bir başka koleksiyona genel erişim YOK

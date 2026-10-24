@@ -20,6 +20,9 @@ from pathlib import Path
 import fitz
 import requests
 
+from ._guard import ScrapeGuardError
+from ._guard import check as guard_check
+
 if sys.platform == "win32":
     import io as _io
     sys.stdout = _io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -49,7 +52,7 @@ def _discover_kilavuz(s: requests.Session) -> tuple[str, str]:
         best = None
         for m in re.finditer(
             r'href="(/TR,\d+/kpss-?(20\d\d)(\d)-[^"]*tercih-kilavuzu[^"]*\.html)"',
-            html, re.I,
+            html, re.IGNORECASE,
         ):
             key = (int(m.group(2)), int(m.group(3)))  # (yıl, dönem) — en yenisi
             if best is None or key > best[0]:
@@ -58,7 +61,7 @@ def _discover_kilavuz(s: requests.Session) -> tuple[str, str]:
         # Keşfedilen, bilinen dönemden YENİYSE kullan; eskiyse bilinene düş
         if best and best[0] > known:
             return best[1], best[2]
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"   ⚠️ kılavuz keşfi atlandı ({str(e)[:60]})")
     return DONEM, KILAVUZ_PAGE
 
@@ -66,7 +69,7 @@ def _discover_kilavuz(s: requests.Session) -> tuple[str, str]:
 def _find_kilavuz_pdfs(s: requests.Session, page_url: str) -> tuple[dict, dict]:
     """Kılavuz sayfasından tablo + nitelik PDF linklerini çıkar."""
     html = s.get(page_url, timeout=60).text
-    urls = re.findall(r'href="(https://dokuman\.osym\.gov\.tr/[^"]*\.pdf)"', html, re.I)
+    urls = re.findall(r'href="(https://dokuman\.osym\.gov\.tr/[^"]*\.pdf)"', html, re.IGNORECASE)
     tablolar, nitelikler, ekler = {}, {}, {}
     for u in dict.fromkeys(urls):
         fname = u.rsplit("/", 1)[-1].lower()
@@ -164,13 +167,34 @@ def _parse_tablo(path: Path) -> list[dict]:
             up = line.upper()
             if up in _TESKILAT:
                 continue
+            # İl unvan ile AYNI satırda olabilir: "BİLGİSAYAR İŞLETMENİ ANKARA"
+            # (BULGU #5 — 10 kadro bu yüzden düşüyordu). Satır sonu şehirse böl:
+            # önek unvan/kurum, şehir tek başına aşağıdaki bloğa devredilir.
+            if not cur["il"] and " " in line:
+                prefix, last = line.rsplit(" ", 1)
+                if last.upper() in cities and prefix.upper() not in _TESKILAT:
+                    text_buf.append(prefix)
+                    line, up = last, last.upper()
             if up in cities or up == "TÜM İLÇELER":
                 if not cur["il"] and up in cities:
                     cur["il"] = up
-                    # il görülünce: buffer'ın son satırı unvan, öncesi kurum
+                    # il görülünce: buffer'ın son satırı unvan, öncesi kurum.
+                    # Çok satırlı unvan (BULGU #7): parantez dengesi kurulana veya
+                    # kurum sonu bağlaçla (VE/İLE/BAKIM) bitmeyene kadar önceki
+                    # satırları unvana kat — "ONARIM MEMURU)" / "GÜVENLİK GÖREVLİSİ"
+                    # gibi kırpılmaları önler.
                     if text_buf:
-                        cur["unvan"] = text_buf[-1]
-                        cur["kurum"] = " ".join(text_buf[:-1]).strip()
+                        j = len(text_buf) - 1
+                        unvan = text_buf[j]
+                        while j > 0 and (
+                            unvan.count("(") != unvan.count(")")
+                            or text_buf[j - 1].rstrip().rsplit(" ", 1)[-1].upper()
+                            in {"VE", "İLE", "BAKIM"}
+                        ):
+                            j -= 1
+                            unvan = text_buf[j] + " " + unvan
+                        cur["unvan"] = unvan
+                        cur["kurum"] = " ".join(text_buf[:j]).strip()
                 elif cur["il"]:
                     cur["ilce"] = line
                 continue
@@ -185,59 +209,83 @@ def _parse_tablo(path: Path) -> list[dict]:
 _NITELIK_HEADERS = {"Nitelik", "Kodu", "ÖĞRENİM KOŞULU", "Mezuniyet Alanı Kodları"}
 
 
+# Nitelik tablosu kolon sınırları (ÖSYM 2026/1 sayfa düzeni, x koordinatı pt):
+#   Nitelik Kodu ≈ 30 | ÖĞRENİM KOŞULU (açıklama) ≈ 56–270 | Alan Kodları ≥ 275
+_NITELIK_KOD_X_MAX = 50.0    # x < bu → nitelik kodu kolonu (sol kenar)
+_NITELIK_ALAN_X_MIN = 275.0  # x ≥ bu → Mezuniyet Alanı Kodları grid'i
+
+
 def _parse_nitelik(path: Path, duzey: str) -> dict[str, dict]:
     """Nitelik sözlüğü: kod → açıklama + MEZUNİYET ALAN KODLARI.
 
-    Sayfa düzeni: kod → çok satırlı açıklama ("... mezun olmak.") →
-    mezuniyet alanı kodları (4'lü sayı dizileri). Alan kodları bölüm→kadro
-    eşleşmesinin KESİN yolu (ad bazlı arama sadece yedek).
+    KOORDİNAT-BAZLI (BULGU #1): önceki satır-bazlı parser get_text() ile
+    kolonları düzlüyordu; açıklama "." ile bitince sonraki tek 4-haneli ALAN
+    kodunu 'yeni nitelik kodu' sanıp kayma yapıyordu → 55 kod düşüyordu.
+    Artık her nitelik bir y-satır bandı: kod (x<50) çapa, açıklama (50≤x<275)
+    ve alan kodları (x≥275) o banda göre atanır — kolonlar asla karışmaz.
     """
     doc = fitz.open(path)
+    pages_words = [page.get_text("words") for page in doc]
+
+    # Alan grid'inin en sol kolonu PDF'e göre değişir (lisans~274, önlisans~303,
+    # ort~406). 4-haneli kodlar grid'de düzenli kolonlara hizalanır (her satır
+    # aynı x) → sık tekrar eden (≥5) en soldaki x kolonu. Açıklamadaki nadir
+    # 4-haneli sayı (ör. "2547 sayılı kanun") bir kolona hizalanmadığı için elenir.
+    from collections import Counter
+    x_counts: Counter = Counter()
+    for words in pages_words:
+        for w in words:
+            if re.fullmatch(r"\d{4}", w[4]) and w[0] >= 250.0:
+                x_counts[round(w[0])] += 1
+    grid_cols = [x for x, c in x_counts.items() if c >= 5]
+    alan_x_min = (min(grid_cols) - 5.0) if grid_cols else _NITELIK_ALAN_X_MIN
+
+    # code -> {"desc": [(y,x,text)], "alan": [(y,x,code)]}
+    entries: dict[str, dict[str, list]] = {}
+
+    for words in pages_words:
+        # Bu sayfadaki nitelik kodu çapaları (sol kolon, 4-hane), y'ye göre sıralı
+        anchors = sorted(
+            ((w[1], w[4]) for w in words
+             if w[0] < _NITELIK_KOD_X_MAX and re.fullmatch(r"\d{4}", w[4])),
+            key=lambda t: t[0],
+        )
+        if not anchors:
+            continue
+        anchor_ys = [a[0] for a in anchors]
+        anchor_codes = [a[1] for a in anchors]
+
+        def _owner(y: float, _ys=anchor_ys, _codes=anchor_codes) -> str:
+            # Çapa i, [y_i - 8, y_{i+1} - 8) bandına sahip. Açıklamanın ilk
+            # satırı kod baseline'ından ~6pt yukarıda başladığı için -8 kaydırma.
+            for i in range(len(_ys) - 1):
+                if y < _ys[i + 1] - 8.0:
+                    return _codes[i]
+            return _codes[-1]
+
+        for w in words:
+            x0, y0, txt = w[0], w[1], w[4]
+            if x0 < _NITELIK_KOD_X_MAX and re.fullmatch(r"\d{4}", txt):
+                continue  # çapa kodunun kendisi
+            if y0 < anchor_ys[0] - 8.0:
+                continue  # ilk koddan yukarısı = sayfa başlığı/kolon numaraları
+            code = _owner(y0)
+            e = entries.setdefault(code, {"desc": [], "alan": []})
+            if x0 >= alan_x_min and re.fullmatch(r"\d{4}", txt):
+                e["alan"].append((y0, x0, txt))
+            elif _NITELIK_KOD_X_MAX <= x0 < alan_x_min:
+                e["desc"].append((y0, x0, txt))
+
     out: dict[str, dict] = {}
-    code: str | None = None
-    buf: list[str] = []
-    alanlar: list[str] = []
-
-    def _text() -> str:
-        return " ".join(buf).strip()
-
-    def _flush() -> None:
-        nonlocal code, buf, alanlar
-        if code:
-            text = re.sub(r"(\s\d{4})+\s*$", "", _text()).strip()
-            if len(text) > 15:
-                out[code] = {"aciklama": text, "duzey": duzey,
-                             "alan_kodlari": list(dict.fromkeys(alanlar))}
-        code, buf, alanlar = None, [], []
-
-    for page in doc:
-        for raw in page.get_text().splitlines():
-            line = raw.strip()
-            if (not line or line in _NITELIK_HEADERS
-                    or re.match(r"^\d{1,2}(\s+\d{1,2})*$", line)   # sütun no'ları
-                    or "ARANAN NİTELİKLER" in line.upper()):
-                continue
-            if re.match(r"^\d{4}(\s+\d{4})*$", line):
-                first = line.split()[0]
-                desc_done = _text().endswith((".", ":"))
-                if code is None or (desc_done and re.match(r"^\d{4}$", line)):
-                    # Tek 4 haneli + açıklama bitti → yeni nitelik kodu.
-                    # (Tek satırlık alan kodu da buraya düşebilir; len>15
-                    # filtresi sahte kayıtları eler — alan listesi kısmi kalır,
-                    # ad-bazlı yedek eşleşme telafi eder.)
-                    _flush()
-                    code = first
-                else:
-                    alanlar.extend(line.split())
-                continue
-            if code:
-                # Açıklama satırı sonuna gömülü alan kodları olabilir
-                trail = re.search(r"((?:\s\d{4})+)\s*$", " " + line)
-                if trail and _text().endswith((".", ":")):
-                    alanlar.extend(trail.group(1).split())
-                else:
-                    buf.append(line)
-    _flush()
+    for code, e in entries.items():
+        desc_sorted = sorted(e["desc"], key=lambda t: (round(t[0] / 3), t[1]))
+        text = " ".join(t[2] for t in desc_sorted).strip()
+        if len(text) < 10 or text in _NITELIK_HEADERS:
+            continue
+        alan_sorted = sorted(e["alan"], key=lambda t: (round(t[0] / 3), t[1]))
+        alanlar = [t[2] for t in alan_sorted]
+        out[code] = {"aciklama": text, "duzey": duzey,
+                     "alan_kodlari": list(dict.fromkeys(alanlar))}
     return out
 
 
@@ -279,6 +327,16 @@ def _parse_ozel_kosullar(path: Path) -> dict[str, str]:
         nonlocal code, buf
         if code and buf:
             text = " ".join(buf).strip()
+            # "Bakınız: Başvurma Özel Şartları - X" pointer'ını eyleme dönük yap
+            # (BULGU #6 — asıl yaş/sağlık/güvenlik detayı kılavuzun narrative
+            # bölümünde, koda temiz eşleşmiyor; en azından kullanıcıyı yönlendir)
+            m = re.match(r"Bak[ıi]n[ıi]z:\s*Ba[şs]vurma [ÖO]zel [ŞS]artlar[ıi]\s*[-–]\s*(.+)",
+                         text)
+            if m:
+                text = (f"“{m.group(1).strip()}” için özel başvuru şartları var "
+                        "(yaş, sağlık, güvenlik soruşturması, ehliyet/sertifika "
+                        "olabilir) — kılavuzun “Başvurma Özel Şartları” bölümünden "
+                        "kontrol et.")
             if len(text) > 10:
                 out[code] = text
         code, buf = None, []
@@ -317,6 +375,7 @@ def main() -> None:
         recs = _parse_tablo(p)
         print(f"   {name}: {len(recs)} kadro")
         kadrolar.extend(recs)
+    guard_check(OUT_KADRO, kadrolar, label="KPSS kadrolar")
     json.dump(kadrolar, open(OUT_KADRO, "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
     print(f"✅ {len(kadrolar)} aktif kadro → {OUT_KADRO}")
@@ -327,6 +386,7 @@ def main() -> None:
         d = _parse_nitelik(p, duzey)
         print(f"   nitelik/{duzey}: {len(d)} kod")
         nitelikler.update(d)
+    guard_check(OUT_NITELIK, nitelikler, label="KPSS nitelikler")
     json.dump(nitelikler, open(OUT_NITELIK, "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
     print(f"✅ {len(nitelikler)} nitelik kodu → {OUT_NITELIK}")
@@ -341,6 +401,7 @@ def main() -> None:
             print(f"   {key}: {len(d)} alan")
             alanlar.update(d)
     if alanlar:
+        guard_check(OUT_ALANLAR, alanlar, label="KPSS mezuniyet alanları")
         json.dump(alanlar, open(OUT_ALANLAR, "w", encoding="utf-8"),
                   ensure_ascii=False, indent=1)
         print(f"✅ {len(alanlar)} mezuniyet alanı → {OUT_ALANLAR}")
@@ -349,10 +410,16 @@ def main() -> None:
     if "ozelkosullar" in ek_pdfs:
         p = _get(s, ek_pdfs["ozelkosullar"], f"k{tag}_ozelkosullar.pdf")
         kosullar = _parse_ozel_kosullar(p)
+        guard_check(OUT_KOSULLAR, kosullar, label="KPSS özel koşullar")
         json.dump(kosullar, open(OUT_KOSULLAR, "w", encoding="utf-8"),
                   ensure_ascii=False, indent=1)
         print(f"✅ {len(kosullar)} özel koşul → {OUT_KOSULLAR}")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except ScrapeGuardError as e:
+        print()
+        print(f"⛔ {e}")
+        sys.exit(1)

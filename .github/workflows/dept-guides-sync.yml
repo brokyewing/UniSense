@@ -1,0 +1,104 @@
+name: Dept Guides Sync
+
+# Bölüm/meslek tanıtımlarını (dept_guides.json) her gün Gemini ile üretir.
+# Üretici resume'lu ve kota-güvenli: günlük Gemini kotası izin verdiği kadar
+# üretip durur, ertesi gün kaldığı yerden devam eder (hedef: 604 bölüm grubu).
+# dept_guides.json değişince "RAG Index Sync" workflow'u otomatik tetiklenir
+# (build_chunks + embed + HF upload) → yeni rehberler chat'e yansır.
+#
+# Tetikleme:
+#   - Otomatik: her gün 06:00 UTC (09:00 TRT)
+#   - Manuel:  GitHub Actions → "Dept Guides Sync" → Run workflow
+#
+# ÖN KOŞUL: repo Settings → Secrets → Actions → GEMINI_API_KEYS
+#           (virgülle ayrık bir veya birden çok anahtar — kota için çok anahtar iyi)
+
+on:
+  schedule:
+    - cron: '0 6 * * *'   # her gün 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write  # commit sonrası index-sync'i dispatch etmek için
+
+concurrency:
+  group: dept-guides-sync
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GEMINI_API_KEYS: ${{ secrets.GEMINI_API_KEYS }}
+      USE_TF: '0'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Secret yoksa job'u FAIL etme — uyarıyla atla (her gün kırmızı koşu +
+      # hata maili üretmesin). Secret eklenince sonraki koşuda kendiliğinden üretir.
+      - name: Guard — GEMINI_API_KEYS var mı?
+        id: guard
+        run: |
+          if [ -z "$GEMINI_API_KEYS" ]; then
+            echo "::warning::GEMINI_API_KEYS secret tanımlı değil — rehber üretimi ATLANDI. Repo Settings → Secrets and variables → Actions → New repository secret → GEMINI_API_KEYS (backend/.env'deki değer)."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Python 3.11
+        if: steps.guard.outputs.skip != 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install backend
+        if: steps.guard.outputs.skip != 'true'
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Generate dept guides (resume, kota-limitli)
+        if: steps.guard.outputs.skip != 'true'
+        working-directory: backend
+        env:
+          PYTHONUNBUFFERED: '1'
+        # Hata olursa son satırları ANNOTATION olarak yüzeye çıkar — log
+        # indirmeden (auth ister) e-postadaki Annotations kutusunda görünsün
+        run: |
+          set -o pipefail
+          python ../scripts/generate_dept_guides.py 2>&1 | tee /tmp/gen.log || {
+            echo "::error::Dept guides üretimi düştü — logun son satırları:"
+            tail -n 15 /tmp/gen.log | while IFS= read -r l; do echo "::error::$l"; done
+            exit 1
+          }
+
+      - name: Commit new guides
+        if: steps.guard.outputs.skip != 'true'
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backend/data/processed/dept_guides.json
+          if git diff --staged --quiet; then
+            echo "Yeni rehber yok (kota dolu olabilir) — commit atlandı"
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
+          else
+            n=$(python -c "import json; print(len(json.load(open('backend/data/processed/dept_guides.json', encoding='utf-8'))))")
+            git commit -m "chore(data): bölüm rehberleri güncellendi → ${n}/604 ($(date -u +%Y-%m-%d))"
+            git push
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # GITHUB_TOKEN push'ları başka workflow'ların on:push'unu ATEŞLEMEZ —
+      # yeni rehberlerin chat'e (RAG) yansıması için index-sync AÇIKÇA tetiklenir
+      - name: Trigger RAG Index Sync
+        if: steps.commit.outputs.pushed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run index-sync.yml --repo "$GITHUB_REPOSITORY"

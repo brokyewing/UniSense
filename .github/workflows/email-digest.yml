@@ -1,0 +1,54 @@
+name: Haftalık E-posta Hatırlatma
+
+# Opt-in (Pano'dan açan) + çalışmaya ara vermiş kullanıcılara haftalık "geri dön"
+# e-postası. Push'un ulaşamadığı (iOS vb.) kullanıcılar için ikinci kanal.
+# Backend'e (Render) SIFIR yük. RESEND_API_KEY yoksa script dormant (hiçbir şey yapmaz).
+#
+# Kurulum (opsiyonel — istersen): Resend hesabı + domain doğrula → RESEND_API_KEY
+# secret'ı ekle. FIREBASE_SERVICE_ACCOUNT zaten tanımlı.
+
+on:
+  schedule:
+    - cron: '0 15 * * 1'   # Pazartesi 15:00 UTC = 18:00 TR
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Write service account credentials
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "::error::FIREBASE_SERVICE_ACCOUNT secret tanımlı değil."
+            exit 1
+          fi
+          echo "$FIREBASE_SERVICE_ACCOUNT" > /tmp/firebase-sa.json
+
+      # Sürüm pin'li — admin anahtarı ortamda; tedarik zinciri güvenliği (bkz. firebase-rules.yml)
+      - name: Install firebase-admin
+        run: npm install --no-save firebase-admin@14.2.0
+
+      - name: Send email digest
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-sa.json
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+        run: node scripts/send-email-digest.mjs
+
+      - name: Cleanup credentials
+        if: always()
+        run: rm -f /tmp/firebase-sa.json

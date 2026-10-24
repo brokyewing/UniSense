@@ -20,6 +20,9 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
+from ._guard import ScrapeGuardError
+from ._guard import check as guard_check
+
 if sys.platform == "win32":
     import io as _io
     sys.stdout = _io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -101,10 +104,10 @@ def fetch_researchers_list(base_url: str, max_count: int = 50) -> list[dict]:
             soup = BeautifulSoup(r.text, "lxml")
 
             # Akademisyen kartı pattern'leri (Avesis tipik HTML)
-            cards = soup.find_all(["div", "article", "tr"], class_=re.compile(r"researcher|akademisyen|kart|card|user", re.I))
+            cards = soup.find_all(["div", "article", "tr"], class_=re.compile(r"researcher|akademisyen|kart|card|user", re.IGNORECASE))
             if not cards:
                 # Fallback: sayfadaki tüm linklerden /araştırmacı/<id> pattern'ini çıkar
-                links = soup.find_all("a", href=re.compile(r"/araştırmacı/|/arastirmaci/|/researcher/", re.I))
+                links = soup.find_all("a", href=re.compile(r"/araştırmacı/|/arastirmaci/|/researcher/", re.IGNORECASE))
                 for link in links[:max_count]:
                     href = link.get("href", "")
                     name = link.get_text(strip=True)
@@ -123,8 +126,8 @@ def fetch_researchers_list(base_url: str, max_count: int = 50) -> list[dict]:
                     name = name_el.get_text(strip=True)
                     if not name or len(name) < 5:
                         continue
-                    title_el = card.find(string=re.compile(r"Prof|Doç|Dr\.|Öğr", re.I))
-                    dept_el = card.find(string=re.compile(r"Bölüm|Fakülte|Anabilim", re.I))
+                    title_el = card.find(string=re.compile(r"Prof|Doç|Dr\.|Öğr", re.IGNORECASE))
+                    dept_el = card.find(string=re.compile(r"Bölüm|Fakülte|Anabilim", re.IGNORECASE))
                     profile_link = name_el.get("href") if name_el.name == "a" else card.find("a", href=True)
                     href = profile_link if isinstance(profile_link, str) else (profile_link.get("href") if profile_link else "")
                     researchers.append({
@@ -183,6 +186,7 @@ def main() -> None:
         time.sleep(1.0)
 
     out_file = out_dir / "academics.json"
+    guard_check(out_file, all_data, label="AVESİS akademisyenler")
     with open(out_file, "w", encoding="utf-8") as f:
         json.dump(all_data, f, ensure_ascii=False, indent=2)
 
@@ -194,4 +198,9 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except ScrapeGuardError as e:
+        print()
+        print(f"⛔ {e}")
+        sys.exit(1)

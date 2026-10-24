@@ -3,6 +3,10 @@ export default {
   content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
     extend: {
+      screens: {
+        xs: '360px',
+        '3xl': '1920px',
+      },
       colors: {
         brand: {
           50: '#eff6ff',
@@ -14,6 +18,9 @@ export default {
           900: '#1e3a8a',
         },
         accent: {
+          100: '#ede9fe',
+          200: '#ddd6fe',
+          300: '#c4b5fd',
           400: '#a78bfa',
           500: '#8b5cf6',
           600: '#7c3aed',

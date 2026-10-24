@@ -1,0 +1,188 @@
+// YKS net + yerleştirme puanı hesabı — Deneme Günlüğü ve (ileride) Hesap ortak kullanır.
+// KATSAYILAR Hesap.jsx ile BİREBİR aynı; şimdilik duplike, ileride Hesap da buradan
+// import edecek (tek kaynak). Değişirse İKİSİ birden güncellensin.
+
+export const OBP_MULT = 0.12
+export const YKS_PEN = 0.25 // 4 yanlış 1 doğru götürür
+
+// TYT ders katsayıları — yerleştirme (SAY/EA/SÖZ/DİL tek formülü)
+export const TYT_PLACEMENT_COEF = {
+  tyt_tr: 1.32, tyt_sos: 1.36, tyt_mat: 1.32, tyt_fen: 1.36, // TYT bloğu max ≈160
+}
+// SADECE TYT puanı için katsayılar (max 100+400=500) — Hesap.jsx TYT_COEF ile birebir
+export const TYT_SCORE_COEF = {
+  tyt_tr: 3.3, tyt_sos: 3.4, tyt_mat: 3.3, tyt_fen: 3.4,
+}
+export const AYT_COEF = {
+  SAY: { ayt_mat: 3.0, ayt_fiz: 2.85, ayt_kim: 3.07, ayt_biy: 3.07 },
+  EA: { ayt_mat: 3.0, ayt_edb: 3.0, ayt_tar1: 2.8, ayt_cog1: 3.33 },
+  SÖZ: { ayt_edb: 3.0, ayt_tar1: 2.8, ayt_cog1: 3.33, ayt_tar2: 2.91, ayt_cog2: 2.91, ayt_fel: 2.67, ayt_din: 4.0 },
+  DİL: { ayt_dil: 3.0 }, // AYT bloğu max ≈240
+}
+
+// Ders alanları (id, etiket, soru sayısı) — form + net için
+export const TYT_FIELDS = [
+  { id: 'tyt_tr', label: 'TYT Türkçe', max: 40 },
+  { id: 'tyt_sos', label: 'TYT Sosyal', max: 20 },
+  { id: 'tyt_mat', label: 'TYT Matematik', max: 40 },
+  { id: 'tyt_fen', label: 'TYT Fen', max: 20 },
+]
+export const AYT_FIELDS = {
+  SAY: [
+    { id: 'ayt_mat', label: 'AYT Matematik', max: 40 },
+    { id: 'ayt_fiz', label: 'AYT Fizik', max: 14 },
+    { id: 'ayt_kim', label: 'AYT Kimya', max: 13 },
+    { id: 'ayt_biy', label: 'AYT Biyoloji', max: 13 },
+  ],
+  EA: [
+    { id: 'ayt_mat', label: 'AYT Matematik', max: 40 },
+    { id: 'ayt_edb', label: 'AYT Edebiyat', max: 24 },
+    { id: 'ayt_tar1', label: 'AYT Tarih-1', max: 10 },
+    { id: 'ayt_cog1', label: 'AYT Coğrafya-1', max: 6 },
+  ],
+  SÖZ: [
+    { id: 'ayt_edb', label: 'AYT Edebiyat', max: 24 },
+    { id: 'ayt_tar1', label: 'AYT Tarih-1', max: 10 },
+    { id: 'ayt_cog1', label: 'AYT Coğrafya-1', max: 6 },
+    { id: 'ayt_tar2', label: 'AYT Tarih-2', max: 11 },
+    { id: 'ayt_cog2', label: 'AYT Coğrafya-2', max: 11 },
+    { id: 'ayt_fel', label: 'AYT Felsefe', max: 12 },
+    { id: 'ayt_din', label: 'AYT Din', max: 6 },
+  ],
+  DİL: [{ id: 'ayt_dil', label: 'YDT Yabancı Dil', max: 80 }],
+}
+
+/** Net = doğru − penalty×yanlış (ÖSYM kuralı; negatif kalabilir). */
+export function netOf(dogru, yanlis, pen = YKS_PEN) {
+  return (parseFloat(dogru) || 0) - pen * (parseFloat(yanlis) || 0)
+}
+
+/** diploma notu (50-100) → OBP (250-500). */
+export function diploma100ToObp(diploma100) {
+  const d = parseFloat(diploma100)
+  if (!d || d < 50 || d > 100) return 0
+  return d * 5
+}
+
+function weightedSum(nets, coefMap) {
+  let total = 0
+  let any = false
+  for (const [key, coef] of Object.entries(coefMap)) {
+    const n = parseFloat(nets[key]) || 0
+    if (n !== 0) { any = true; total += n * coef }
+  }
+  return any ? total : 0
+}
+
+/** Yerleştirme puanı (SAY/EA/SÖZ/DİL). nets: {tyt_*, ayt_*}. obp: 0-500. */
+export function placementScore(nets, type, obp = 0) {
+  const ayt = weightedSum(nets, AYT_COEF[type] || {})
+  if (ayt <= 0) return 0
+  const tyt = weightedSum(nets, TYT_PLACEMENT_COEF)
+  return 100 + tyt + ayt + obp * OBP_MULT
+}
+
+/** Bir deneme girdisinden (ders→{d,y}) net haritası + toplam net + puan üret. */
+export function denemeHesapla(girdi, type, obp = 0) {
+  const fields = [...TYT_FIELDS, ...(AYT_FIELDS[type] || [])]
+  const nets = {}
+  let toplamNet = 0
+  const dersNet = {}
+  for (const f of fields) {
+    const g = girdi[f.id] || {}
+    const net = netOf(g.d, g.y)
+    nets[f.id] = net
+    dersNet[f.id] = net
+    toplamNet += net
+  }
+  const puan = placementScore(nets, type, obp)
+  return { nets, dersNet, toplamNet: Math.round(toplamNet * 100) / 100, puan: Math.round(puan * 100) / 100 }
+}
+
+// === KPSS (GY+GK, net=D−Y/4, puan≈40+0.5×net) ve LGS (net=D−Y/3, MSP) ===
+export const KPSS_FIELDS = [
+  { id: 'kpss_gy', label: 'Genel Yetenek', max: 60 },
+  { id: 'kpss_gk', label: 'Genel Kültür', max: 60 },
+]
+export const LGS_FIELDS = [
+  { id: 'lgs_tr', label: 'Türkçe', max: 20, pen: 1 / 3, k: 4 },
+  { id: 'lgs_mat', label: 'Matematik', max: 20, pen: 1 / 3, k: 4 },
+  { id: 'lgs_fen', label: 'Fen Bilimleri', max: 20, pen: 1 / 3, k: 4 },
+  { id: 'lgs_ink', label: 'İnkılap Tarihi', max: 10, pen: 1 / 3, k: 1 },
+  { id: 'lgs_din', label: 'Din Kültürü', max: 10, pen: 1 / 3, k: 1 },
+  { id: 'lgs_ing', label: 'İngilizce', max: 10, pen: 1 / 3, k: 1 },
+]
+
+// === DGS (önlisans → lisans; 50 Sayısal + 50 Sözel, net=D−Y/4, üç puan türü) ===
+export const DGS_FIELDS = [
+  { id: 'dgs_say', label: 'DGS Sayısal', max: 50 },
+  { id: 'dgs_soz', label: 'DGS Sözel (Türkçe)', max: 50 },
+]
+// Puan türüne göre ağırlık (Hesap.jsx ile BİREBİR): sayısalcıya SAY testi ağır basar.
+export const DGS_COEF_BY_TYPE = {
+  SAY: { dgs_say: 4.0, dgs_soz: 2.6 },
+  EA: { dgs_say: 3.3, dgs_soz: 3.3 },
+  SÖZ: { dgs_say: 2.6, dgs_soz: 4.0 },
+}
+
+/** Önlisans GPA (4'lük, 0-4) → AÖBP (0-50; DGS yerleştirmeye eklenir). */
+export function gpa4ToAobp(gpa4) {
+  const d = parseFloat(gpa4)
+  if (!d || d < 0 || d > 4) return 0
+  return d * 25 * 0.5 // 4.00 → 50
+}
+
+/** Sınava göre ders alanları. YKS/DGS için type gerekir. */
+export function denemeAlanlari(sinav, type = 'SAY') {
+  if (sinav === 'KPSS') return KPSS_FIELDS
+  if (sinav === 'LGS') return LGS_FIELDS
+  if (sinav === 'DGS') return DGS_FIELDS
+  return [...TYT_FIELDS, ...(AYT_FIELDS[type] || [])]
+}
+
+/** Sınava göre net + puan. Döner: {dersNet, toplamNet, puan, puanTuru}. */
+export function denemeHesaplaSinav(sinav, type, girdi, obp = 0) {
+  const fields = denemeAlanlari(sinav, type)
+  const dersNet = {}
+  let toplamNet = 0
+  for (const f of fields) {
+    const g = girdi[f.id] || {}
+    const net = netOf(g.d, g.y, f.pen || YKS_PEN)
+    dersNet[f.id] = net
+    toplamNet += net
+  }
+  let puan = 0
+  let puanTuru = ''
+  if (sinav === 'KPSS') {
+    // Hesap.jsx kpssScore ile aynı eşik: GY veya GK'den biri > 0 ise hesapla
+    const gy = dersNet.kpss_gy || 0
+    const gk = dersNet.kpss_gk || 0
+    puan = (gy > 0 || gk > 0) ? 40 + 0.5 * (gy + gk) : 0 // KPSS_BASE + KPSS_COEF×net
+    puanTuru = 'KPSS'
+  } else if (sinav === 'LGS') {
+    let w = 0
+    let herhangi = false
+    for (const f of fields) { const n = dersNet[f.id] || 0; if (n !== 0) herhangi = true; w += n * (f.k || 1) }
+    // Hesap.jsx lgsScore ile aynı: net girildiyse MSP en az 100'e kırpılır
+    puan = herhangi ? Math.max(100, 100 + (w / 270) * 400) : 0
+    puanTuru = 'LGS · MSP'
+  } else if (sinav === 'DGS') {
+    const w = weightedSum(dersNet, DGS_COEF_BY_TYPE[type] || DGS_COEF_BY_TYPE.SAY)
+    puan = w > 0 ? 100 + w + obp : 0 // obp burada AÖBP (0-50)
+    puanTuru = `DGS ${type}`
+  } else {
+    puan = placementScore(dersNet, type, obp)
+    puanTuru = type
+    if (puan <= 0) {
+      // AYT girilmemiş → TYT-only deneme (en yaygın tür): TYT puanı hesapla
+      const tyt = weightedSum(dersNet, TYT_SCORE_COEF)
+      if (tyt > 0) { puan = 100 + tyt; puanTuru = 'TYT' }
+    }
+  }
+  return {
+    dersNet,
+    toplamNet: Math.round(toplamNet * 100) / 100,
+    puan: Math.round(puan * 100) / 100,
+    puanTuru,
+  }
+}

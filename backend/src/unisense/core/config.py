@@ -58,9 +58,19 @@ class Settings(BaseSettings):
     # SPA'ya gizli API key gömülemez; kullanıcı kimliği Firebase Auth ile doğrulanır.
     security_require_auth: bool = False
     firebase_project_id: str = ""
-    rate_limit_ask: int = 20
-    rate_limit_default: int = 60
-    cors_allowed_origins: str = "https://unisense.vercel.app,http://localhost:5173,http://localhost:5174"
+    rate_limit_ask: int = 20               # /ask — hesap/IP başına dakika
+    rate_limit_default: int = 60           # diğer uçlar — dakika
+    # /ask GÜNLÜK tavanları — LLM kota tükenme saldırısına karşı (açık Firebase
+    # kaydıyla çok hesap açıp günün Gemini kotasını bitirmeyi engeller):
+    #  - hesap başı günlük: tek hesabın aşırı çağrısını ucuza durdurur
+    #  - GLOBAL günlük: tüm hesaplar toplamına sert backstop (çok-hesap saldırısı)
+    # Değerler env ile ayarlanabilir; Gemini ücretsiz kotasının altında tutulmalı.
+    rate_limit_ask_daily: int = 60         # hesap/IP başına gün
+    rate_limit_ask_daily_global: int = 1200  # tüm site toplamı / gün
+    cors_allowed_origins: str = (
+        "https://www.unisense.com.tr,https://unisense.com.tr,"
+        "http://localhost:5173,http://localhost:5174"
+    )
     audit_log_path: str = "./logs/audit.log"
 
     # === Dış kaynaklar ===
@@ -74,14 +84,23 @@ class Settings(BaseSettings):
         # İki geçerli format var:
         #   AIza... → eski Standard key (Google Eylül 2026'da tamamen kapatıyor!)
         #   AQ.  ... → yeni Auth key (Haziran 2026'dan beri varsayılan)
+        # DAYANIKLILIK: bozuk formatlı key'i FIRLATMA — DÜŞÜR. Aksi halde tek
+        # hatalı key (ör. GitHub secret'ine yanlış yapıştırılan bir değer) tüm
+        # Settings()'i, dolayısıyla backend boot'unu VE her workflow'u çökertir.
+        # Bozuklar atılır, geçerliler kalır; hiç geçerli yoksa boş döner (uygulama
+        # RAG-dışı çalışır, generate script "key yok" ile temiz çıkar).
         if not v.strip():
             return v
         keys = [k.strip() for k in v.split(",") if k.strip()]
-        for k in keys:
-            if not (k.startswith("AIza") or k.startswith("AQ.")):
-                # Key içeriğini hata mesajına yazma — loglara sızmasın
-                raise ValueError("Invalid Gemini key format (must start with 'AIza' or 'AQ.')")
-        return v
+        valid = [k for k in keys if k.startswith(("AIza", "AQ."))]
+        dropped = len(keys) - len(valid)
+        if dropped:
+            import sys as _sys
+            # Key İÇERİĞİNİ yazma (loga sızmasın) — sadece sayı
+            print(f"[config] UYARI: {dropped} Gemini key'i geçersiz formatta "
+                  f"(AIza/AQ. ile başlamıyor) — atlandı. Geçerli kalan: {len(valid)}.",
+                  file=_sys.stderr)
+        return ",".join(valid)
 
     @property
     def gemini_keys_list(self) -> list[str]:
@@ -110,4 +129,13 @@ class Settings(BaseSettings):
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    return Settings()  # type: ignore[call-arg]
+    s = Settings()  # type: ignore[call-arg]
+    # Production'da auth kapalıysa yüksek sesle uyar (env unutulur/typo olursa /ask
+    # sessizce auth'suz açılırdı). RAISE ETME — validator'da hata Settings'i çökertir.
+    if s.is_production and not s.security_require_auth:
+        import logging
+        logging.getLogger("unisense").error(
+            "GÜVENLİK: app_env=production ama SECURITY_REQUIRE_AUTH kapalı — "
+            "kimlik doğrulama zorlanmıyor! Ortam değişkenini kontrol et."
+        )
+    return s

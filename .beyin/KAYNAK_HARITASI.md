@@ -1,0 +1,785 @@
+# Kaynak Haritası — 81 İl / Bölge Bazlı İş İlanı Taraması
+
+**Yazan:** Claude Code (keşif) · **Tarih:** 2026-09-05
+**Kime:** opencode (birleştirme ve adaptör yazımı ona ait)
+**Kapsam:** Bu dosya YALNIZCA keşiftir — hangi kaynak var, nasıl erişilir,
+neyi kapsar. Kod yazımı ve birleştirme yol haritasının F3/F4 fazlarında.
+
+---
+
+## 1. Ana bulgu — kurum kurum gitmek ÇALIŞMAZ
+
+Kullanıcının isteği "Hatay'daki kurumların hepsinin kendi iş sayfası, 81 il için"
+şeklindeydi. Bunu doğrudan denemek sürdürülemez; ölçtüm:
+
+**Ortak URL deseni yok.** 4 büyükşehir belediyesinde `/ilanlar`, `/duyurular`,
+`/insan-kaynaklari`, `/kariyer`, `/rss` yolları denendi:
+
+| Site | /ilanlar | /duyurular | /insan-kaynaklari | /rss | /kariyer |
+|---|---|---|---|---|---|
+| hatay.bel.tr | 200 | 200 | 404 | 404 | 404 |
+| ankara.bel.tr | 200 | 200 | 200 | 200 | 200 |
+| izmir.bel.tr | 404 | 404 | 404 | 404 | 404 |
+| konya.bel.tr | 404 | 404 | 404 | 404 | 404 |
+
+**Üstelik 200'lerin bir kısmı SAHTE.** Uydurma bir yol (`/boyle-bir-sayfa-yok-12345`)
+denendiğinde:
+
+- `mku.edu.tr` → **200** (soft-404)
+- `ege.edu.tr` → **200** (soft-404)
+- `hatay.bel.tr` → 404 (dürüst)
+
+Yani üniversite sitelerinde HTTP durum koduna güvenilemez; "sayfa var mı"
+sorusu ancak **içerik doğrulamasıyla** cevaplanır. 208 üniversite × birkaç yol
+× içerik doğrulaması = her biri elle yazılmış yüzlerce kırılgan adaptör.
+
+**Sonuç: kurum-kurum yaklaşımı ana strateji OLAMAZ.** Ancak toplayıcıların
+kapsamadığı boşluklar için, tek tek ve gerekçeli yazılır.
+
+---
+
+## 2. Çalışan strateji — TOPLAYICI ÖNCE
+
+Türkiye'de kamu ilanları için **yasal olarak zorunlu merkezî bir portal var.**
+
+> Cumhurbaşkanlığına bağlı/ilgili kuruluşlar, bakanlıklar ve diğer kamu
+> kurumları, kendi sitelerinde yayımlamak zorunda oldukları ilanları **ilan
+> portalında da yayımlamakla yükümlü.** BİK, **81 ilde** yayımlanan resmî
+> ilanların dağıtım ve yayın sürecini **tek merkezden** yönetiyor.
+> — Basın İlan Kurumu İlan Portalı Yönetmeliği
+
+Bu yüzden Hatay Büyükşehir Belediyesi'nin ilanı `ilan.gov.tr` beslemesinde
+görünüyor (canlı veride teyit edildi). Yani **tek kaynak 81 ilin belediye ve
+kurum ilanlarını kapsıyor** — 81 × N site gezmeye gerek yok.
+
+### İl kapsamı olan, doğrulanmış kaynaklar
+
+| # | Kaynak | Kapsam | Erişim | Durum |
+|---|---|---|---|---|
+| K1 | **ilan.gov.tr** (BİK) | **81 il**, tüm kamu kurumları + belediyeler; personel alımı kategorisi (`ats=5`) | `POST /api/api/services/app/Ad/AdsByFilter`; yanıtta `cityCounts` (il kırılımı) ve `numFound` (25.062) | 🟡 şema doğrulandı, oturum şartı çözülmedi (yol haritası §3.1) |
+| K2 | **Kariyer Kapısı** | Merkezî kamu işe alım; sözleşmeli personel, bilişim, ünvan değişikliği | **`https://kariyerkapisi.gov.tr/RSS`** — giriş YOK, 33 ilan, `title`/`category`/`link`/`pubDate` | ✅ **hazır, ilk adaptör bu** |
+| K3 | kamuilan.sbb.gov.tr | Resmî arşiv, kurum + yıl bazlı | Sunucu-tarafı HTML (207 KB), `ilanDetay.aspx?kod=…` | 🟡 **il filtresi YOK** — yalnız `ddl_yil`, `ddl_ktg`. Arşiv/doğrulama amaçlı. |
+| K4 | Jooble API | Özel sektör, konum alanı dolu | Anahtar var, CI'da çalışıyor | ✅ aktif (309 ilan) |
+| K5 | Careerjet API | Özel sektör, konum alanı dolu | Anahtar var, CI'da çalışıyor | ✅ aktif (174 ilan) |
+
+**Bölge/il filtresi bu kaynaklardan besleniyor:** K1'in `cityCounts`'u ve
+K4/K5'in konum alanı, `geo.il_ilce_ayikla()` ile il/ilçe/bölgeye çevriliyor
+(486 kayıtta 460 çözülüyor).
+
+---
+
+## 3. Boşluklar — toplayıcıların kapsamadıkları
+
+Bunlar kurum-kurum gidilmesi **gerekçeli** olan yerler:
+
+| Boşluk | Neden toplayıcıda yok | Nasıl kapatılır |
+|---|---|---|
+| **KPSS'siz doğrudan alım yapan kurumlar** (ASELSAN, HAVELSAN, TÜRKSAT, STM, TÜBİTAK, Ziraat Teknoloji) | Resmî ilan zorunluluğu dışında, kendi portallarından alıyorlar | Yol haritası F3.6 — her biri ayrı adaptör, sayıları az (~10) |
+| **Vizyoner Genç** | Savunma sanayii ortak portalı, BİK'e girmiyor | F3.5 |
+| ~~Akademik kadro~~ | — | ❌ **BOŞLUK DEĞİL** (§6.1): BİK kategori `73`/`8`'de. Ayrı adaptör gereksiz. |
+| **Özel sektör il bazlı derinlik** | Jooble/Careerjet büyük şehir ağırlıklı | ATS adaptörleri (F4.3) + OSB firmaları (aşağıda) |
+| **OSB firmaları** (organize sanayi bölgeleri) | Bölgesel işveren yoğunluğu, hiçbir toplayıcıda toplu yok | **Yeni iz:** OSBÜK'te OSB listesi var → `https://www.osbuk.org/view/sayilarlaosb/osbliste.php`. İl bazlı sanayi işvereni haritası için başlangıç noktası. |
+
+---
+
+## 4. opencode için keşif yöntemi (yeni kaynak eklerken)
+
+Yeni bir kaynak ailesi değerlendirirken sırayla:
+
+1. **Toplayıcıda var mı?** Önce K1/K2'de o kurumun ilanı görünüyor mu diye bak.
+   Görünüyorsa ayrı adaptör YAZMA — mükerrer iş ve mükerrer kayıt olur.
+2. **RSS var mı?** `/RSS`, `/rss`, `/feed`, sayfa kaynağında `RssLinkiAl`
+   benzeri bağlantı. Kariyer Kapısı böyle bulundu.
+3. **Soft-404 tuzağını test et.** Uydurma bir yol iste; 200 dönüyorsa durum
+   koduna güvenme, içerik doğrula.
+4. **robots.txt'i yol bazında oku** (yol haritası §3.2 "Kapalı Kapılar").
+5. Hâlâ yoksa `erisim: yok` yaz, sıradakine geç.
+
+---
+
+## 5. Bu dosyanın sınırı
+
+Burada **birleştirme yok**: şema eşleme, tekilleştirme, kayıt defterine giriş
+ve adaptör kodu opencode'un işi (yol haritası F2.3, F3, F4). Bu dosya yalnız
+"hangi kapı açık, hangisi kapalı, kanıtı ne" sorusunu cevaplar.
+
+---
+
+## 6. İkinci keşif turu — sonuçlar (2026-09-05)
+
+Dört açık soru da kapandı. Üçü toplayıcı-önce tezini güçlendirdi.
+
+### 6.1 Akademik kadro — ayrı adaptör GEREKMİYOR ✅
+
+`ilan.yok.gov.tr` diye bir adres **yok** (benim uydurmamdı; 8.8.8.8 de çözmedi).
+Akademik ilanlar zaten BİK'te, kendi kategorisinde:
+
+- `https://www.ilan.gov.tr/ilan/kategori/73/akademik-personel-alimlari`
+- `https://www.ilan.gov.tr/ilan/kategori/8/kamu-akademik-personel`
+
+**Tespit edilen BİK kategori kimlikleri** (adaptör için): `2` personel-alimi,
+`8` kamu-akademik-personel, `73` akademik-personel-alimlari. Liste sayfasında
+ayrıca `ats=5` = PERSONEL ALIMI süzgeci.
+→ Yol haritası F3.3'teki "ilan.yok.gov.tr" görevi **iptal**; K1 adaptörü
+kategori 73/8'i de çekince akademik kadro kapsanır.
+
+### 6.2 Sağlık alımları — ayrı adaptör GEREKMİYOR ✅
+
+Sağlık Bakanlığı'nın 15.342 sözleşmeli + 3.658 sürekli işçi alımı hem
+`ilan.gov.tr`'de (`/ilan/1761908/kamu-akademik-personel-...`) hem
+`kariyerkapisi.gov.tr/IlanDetay?i=...`'da yayımlanmış. İl bazlı kadrolar da
+aynı ilan içinde.
+
+⚠️ **Nüans:** *sürekli işçi* başvuruları **İŞKUR üzerinden** alınıyor ve İŞKUR
+WAF'lı. Ama **ilan** her iki toplayıcıda görünüyor → biz ilanı listeleriz,
+başvuru için kaynağa yönlendiririz (§1 kuralı). Kapsama kaybı yok.
+
+### 6.3 OSB haritası — il bazlı sanayi işvereni iskeleti ✅
+
+`https://www.osbuk.org/view/sayilarlaosb/osbliste.php` — 346 KB, sunucu-tarafı
+HTML tablo, **418 OSB**. Sütunlar: `sıra | İL | OSB adı | tür | durum`.
+
+- İl sütunu **418/418** `geo.il_to_bolge()` ile çözülüyor — temiz veri.
+- Durum dağılımı: **302 İŞLETMEDE (FAALİYETTE)**, 46 planlama, 42 altyapı,
+  28 kamulaştırma.
+- Faal 302 OSB **78/81 ilde**, yedi bölgenin hepsinde
+  (Marmara 80, Karadeniz 51, Ege 50, İç Anadolu 50, G.Doğu 27, Akdeniz 24,
+  D.Anadolu 20). En yoğun: Bursa 17, Kocaeli 14, Ankara/İzmir/Tekirdağ 13.
+
+⚠️ **Satırlarda link YOK** — OSB'lerin kendi siteleri bu tablodan çıkmıyor.
+Üye firma listesine ulaşmak için her OSB'nin sitesi ayrıca bulunmalı; yani
+bu tablo **işveren haritasının iskeleti**, ilan kaynağı değil.
+*Önerilen kullanım:* önce faal OSB'leri il bazlı referans veri olarak tut,
+sonra en yoğun 8-10 ilde OSB sitelerinde ilan sayfası var mı diye örneklem yap.
+
+### 6.4 Ticaret/Sanayi Odaları — kaynak DEĞİL ❌
+
+ITO, ATO, İZTO ana sayfalarında iş ilanı/kariyer izi arandı: ITO 0, İZTO 0,
+ATO 1 (zayıf). **Bu aile kapatıldı**, düşük değerli.
+
+---
+
+## 7. Güncellenmiş sonuç
+
+İkinci tur, kurum-kurum gitme ihtiyacını daha da azalttı: akademik ve sağlık
+alımları da toplayıcılarda. Geriye kalan gerçek boşluk **yalnızca**:
+
+1. KPSS'siz doğrudan alım yapan ~10 kurum (ASELSAN, HAVELSAN, TÜBİTAK…)
+2. Vizyoner Genç
+3. Özel sektörde il bazlı derinlik (ATS adaptörleri + OSB firmaları)
+
+---
+
+## 8. Üçüncü keşif turu — kurum RSS'leri: HEPSİ YANLIŞ POZİTİF ❌
+
+KPSS'siz alım yapan kurumlarda hızlı bir RSS kazancı var mı diye bakıldı.
+`/rss`, `/feed`, `/rss.xml` denendi; ilk bakışta umut verici görünenler
+**içerik doğrulamasında elendi.** (Bu, §4'teki soft-404 kuralının işe yaradığı
+somut örnek.)
+
+| Kurum | Ham sonuç | Uydurma yol testi | Gerçek durum |
+|---|---|---|---|
+| kariyer.tubitak.gov.tr | /rss, /feed, /rss.xml **hepsi 200** | uydurma yol da **200** | ❌ soft-404, RSS yok |
+| www.vizyonergenc.com | /rss, /feed, /rss.xml **hepsi 200** | uydurma yol da **200** | ❌ soft-404, RSS yok |
+| www.aselsan.com | /rss.xml **200** | uydurma yol **404** (dürüst) | ❌ ama `content-type: text/html`, **0 `<item>`** → RSS değil, HTML sayfası |
+| kariyer.havelsan.com.tr | üçü de 404 | — | ❌ RSS yok |
+| www.stm.com.tr | üçü de 404 | — | ❌ RSS yok |
+
+**Sonuç:** Bu kurumların hiçbirinde RSS yok. F3.5 (Vizyoner Genç) ve F3.6
+(kurum portalları) için **kısa yol yok** — her biri için tarayıcı ağ sekmesiyle
+JSON API aramak gerekecek (§3 madde 1). Sayıları az (~10) olduğu için
+katlanılabilir, ama "RSS bulup hızlı bitiririz" beklentisi kurulmasın.
+
+---
+
+## 9. Dördüncü tur — "tüm şirketlerin kendi siteleri" sorusu
+
+Kullanıcı isteği: tüm Türkiye'deki iş siteleri **+ tüm şirketlerin kendi
+siteleri**; gerekirse odalar kurumundan firma listesi çekip tek tek bakmak.
+İki yol da denendi.
+
+### 9.1 Odalar / TOBB firma kaydı — şirket evreni var, İLAN yok ⚠️
+
+`sanayi.tobb.org.tr` → `https://sanayi.org.tr/#/sanayi-veri-tabani` yönleniyor
+(yeni SPA). Veri tabanı **kapasite raporu** olan firmaları içeriyor: faaliyet
+alanı, **il dağılımı**, adres, telefon, çalışan sayısı. Erişim için **ücretsiz
+üyelik** isteniyor.
+
+Aramada çıkan eski PHP uçları (`yeni_kod_liste71.php`, `kitap_son2_nace.php`,
+`sifre_giris3.php`) **artık çalışmıyor** — dördü de aynı 3645 baytlık SPA
+kabuğunu döndürüyor. Bayat arama indeksi.
+
+**Değerlendirme — bu yol ilan kaynağı DEĞİL:**
+
+1. Veri tabanı **firma kaydı**, iş ilanı değil. Tam erişsek bile firma adı,
+   adres, çalışan sayısı alırız; ilan almayız.
+2. İlana çevirmek için her firmanın sitesini bulup kariyer sayfasını ayrıştırmak
+   gerekir. On binlerce kayıtlı firma için ölçeklenmez; KOBİ'lerin çoğunda
+   kariyer sayfası **yok**.
+3. Üyelik arkasındaki verinin yeniden dağıtımı muhtemelen ToS kısıtlı.
+
+→ **Şirket evreni referansı olarak** değerli olabilir (hangi ilde hangi sektör
+yoğun), **ilan kaynağı olarak** değil. F4 fazına alınmadı.
+
+### 9.2 ATS platformları — "kendi sitesi" sorusunun ÇALIŞAN cevabı ✅
+
+Kurumsal şirketlerin kariyer sayfaları neredeyse her zaman bir ATS'e
+(Lever / Greenhouse / Workable) bağlı ve bu platformların **herkese açık,
+kimlik doğrulamasız JSON API'leri** var:
+
+| Platform | Uç nokta | Test |
+|---|---|---|
+| **Lever** | `https://api.lever.co/v0/postings/<slug>?mode=json` | ✅ `dreamgames` → **19 ilan** |
+| **Greenhouse** | `https://boards-api.greenhouse.io/v1/boards/<slug>/jobs` | ✅ çalışıyor |
+
+Lever kayıt yapısı (Dream Games örneği): `text` (başlık), `categories`
+(`commitment: Full-time`, `location: Istanbul`, `team: Marketing`,
+`allLocations`), `createdAt`, `descriptionPlain`, `country`, `id`.
+Yani **çalışma şekli, konum ve takım hazır geliyor** — şema v2'ye doğrudan
+oturuyor.
+
+⚠️ **SLUG ÇAKIŞMASI — yanlış pozitif tuzağı.** `boards-api.greenhouse.io/v1/
+boards/insider/jobs` **200 ve 9 ilan** döndürdü ama konumlar *New York* ve
+*Singapore* — bu Türk Insider (useinsider.com) değil, aynı adlı **ABD medya
+şirketi**. Şirket adını slug sanıp denemek yanlış şirketi çeker.
+
+**Doğru yöntem:** slug TAHMİN ETME. Şirketin gerçek kariyer sayfasını aç,
+oradan `jobs.lever.co/<slug>` / `boards.greenhouse.io/<slug>` bağlantısını
+**oku**. Ek emniyet: çekilen ilanların konumları Türkiye ile uyuşuyor mu diye
+doğrula (`geo.il_to_bolge()` ile), uyuşmuyorsa kaynağı reddet.
+
+→ Yol haritası **F4.2** (ATS tespiti) ve **F4.3** (ATS adaptörü) bu bulguyla
+uygulanabilir durumda. Tek adaptör onlarca şirketi çeker.
+
+### 9.3 ATS keşfi — ölçülmüş sonuç ve HAZIR eşleme tablosu
+
+10 Türk şirketinin kariyer sayfası tarandı, HTML'de ATS bağlantısı arandı.
+Bulunan slug'lar Lever API'sinde doğrulandı.
+
+**"Slug'ı oku, tahmin etme" kuralı ampirik olarak kanıtlandı:**
+
+| Yöntem | Başarı |
+|---|---|
+| Kariyer sayfasından **okunan** slug | **3/3** ✅ |
+| Şirket adından **tahmin edilen** slug | **0/6** ❌ (getir, peak, papara, jotform, hepsiburada, insider — hepsi geçersiz yanıt) |
+
+**Doğrulanmış eşleme — `is_kaynaklari.yml`'e doğrudan girilebilir:**
+
+| Şirket | Platform | Slug | İlan | Konum dağılımı |
+|---|---|---|---|---|
+| Trendyol | Lever | `trendyol` | **27** | İstanbul/Maslak 13, Bükreş 4, Kocaeli/Gebze 2, Riyad 1 |
+| Peak Games | Lever | `peakgames` | **20** | ⚠️ konum alanı bozuk (aşağı bak) |
+| Dream Games | Lever | `dreamgames` | **19** | İstanbul 18, Londra 1 |
+| **Midas** | Lever | **`getmidas`** | **13** | İstanbul 11, Türkiye 2 |
+| iyzico | Lever | `iyzico` | **12** | İstanbul 12 |
+| **Insider One** | Lever | **`insiderone`** | **117** | ⚠️ küresel pano: São Paulo 26, Londra 10, **İstanbul 10** |
+| Codeway | Lever | `codeway` | **0** | slug geçerli ama şu an ilan yok — kayıt defterinde kalsın |
+
+**Türkiye ile ilgili toplam ≈ 101 ilan** (91 + insiderone'un İstanbul'daki ~10'u).
+
+⚠️ **Slug'lar tahmin edilebilir DEĞİL:** Midas → `getmidas`, Peak → `peakgames`,
+Insider One → `insiderone`. Hiçbiri şirket adının kendisi değil.
+
+Uç nokta:
+`https://api.lever.co/v0/postings/<slug>?mode=json` — kimlik doğrulama yok.
+
+⚠️ **Yabancı konumlar var** (Bükreş, Riyad, Londra). Bu, `il_to_bolge()` ile
+konum doğrulamasının neden zorunlu olduğunu gösteriyor: Türkiye dışı ilanlar
+ya elenmeli ya da `il/bolge = null` ile işaretlenmeli — sessizce
+"Bilinmiyor" bölgesine düşürülmemeli.
+
+#### ⚠️ ATS alanlarına körlemesine güvenme — Peak Games örneği
+
+`peakgames` kaydında `categories.location` = **"Full-time" / "Part-time"**
+(yani aslında çalışma süresi), `team` gerçek departmanı tutuyor, `country`
+**null**, `workplaceType` = `onsite`. Şirket Lever'ı yanlış yapılandırmış.
+
+→ **Kural:** `categories.location` değerini `il_to_bolge()`'den geçir. Türk
+iline çözülmüyorsa **konum olarak KABUL ETME**; `workplaceType`/`country`'ye
+düş, o da yoksa `il=null, bolge="Bilinmiyor"` yaz. Aynı doğrulama yabancı
+konumları (Bükreş, Riyad, Londra) da eler.
+
+#### ⚠️ Arama sonuçları BAYAT olabilir — eklemeden önce doğrula
+
+Arama, `jobs.lever.co/papara/...`, `/useinsider/...`, `/colendi/...` gibi
+gerçek görünen ilan URL'leri döndürdü. **Üçü de artık 404** — hem arayüz
+panosu hem API. Yani panolar kapanmış, arama indeksi eski.
+
+Kontrol edildi: **UI ve API durumu birebir aynı** (papara/useinsider/colendi
+ikisinde de 404; codeway/getmidas/trendyol ikisinde de 200). Yani "arayüz var
+ama API kapalı" diye bir durum yok — tek kontrol yeterli.
+
+→ **Kural:** aramadan gelen her slug, kayıt defterine girmeden önce API'de
+doğrulanacak. Kayıt defterine `son_dogrulama` tarihi yazılsın; panolar kapanıyor.
+
+#### Slug varyantları — tahmin neden çalışmıyor
+
+`peakgames` slug'ı **aramayla** bulundu; şirketin adı "Peak" olduğu için
+`peak` denenmişti ve tutmamıştı. Denenen ve tutmayan diğer varyantlar:
+`getirtech`, `getir-technology`, `papara-tech`, `jotformcareers`,
+Greenhouse'ta `peakgames`/`getir`/`papara`. **Tahmin toplam skoru: 1/14.**
+
+**Kariyer sayfası taramasının verimi düşük (2/10).** Getir, Peak, Papara,
+Jotform, Hepsiburada, Insider'ın kariyer sayfaları **JS ile üretiliyor**, ATS
+bağlantısı ham HTML'de yok. Bunlar için tarayıcı ağ sekmesi gerekir — yani
+şirket başına elle iş. **Öneri:** önce ham HTML taramasıyla kolay bulunanları
+topla (ucuz), JS'lileri sonraya bırak.
+
+---
+
+## 10. Beşinci tur — Vizyoner Genç ÇÖZÜLDÜ, üstelik F3.6'yı da kapsıyor ✅✅
+
+### 10.1 Site taşınmış
+
+`vizyonergenc.com` → **`savunmakariyer.com`** ("Savunma Kariyer | Savunma Sanayi
+İş ve Staj İlanları"). Plandaki eski ad güncellenmeli.
+
+Ham HTML işe yaramaz: ana sayfa 2.266 bayt SPA kabuğu, `/sitemap.xml` ve
+`/wp-json` bile `text/html` dönüyor (soft-404). Tarayıcı ağ sekmesiyle
+**tam açık bir REST API** bulundu.
+
+### 10.2 Uç noktalar — hepsi `public`, KİMLİK DOĞRULAMASIZ
+
+| Uç nokta | Yöntem | Sonuç |
+|---|---|---|
+| `/api/career-core/public/jobs` | **POST** `{"page":1,"size":100}` | **24 aktif ilan** |
+| `/api/common/public/city` | GET | **81 il** (`id` + `name`) |
+| `/api/corporate/public/approved-companies?page=1&size=200` | GET | **343 onaylı firma** |
+
+Tek 401: `/api/user-profile/user/visitor` (kullanıcı profili) — ilan verisi açık.
+
+**Yanıt sarmalayıcı:** `{timestamp, httpStatus, header, message, isSuccess, data}`.
+Sayfalama `data`: `{content[], totalElements, totalPages, currentPage, jobStats}`.
+
+**İlan kaydı → şema v2 eşlemesi (doğrudan oturuyor):**
+
+| API alanı | v2 alanı |
+|---|---|
+| `jobTitle` | `baslik` |
+| `companyName` | `kurum` |
+| **`jobLocation`** (ör. "Ankara") | `il` → `il_to_bolge()` ile `bolge` |
+| `startDate` | `tarih` |
+| **`endDate`** | `son_basvuru` |
+| `redirectUrl` / `/ilanlar?selectedJob=<id>` | `url` |
+| `jobStatus` (`PUBLISHED`), `visible`, `applicable` | süzme için |
+
+Örnek: "ASELSAN Sayısal Tasarım Speed Bootcamp", Aselsan, Ankara,
+04.09–21.09.2026.
+
+### 10.3 Bu tek kaynak F3.6'nın çoğunu kapsıyor 🎯
+
+Planda ASELSAN/HAVELSAN/TÜRKSAT/STM/TÜBİTAK için **~10 ayrı adaptör**
+yazılacaktı. Gerek yok:
+
+- **Onaylı firma dizininde varlar:** Aselsan (+ Global, Konya, Sivas, Aselsannet),
+  BAYKAR Makina, HAVELSAN, Havelsan Teknoloji Radar, ROKETSAN, STM.
+- **İlan akışında zaten görünüyorlar:** TUSAŞ 3, TEI 5, Aselsan 1,
+  Havelsan Teknoloji Radar 1, MKE 1, FNSS 2, Nurol Teknoloji 2,
+  TÜSSAF 5, TEITECH 1, Tomtaş 1, Koluman 1.
+- **İl dağılımı geliyor:** Ankara 11, Eskişehir 6, Bursa 5, Kayseri 1, Mersin 1.
+
+→ **F3.5 ve F3.6 tek adaptöre indi.** Yalnız bu dizinde olmayan kurumlar
+(ör. TÜBİTAK, Türksat, Ziraat Teknoloji) için ayrıca bakılır.
+
+⚠️ Bu bir **savunma sanayii** portalı; kapsamı sektörel. Genel kamu için K1/K2
+gerekli, onun yerine geçmez.
+
+---
+
+## 11. Altıncı tur — ilan.gov.tr ÇÖZÜLDÜ ✅✅✅
+
+En büyük engel kalktı. Sorun **oturum/token değilmiş** — geçersiz bir
+`sorting` değeriymiş.
+
+### 11.1 Kök sebep
+
+API, geçersiz sıralama alanında **hata vermiyor, sessizce `numFound: 0`
+dönüyor.** Önceki denemelerimde gövdede `sorting: "publishDate desc"` vardı;
+o yüzden hep 0 aldım ve "oturum şartı var" sandım. Yanlış teşhisti.
+
+| Gövde | Sonuç |
+|---|---|
+| `{}` | **25.061** ✅ |
+| `{skipCount:0, maxResultCount:20}` | **25.061** ✅ |
+| `{..., sorting:"id desc"}` | **25.061** ✅ |
+| `{..., sorting:"publishDate desc"}` | **0** ❌ |
+| `{..., sorting:"publishStartDate desc"}` | **0** ❌ |
+| `{..., sorting:"adNo desc"}` | **0** ❌ |
+
+### 11.2 Doğrulanmış çağrı spesifikasyonu
+
+```
+POST https://www.ilan.gov.tr/api/api/services/app/Ad/AdsByFilter
+Content-Type: application/json
+{"skipCount": 0, "maxResultCount": 20, "sorting": "id desc"}
+```
+
+- **Kimlik doğrulama YOK.** Çerezlerde yalnız Google Analytics var.
+- **Sayfa boyutu tavanı 20** — `maxResultCount` 50/100/500 verilse de 20 döner.
+  Tam tarama: 25.061 / 20 ≈ **1.254 istek.**
+- ~~`sorting: "id desc"` = en yeni önce~~ ⚠️ **YANLIŞ — bkz. 11.5-DÜZELTME.**
+  Sıralama kronolojik değil (skip 0'da 2022 kaydı, skip 100'de 2026).
+  Geçerli bir sıralama değeri ama **tarih sırası vermiyor**; artımlı tarama
+  bu alana dayandırılamaz.
+- Yanıt: `result.ads[]`, `result.numFound`, **`result.cityCounts`**.
+
+### 11.3 `cityCounts` — 81 il facet'i hazır 🎯
+
+Kullanıcının istediği il/bölge kırılımı doğrudan geliyor:
+
+```json
+{"id": 10, "key": "ADANA", "slug": "ADANA", "count": 684}
+{"id": 11, "key": "ADIYAMAN", "count": 108}
+{"id": 12, "key": "AFYONKARAHİSAR", "count": 298}
+```
+
+**81 il, her biri sayısıyla.** Frontend'in bölge/il facet'i bunu doğrudan
+kullanabilir.
+
+### 11.4 Süzgeç parametreleri bulunamadı → yerelde süz
+
+`cityId/cityIds/cityKeys/citySlugs/cities` ve
+`adTypeSetIds/adTypeSetId/taxIds/categoryIds` **hepsi yok sayılıyor** (aynı
+25.061 ve aynı ilk kayıt). Sorun değil: **her kayıtta gerekli alanlar zaten
+var** —
+
+- `addressCityName` → il, `addressCountyName` → ilçe
+- `adTypeFilters[].key == "İlan Türü"` → tür (`PERSONEL ALIMI` / `İHALE` /
+  `İCRA` / `TEBLİGAT`)
+
+→ Hepsini sayfala, **yerelde süz.**
+
+### 11.5-DÜZELTME ⚠️ (2026-09-05, daha geniş örneklem)
+
+**Aşağıdaki 200 kayıtlık ilk ölçüm YANILTICIYDI. İki iddiam yanlıştı:**
+
+**(a) "`id desc` = en yeni önce, artımlı tarama ideal" → YANLIŞ.**
+Sıralama kronolojik değil. Ölçüm: `skip=0`'daki ilk kayıt **2022-03-30**
+tarihli, `skip=100`'deki **2026-09-03**. Tarihler karışık geliyor.
+→ "Görülen id'ye ulaşınca dur" stratejisi **çalışmaz**; kaçırma yapar.
+
+**(b) "~2.600 personel ilanı" → ŞİŞKİN.**
+Derinlik taraması (100'er adımla ilk 1.600 kayıt):
+
+```
+skip    0: 9/20     skip  600: 1/20     skip 1100: 4/20
+skip  100: 4/20     skip  700: 5/20     skip 1200-1500: 0/20
+skip  200-500: 0/20 skip  800-1000: 0/20
+```
+İlk 1.600 kayıtta **23 personel ilanı (~%1,4)**.
+
+Arşivin derinliğinde (skip 2.000 / 5.000 / 9.000 / 13.000 / 17.000 / 21.000 /
+24.000 — her biri 20 kayıt) **personel ilanı SIFIR**; tamamı İHALE/İCRA/TEBLİGAT.
+
+→ **Gerçekçi beklenti: birkaç yüz personel ilanı**, 2.600 değil.
+→ Personel ilanları **dağınık**; kestirme yok. Ya tam tarama (1.254 istek,
+istekler arası ≥200 ms) ya da gerçek kategori süzgeci parametresi bulunmalı
+(§11.4'te denenenler tutmadı).
+
+### 11.5-eski Verim ölçümü (200 kayıtlık ilk örneklem — yukarıdaki düzeltmeye bakınız)
+
+| İlan türü | Adet | Oran |
+|---|---|---|
+| İHALE | 79 | %39,5 |
+| TEBLİGAT | 67 | %33,5 |
+| İCRA | 33 | %16,5 |
+| **PERSONEL ALIMI** | **21** | **%10,5** |
+
+200 kayıtta **51 farklı il**. Örnek personel ilanları: Türkiye Sağlık
+Enstitüleri Başkanlığı (İstanbul), Bursa Teknik Üniversitesi (Bursa),
+Bartın Üniversitesi (Bartın).
+
+→ ~~Tahmini erişilebilir personel ilanı: 25.061 × %10,5 ≈ 2.600.~~
+**Geçersiz** — 11.5-DÜZELTME'ye bakınız. Bu örneklem yalnız en yeni 200 kaydı
+kapsadığı için oranı olduğundan yüksek gösterdi.
+
+⚠️ Tam tarama 1.254 istek — günlük cron için ağır. **Önerilen:** `id desc`
+ile artımlı tara, en son görülen `id`'ye ulaşınca dur. İlk dolum bir kez
+tam yapılır (istekler arası ≥250 ms bekleyerek; ölçümde bu hızda sorun çıkmadı).
+
+---
+
+## 12. Yedinci tur — iki kaynak elendi
+
+### 12.1 🚨 kodilan.com ARTIK İŞ SİTESİ DEĞİL — listeden çıkarılmalı
+
+`PLAN_KARIYER.md` Hat B listesinde geçiyor. **Alan adı el değiştirmiş.**
+
+- `kodilan.com/rss` gerçek bir RSS döndürüyor (`application/rss+xml`) ama içi
+  WordPress'in varsayılan **"Hello world!"** yazısı; `guid`
+  `beta.strixdevelopment.net/winindia`'yı gösteriyor.
+- Ana sayfa başlığı: **"Download & Play BDG Game/BDG Win to Earn Real Money"**
+
+→ **KULLANILMAYACAK.** Kullanıcıyı buraya yönlendirmek zararlı olur.
+`PLAN_KARIYER.md`'de işaretlendi.
+
+**Ders:** bir kaynağın RSS'i geçerli olması içeriğinin de geçerli olduğu
+anlamına gelmiyor. Eski kaynak listeleri kullanılmadan önce **içerik
+doğrulamasından** geçmeli.
+
+### 12.2 TÜBİTAK Kariyer — ilan yok, statik tanıtım sayfası
+
+`kariyer.tubitak.gov.tr` tarayıcıyla açıldı; ağ trafiğinde **tek bir API
+çağrısı yok** — yalnız görseller, video ve enstitü ikonları (BİLGEM, MAM,
+SAGE, ULAKBİM, UZAY, RUTE, UME…). Tüm yollar (`/ilanlar`, `/is-ilanlari`,
+`/acik-pozisyonlar`) aynı 22.602 baytı döndürüyor (soft-404).
+
+→ Bu bir **tanıtım sitesi**, ilan kaynağı değil. TÜBİTAK ilanları toplayıcılarda
+(K1/K2) aranmalı. F3.6'da TÜBİTAK için ayrı adaptör beklentisi **düşürülmeli**.
+
+### 12.3 Diğer Türk iş siteleri — besleme yok
+
+| Site | /rss | /feed | Sonuç |
+|---|---|---|---|
+| techcareer.net | 404 | 404 | besleme yok (dürüst 404) |
+| youthall.com | 404 | — | besleme yok |
+| yenibiris.com | 404 | — | besleme yok |
+| eleman.net | 404 | — | besleme yok |
+| kodilan.com | 200 | 200 | ⚠️ geçerli RSS ama site artık iş sitesi değil (§12.1) |
+
+→ Bu sitelerde kolay yol yok; §3.2'deki robots kısıtlarıyla birlikte
+değerlendirilecek (F4.5/F4.6).
+
+---
+
+## 13. Sekizinci tur — büyük özel panolar ölçüldü
+
+### 13.1 kariyer.net — 🔴 WAF, ERİŞİM YOK
+
+`/is-ilanlari` ve `/is-ilanlari/bilgisayar-muhendisi` → **HTTP 403**, gövdede
+bot koruması izi. TR'nin en büyük panosu ama **pratikte kapalı.**
+
+⚠️ Bu, §3.2'de yazdığım uyarının somut kanıtı: **robots izin veriyor diye site
+kazımayı hoş karşılıyor demek değil.** kariyer.net robots'unda ilan yolları
+serbest, yine de WAF 403 veriyor. → §3 madde 6: zorlanmayacak.
+
+### 13.2 eleman.net — ✅ EN ZENGİN KAYNAK, JSON-LD ile
+
+`/is-ilanlari` → **HTTP 200, 283 KB, sunucu-tarafı**, sayfada 30 ilan linki
+(`/is-ilani/<slug>-i<id>`).
+
+**Detay sayfasında schema.org `JobPosting` JSON-LD var** — şema v2'nin istediği
+her şey hazır geliyor:
+
+| JSON-LD | Örnek | v2 alanı |
+|---|---|---|
+| `title` | CNC OPERATÖRÜ İLANI | `baslik` |
+| `datePosted` | 2026-09-05 16:07:56 | `tarih` |
+| `validThrough` | 2026-10-05 | **`son_basvuru`** |
+| `employmentType` | Tam Zamanlı | **`istihdam_turu`** |
+| `hiringOrganization.name` | Sofalıne Mobilya | `kurum` |
+| `jobLocation…addressLocality` | **"İstanbul,Kartal"** | **`il` + `ilce`** |
+| `baseSalary` | `{currency: TRY, …}` | `maas` |
+
+Ayrıca `industry`, `occupationalCategory`, `qualifications`, `skills`,
+`workHours`. **Standart olduğu için sayfa tasarımı değişse bile bozulmaz** —
+şimdiye kadar bulunan en sağlam parse yolu.
+
+**robots.txt uygun:** yasaklar `/*.asp$`, `/*.html$`, `/*.htm$` ve sorgu
+kalıpları (`?t=`, `?ilan_id=`, `?tip=`, `?uyelik_tipi=`) + `/favori.php`.
+**`/is-ilanlari` ve `/is-ilani/<slug>` yasak DEĞİL.** Sorgu tabanlı URL
+kullanılmayacak.
+
+**İl yolu çalışıyor ama KATI DEĞİL:** `/is-ilanlari/ankara` → Ankara baskın,
+`/is-ilanlari/trabzon` → Trabzon baskın; ama `/is-ilanlari/hatay` sayfasını
+başka şehirler doldurmuş (o ilde ilan az olduğunda tamamlıyor gibi).
+→ **İl yolunu KEŞİF için kullan, ilin kendisini her ilanın JSON-LD'sindeki
+`addressLocality`'den OKU.** Tek doğruluk kaynağı o.
+
+Sayfalama deseni bulunamadı (`/2`, `?sayfa=2` aynı sonucu veriyor); il yolları
+üzerinden gezinmek şimdilik en pratik kapsama yolu (81 il × ~30 ilan).
+
+### 13.3 yenibiris.com ve isbul.net — ✅ erişilebilir
+
+| Site | Sonuç | Not |
+|---|---|---|
+| yenibiris.com | 200, **572 KB** | Sayfalama görünür: `?sayfa=2` … `?sayfa=100`. JSON-LD **yok**; ilan kartları JS ile geliyor olabilir. |
+| isbul.net | 200, **920 KB** | Gerçek ilan linkleri: `/is-ilani/<firma>-<pozisyon>-<n>`. JSON-LD yok. |
+
+İkisi de sunucu-tarafı içerik veriyor; HTML parse gerekir (JSON-LD kolaylığı yok).
+
+---
+
+## 14. Dokuzuncu tur — kurum kapsaması: iki toplayıcı TAMAMLAYICI, düzenleyiciler İKİSİNDE DE YOK
+
+### 14.1 Kariyer Kapısı RSS — kurum dağılımı (33 ilan, 31 kurum)
+
+| Kategori | Adet |
+|---|---|
+| Sözleşmeli Personel İlanları | 28 |
+| A Grubu Memur (Kariyer Meslek) | 2 |
+| Yurt Dışı Eğitim İlanları | 2 |
+| Görevde Yükselme / Unvan Değişikliği | 1 |
+
+**BİK'in kaçırdığı kurumları kapsıyor:** Dışişleri Bakanlığı, Göç İdaresi
+Başkanlığı, **Siber Güvenlik Başkanlığı**, TİKA, Kamu İhale Kurumu, Türk
+Standardları Enstitüsü, Adli Tıp Kurumu, Merkezi Finans ve İhale Birimi,
+Üniversitelerarası Kurul, Atatürk Orman Çiftliği + kalkınma ajansları (BEBKA,
+Kuzey Anadolu).
+
+→ **BİK ve Kariyer Kapısı TAMAMLAYICI, biri diğerinin yerine geçmez.** BİK
+üniversite/belediye ağırlıklı; Kariyer Kapısı bakanlık/kurum ağırlıklı.
+İkisi de toplanmalı (ikisi de zaten kayıt defterinde ✅).
+
+### 14.2 Düzenleyici ve güvenlik kurumları — hiçbir toplayıcıda YOK
+
+TCMB, BDDK, SPK, Sayıştay, BTK, EPDK, Rekabet Kurumu, Jandarma, MSB, EGM, MİT
+→ **ne BİK örnekleminde ne Kariyer Kapısı RSS'inde görüldü.**
+
+Siteleri erişilebilir (hepsi HTTP 200; MSB 302 yönlendirme). **Ama hazır besleme
+yok:**
+
+- BDDK: ana sayfada RSS bağlantısı yok; `/Rss` ve `/rss` **404**. (Sayfadaki
+  "rss" geçen 13 iz sahte — script metni.)
+- Rekabet Kurumu: `/rss` → 200 ama `text/html`, 0 item → RSS değil.
+- **BTK: `/rss` → JSON besleme DİZİNİ** döndürüyor:
+  `{"data":{"feeds":[{"title":"News","url":".../rss/news"},{"title":"Announcements","url":".../rss/announcements"},{"title":"Public opinions",...}]}}`
+  Beslemeler çalışıyor (50'şer kayıt) **ama içerik iş ilanı DEĞİL** — düzenleyici
+  duyurular, kamuoyu görüşleri, haberler. Örneklemde personel alımı yok.
+
+→ **Öneri: düzenleyici kurum adaptörleri ÖNCELİĞİ DÜŞÜK.** Bu kurumlar seyrek
+alım yapıyor, hazır besleme yok, her biri ayrı HTML parse ister — düşük verim.
+Rehberde **link olarak kalsınlar**; Kariyer Kapısı zaten bir kısım kurumu
+getiriyor. BTK gibi RSS'i olanlar ileride anahtar kelime süzgeciyle
+izlenebilir ("personel alım", "sınav ilanı"), ama bu ayrı bir iş.
+
+---
+
+## 15. Onuncu tur — son üç aday, KEŞİF FAZI KAPANDI
+
+### 15.1 tr.indeed.com — 🔴 robots ile KAPALI (kesin)
+
+`robots.txt`'te **hepsi yasak**: `Disallow: /jobs`, `/viewjob`, `/q-`,
+`/jobs/TR/`. Yani ilan listesi de detay sayfası da arama da kapalı.
+→ **Kapalı Kapılar'a taşındı.** Rehberde link olarak kalır.
+
+### 15.2 secretcv.com — 🟡 zor, önceliği düşük
+
+`/is-ilanlari` → 200, 338 KB, sayfada 79 "pozisyon/başvur" izi **ama ham HTML'de
+tekil ilan linki YOK**. Tarayıcıda render edildikten sonra bile: 289 link,
+203'ü "ilan benzeri" ama hepsi genel sayfalara (`/is-ilanlari`,
+`/is-ilani-ver`) — **tekil ilan URL'si üretilmiyor**. JSON-LD'de yalnız
+`BreadcrumbList`, `JobPosting` yok.
+→ İlan detayları farklı bir akışta (arama/filtre etkileşimi gerekiyor).
+eleman.net her şeyi temiz verirken buraya yatırım yapmak mantıksız.
+
+### 15.3 akademikag.com — 🟡 küçük
+
+`/akademik-ilanlar` → 200, 57 KB. Ham HTML'de yalnız filtre linkleri
+(`?tur=Araştırma`, `?tur=Resmi`, `?tur=Sosyal`, `?tur=Uluslararası`); tekil ilan
+linki yok → JS ile geliyor. Zaten `akademiktr` adaptörü akademik kadroyu
+topluyor (kayıt defterinde ✅), bu ikinci bir akademik toplayıcı.
+→ Düşük öncelik.
+
+---
+
+## 16. KEŞİF FAZI SONUCU
+
+On tur sonunda aday havuzu tükendi. Özet:
+
+| Durum | Kaynaklar |
+|---|---|
+| ✅ **Toplanıyor (7)** | ilan.gov.tr, Kariyer Kapısı, kamuilan.sbb, AkademikTR, Resmî Gazete, Jooble, Careerjet |
+| 🟢 **Hazır, kod bekliyor (2)** | savunmakariyer.com (API tam belgeli), Lever ATS (6 slug) |
+| 🟢 **Ölçüldü, yazılabilir (3)** | eleman.net (JSON-LD 🥇), yenibiris, isbul.net |
+| 🟡 **Zor / düşük verim (3)** | secretcv, akademikag, düzenleyici kurumlar |
+| 🔴 **Kapalı (5)** | LinkedIn (robots), kariyer.net (WAF 403), tr.indeed.com (robots), İŞKUR (WAF), kodilan (site ölü) |
+
+**Sonraki değerli iş artık araştırma değil, UYGULAMA.** Beş adaptör (2 hazır +
+3 ölçülmüş) yazıldığında kapsam 7 → 12 kaynağa çıkar.
+
+
+
+- [ ] Faal 302 OSB'nin en yoğun 8-10 ildeki sitelerinde ilan sayfası örneklemi
+- [ ] Vizyoner Genç ve TÜBİTAK SPA'larının JSON API'si (tarayıcı ağ sekmesi;
+      RSS olmadığı kesinleşti, doğrudan API aranacak)
+
+---
+
+## 17. On birinci tur — WORKABLE GENEL ARAMA API'si ÇÖZÜLDÜ ✅✅✅ (2026-09-06)
+
+Keşif fazı §16'da kapatılmıştı; bu bulgu onu yeniden açıyor. **Tek istekle 288
+TR ilanı, 77 şirket** — üstelik çalışma şekli alanı %100 dolu.
+
+### 17.1 Uç nokta
+
+```
+GET https://jobs.workable.com/api/v1/jobs?query=&location=Turkey&limit=20
+GET .../jobs?query=&location=Turkey&limit=20&pageToken=<nextPageToken>
+```
+
+- **Kimlik doğrulama YOK.**
+- `limit` **en fazla 20** — 25 ve üstü `HTTP 400`. (Ölçüldü.)
+- Sayfalama parametresi **`pageToken`**. `nextPageToken`, `token`, `cursor`
+  isimleri de 200 dönüyor AMA **aynı sayfayı** veriyor — sessiz tuzak.
+  Yanlış parametreyle döngü sonsuza kadar ilk 20 kaydı çeker.
+  Doğrulama: ilk kaydın `id`'si değişmeli.
+- 15 sayfa = 288 tekil kayıt, `totalSize` ile birebir uyuştu.
+
+### 17.2 Alanlar (ölçülen doluluk, 288 kayıt)
+
+| Alan | Doluluk | Not |
+|---|---|---|
+| `workplace` | **288/288 (%100)** | `on_site` 146 / `remote` 106 / `hybrid` 36 |
+| `location.countryName` | %100 | hepsi "Turkey" |
+| `location.city` | 201/288 (%70) | Istanbul 91, İzmir 19, Ankara 16, Antalya 7... |
+| `employmentType` | 214/288 (%74) | Full-time 148, Contract 26, Part-time 14 |
+| `company.title` + `website` | %100 | 77 tekil şirket |
+| `url`, `created`, `description` | %100 | `description` tam HTML gövde |
+
+`workplace` alanı tek başına **`calisma_sekli` sorununu kökten çözüyor**:
+bugün tüm veri setinde kaynak-beyanlı çalışma şekli olan 27 kayıt var,
+bu kaynak tek başına 288 getiriyor.
+
+### 17.3 Mükerrerlik ölçümü — kazanç gerçek
+
+Mevcut 1935 kayıtla karşılaştırıldı: başlık eşleşmesi **4**, kurum eşleşmesi
+**1** (VavaCars). Yani **284 kayıt tamamen yeni.** Jooble ve Careerjet bu
+şirketleri getirmiyor.
+
+Şirketler (ilan sayısı): CXG 20, Vertigo 19, Guess Europe 18, Sanction Scanner
+13, SIHAMCO 12, Wingie Enuygun 11, UserWise 11, Lucida AI 11, PEOPLECERT 10,
+Rapsodo 10, Pulse Games 9, VavaCars 9 + 65 şirket daha.
+
+### 17.4 robots.txt
+
+```
+User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /search/*
+Disallow: /search*?*   Disallow: /search   Disallow: /profile*
+```
+
+`/api/` yolu **yasaklanmamış**. `Content-Signal` arama amaçlı kullanımı açıkça
+`yes` diyor, model eğitimini `no`. Bizim kullanımımız arama/indeksleme →
+uygun. Yine de `/search` HTML yolu taranmamalı, yalnız API kullanılmalı.
+
+### 17.5 Elenen benzer uç noktalar (aynı turda ölçüldü)
+
+| Aday | Sonuç |
+|---|---|
+| `api.smartrecruiters.com/v1/postings?country=tr` | HTTP 404 — genel arama yok. Şirket bazlı `/v1/companies/<id>/postings` çalışıyor ama `id` tam eşleşme istiyor ("Trendyol" → `totalFound: 0`). |
+| `jobs.recruitee.com/api/offers` | 200 ama **9 kayıtlık örnek besleme**, filtre parametrelerini yok sayıyor (hepsi Amsterdam). Ölü. |
+| `jobs.ashbyhq.com/api/non-user-graphql` | 200 ama hata gövdesi; genel arama yok. Şirket bazlı `api.ashbyhq.com/posting-api/job-board/<slug>` çalışıyor. |
+| Teamtailor / JOIN genel arama | 404. |
+
+### 17.6 Yeni doğrulanmış ATS slug'ları
+
+| Sağlayıcı | Slug | İlan | TR ilanı |
+|---|---|---|---|
+| Lever | `picus` (Picus Security) | 8 | 2 |
+| Lever | `ciceksepeti` | 1 | 1 |
+| Lever | `insiderone` | 117 | **20** (§9.3'te doğrulandı, yeniden teyit edildi) |
+| Greenhouse | `dreamgames` | 1 | — |
+| Greenhouse | `insider`, `udemy` | 9 / 12 | **0 TR** — eklemeye değmez |
+
+⚠️ Tek seferlik yoklama **yanılabiliyor**: `insiderone` ilk toplu taramada
+"bulunamadı" dedi, tek başına denenince 117 ilan döndü (geçici ağ hatası).
+Slug elemeden önce ikinci kez doğrula.
+
+60 büyük TR şirketi (bankalar, holdingler, perakende, havacılık, savunma)
+Lever/Greenhouse/Ashby/Workable/Recruitee/Personio/Teamtailor'da tarandı —
+**hiçbiri yok**. Bu şirketler kendi İK yazılımlarını ya da kariyer.net'i
+kullanıyor. §1'deki "kurum kurum gitmek çalışmaz" bulgusu geçerliliğini
+koruyor; ATS taraması yalnız teknoloji şirketlerinde verimli.
+

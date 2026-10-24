@@ -1,0 +1,234 @@
+"""TUS/DUS yerleştirme sonuçları (ÖSYM en küçük/en büyük puan) → tus_rankings.json,
+dus_rankings.json.
+
+Kaynak: ÖSYM'nin her dönem yayınladığı "Yerleştirme Sonuçlarına İlişkin Sayısal
+Bilgiler" sayfasındaki min/max PDF'i (DGS ile aynı ÖSYM şablonu).
+
+PDF satır düzeni (tek akış, get_text):
+    707600101                          ← program kodu (9 hane)
+    Adli Tıp Kurumu/ADLİ TIP           ← ad = "Kurum/DAL" (çok satırlı olabilir)
+    Genel                              ← kontenjan türü (Genel | Yabancı Uyruklu)
+    10                                 ← kontenjan
+    10                                 ← yerleşen
+    0                                  ← boş
+    58,49505 64,78943                  ← en küçük + en büyük (yerleşen 0 ise "--")
+
+NOT: Program kodları YÖK Atlas lisans kodlarıyla EŞLEŞMEZ (DGS'nin aksine) →
+ayrı bir veri adasıdır, departments/rankings ile birleşmez.
+
+URL deseni dönemler arası tutarsız (TERCIH vs YERLESTIRME klasörü) → sabit PDF
+URL'i tahmin edilemez; her dönem 'Sayısal Bilgiler' HTML sayfasından link scrape
+edilir. Bilinen son dönem sayfaları aşağıda; ÖSYM arama ile daha yenisi bulunursa
+o kullanılır.
+
+Çıktı: data/processed/tus_rankings.json, dus_rankings.json
+Kullanım: python -m unisense.infrastructure.scrapers.tusdus_scraper
+"""
+from __future__ import annotations
+
+import io
+import json
+import re
+import sys
+from pathlib import Path
+
+import fitz
+import requests
+
+from . import _osym as osym
+
+if sys.platform == "win32":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+BACKEND = Path(__file__).resolve().parents[4]
+CACHE = BACKEND / ".cache" / "tusdus"
+
+# Sınav başına: bilinen son 'Sayısal Bilgiler' sayfası + ÖSYM arama sorgusu.
+# Keşif daha yeni dönem bulursa onu kullanır; bulamazsa bilinen sayfa.
+CONFIG = {
+    "TUS": {
+        "out": BACKEND / "data" / "processed" / "tus_rankings.json",
+        "donem": "2025 1. Dönem",
+        "min_kayit": 1500,  # bunun altı = PDF formatı değişmiş/bozuk → YAZMA
+        "known_page": ("https://www.osym.gov.tr/TR,33253/"
+                       "2025-tus-1-donem-yerlestirme-sonuclarina-iliskin-sayisal-bilgiler.html"),
+        # ÖSYM slug-only şemaya geçti; keşif /Duyurular/Index üzerinden.
+        # "-donem-yerlestirme-" kalıbı ek-yerleştirme ve uzmanlık dalı
+        # değişikliği duyurularını dışarıda bırakır.
+        "slug_re": r"(20\d\d)tus-(\d)-?donem-yerlestirme-sonuclarina-iliskin-sayisal-bilgiler",
+    },
+    "DUS": {
+        "out": BACKEND / "data" / "processed" / "dus_rankings.json",
+        "donem": "2025 2. Dönem",
+        "min_kayit": 200,
+        "known_page": ("https://www.osym.gov.tr/TR,33701/"
+                       "2025-dus-2-donem-yerlestirme-sonuclarina-iliskin-sayisal-bilgiler.html"),
+        # (20\d\d)dus → "2026ydus" eşleşmez (YDUS ayrı sınav).
+        # Slug'lar tutarsız: "2026dus-1donem" ama "2025tus-2-donem" → -? gerekli.
+        "slug_re": r"(20\d\d)dus-(\d)-?donem-yerlestirme-sonuclarina-iliskin-sayisal-bilgiler",
+    },
+}
+
+_CODE_RE = re.compile(r"^\d{9}$")
+_INT_RE = re.compile(r"^\d{1,4}$")
+_SCORE_RE = re.compile(r"\d{1,3},\d+")
+# Başlık satırları (her sayfada tekrar eder) — parse'a girmez
+_HEADER_TOKENS = {
+    "Program Kodu", "Program Adı", "Kontenjan", "Türü", "Sayısı",
+    "Yerleşen Aday", "Boş Kalan Kontenjan", "En Küçük", "En Büyük", "Puan",
+}
+
+
+def _session() -> requests.Session:
+    return osym.session()
+
+
+def _discover(s: requests.Session, cfg: dict) -> tuple[str, str]:
+    """(donem_etiketi, sayfa_url) — en yeni dönemi keşfet.
+
+    Eski arama endpoint'i (/arama?...) ana sayfaya 302 atıyor; keşif artık
+    /Duyurular/Index üzerinden slug eşleştirmeyle yapılıyor (bkz. _osym.py).
+    """
+    best = None  # ((yil, donem), url)
+    for slug, url in osym.discover(s, cfg["slug_re"]):
+        m = re.search(cfg["slug_re"], slug, re.IGNORECASE)
+        if not m:
+            continue
+        key = (int(m.group(1)), int(m.group(2)))
+        if best is None or key > best[0]:
+            best = (key, url)
+    if best:
+        (yil, donem), url = best
+        return f"{yil} {donem}. Dönem", url
+    print("   ⚠️ keşif boş döndü — bilinen sayfaya düşülüyor")
+    return cfg["donem"], cfg["known_page"]
+
+
+def _parse(path: Path) -> list[dict]:
+    doc = fitz.open(path)
+    records: list[dict] = []
+    cur: dict | None = None
+    buf: list[str] = []       # ad + tür metin satırları
+    ints: list[int] = []
+    scores: list[float] = []
+
+    def flush() -> None:
+        nonlocal cur, buf, ints, scores
+        if cur and len(ints) >= 3 and buf:
+            tur = buf[-1]
+            ad = " ".join(buf[:-1]).strip()
+            kurum, _, dal = ad.rpartition("/")
+            cur.update({
+                "ad": ad,
+                "kurum": kurum.strip() or None,
+                "dal": dal.strip() or ad,
+                "kontenjan_turu": tur,
+                "kontenjan": ints[0],
+                "yerlesen": ints[1],
+                "bos": ints[2],
+                "min_puan": round(scores[0], 3) if scores else None,
+                "max_puan": round(scores[1], 3) if len(scores) > 1
+                else (round(scores[0], 3) if scores else None),
+            })
+            records.append(cur)
+        cur, buf, ints, scores = None, [], [], []
+
+    for page in doc:
+        for raw in page.get_text().splitlines():
+            line = raw.strip()
+            if not line or line in _HEADER_TOKENS:
+                continue
+            if _CODE_RE.match(line):
+                flush()
+                cur = {"kod": line}
+                continue
+            if cur is None:
+                continue
+            if _INT_RE.match(line) and buf:  # sayısal blok başladı (ad bitti)
+                ints.append(int(line))
+                continue
+            found = _SCORE_RE.findall(line)
+            if found:
+                scores.extend(float(x.replace(",", ".")) for x in found)
+                continue
+            if line == "--":
+                continue
+            if not ints:  # henüz sayısal bloğa girmedik → ad/tür metni
+                buf.append(line)
+    flush()
+    return records
+
+
+def _scrape_one(s: requests.Session, sinav: str, cfg: dict) -> bool:
+    donem, page_url = _discover(s, cfg)
+    print(f"📡 {sinav} {donem} → {page_url[:80]}")
+    html = osym.fetch_tolerant(s, page_url)
+    # Eski adlar "minmax_*.pdf"; ÖSYM yeni duyurularda
+    # "...-en-kucuk-ve-en-buyuk-puanlar-*.pdf" kullanıyor → ikisi de.
+    pdfs = re.findall(
+        r'href="(https://dokuman\.osym\.gov\.tr/[^"]*'
+        r'(?:minmax|en-kucuk-ve-en-buyuk)[^"]*\.pdf)"', html, re.IGNORECASE)
+    if not pdfs:
+        print(f"   ⛔ {sinav} min/max PDF bulunamadı — atlandı")
+        return False
+    # Cache dosya adı DÖNEME bağlı: sabit ad kullanılırsa yeni dönem keşfedilse
+    # bile eski dönemin PDF'i parse edilip yeni dönem etiketiyle yazılırdı.
+    donem_slug = re.sub(r"[^0-9a-z]+", "-", donem.lower()).strip("-")
+    p = CACHE / f"{sinav.lower()}_{donem_slug}_minmax.pdf"
+    if not p.exists() or p.stat().st_size < 10_000:
+        data = s.get(pdfs[0], timeout=180).content
+        if data[:4] != b"%PDF":
+            print(f"   ⛔ {sinav} PDF gelmedi — atlandı")
+            return False
+        p.write_bytes(data)
+
+    programlar = _parse(p)
+    # Güvenlik tabanı: gözetimsiz cron main'e push ettiği için, PDF formatı
+    # değişip parse çökerse bozuk/eksik veriyi ÜZERİNE YAZMA — eski veri kalsın.
+    floor = cfg.get("min_kayit", 0)
+    if len(programlar) < floor:
+        print(f"   ⛔ {sinav}: yalnız {len(programlar)} kayıt (<{floor}) — PDF formatı "
+              f"değişmiş olabilir; {cfg['out'].name} GÜNCELLENMEDİ (eski veri korundu)")
+        return False
+    dolu = sum(1 for r in programlar if r.get("min_puan") is not None)
+    out = {
+        "sinav": sinav,
+        "donem": donem,
+        "guncelleme": donem.split()[0],
+        "kaynak": f"ÖSYM {donem} {sinav} Yerleştirme Sayısal Bilgiler",
+        "kaynak_url": page_url,
+        "toplam": len(programlar),
+        "taban_puanli": dolu,
+        "programlar": programlar,
+    }
+    cfg["out"].parent.mkdir(parents=True, exist_ok=True)
+    json.dump(out, open(cfg["out"], "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    print(f"   ✅ {len(programlar)} program ({dolu} taban puanlı) → {cfg['out'].name}")
+    return True
+
+
+def main() -> None:
+    CACHE.mkdir(parents=True, exist_ok=True)
+    s = _session()
+    basarili = 0
+    for sinav, cfg in CONFIG.items():
+        try:
+            if _scrape_one(s, sinav, cfg):
+                basarili += 1
+        except Exception as e:
+            print(f"   ⛔ {sinav} hata: {str(e)[:80]}")
+
+    # Hicbiri veri uretemediyse bu bir kaynak arizasidir. Eskiden exit 0
+    # donuluyordu → workflow sessizce yesil kaliyor, kimse fark etmiyordu
+    # (kpss_scraper'da ayni sessizlik 1 MB veri kaybina yol acmisti).
+    if basarili == 0:
+        print()
+        print("⛔ Hicbir sinav icin veri uretilemedi — mevcut dosyalar korundu.")
+        print("   OSYM duyuru sayfalari erisilemez/degismis olabilir; URL'ler kontrol edilmeli.")
+        sys.exit(1)
+    print()
+    print(f"✅ {basarili}/{len(CONFIG)} sinav guncellendi")
+
+
+if __name__ == "__main__":
+    main()

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from hashlib import sha256
 from pathlib import Path
 
@@ -20,7 +20,7 @@ def audit(event: str, *, ip=None, user_agent=None, query=None,
           api_key_prefix=None, extra=None) -> None:
     settings = get_settings()
     record = {
-        "ts": datetime.now(tz=timezone.utc).isoformat(),
+        "ts": datetime.now(tz=UTC).isoformat(),
         "event": event,
         "env": settings.app_env,
     }
@@ -41,7 +41,7 @@ def audit(event: str, *, ip=None, user_agent=None, query=None,
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, "a", encoding="utf-8") as f:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         logger.error("audit_write_failed", error=str(e), path=str(path))
     # structlog'a "event" key'i çakışmaması için rename
     record_safe = {k if k != "event" else "audit_event": v for k, v in record.items()}

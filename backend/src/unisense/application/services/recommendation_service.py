@@ -68,6 +68,55 @@ def _load_data() -> tuple[list[dict], list[dict], dict[str, dict]]:
     return rankings, departments, uni_lookup
 
 
+# === Puan → tahmini başarı sırası (hesap makinesi için) ===
+@lru_cache(maxsize=1)
+def _sira_index() -> dict[str, list[tuple[float, int]]]:
+    """score_type → puana göre ARTAN, gürültüsüz (puan, sıra) eğrisi.
+
+    Program tabanlarından türetilir. Aynı puandaki programların sırası
+    dağınık olabildiğinden puan tamsayısına yuvarlanıp MEDYAN sıra alınır
+    (tek bir aykırı program eğriyi bozmasın)."""
+    import statistics
+
+    rankings, _, _ = _load_data()
+    buckets: dict[str, dict[int, list[int]]] = {}
+    for r in rankings:
+        st, s, rk = r.get("score_type"), r.get("base_score"), r.get("base_rank")
+        if st and s and rk:
+            buckets.setdefault(st, {}).setdefault(round(float(s)), []).append(int(rk))
+    idx: dict[str, list[tuple[float, int]]] = {}
+    for st, bkt in buckets.items():
+        idx[st] = sorted((float(sc), int(statistics.median(rks)))
+                         for sc, rks in bkt.items())
+    return idx
+
+
+def tahmini_sira(puan: float | None, tur: str) -> dict | None:
+    """Yerleştirme puanından TAHMİNÎ başarı sırası (program tabanlarından interpolasyon).
+
+    TAHMİNÎDİR: gerçek ÖSYM puan-sıralama tablosu değil, program tabanlarından
+    türetilmiş yaklaşık eğri. Uçlarda (çok yüksek/düşük puan) veri seyrek.
+    """
+    import bisect
+
+    if puan is None:
+        return None
+    pts = _sira_index().get(tur)
+    if not pts:
+        return None
+    scores = [p[0] for p in pts]
+    i = bisect.bisect_left(scores, puan)
+    if i <= 0:  # veri alt sınırının altında → en kötü (büyük) sıra
+        return {"puan": puan, "tur": tur, "tahmini_sira": pts[0][1], "sinir": "alt"}
+    if i >= len(pts):  # üst sınırın üstünde → en iyi (küçük) sıra
+        return {"puan": puan, "tur": tur, "tahmini_sira": pts[-1][1], "sinir": "ust"}
+    s0, r0 = pts[i - 1]
+    s1, r1 = pts[i]
+    frac = 0.0 if s1 == s0 else (puan - s0) / (s1 - s0)
+    sira = max(1, round(r0 + frac * (r1 - r0)))
+    return {"puan": puan, "tur": tur, "tahmini_sira": sira, "sinir": None}
+
+
 def _tr_lower(s: str) -> str:
     return s.replace("İ", "i").replace("I", "ı").lower()
 
@@ -275,13 +324,17 @@ class RecommendationService:
                 notes=f"{st} puan türünde sıralama verisi bulunamadı.",
             )
 
-        # Kullanıcının sıralaması yoksa, puanından tahmin et
+        # Kullanıcının sıralaması yoksa, puanından tahmin et.
+        # LLM context'i (_build_profile_context) tahmini_sira() kullandığından burada da
+        # AYNI interpolasyonu kullan — yoksa iki ayrı "senin sıran" değeri çıkıyordu.
         user_rank = profile.rank
         if user_rank is None and profile.score is not None:
-            # Yakın puanlı programdan tahmin et
-            sorted_by_score = sorted(candidates, key=lambda r: abs(r["base_score"] - profile.score))
-            if sorted_by_score:
-                user_rank = sorted_by_score[0]["base_rank"]
+            est = tahmini_sira(profile.score, st)
+            user_rank = est.get("tahmini_sira") if est else None
+            if user_rank is None:  # interpolasyon veremezse en yakın programın sırasına düş
+                sorted_by_score = sorted(candidates, key=lambda r: abs(r["base_score"] - profile.score))
+                if sorted_by_score:
+                    user_rank = sorted_by_score[0]["base_rank"]
 
         if user_rank is None:
             return RecommendationList(
@@ -386,6 +439,11 @@ class RecommendationService:
                 last_year_base_rank=prog_rank,
                 last_year_base_score=r["base_score"],
                 quota=r.get("quota"),
+                scholarship=dept.get("scholarship", ""),
+                education_language=dept.get("education_language", ""),
+                duration_years=dept.get("duration_years"),
+                osym_conditions=(dept.get("osym_conditions") or {}).get("summary", [])[:4],
+                trend=r.get("history", []),
             )
 
             if ratio >= 1.5:

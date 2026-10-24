@@ -5,15 +5,29 @@
 # query param sanır (tüm istekler 422 döner).
 import re
 
-from fastapi import APIRouter, Depends, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import Query as ApiQuery  # domain.models.Query ile ad çakışmasın
 
+from unisense.api.middleware.rate_limit import (
+    ASK_DAILY_GLOBAL_LIMIT,
+    ASK_DAILY_LIMIT,
+    ASK_LIMIT,
+    DEFAULT_LIMIT,
+    _global_key,
+    limiter,
+)
 from unisense.api.v1.dependencies import (
     ask_service_dep,
     compare_service_dep,
     compass_service_dep,
     dgs_service_dep,
+    guide_service_dep,
+    kariyer_service_dep,
     kpss_service_dep,
+    lgs_service_dep,
+    news_service_dep,
     recommendation_service_dep,
+    tus_service_dep,
 )
 from unisense.api.v1.schemas import (
     AskRequest,
@@ -32,15 +46,31 @@ from unisense.api.v1.schemas import (
     DgsProgramRequest,
     DgsProgramResponse,
     DocResponse,
+    ExamCalendarResponse,
+    GuideDetailResponse,
+    GuideListResponse,
     HealthResponse,
+    KariyerBolumlerResponse,
+    KariyerFiltrelerResponse,
+    KariyerIlanlarResponse,
+    KariyerKaynaklarResponse,
+    KariyerMetaResponse,
     KpssKadroRequest,
     KpssKadroResponse,
+    LgsIlcelerResponse,
+    LgsIllerResponse,
+    LgsOneriRequest,
+    LgsOneriResponse,
     ModelInfo,
     ModelsResponse,
     ProgramLookupRequest,
     ProgramLookupResponse,
     RecommendResponse,
+    SiralamaResponse,
     StudentProfileRequest,
+    TusMetaResponse,
+    TusOneriRequest,
+    TusOneriResponse,
 )
 from unisense.application.services import (
     AskService,
@@ -48,7 +78,6 @@ from unisense.application.services import (
     CompassService,
     RecommendationService,
 )
-from unisense.api.middleware.rate_limit import ASK_LIMIT, DEFAULT_LIMIT, limiter
 from unisense.core.di import get_vector_store
 from unisense.core.logging import get_logger
 from unisense.domain.models import Query, StudentProfile
@@ -66,19 +95,20 @@ _OSYM_CODE_RE = re.compile(r"\b(\d{9})\b")
 
 @router.get("/health", response_model=HealthResponse)
 def health(response: Response) -> HealthResponse:
-    """Sağlık kontrolü — vector index boş/erişilemezse 503 döner.
+    """Sağlık kontrolü.
 
-    Aksi halde Render 'sağlıklı ama cevap veremeyen' bir instance'ı
-    trafikte tutar.
+    Index boşsa 'degraded' ama 200: eskiden 503 dönüyordu ve HF kesintisinde
+    (index inemeyince) Render health-check'i instance'ı öldürüp crash-loop
+    yaratıyordu. RAG-dışı her şey (takvim/robotlar/öneri/hesap) chroma'sız
+    çalıştığı için instance TRAFİKTE KALMALI; yalnız /ask degraded olur ve
+    arka plan görevi (lifespan) index'i HF dönünce kendiliğinden indirir.
     """
     try:
         count = get_vector_store().count()
-    except Exception:  # noqa: BLE001
+    except Exception:
         count = None
-    if not count:
-        response.status_code = 503
-        return HealthResponse(status="degraded", version="0.1.0", chunks_count=count)
-    return HealthResponse(status="ok", version="0.1.0", chunks_count=count)
+    status = "ok" if count else "degraded"
+    return HealthResponse(status=status, version="0.1.0", chunks_count=count)
 
 
 @router.get("/models", response_model=ModelsResponse)
@@ -101,13 +131,34 @@ def list_models() -> ModelsResponse:
     response_model=AskResponse,
     dependencies=[Depends(require_api_key), Depends(require_user)],
 )
+# Üç katman: (1) hesap/IP başına dakika (ani patlama), (2) hesap/IP başına gün
+# (tek hesabın aşırı kullanımı), (3) site geneli gün (çok-hesap LLM kota tüketme
+# saldırısına sert backstop — açık Firebase kaydıyla Gemini günlük kotasını
+# bitirmeyi engeller). Limit aşılınca slowapi 429 döndürür.
 @limiter.limit(ASK_LIMIT)
+@limiter.limit(ASK_DAILY_LIMIT)
+@limiter.limit(ASK_DAILY_GLOBAL_LIMIT, key_func=_global_key)
 def ask(
     request: Request,
     body: AskRequest,
-    svc: AskService = Depends(ask_service_dep),
 ) -> AskResponse:
     """Üniversite/bölüm sorgu — RAG ile."""
+    # Degraded mod (index boş — ör. HF kesintisinde boot): 500 yerine anlaşılır
+    # mesaj. GUARD, servis kurulumundan ÖNCE: AskService inşası embedding
+    # modelini ister ve model dosyası yokken HF'e gidip ASILIR — bu yüzden
+    # Depends() yerine guard sonrası elle çözülür.
+    try:
+        index_hazir = bool(get_vector_store().count())
+    except Exception:
+        index_hazir = False
+    if not index_hazir:
+        raise HTTPException(
+            status_code=503,
+            detail="Bilgi bankası şu an yükleniyor (geçici kesinti) — birkaç dakika "
+                   "sonra tekrar dene. Tercih robotları ve hesaplama araçları çalışıyor.",
+        )
+    svc: AskService = ask_service_dep()
+
     safe_query = sanitize_query(body.query)
 
     audit(
@@ -155,7 +206,7 @@ def ask(
             lookups = rec_svc.lookup_programs(program_codes)
             lookup_map = {p["department_code"]: p for p in lookups if p.get("found")}
             lookup_ok = True
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             logger.warning("ask_lookup_failed", error=str(e)[:200])
 
     answer_text = answer.text
@@ -223,6 +274,11 @@ def recommend(
             "placement_probability": r.placement_probability,
             "last_year_base_rank": r.last_year_base_rank,
             "last_year_base_score": r.last_year_base_score,
+            "scholarship": r.scholarship,
+            "education_language": r.education_language,
+            "duration_years": r.duration_years,
+            "osym_conditions": r.osym_conditions,
+            "trend": r.trend,
         }
 
     return RecommendResponse(
@@ -322,6 +378,88 @@ def programs_lookup(
     return ProgramLookupResponse(programs=programs)
 
 
+@router.get("/hesap/siralama", response_model=SiralamaResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def hesap_siralama(
+    request: Request,
+    puan: float = ApiQuery(..., ge=0, le=600),
+    tur: str = ApiQuery("SAY", max_length=6),
+) -> SiralamaResponse:
+    """Yerleştirme puanından TAHMİNÎ başarı sırası (program tabanlarından interpolasyon).
+
+    Hesap makinesi puanının yanında sıra göstermek için. Gerçek ÖSYM puan-sıralama
+    tablosu değil — yaklaşık; uçlarda (çok yüksek/düşük puan) daha zayıf.
+    """
+    from unisense.application.services.recommendation_service import tahmini_sira
+
+    # Türkçe-güvenli normalize: 'dil'.upper() ASCII'de 'DIL' üretir ama anahtar 'DİL'
+    # (ScoreType.DIL='DİL') → veri MEVCUTKEN 404 verirdi. 'i'→'İ' önce çevrilir.
+    tur_norm = tur.replace("i", "İ").replace("ı", "I").upper()
+    r = tahmini_sira(puan, tur_norm)
+    if r is None:
+        raise HTTPException(status_code=404, detail="Bu puan türü için sıralama verisi yok")
+    return SiralamaResponse(**r)
+
+
+_konular_cache: dict | None = None
+
+
+def _load_konular() -> dict:
+    """Konu takip verisi (data/processed/konular.json) — bir kez yüklenip cache'lenir."""
+    global _konular_cache
+    if _konular_cache is None:
+        import json
+        from pathlib import Path
+
+        from unisense.core.config import get_settings
+        p = Path(get_settings().project_root) / "data" / "processed" / "konular.json"
+        _konular_cache = json.load(open(p, encoding="utf-8"))
+    return _konular_cache
+
+
+@router.get("/konular")
+@limiter.limit(DEFAULT_LIMIT)
+def konular(request: Request, sinav: str | None = ApiQuery(None, max_length=8)) -> dict:
+    """Konu takip listesi — tüm sınavlar veya ?sinav=YKS/KPSS/DGS/LGS ile tek sınav."""
+    data = _load_konular()
+    if sinav:
+        s = data["sinavlar"].get(sinav.upper())
+        if not s:
+            raise HTTPException(status_code=404, detail="Bu sınav için konu verisi yok")
+        return {"surum": data["surum"], "sinav": sinav.upper(), **s}
+    return data
+
+
+_ozet_cache: dict | None = None
+
+
+def _load_ozet_kartlar() -> dict:
+    """Formül/özet kartları (data/processed/ozet_kartlar.json) — bir kez cache'lenir."""
+    global _ozet_cache
+    if _ozet_cache is None:
+        import json
+        from pathlib import Path
+
+        from unisense.core.config import get_settings
+        p = Path(get_settings().project_root) / "data" / "processed" / "ozet_kartlar.json"
+        _ozet_cache = json.load(open(p, encoding="utf-8"))
+    return _ozet_cache
+
+
+@router.get("/ozet-kartlar")
+@limiter.limit(DEFAULT_LIMIT)
+def ozet_kartlar(request: Request, ders: str | None = ApiQuery(None, max_length=30)) -> dict:
+    """Formül/özet kartları — tümü veya ?ders=Matematik/Geometri/Fizik/Kimya ile filtreli."""
+    data = _load_ozet_kartlar()
+    if ders:
+        d = ders.strip().lower()
+        kartlar = [k for k in data["kartlar"] if k.get("ders", "").lower() == d]
+        if not kartlar:
+            raise HTTPException(status_code=404, detail="Bu ders için özet kartı yok")
+        return {"surum": data["surum"], "not": data.get("not", ""), "kartlar": kartlar}
+    return data
+
+
 @router.post("/kpss/kadrolar", response_model=KpssKadroResponse)
 @limiter.limit(DEFAULT_LIMIT)
 def kpss_kadrolar(
@@ -339,6 +477,7 @@ def kpss_kadrolar(
         puan=body.puan,
         duzey=body.duzey,
         il=body.il,
+        iller=body.iller,
         limit=body.limit,
     )
     return KpssKadroResponse(**result)
@@ -368,9 +507,129 @@ def dgs_programlar(
         puan=body.puan,
         bolum=body.bolum,
         il=body.il,
+        uni_turu=body.uni_turu,
+        oneri=body.oneri,
         limit=body.limit,
     )
     return DgsProgramResponse(**result)
+
+
+# === Bölüm Rehberi (gezilebilir /bolum) ===
+
+@router.get("/bolumler", response_model=GuideListResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def bolum_katalog(
+    request: Request,
+    svc=Depends(guide_service_dep),
+) -> GuideListResponse:
+    """Bölüm rehberi kataloğu — tanıtımı olan tüm bölümler (SEO + gezinme)."""
+    items = svc.list_guides()
+    return GuideListResponse(total=len(items), items=items)
+
+
+@router.get("/bolum/{slug}", response_model=GuideDetailResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def bolum_detay(
+    request: Request,
+    slug: str,
+    svc=Depends(guide_service_dep),
+) -> GuideDetailResponse:
+    """Tek bölüm: tanıtım içeriği + o bölümü veren tüm üniversitelerin canlı tabanı."""
+    detail = svc.get_guide(slug)
+    if detail is None:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Bölüm rehberi bulunamadı")
+    return GuideDetailResponse(**detail)
+
+
+@router.get("/takvim", response_model=ExamCalendarResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def sinav_takvimi(
+    request: Request,
+    svc=Depends(news_service_dep),
+) -> ExamCalendarResponse:
+    """Yaklaşan sınav etkinlikleri (kalan gün hesaplı) — haber akışı/takvim."""
+    return ExamCalendarResponse(**svc.takvim())
+
+
+@router.get("/lgs/iller", response_model=LgsIllerResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def lgs_iller(
+    request: Request,
+    svc=Depends(lgs_service_dep),
+) -> LgsIllerResponse:
+    """LGS lise verisinde bulunan iller (öneri filtresi dropdown'ı için)."""
+    return LgsIllerResponse(iller=svc.iller())
+
+
+@router.get("/lgs/ilceler", response_model=LgsIlcelerResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def lgs_ilceler(
+    request: Request,
+    il: str,
+    svc=Depends(lgs_service_dep),
+) -> LgsIlcelerResponse:
+    """Seçilen ildeki ilçeler (öneri filtresi dropdown'ı için)."""
+    return LgsIlcelerResponse(ilceler=svc.ilceler(il))
+
+
+@router.post("/lgs/oneri", response_model=LgsOneriResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def lgs_oneri(
+    request: Request,
+    payload: LgsOneriRequest,
+    svc=Depends(lgs_service_dep),
+) -> LgsOneriResponse:
+    """Yüzdelik dilim (+ il/ilçe/tür) → güvenli/tutar/riskli lise önerileri (tersine).
+
+    TAHMİNÎDİR: geçen yılın taban yüzdeliklerine dayanır (veri yılı yanıttaki
+    `yil` alanındadır).
+    """
+    result = svc.oneri(
+        yuzdelik=payload.yuzdelik,
+        il=payload.il,
+        iller=payload.iller,
+        ilce=payload.ilce,
+        turler=payload.turler,
+        pansiyon=payload.pansiyon,
+    )
+    return LgsOneriResponse(**result)
+
+
+def _norm_sinav(s: str | None) -> str:
+    return "DUS" if (s or "").strip().upper() == "DUS" else "TUS"
+
+
+@router.get("/tus/meta", response_model=TusMetaResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def tus_meta(
+    request: Request,
+    sinav: str = "TUS",
+    svc=Depends(tus_service_dep),
+) -> TusMetaResponse:
+    """TUS/DUS meta: dönem + dal listesi (öneri filtresi dropdown'ı için)."""
+    return TusMetaResponse(**svc.meta(_norm_sinav(sinav)))
+
+
+@router.post("/tus/oneri", response_model=TusOneriResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def tus_oneri(
+    request: Request,
+    payload: TusOneriRequest,
+    svc=Depends(tus_service_dep),
+) -> TusOneriResponse:
+    """K/T puanı (+ dal/kurum/tür) → yerleşebileceğin uzmanlık programları.
+
+    TAHMÎNİDİR: geçen dönem ÖSYM en küçük yerleşme puanlarına dayanır.
+    """
+    result = svc.oneri(
+        puan=payload.puan,
+        sinav=_norm_sinav(payload.sinav),
+        dal=payload.dal,
+        kontenjan_turu=payload.kontenjan_turu,
+        kurum=payload.kurum,
+    )
+    return TusOneriResponse(**result)
 
 
 @router.post("/programs/compare", response_model=CompareResponse)
@@ -383,3 +642,85 @@ def programs_compare(
     """2-5 ÖSYM kodunu yan yana karşılaştır (trend, taban, sıra, kontenjan, kadro)."""
     result = svc.compare(body.codes)
     return CompareResponse(**result)
+
+
+@router.get("/kariyer/ilanlar", response_model=KariyerIlanlarResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def kariyer_ilanlar(
+    request: Request,
+    hat: str | None = None,
+    q: str | None = ApiQuery(None, max_length=120),
+    kaynak: str | None = ApiQuery(None, max_length=80),
+    sehir: str | None = ApiQuery(None, max_length=40),
+    bolum: str | None = ApiQuery(None, max_length=40),
+    il: str | None = ApiQuery(None, max_length=40),
+    bolge: str | None = ApiQuery(None, max_length=30),
+    ilce: str | None = ApiQuery(None, max_length=60),
+    calisma_sekli: list[str] | None = ApiQuery(None),
+    istihdam_turu: list[str] | None = ApiQuery(None),
+    deneyim: list[str] | None = ApiQuery(None),
+    kpss: bool | None = None,
+    sadece_yeni: bool = False,
+    limit: int = ApiQuery(20, ge=1, le=100),
+    sayfa: int = ApiQuery(1, ge=1),
+    boyut: int = ApiQuery(20, ge=1, le=100),
+    sira: str = ApiQuery("tarih_desc", max_length=20),
+    svc=Depends(kariyer_service_dep),
+) -> KariyerIlanlarResponse:
+    """Günlük kariyer sinyalleri (tarihe göre tersten; `yeni` = son 7 günde görülen).
+
+    `toplam` sayfalama öncesi kayıt sayısıdır. Eski `limit` korunur:
+    yalnız `limit` verilirse sayfa boyu olur. `sira`: tarih_desc | son_basvuru_asc.
+    """
+    if sira not in ("tarih_desc", "son_basvuru_asc"):
+        sira = "tarih_desc"
+    result = svc.ilanlar(
+        hat=hat, q=q, kaynak=kaynak, sehir=sehir, bolum=bolum,
+        il=il, bolge=bolge, ilce=ilce, calisma_sekli=calisma_sekli,
+        istihdam_turu=istihdam_turu, deneyim=deneyim, kpss=kpss,
+        sadece_yeni=sadece_yeni, limit=limit, sayfa=sayfa, boyut=boyut,
+        sira=sira,
+    )
+    return KariyerIlanlarResponse(**result)
+
+
+@router.get("/kariyer/kaynaklar", response_model=KariyerKaynaklarResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def kariyer_kaynaklar(
+    request: Request,
+    hat: str | None = None,
+    svc=Depends(kariyer_service_dep),
+) -> KariyerKaynaklarResponse:
+    """Kariyer kaynak rehberi: Hat A (kamu) + Hat B (özel) dış bağlantıları."""
+    result = svc.kaynaklar(hat=hat)
+    return KariyerKaynaklarResponse(**result)
+
+
+@router.get("/kariyer/meta", response_model=KariyerMetaResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def kariyer_meta(
+    request: Request,
+    svc=Depends(kariyer_service_dep),
+) -> KariyerMetaResponse:
+    """Kariyer veri durumu: kayıt sayısı + en güncel tarih."""
+    return KariyerMetaResponse(**svc.meta())
+
+
+@router.get("/kariyer/bolumler", response_model=KariyerBolumlerResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def kariyer_bolumler(
+    request: Request,
+    svc=Depends(kariyer_service_dep),
+) -> KariyerBolumlerResponse:
+    """Bölüm seçici rehberi: etiket + o bölümdeki kayıt sayısı."""
+    return KariyerBolumlerResponse(**svc.bolumler())
+
+
+@router.get("/kariyer/filtreler", response_model=KariyerFiltrelerResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def kariyer_filtreler(
+    request: Request,
+    svc=Depends(kariyer_service_dep),
+) -> KariyerFiltrelerResponse:
+    """Facet: filtre panelini besleyen mevcut değerler + sayıları."""
+    return KariyerFiltrelerResponse(**svc.filtreler())

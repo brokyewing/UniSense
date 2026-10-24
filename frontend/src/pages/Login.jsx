@@ -27,7 +27,7 @@ export default function Login() {
       } else {
         await register(email, password, name, track)
       }
-      nav('/home')
+      nav('/anasayfa')
     } catch (e) {
       setError(parseError(e))
     } finally {
@@ -41,7 +41,7 @@ export default function Login() {
     try {
       // Kayıt modundayken seçilen sınav yolu Google ile ilk girişte de uygulanır
       await loginWithGoogle(mode === 'register' ? track : undefined)
-      nav('/home')
+      nav('/anasayfa')
     } catch (e) {
       setError(parseError(e))
     } finally {
@@ -209,7 +209,7 @@ export default function Login() {
           </div>
 
           <Link
-            to="/home"
+            to="/anasayfa"
             className="block text-center text-xs text-slate-500 hover:text-slate-300 transition"
           >
             Üye olmadan keşfet →

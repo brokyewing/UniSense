@@ -1,0 +1,69 @@
+name: Keep Backend Warm
+
+# Render FREE tier 15 dk boşta kalınca uyur → Bölümler/Takvim gibi sayfalar
+# soğuk başlangıçta 1-2 dk yükleniyor. Bu iş /api/v1/health'i düzenli pingleyerek
+# instance'ı uyanık tutar. Ping'in kendisi uyuyan servisi de UYANDIRIR.
+#
+# NEDEN DÖNGÜ VAR: GitHub zamanlı işleri yoğunlukta ciddi geciktiriyor. Ölçüm
+# (2026-09-04, son 20 schedule tetiklemesi): istenen 10 dk yerine gerçekleşen
+# aralık 108-273 dk, ortalama ~3.5 saat. Tek ping atan bir iş bu yüzden servisi
+# uyanık TUTAMIYOR. O yüzden her tetiklenme, 5 dk arayla ~55 dk boyunca pingliyor
+# → bir tetiklenme bir saatlik pencereyi kapatıyor.
+#
+# BU TEK BAŞINA YETMEZ: schedule 3-4 saatte bir gelirse aradaki boşlukta servis
+# yine uyur. Kesintisiz uyanıklık için harici cron (cron-job.org / UptimeRobot)
+# aynı URL'i 5 dk'da bir pinglemeli — asıl çözüm o, bu iş yedek katman.
+#
+# Maliyet: repo PUBLIC → GitHub Actions dakikaları SINIRSIZ ($0).
+# RAM: /health yalnızca ChromaDB.count() çağırır (bellekte zaten yüklü) →
+#      ekstra RAM yok, 512 MB free tier'ı zorlamaz.
+
+on:
+  workflow_dispatch:        # manuel tetikleme (Actions → Run workflow)
+  schedule:
+    - cron: '*/10 * * * *'  # GitHub bunu garanti etmiyor; döngü o yüzden var
+
+# Eşzamanlı çalışmayı engelle. Döngü uzun sürdüğü için yeni tetiklenme eskisini
+# iptal edip taze başlar — üst üste binen ping'ler runner israfı.
+concurrency:
+  group: keep-alive
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70     # döngü ~55 dk + soğuk başlangıç payı
+    steps:
+      - name: Ping health endpoint 5 dk arayla ~55 dk (uyuyorsa uyandırır)
+        run: |
+          URL="https://unisense-api.onrender.com/api/v1/health"
+          PINGS=12          # 12 ping x 5 dk = 55 dk kapsama
+          INTERVAL=300
+          fails=0
+
+          for i in $(seq 1 "$PINGS"); do
+            # -m 150: soğuk başlangıç (index HF'den iner + ONNX yüklenir) ~1-2 dk sürebilir
+            # --retry: geçici 502/503 (uyanma anı) için birkaç deneme
+            code=$(curl -sS -o /tmp/health.json -w '%{http_code}' \
+                     -m 150 --retry 4 --retry-delay 15 --retry-all-errors "$URL" || echo "000")
+            echo "[$i/$PINGS] $(date -u '+%H:%M:%S')  HTTP $code  $(cat /tmp/health.json 2>/dev/null)"
+
+            # 200 = sağlıklı. 503 = uyandı ama index henüz inmedi (yine de warm) → geçir.
+            # 000 = hiç cevap yok (gerçek sorun) → say, sonda raporla.
+            if [ "$code" = "000" ]; then
+              fails=$((fails + 1))
+              echo "::warning::[$i/$PINGS] Backend cevap vermedi (timeout/erişilemez)"
+            fi
+
+            if [ "$i" -lt "$PINGS" ]; then sleep "$INTERVAL"; fi
+          done
+
+          echo "Toplam başarısız ping: $fails/$PINGS"
+          # Hepsi düşerse gerçekten servis kapalı → iş kırmızı olsun ki görünür olsun.
+          if [ "$fails" -eq "$PINGS" ]; then
+            echo "::error::Hiçbir ping cevap almadı — backend erişilemez durumda"
+            exit 1
+          fi

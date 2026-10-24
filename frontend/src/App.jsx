@@ -1,13 +1,47 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
-  Search, ListChecks, Home as HomeIcon,
-  LogIn, LogOut, User, ChevronDown, Compass, Calculator,
+  Search, ListChecks,
+  LogIn, LogOut, User, ChevronDown, Compass, Calculator, BookOpen, CalendarDays,
+  GraduationCap, Trophy, Briefcase,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from './contexts/AuthContext'
+import { apiFetch } from './lib/api'
+import { initAnalytics, identify, capturePageview } from './lib/analytics'
+import { useAppTime } from './lib/usage'
 import ThemeToggle from './components/ThemeToggle'
 import Logo from './components/Logo'
+import Seo from './components/Seo'
+import { TERCIH_YILI } from './lib/donem'
+
+// Rota → SEO meta (rota-bazlı benzersiz title + self-canonical). Kişisel/geçici
+// sayfalar noindex (robots.txt de bunları engelliyor — çift güvence).
+const ROUTE_SEO = {
+  '/': { title: `UniSense — ${TERCIH_YILI} Tercih Robotu | YKS, DGS, KPSS Taban Puanlar`, description: 'YKS, DGS ve KPSS tercihine yapay zekâ destekli hazırlan: güncel taban puanlar, başarı sıralamaları, net hesaplama ve kişisel tercih önerileri — ücretsiz.' },
+  '/anasayfa': { title: `UniSense — ${TERCIH_YILI} Tercih Robotu | YKS, DGS, KPSS`, description: 'Güncel taban puanlar, sıralamalar ve yapay zekâ destekli tercih önerileriyle YKS, DGS ve KPSS tercihine hazırlan.' },
+  '/arama': { title: 'Tercih Sorgu — Taban Puan & Sıralama Sorgula | UniSense', description: 'Doğal dilde sor: bölüm taban puanları, başarı sıralamaları, kontenjanlar ve KPSS kadroları — kaynak gösterimli yapay zekâ sohbeti.' },
+  '/oneriler': { title: 'Tercih Önerileri — YKS · DGS · KPSS | UniSense', description: 'Puanına uygun güvenli, hedef ve üst seviye tercihleri yapay zekâyla al. YKS, DGS ve KPSS için ayrı öneriler.' },
+  '/hesap': { title: 'Puan Hesaplama — YKS · DGS · KPSS Net Hesap | UniSense', description: 'Netlerini gir, yaklaşık YKS, DGS veya KPSS yerleştirme puanını anında hesapla; bu puanla hangi programları yazabileceğini gör.' },
+  '/pusula': { title: 'İlgi Pusulası — Sana Uygun Bölümü Bul | UniSense', description: 'Ne okuyacağına karar veremiyor musun? İlgi alanlarından yapay zekâ ile sana uygun üniversite bölümlerini keşfet.' },
+  '/karsilastir': { title: 'Program Karşılaştırma — Taban, Trend, Kadro | UniSense', description: 'Üniversite programlarını yan yana karşılaştır: taban puan, 3 yıllık sıralama trendi, akademik kadro, ücret ve akreditasyon.' },
+  '/konular': { title: 'Konu Takibi — YKS, KPSS, DGS, LGS Konuları | UniSense', description: 'Sınavının tüm konularını ders ders takip et, çalıştıkça işaretle. YKS, KPSS, DGS ve LGS için ücretsiz konu kontrol listesi.' },
+  '/deneme': { title: 'Çalışmalarım — Deneme & Çözülen Soru Takibi | UniSense', description: 'Denemelerini ve konu konu çözdüğün soruları tek yerde kaydet; AI Koç netlerine ve soru çözümüne göre hangi konuya odaklanman gerektiğini söyler — ücretsiz.' },
+  '/ozetler': { title: 'Formül ve Konu Özetleri — YKS Cheat Sheet | UniSense', description: 'TYT-AYT matematik, geometri, fizik ve kimya formülleri tek yerde. Aranabilir, çevrimdışı erişilebilir konu özetleri — ücretsiz.' },
+  '/planim': { title: 'Planım — AI Çalışma Planlayıcısı | UniSense', noindex: true },
+  '/notlar': { title: 'Notlarım | UniSense', noindex: true },
+  '/pano': { title: 'Çalışma Panom | UniSense', noindex: true },
+  '/bolum': { title: 'Bölüm Rehberi — Üniversite Bölümleri Tanıtımı | UniSense', description: 'Üniversite bölümleri ne iş yapar, hangi dersleri okur, mezunları nerede çalışır? Tanıtımlar + güncel taban puanları.' },
+  '/takvim': { title: `${TERCIH_YILI} Sınav Takvimi — YKS, LGS, DGS, KPSS, ALES, TUS | UniSense`, description: `${TERCIH_YILI} YKS, LGS, DGS, KPSS, ALES, TUS, DUS ve AGS sınav, sonuç ve tercih tarihleri — kaç gün kaldığıyla tek sayfada.` },
+  '/lgs': { title: `LGS Tercih Robotu ${TERCIH_YILI} — Yüzdelik Dilimine Göre Lise Bul | UniSense`, description: 'LGS yüzdelik dilimini gir, girebileceğin Fen, Anadolu, Sosyal Bilimler ve İmam Hatip liselerini güvenli/tutar/riskli olarak gör — ücretsiz, tahminî.' },
+  '/tus': { title: `TUS / DUS Tercih Robotu ${TERCIH_YILI} — Puanına Göre Uzmanlık Bul | UniSense`, description: 'TUS veya DUS puanını gir, geçen dönem ÖSYM taban puanlarına göre yerleşebileceğin uzmanlık dallarını ve kurumları güvenli/tutar/riskli olarak gör — ücretsiz, tahminî.' },
+  '/kariyer': { title: `Kariyer Sinyalleri ${TERCIH_YILI} — Kamu ve Özel Sektör İş İlanları | UniSense`, description: 'Her sabah güncellenen kamu ilan sinyalleri (Resmî Gazete taraması) + Kariyer Kapısı, Vizyoner Genç, TÜBİTAK ve özel sektör kaynak rehberi — ücretsiz.' },
+  '/gizlilik': { title: 'Gizlilik ve KVKK | UniSense', description: 'UniSense gizlilik politikası ve KVKK aydınlatma metni.' },
+  '/tercih': { title: 'Tercih Listem | UniSense', noindex: true },
+  '/profil': { title: 'Sınav Profilim | UniSense', noindex: true },
+  '/siralama': { title: 'Sıralama | UniSense', noindex: true },
+  '/giris': { title: 'Giriş | UniSense', noindex: true },
+}
 
 export default function App() {
   const loc = useLocation()
@@ -15,19 +49,51 @@ export default function App() {
   const { user, isAuthed, logout } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
 
-  // Splash sayfası kendi tam ekran layout'u
+  // Backend'i erken uyandır: kullanıcı siteye girer girmez /health'i pingle.
+  // Render free tier boşta uyur; Bölümler/Takvim gibi ilk API çağrısı geldiğinde
+  // soğuk başlangıç beklememesi için sunucu kullanıcı gezerken ısınır.
+  // Fire-and-forget — hatayı yut, UI'yi hiç etkilemesin.
+  useEffect(() => {
+    apiFetch('/api/v1/health').catch(() => {})
+    initAnalytics() // VITE_POSTHOG_KEY yoksa no-op
+  }, [])
+
+  // Analitik: rota değişiminde pageview + girişte kullanıcıyı tanımla (dormant değilse)
+  useEffect(() => { capturePageview(loc.pathname) }, [loc.pathname])
+  useEffect(() => { if (user?.uid) identify(user.uid) }, [user])
+
+  // Uygulamada geçirilen aktif süre → XP/seviye
+  useAppTime(user)
+
+  // /bolum* sayfaları kendi <Seo>'sunu basar (dinamik başlık) — App burada basmaz,
+  // yoksa parent effect child'ı ezip yanlış başlık kalır.
+  const ownsSeo = loc.pathname.startsWith('/bolum') || loc.pathname.startsWith('/ozet/')
+  const seo = ROUTE_SEO[loc.pathname] || ROUTE_SEO['/anasayfa']
+  const seoEl = ownsSeo ? null : (
+    <Seo
+      title={seo.title}
+      description={seo.description}
+      path={loc.pathname === '/' ? '/' : loc.pathname}
+      noindex={seo.noindex}
+    />
+  )
+
+  // Splash sayfası kendi tam ekran layout'u (SEO head yine de basılır)
   if (loc.pathname === '/') {
-    return <Outlet />
+    return <>{seoEl}<Outlet /></>
   }
 
-  const navItem = (to, label, Icon) => {
-    const active = loc.pathname === to
+  const navItem = (to, label, Icon, activePaths) => {
+    const active = activePaths
+      ? activePaths.some((p) => loc.pathname === p)
+      : loc.pathname === to
     return (
       <Link
         to={to}
+        title={label}
         className={`
           relative flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium
-          transition-all duration-300
+          transition-all duration-300 shrink-0
           ${active ? 'text-white' : 'text-slate-400 hover:text-slate-200'}
         `}
       >
@@ -39,7 +105,9 @@ export default function App() {
           />
         )}
         <Icon size={16} className="relative z-10" />
-        <span className="relative z-10 hidden sm:inline">{label}</span>
+        {/* Etiketler lg+ ekranda: login avatarı geniş — orta ekranda ikon-only
+            kalınca 6 sekme her durumda sığar, 'Hesap' kaydırmada gizli kalmaz */}
+        <span className="relative z-10 hidden lg:inline">{label}</span>
       </Link>
     )
   }
@@ -47,31 +115,38 @@ export default function App() {
   async function handleLogout() {
     await logout()
     setMenuOpen(false)
-    nav('/home')
+    nav('/anasayfa')
   }
 
   return (
     <div className="min-h-screen flex flex-col">
+      {seoEl}
       <header className="sticky top-0 z-30 backdrop-blur-2xl bg-slate-950/40 border-b border-white/5">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <Link to="/" className="flex items-center gap-3 group shrink-0">
+        <div className="w-full px-4 md:px-6 xl:px-8 3xl:px-12 py-3 flex items-center justify-between gap-4">
+          {/* Logo = Ana Sayfa (nav'da ayrı öğe yok) */}
+          <Link to="/anasayfa" className="flex items-center gap-3 group shrink-0">
             <Logo size={40} rounded="rounded-none" />
             <div className="hidden sm:block">
               <h1 className="font-display font-bold text-lg text-white leading-none">UniSense</h1>
-              <p className="text-[10px] text-slate-400 leading-none mt-1">Tercih Asistanı · 2026</p>
+              <p className="text-[10px] text-slate-400 leading-none mt-1">Tercih Asistanı · {TERCIH_YILI}</p>
             </div>
           </Link>
 
-          <nav className="flex items-center gap-1">
-            {navItem('/home', 'Ana Sayfa', HomeIcon)}
-            {navItem('/search', 'Sorgu', Search)}
-            {navItem('/pusula', 'Pusula', Compass)}
-            {navItem('/recommend', 'Tercih', ListChecks)}
+          {/* Ana Sayfa nav'da yok — logo zaten anasayfaya götürür.
+              Konular + Deneme tek "Çalışma" sekmesinde birleşti (nav ferahladı). */}
+          <nav className="flex items-center gap-1 min-w-0 overflow-x-auto no-scrollbar">
+            {navItem('/konular', 'Çalışma', GraduationCap, ['/konular', '/deneme', '/planim', '/ozetler', '/notlar', '/pano'])}
+            {navItem('/arama', 'Sorgu', Search)}
+            {navItem('/oneriler', 'Tercih', ListChecks)}
             {navItem('/hesap', 'Hesap', Calculator)}
+            {navItem('/takvim', 'Takvim', CalendarDays)}
+            {navItem('/bolum', 'Bölümler', BookOpen)}
+            {navItem('/pusula', 'Pusula', Compass)}
+            {navItem('/kariyer', 'Kariyer', Briefcase)}
           </nav>
 
           {/* Sağ taraf — theme toggle profil avatarına yakın */}
-          <div className="flex items-center gap-2 ml-auto">
+          <div className="flex items-center gap-2 ml-auto shrink-0">
             <ThemeToggle />
 
             {/* Auth menu */}
@@ -115,11 +190,18 @@ export default function App() {
                       <ListChecks size={14} /> Tercih Listem
                     </Link>
                     <Link
-                      to="/profile"
+                      to="/profil"
                       onClick={() => setMenuOpen(false)}
                       className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/5 hover:text-white transition"
                     >
                       <User size={14} /> Profilim
+                    </Link>
+                    <Link
+                      to="/siralama"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/5 hover:text-white transition"
+                    >
+                      <Trophy size={14} /> Sıralama
                     </Link>
                     <div className="my-1 border-t border-white/5" />
                     <button
@@ -134,7 +216,7 @@ export default function App() {
             </div>
           ) : (
             <Link
-              to="/login"
+              to="/giris"
               className="flex items-center gap-2 px-3 py-1.5 rounded-xl glass glass-hover text-sm text-slate-200"
             >
               <LogIn size={14} />
@@ -145,12 +227,12 @@ export default function App() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-8 relative z-10">
+      <main className="flex-1 w-full px-4 md:px-6 xl:px-8 3xl:px-12 py-8 relative z-10">
         <Outlet />
       </main>
 
       <footer className="border-t border-white/5 py-4 text-center text-xs text-slate-500 relative z-10">
-        <div className="max-w-6xl mx-auto px-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+        <div className="w-full px-4 md:px-6 xl:px-8 3xl:px-12 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
           <span>UniSense</span>
           <span className="text-slate-700">•</span>
           <span className="text-slate-400">YÖK Atlas + Wikipedia</span>
@@ -162,7 +244,11 @@ export default function App() {
             </a>
           </span>
           <span className="text-slate-700">•</span>
-          <Link to="/privacy" className="text-slate-400 hover:text-accent-300 transition">
+          <Link to="/lgs" className="text-slate-400 hover:text-accent-300 transition">LGS Robotu</Link>
+          <span className="text-slate-700">•</span>
+          <Link to="/tus" className="text-slate-400 hover:text-accent-300 transition">TUS/DUS Robotu</Link>
+          <span className="text-slate-700">•</span>
+          <Link to="/gizlilik" className="text-slate-400 hover:text-accent-300 transition">
             KVKK / Gizlilik
           </Link>
         </div>

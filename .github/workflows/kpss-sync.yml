@@ -13,7 +13,10 @@ name: KPSS Data Sync
 
 on:
   schedule:
-    - cron: '0 4 5 * *'   # her ayın 5'i, 04:00 UTC (07:00 TRT)
+    # Haftalık (pazartesi): ÖSYM tercih kılavuzu dönemleri ~1-2 hafta açık
+    # kalıyor — aylık tek koşu pencereyi bütünüyle kaçırabiliyordu. Scraper
+    # idempotent; değişiklik yoksa commit atılmaz.
+    - cron: '0 4 * * 1'
   workflow_dispatch:
 
 permissions:

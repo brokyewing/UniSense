@@ -55,8 +55,13 @@ jobs:
       - name: Deploy Firestore rules
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-sa.json
+        # firebase-tools TAM sürüm pin'li: pin'siz `npx firebase-tools` çalışma
+        # anında en yeni sürümü + tüm geçişli npm ağacını indirip ÇALIŞTIRIR;
+        # bu adımda servis-hesabı anahtarı (Firebase admin) ortamda olduğu için
+        # kötü niyetli bir sürüm yayımlanırsa RCE + proje ele geçirme riski.
+        # Sürüm yükseltmesi bilinçli olsun (Dependabot/elle) diye sabitlendi.
         run: |
-          npx firebase-tools deploy \
+          npx --yes firebase-tools@15.24.0 deploy \
             --only firestore:rules \
             --project "${{ secrets.FIREBASE_PROJECT_ID }}" \
             --non-interactive

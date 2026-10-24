@@ -1,5 +1,6 @@
 """Vector store interface."""
 from __future__ import annotations
+
 from typing import Protocol
 
 from unisense.domain.models import Chunk

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   User, Lock, GraduationCap, Camera, Check, Loader2,
@@ -13,7 +13,9 @@ import {
   changePassword,
   getUserProfile,
   getAuthProvider,
+  getIstatistik,
 } from '../firebase'
+import { hesaplaXP, seviyeBilgi, kazanilanRozetler } from '../lib/oyun'
 import BackgroundScene from '../components/three/BackgroundScene'
 
 const SCORE_TYPES = [
@@ -32,7 +34,7 @@ export default function Profile() {
   const [tab, setTab] = useState('account') // account | password | yks
 
   useEffect(() => {
-    if (!loading && !isAuthed) nav('/login')
+    if (!loading && !isAuthed) nav('/giris')
   }, [loading, isAuthed, nav])
 
   if (!isAuthed || !user) return null
@@ -41,7 +43,7 @@ export default function Profile() {
     <>
       <BackgroundScene />
 
-      <div className="max-w-3xl mx-auto space-y-5">
+      <div className="space-y-5">
         {/* Hero */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -56,6 +58,9 @@ export default function Profile() {
             <p className="text-sm text-slate-400 truncate">{user.email}</p>
           </div>
         </motion.div>
+
+        {/* Seviye kartı — tüm çalışma + uygulama süresine göre */}
+        <SeviyeKarti user={user} />
 
         {/* Tab nav */}
         <div className="card p-2 flex gap-1">
@@ -77,6 +82,37 @@ export default function Profile() {
         </AnimatePresence>
       </div>
     </>
+  )
+}
+
+
+function SeviyeKarti({ user }) {
+  const [stats, setStats] = useState(null)
+  useEffect(() => { getIstatistik(user.uid).then(setStats).catch(() => {}) }, [user])
+  const xp = stats ? hesaplaXP(stats) : 0
+  const sv = seviyeBilgi(xp)
+  const rozet = stats ? kazanilanRozetler(stats).length : 0
+  const saat = Math.floor((stats?.kullanimDk || 0) / 60)
+  return (
+    <div className="card">
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-display font-bold text-xl shrink-0">
+          {sv.seviye}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between">
+            <div className="text-sm font-semibold text-white">Seviye {sv.seviye}</div>
+            <div className="text-[11px] text-slate-400">{sv.mevcut}/{sv.gereken} XP</div>
+          </div>
+          <div className="h-2 rounded-full bg-white/10 overflow-hidden mt-1.5">
+            <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-500" style={{ width: `${sv.oran}%` }} />
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1.5">
+            {sv.toplam} XP · {rozet} rozet{saat > 0 ? ` · ${saat} sa uygulamada` : ''} · <Link to="/pano" className="text-accent-300 hover:underline">Panom →</Link>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -446,11 +482,16 @@ function YksTab({ user }) {
   const [kpssDuzey, setKpssDuzey] = useState('lisans')
   const [dgsScore, setDgsScore] = useState('')    // DGS (Hesap'tan da dolar)
   const [dgsType, setDgsType] = useState('SAY')
+  const [tusScore, setTusScore] = useState('')    // TUS (uzmanlık K/T puanı)
+  const [dusScore, setDusScore] = useState('')    // DUS
+  const [lgsYuzdelik, setLgsYuzdelik] = useState('')  // LGS yüzdelik dilim
+  const [agsNet, setAgsNet] = useState('')        // AGS toplam net (öğretmenlik)
   const [cities, setCities] = useState('')
   const [uniType, setUniType] = useState('all')
   const [interests, setInterests] = useState([])
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [msg, setMsg] = useState(null)
 
   useEffect(() => {
@@ -471,8 +512,15 @@ function YksTab({ user }) {
         if (p.kpss?.duzey) setKpssDuzey(p.kpss.duzey)
         if (p.dgs?.score != null) setDgsScore(String(p.dgs.score))
         if (p.dgs?.type) setDgsType(p.dgs.type)
+        if (p.tus?.score != null) setTusScore(String(p.tus.score))
+        if (p.dus?.score != null) setDusScore(String(p.dus.score))
+        if (p.lgs?.yuzdelik != null) setLgsYuzdelik(String(p.lgs.yuzdelik))
+        if (p.ags?.net != null) setAgsNet(String(p.ags.net))
       } catch (e) {
+        // Yükleme başarısızsa (offline/rules/App Check) formu BOŞ varsayılanlarla
+        // açıp Kaydet'e izin verirsek merge:true null'ları yazıp mevcut profili siler.
         console.warn(e)
+        if (!cancelled) setLoadError(true)
       } finally {
         setLoading(false)
       }
@@ -485,6 +533,7 @@ function YksTab({ user }) {
   }
 
   async function handleSave() {
+    if (loadError) { setMsg({ type: 'error', text: 'Profil yüklenemedi — kaydetmeden sayfayı yenile (mevcut verin silinmesin).' }); return }
     setSaving(true)
     setMsg(null)
     try {
@@ -503,8 +552,12 @@ function YksTab({ user }) {
           ? { score: parseFloat(kpssScore), duzey: kpssDuzey, updatedAt: Date.now() }
           : null,
         dgs: dgsScore ? { score: parseFloat(dgsScore), type: dgsType, updatedAt: Date.now() } : null,
+        tus: tusScore ? { score: parseFloat(tusScore), updatedAt: Date.now() } : null,
+        dus: dusScore ? { score: parseFloat(dusScore), updatedAt: Date.now() } : null,
+        lgs: lgsYuzdelik ? { yuzdelik: parseFloat(lgsYuzdelik), updatedAt: Date.now() } : null,
+        ags: agsNet ? { net: parseFloat(agsNet), updatedAt: Date.now() } : null,
       })
-      setMsg({ type: 'success', text: 'YKS profilin kaydedildi. Tercih sayfasında otomatik kullanılacak.' })
+      setMsg({ type: 'success', text: 'Sınav profilin kaydedildi. Tercih ve öneri sayfalarında otomatik kullanılacak.' })
     } catch (e) {
       setMsg({ type: 'error', text: e.message || 'Kayıt başarısız' })
     } finally {
@@ -529,144 +582,258 @@ function YksTab({ user }) {
     >
       <div>
         <h3 className="font-semibold text-white flex items-center gap-2 mb-1">
-          <GraduationCap size={16} /> YKS Profili
+          <GraduationCap size={16} /> Sınav Profilim
         </h3>
         <p className="text-xs text-slate-400">
-          Kaydedilen puan/sıralama "Tercih" sayfasında otomatik dolar.
+          Hazırlandığın sınavı seç — alanlar ona göre açılır. Kaydedilen puanlar
+          Tercih, Öneri ve sorgu sayfalarında otomatik kullanılır.
         </p>
       </div>
 
-      <div>
-        <label className="text-xs text-slate-400 mb-2 block">Puan Türü</label>
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-          {SCORE_TYPES.map((s) => {
-            const active = scoreType === s.v
-            return (
-              <button
-                key={s.v}
-                type="button"
-                onClick={() => setScoreType(s.v)}
-                className={`
-                  relative px-3 py-3 rounded-xl text-sm font-medium transition-all
-                  ${active
-                    ? `bg-gradient-to-br ${s.color} text-white shadow-lg`
-                    : 'glass glass-hover text-slate-300'
-                  }
-                `}
-              >
-                <div className="font-display font-bold text-lg">{s.v}</div>
-                <div className={`text-[10px] ${active ? 'text-white/80' : 'text-slate-500'}`}>
-                  {s.label}
-                </div>
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Ana sınav yolu — sorgular ve varsayılan ekranlar buna göre kişiselleşir */}
-      <div>
-        <div className="text-xs text-slate-400 mb-1.5">Hangi sınava hazırlanıyorsun?</div>
-        <div className="grid grid-cols-3 gap-2 max-w-sm">
-          {[
-            { id: 'YKS', desc: 'Lise → Üni' },
-            { id: 'DGS', desc: 'Önlisans → Lisans' },
-            { id: 'KPSS', desc: 'Memurluk' },
-          ].map((t) => (
+      {/* Sınav yolu blokları — seçili olan aktif kalır, diğer puanlar silinmez */}
+      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+        {[
+          { id: 'YKS', desc: 'Lise → Üniversite', dolu: score },
+          { id: 'DGS', desc: 'Önlisans → Lisans', dolu: dgsScore },
+          { id: 'KPSS', desc: 'Memurluk', dolu: kpssScore },
+          { id: 'TUS', desc: 'Tıpta uzmanlık', dolu: tusScore },
+          { id: 'DUS', desc: 'Dişte uzmanlık', dolu: dusScore },
+          { id: 'LGS', desc: 'Liseye geçiş', dolu: lgsYuzdelik },
+          { id: 'AGS', desc: 'Öğretmenlik', dolu: agsNet },
+        ].map((t) => {
+          const active = examTrack === t.id
+          return (
             <button
               key={t.id}
               type="button"
               onClick={() => setExamTrack(t.id)}
-              className={`rounded-xl px-2 py-2 border text-center transition ${
-                examTrack === t.id
-                  ? 'border-accent-500/60 bg-accent-500/15 text-accent-200'
+              className={`rounded-xl px-3 py-3 border text-center transition ${
+                active
+                  ? 'border-accent-500/60 bg-accent-500/15 text-accent-200 shadow-lg'
                   : 'border-white/10 text-slate-300 hover:bg-white/10'
               }`}
             >
-              <div className="text-sm font-semibold">{t.id}</div>
+              <div className="text-base font-display font-bold">{t.id}</div>
               <div className="text-[10px] text-slate-500">{t.desc}</div>
+              <div className={`text-[10px] mt-1 font-mono ${
+                t.dolu ? (active ? 'text-emerald-300' : 'text-slate-400') : 'text-slate-600'
+              }`}>
+                {t.dolu ? `puan: ${t.dolu}` : 'puan yok'}
+              </div>
             </button>
-          ))}
-        </div>
+          )
+        })}
       </div>
+      <p className="text-[10px] text-slate-500 !mt-2">
+        Yol değiştirmek diğer puanlarını silmez — hepsi profilinde saklı kalır.
+      </p>
 
-      {/* YKS */}
-      <div className="grid sm:grid-cols-2 gap-3">
+      {/* === YKS alanları === */}
+      {examTrack === 'YKS' && (<>
         <div>
-          <label className="text-xs text-slate-400 mb-1 block">YKS Puanın</label>
-          <input
-            type="number"
-            step="0.01"
-            value={score}
-            onChange={(e) => setScore(e.target.value)}
-            placeholder="örn: 480.50"
-            className="input-glass"
-          />
+          <label className="text-xs text-slate-400 mb-2 block">Puan Türü</label>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            {SCORE_TYPES.map((s) => {
+              const active = scoreType === s.v
+              return (
+                <button
+                  key={s.v}
+                  type="button"
+                  onClick={() => setScoreType(s.v)}
+                  className={`
+                    relative px-3 py-3 rounded-xl text-sm font-medium transition-all
+                    ${active
+                      ? `bg-gradient-to-br ${s.color} text-white shadow-lg`
+                      : 'glass glass-hover text-slate-300'
+                    }
+                  `}
+                >
+                  <div className="font-display font-bold text-lg">{s.v}</div>
+                  <div className={`text-[10px] ${active ? 'text-white/80' : 'text-slate-500'}`}>
+                    {s.label}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
         </div>
-        <div>
-          <label className="text-xs text-slate-400 mb-1 block">Başarı Sırası</label>
-          <input
-            type="number"
-            value={rank}
-            onChange={(e) => setRank(e.target.value)}
-            placeholder="örn: 5000"
-            className="input-glass"
-          />
-        </div>
-      </div>
 
-      {/* DGS + KPSS — diğer sınav puanları (Hesap sayfasından da dolar) */}
-      <div className="pt-3 mt-1 border-t border-white/5">
-        <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-2">
-          Diğer Sınavlar (varsa)
-        </div>
         <div className="grid sm:grid-cols-2 gap-3">
           <div>
-            <label className="text-xs text-slate-400 mb-1 block">DGS Puanın</label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                step="0.01"
-                min="0" max="600"
-                value={dgsScore}
-                onChange={(e) => setDgsScore(e.target.value)}
-                placeholder="örn: 312.40"
-                className="input-glass flex-1"
-              />
-              <select value={dgsType} onChange={(e) => setDgsType(e.target.value)}
-                className="input-glass !w-24">
-                {['SAY', 'EA', 'SÖZ'].map((t) => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
+            <label className="text-xs text-slate-400 mb-1 block">YKS Puanın</label>
+            <input
+              type="number"
+              step="0.01"
+              value={score}
+              onChange={(e) => setScore(e.target.value)}
+              placeholder="örn: 480.50"
+              className="input-glass"
+            />
           </div>
           <div>
+            <label className="text-xs text-slate-400 mb-1 block">Başarı Sırası</label>
+            <input
+              type="number"
+              value={rank}
+              onChange={(e) => setRank(e.target.value)}
+              placeholder="örn: 5000"
+              className="input-glass"
+            />
+          </div>
+        </div>
+      </>)}
+
+      {/* === DGS alanları === */}
+      {examTrack === 'DGS' && (
+        <div className="grid sm:grid-cols-2 gap-3">
+          <div>
             <label className="text-xs text-slate-400 mb-1 block">
-              KPSS Puanın <span className="text-slate-600">(GY-GK)</span>
+              DGS Puanın <span className="text-slate-600">(Hesap sayfasından da dolar)</span>
             </label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                step="0.01"
-                min="0" max="120"
-                value={kpssScore}
-                onChange={(e) => setKpssScore(e.target.value)}
-                placeholder="örn: 85.40"
-                className="input-glass flex-1"
-              />
-              <select value={kpssDuzey} onChange={(e) => setKpssDuzey(e.target.value)}
-                className="input-glass !w-32">
-                <option value="lisans">Lisans</option>
-                <option value="önlisans">Önlisans</option>
-                <option value="ortaöğretim">Ortaöğretim</option>
-              </select>
+            <input
+              type="number"
+              step="0.01"
+              min="0" max="600"
+              value={dgsScore}
+              onChange={(e) => setDgsScore(e.target.value)}
+              placeholder="örn: 312.40"
+              className="input-glass"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-slate-400 mb-1 block">DGS Puan Türü</label>
+            <div className="grid grid-cols-3 gap-2">
+              {['SAY', 'EA', 'SÖZ'].map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setDgsType(t)}
+                  className={`px-2 py-2.5 rounded-xl text-sm font-semibold transition ${
+                    dgsType === t
+                      ? 'bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg'
+                      : 'glass glass-hover text-slate-300'
+                  }`}
+                >
+                  {t}
+                </button>
+              ))}
             </div>
           </div>
         </div>
-      </div>
+      )}
 
+      {/* === KPSS alanları === */}
+      {examTrack === 'KPSS' && (
+        <div className="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs text-slate-400 mb-1 block">
+              KPSS Puanın <span className="text-slate-600">(GY-GK — Hesap sayfasından da dolar)</span>
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              min="0" max="120"
+              value={kpssScore}
+              onChange={(e) => setKpssScore(e.target.value)}
+              placeholder="örn: 85.40"
+              className="input-glass"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-slate-400 mb-1 block">Düzey</label>
+            <div className="grid grid-cols-3 gap-2">
+              {['lisans', 'önlisans', 'ortaöğretim'].map((d) => (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => setKpssDuzey(d)}
+                  className={`px-2 py-2.5 rounded-xl text-xs font-semibold transition ${
+                    kpssDuzey === d
+                      ? 'bg-gradient-to-br from-sky-500 to-indigo-500 text-white shadow-lg'
+                      : 'glass glass-hover text-slate-300'
+                  }`}
+                >
+                  {d}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* === TUS alanı === */}
+      {examTrack === 'TUS' && (
+        <div>
+          <label className="text-xs text-slate-400 mb-1 block">
+            TUS Puanın <span className="text-slate-600">(K/T — TUS robotunda tercih için kullanılır)</span>
+          </label>
+          <input
+            type="number" step="0.01" min="0" max="100"
+            value={tusScore}
+            onChange={(e) => setTusScore(e.target.value)}
+            placeholder="örn: 62.40"
+            className="input-glass"
+          />
+        </div>
+      )}
+
+      {/* === DUS alanı === */}
+      {examTrack === 'DUS' && (
+        <div>
+          <label className="text-xs text-slate-400 mb-1 block">
+            DUS Puanın <span className="text-slate-600">(K/T — DUS robotunda tercih için kullanılır)</span>
+          </label>
+          <input
+            type="number" step="0.01" min="0" max="100"
+            value={dusScore}
+            onChange={(e) => setDusScore(e.target.value)}
+            placeholder="örn: 60.00"
+            className="input-glass"
+          />
+        </div>
+      )}
+
+      {/* === LGS alanı === */}
+      {examTrack === 'LGS' && (
+        <div>
+          <label className="text-xs text-slate-400 mb-1 block">
+            LGS Yüzdelik Dilimin <span className="text-slate-600">(Türkiye geneli — LGS robotunda kullanılır)</span>
+          </label>
+          <input
+            type="number" step="0.01" min="0" max="100"
+            value={lgsYuzdelik}
+            onChange={(e) => setLgsYuzdelik(e.target.value)}
+            placeholder="örn: 2.50"
+            className="input-glass"
+          />
+        </div>
+      )}
+
+      {/* === AGS alanı === (öğretmenlik — net-odaklı, standart puan resmî değil) */}
+      {examTrack === 'AGS' && (
+        <div>
+          <label className="text-xs text-slate-400 mb-1 block">
+            AGS Toplam Netin <span className="text-slate-600">(Hesap → AGS sekmesinden hesaplanır; 80 soru üzerinden)</span>
+          </label>
+          <input
+            type="number" step="0.01" min="0" max="80"
+            value={agsNet}
+            onChange={(e) => setAgsNet(e.target.value)}
+            placeholder="örn: 52.00"
+            className="input-glass"
+          />
+          <p className="text-[10px] text-slate-500 mt-1">
+            AGS puanı standart-puandır ve sınav ilk uygulama → güvenilir puan/tercih tahmini yok; net bilgi amaçlı saklanır.
+          </p>
+        </div>
+      )}
+
+      {/* Şehirler — tüm sınav yollarında (KPSS'de kadro ili olarak kullanılır) */}
       <div>
         <label className="text-xs text-slate-400 mb-1 block">
-          Tercih ettiğin şehirler (virgülle ayır)
+          {examTrack === 'KPSS'
+            ? 'Tercih ettiğin şehirler — kadro aramada kullanılır (virgülle ayır)'
+            : 'Tercih ettiğin şehirler (virgülle ayır)'}
         </label>
         <input
           type="text"
@@ -677,69 +844,74 @@ function YksTab({ user }) {
         />
       </div>
 
-      <div>
-        <label className="text-xs text-slate-400 mb-2 block">
-          Üniversite Tipi
-        </label>
-        <div className="grid grid-cols-3 gap-2">
-          {UNI_TYPES.map((u) => {
-            const active = uniType === u.v
-            return (
-              <button
-                key={u.v}
-                type="button"
-                onClick={() => setUniType(u.v)}
-                className={`
-                  relative px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left
-                  ${active
-                    ? `bg-gradient-to-br ${u.color} text-white shadow-lg`
-                    : 'glass glass-hover text-slate-300'
-                  }
-                `}
-              >
-                <div className="font-semibold">{u.label}</div>
-                <div className={`text-[10px] mt-0.5 ${active ? 'text-white/80' : 'text-slate-500'}`}>
-                  {u.desc}
-                </div>
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Pusula'dan kayıtlı ilgilerim */}
-      <div>
-        <label className="text-xs text-slate-400 mb-2 flex items-center justify-between">
-          <span>Pusula'dan kayıtlı ilgilerim</span>
-          {interests.length > 0 && (
-            <span className="text-[10px] text-slate-500">{interests.length} ilgi</span>
-          )}
-        </label>
-        {interests.length === 0 ? (
-          <div className="text-xs text-slate-500 italic px-2">
-            Henüz Pusula'dan ilgi seçmedin. <a href="/pusula" className="text-accent-300 hover:underline">Pusula'ya git →</a>
-          </div>
-        ) : (
-          <div className="flex flex-wrap gap-1.5">
-            {interests.map((iv) => (
-              <span
-                key={iv}
-                className="text-xs px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-200 border border-emerald-500/30 flex items-center gap-1"
-              >
-                ✓ {iv}
+      {/* Üniversite tipi — KPSS'de gereksiz (kadrolar kurumlara ait) */}
+      {examTrack !== 'KPSS' && (
+        <div>
+          <label className="text-xs text-slate-400 mb-2 block">
+            Üniversite Tipi
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {UNI_TYPES.map((u) => {
+              const active = uniType === u.v
+              return (
                 <button
+                  key={u.v}
                   type="button"
-                  onClick={() => removeInterest(iv)}
-                  className="opacity-50 hover:opacity-100 hover:text-rose-300 transition"
-                  title="Çıkar"
+                  onClick={() => setUniType(u.v)}
+                  className={`
+                    relative px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left
+                    ${active
+                      ? `bg-gradient-to-br ${u.color} text-white shadow-lg`
+                      : 'glass glass-hover text-slate-300'
+                    }
+                  `}
                 >
-                  ×
+                  <div className="font-semibold">{u.label}</div>
+                  <div className={`text-[10px] mt-0.5 ${active ? 'text-white/80' : 'text-slate-500'}`}>
+                    {u.desc}
+                  </div>
                 </button>
-              </span>
-            ))}
+              )
+            })}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Pusula ilgileri — YKS'ye özgü (bölüm önerilerini besler) */}
+      {examTrack === 'YKS' && (
+        <div>
+          <label className="text-xs text-slate-400 mb-2 flex items-center justify-between">
+            <span>Pusula'dan kayıtlı ilgilerim</span>
+            {interests.length > 0 && (
+              <span className="text-[10px] text-slate-500">{interests.length} ilgi</span>
+            )}
+          </label>
+          {interests.length === 0 ? (
+            <div className="text-xs text-slate-500 italic px-2">
+              Henüz Pusula'dan ilgi seçmedin. <a href="/pusula" className="text-accent-300 hover:underline">Pusula'ya git →</a>
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-1.5">
+              {interests.map((iv) => (
+                <span
+                  key={iv}
+                  className="text-xs px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-200 border border-emerald-500/30 flex items-center gap-1"
+                >
+                  ✓ {iv}
+                  <button
+                    type="button"
+                    onClick={() => removeInterest(iv)}
+                    className="opacity-50 hover:opacity-100 hover:text-rose-300 transition"
+                    title="Çıkar"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {msg && <Banner msg={msg} />}
 

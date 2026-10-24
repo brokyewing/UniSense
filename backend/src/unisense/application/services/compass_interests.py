@@ -15,7 +15,6 @@ from unisense.application.services.compass_taxonomy import (
     get_taxonomy,
 )
 
-
 # === Kategori başına curated ilgi havuzu ===
 # Sıra önemli — UI'da bu sırada gösterilir.
 CATEGORY_INTERESTS: dict[str, list[str]] = {

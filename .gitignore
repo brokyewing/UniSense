@@ -67,3 +67,6 @@ backend/data/embeddings/
 # Kok dizinde yanlislikla olusan test artiklari
 /data/
 _e2e*.txt
+
+# Scraper ara kayıtları — döngü sırasında yazılır, başarıyla bitince silinir
+backend/data/raw/**/*.partial.json

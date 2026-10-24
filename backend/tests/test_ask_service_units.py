@@ -1,5 +1,19 @@
 """AskService saf fonksiyon testleri — intent çıkarımı ve cache key."""
-from unisense.application.services.ask_service import _extract_intent, _make_cache_key
+from unisense.application.services.ask_service import (
+    _make_cache_key,
+)
+from unisense.application.services.intent_router import (
+    _OBP_KATKI,
+    DGS_RE,
+    GENERIC_PLACEMENT_RE,
+    KPSS_RE,
+    _estimate_kpss_net,
+    _estimate_nets,
+    _extract_intent,
+    _parse_obp_katki,
+    build_kpss_context,
+    routing_text,
+)
 from unisense.domain.models import ChatTurn, Query
 
 
@@ -103,7 +117,7 @@ class TestListingIntent:
         if not _model_path().exists():
             pytest.skip("static_model.npz yok (HF dataset'ten indirilir)")
 
-        from unisense.infrastructure.embeddings import embed_query
+        from unisense.infrastructure.embeddings_local import embed_query
 
         v1 = embed_query("tıp fakültesi sıralaması")
         v2 = embed_query("tip fakultesi siralamasi")
@@ -126,7 +140,8 @@ class TestListingIntent:
 
 class TestCacheKey:
     def _q(self, **kw):
-        defaults = dict(text="test sorgusu", top_k=12, history=[], model_preference="gemini")
+        defaults = {"text": "test sorgusu", "top_k": 12, "history": [],
+                    "model_preference": "gemini"}
         defaults.update(kw)
         return Query(**defaults)
 
@@ -170,14 +185,13 @@ class TestKpssService:
 
 class TestSinavRouting:
     def test_kpss_regex(self):
-        from unisense.application.services.ask_service import _DGS_RE, _KPSS_RE
 
-        assert _KPSS_RE.search("kpss 85 puanla nereye atanırım")
-        assert _KPSS_RE.search("memur olmak istiyorum")
+        assert KPSS_RE.search("kpss 85 puanla nereye atanırım")
+        assert KPSS_RE.search("memur olmak istiyorum")
         # YKS bağlamındaki "akademik kadro" KPSS'ye GİTMEMELİ
-        assert not _KPSS_RE.search("hacettepe tıp akademik kadrosu nasıl")
-        assert _DGS_RE.search("dgs 280 puanla hangi bölümlere geçerim")
-        assert _DGS_RE.search("dikey geçiş yapmak istiyorum")
+        assert not KPSS_RE.search("hacettepe tıp akademik kadrosu nasıl")
+        assert DGS_RE.search("dgs 280 puanla hangi bölümlere geçerim")
+        assert DGS_RE.search("dikey geçiş yapmak istiyorum")
 
     def test_dgs_service(self):
         from unisense.application.services.dgs_service import DgsService
@@ -188,19 +202,261 @@ class TestSinavRouting:
         assert all((i["min_puan"] or 0) <= 300 for i in r["items"])
 
     def test_kpss_context_builds(self):
-        from unisense.application.services.ask_service import _build_kpss_context
 
-        ctx = _build_kpss_context("kpss 90 puanla bilgisayar mühendisi nereye atanır")
-        assert "AKTİF TERCİH" in ctx and "kadro" in ctx.lower()
+        ctx = build_kpss_context("kpss 90 puanla bilgisayar mühendisi nereye atanır")
+        # Başlık dönem içerir ama "AKTİF/tarih" HARDCODE ETMEZ (BULGU #15)
+        assert "KADRO" in ctx and "kadro" in ctx.lower()
+        assert "AKTİF TERCİH" not in ctx
+        # Bölüm chat'te artık filtreleniyor (BULGU #13) — "tümü" değil
+        assert "bölüm=bilgisayar mühendis" in ctx
+
+    def test_kpss_context_toplam_kontenjan(self):
+        """İstatistik sorusu → toplam kontenjan özeti; 'kişilik' bölüm sanılmaz."""
+
+        ctx = build_kpss_context("2026/1 kpss de kaç kişilik açıldı")
+        # Dönem geneli özet (tekil örnek değil bütün) verilmeli
+        assert "DÖNEM GENELİ" in ctx and "kişilik kontenjan" in ctx
+        # "kaç kişilik" → "kişilik" YANLIŞLIKLA bölüm sanılmamalı
+        assert "bölüm=kisilik" not in ctx
+        assert "bölüm=tümü" in ctx
 
     def test_exam_track_generic_routing(self):
         """Sınav adı yazılmadan 'puanımla nereye yerleşirim' → profil yolu."""
-        from unisense.application.services.ask_service import (
-            _DGS_RE,
-            _GENERIC_PLACEMENT_RE,
-            _KPSS_RE,
-        )
 
         q = "puanımla nereye yerleşebilirim"
-        assert _GENERIC_PLACEMENT_RE.search(q)
-        assert not _KPSS_RE.search(q) and not _DGS_RE.search(q)
+        assert GENERIC_PLACEMENT_RE.search(q)
+        assert not KPSS_RE.search(q) and not DGS_RE.search(q)
+
+
+class TestCountAndTercihIntents:
+    """Sohbet testinde yakalanan üç gerçek kaçak — sayım/N-tercih/nereleri
+    soruları RAG'e düşüp 'elimde yok' cevabı üretiyordu (yapısal veri gerekir)."""
+
+    def test_sayim_sorusu_intent_tetikler(self):
+        intent = _extract_intent("toplam kaç tane bilgisayar mühendisliği program kodu var elinde")
+        assert intent is not None
+        assert intent["is_count"] is True
+        assert any("bilgisayar" in d for d in intent["departments"])
+
+    def test_n_tercih_yap_intent_tetikler(self):
+        intent = _extract_intent("bana 24 tane tercih yap hepsi bilgisayar mühendisliği olsun")
+        assert intent is not None
+        assert intent["list_n"] == 24
+
+    def test_tercih_listesi_olustur_sayisiz(self):
+        intent = _extract_intent("bilgisayar mühendisliği için tercih listesi oluştur")
+        assert intent is not None
+        assert intent["list_n"] is None  # sayı yok ama liste isteği tetikledi
+
+    def test_nereleri_tercih_etmeliyim(self):
+        intent = _extract_intent("yks puanıma göre bilgisayar mühendisliği istiyorum nereleri tercih etmeliyim")
+        assert intent is not None  # 'nereleri' where-kalıbı
+
+    def test_duz_bilgi_sorusu_hala_rag(self):
+        # Tetikleyicisiz bölüm sorusu RAG'de kalmalı (aşırı-tetikleme olmasın)
+        assert _extract_intent("bilgisayar mühendisliği nedir") is None
+
+    def test_gecersiz_n_sinirlari(self):
+        # 0 veya 30 üstü N list_n olmaz ama liste isteği yine tetikler
+        intent = _extract_intent("bana 99 tane tercih yap bilgisayar mühendisliği")
+        assert intent is not None and intent["list_n"] is None
+
+    def test_dis_muhendislik_icinde_eslesmez(self):
+        # "diş" anahtar kelimesi "mühendisliği" substring'inde tetiklenmemeli
+        intent = _extract_intent("toplam kaç tane bilgisayar mühendisliği programı var")
+        assert intent is not None
+        assert not any(d == "diş" for d in intent["departments"])
+
+    def test_dis_hekimligi_hala_eslesir(self):
+        intent = _extract_intent("kaç tane diş hekimliği programı var")
+        assert intent is not None
+        assert any("diş" in d for d in intent["departments"])
+
+
+class TestNetEstimate:
+    def test_net_intent_with_department_routes_to_listing(self):
+        # "kaç net" + bölüm → yapısal listeye gitmeli (RAG'e düşmemeli)
+        intent = _extract_intent("bilgisayar mühendisliği için kaç net yapmalıyım")
+        assert intent is not None
+        assert intent["is_net"] is True
+        assert any("bilgisayar" in d for d in intent["departments"])
+
+    def test_generic_net_without_department_falls_through(self):
+        # Bölüm yoksa özel cevap üretilemez → None (RAG)
+        assert _extract_intent("kaç net yapmalıyım") is None
+
+    def test_internet_is_not_net_intent(self):
+        # 'internet' yanlış tetiklememeli
+        i = _extract_intent("koç üniversitesinde internet var mı")
+        assert i is None or i.get("is_net") is False
+
+    def test_estimate_nets_monotonic_and_bounded(self):
+        yuksek = _estimate_nets(534.0, "SAY")   # ODTÜ civarı
+        dusuk = _estimate_nets(312.0, "SAY")    # ulaşılabilir
+        assert yuksek["tyt"] > dusuk["tyt"]
+        assert yuksek["ayt"] > dusuk["ayt"]
+        assert 0 <= dusuk["tyt"] <= 120 and 0 <= yuksek["ayt"] <= 80
+
+    def test_estimate_nets_tyt_only_type(self):
+        e = _estimate_nets(300.0, "TYT")
+        assert e["ayt"] is None and 0 <= e["tyt"] <= 120
+
+    def test_estimate_nets_none_score(self):
+        assert _estimate_nets(None, "SAY") is None
+
+
+class TestObpPersonalization:
+    def test_parse_obp_direct(self):
+        assert _parse_obp_katki("obp 450") == 54.0          # 450×0.12
+        assert _parse_obp_katki("obp'm 420") == 50.4        # ekli hal
+
+    def test_parse_diploma_note(self):
+        assert _parse_obp_katki("diploma notum 90") == 54.0  # 90×5×0.12
+        assert _parse_obp_katki("ortalamam 85") == 51.0
+
+    def test_no_obp_returns_none(self):
+        assert _parse_obp_katki("kaç net gerek") is None
+
+    def test_intent_carries_obp_when_net(self):
+        i = _extract_intent("diploma notum 90 bilgisayar mühendisliği için kaç net")
+        assert i is not None and i["is_net"] and i["obp_katki"] == 54.0
+
+    def test_higher_obp_needs_fewer_nets(self):
+        # Aynı taban, yüksek OBP → daha az net gerekir
+        az_diploma = _estimate_nets(534.0, "SAY", 30.0)   # düşük OBP
+        cok_diploma = _estimate_nets(534.0, "SAY", 60.0)  # yüksek OBP
+        assert cok_diploma["tyt"] <= az_diploma["tyt"]
+        assert cok_diploma["ayt"] <= az_diploma["ayt"]
+
+    def test_default_used_when_obp_none(self):
+        # obp_katki=None → varsayılan (~50) ile aynı sonuç
+        assert _estimate_nets(500.0, "SAY", None) == _estimate_nets(500.0, "SAY", _OBP_KATKI)
+
+
+class TestTahminiSira:
+    def test_higher_score_lower_rank(self):
+        from unisense.application.services.recommendation_service import tahmini_sira
+        yuksek = tahmini_sira(500.0, "SAY")
+        dusuk = tahmini_sira(400.0, "SAY")
+        assert yuksek and dusuk
+        assert yuksek["tahmini_sira"] < dusuk["tahmini_sira"]  # yüksek puan = iyi sıra
+        assert yuksek["tahmini_sira"] >= 1
+
+    def test_all_yks_types_supported(self):
+        from unisense.application.services.recommendation_service import tahmini_sira
+        for tur in ["SAY", "EA", "SÖZ", "TYT", "DİL"]:
+            r = tahmini_sira(420.0, tur)
+            assert r is not None and r["tahmini_sira"] >= 1, tur
+
+    def test_unknown_type_returns_none(self):
+        from unisense.application.services.recommendation_service import tahmini_sira
+        assert tahmini_sira(450.0, "YOK") is None
+
+    def test_none_score_returns_none(self):
+        from unisense.application.services.recommendation_service import tahmini_sira
+        assert tahmini_sira(None, "SAY") is None
+
+    def test_out_of_range_flags_sinir(self):
+        from unisense.application.services.recommendation_service import tahmini_sira
+        r = tahmini_sira(600.0, "SAY")  # veri üstü uç
+        assert r is not None and r["sinir"] == "ust"
+
+
+class TestConversationContext:
+    def _q(self, text, prev=None):
+        h = [ChatTurn(role="user", text=prev)] if prev else []
+        return Query(text=text, top_k=12, history=h, model_preference="gemini")
+
+    def test_followup_merges_prev_for_routing(self):
+        rt = routing_text(self._q("tüm illerde bak",
+                                    prev="kpss bilgisayar mühendisi kadroları"))
+        assert KPSS_RE.search(rt)  # takip mesajı KPSS bağlamını miras aldı
+
+    def test_new_topic_not_merged(self):
+        # Kendi konusu olan mesaj birleşmez (yeni soru)
+        assert routing_text(self._q("tıp taban puanı nedir",
+                                     prev="kpss bilgisayar")) == "tıp taban puanı nedir"
+
+    def test_no_history_unchanged(self):
+        assert routing_text(self._q("tüm illerde bak")) == "tüm illerde bak"
+
+    def test_long_message_not_merged(self):
+        uzun = "istanbul ankara izmir bursa hangi üniversitelerde bilgisayar var say"
+        assert routing_text(self._q(uzun, prev="kpss")) == uzun
+
+    def _q_hist(self, text, users):
+        # users: sırayla kullanıcı mesajları (aralarına bot cevabı serpilir)
+        h = []
+        for u in users:
+            h.append(ChatTurn(role="user", text=u))
+            h.append(ChatTurn(role="bot", text="..."))
+        return Query(text=text, top_k=12, history=h, model_preference="gemini")
+
+    def test_multiturn_walks_back_to_topic(self):
+        # 3+ tur: konu-kuran mesaj birkaç takip mesajı geride olsa da korunmalı
+        q = self._q_hist("peki en çok hangi ilde",
+                         users=["kpss bilgisayar mühendisi kadroları", "tüm illerde bak"])
+        assert KPSS_RE.search(routing_text(q))
+
+    def test_topic_change_stops_walkback(self):
+        # Konu değiştiyse (yeni bağımsız soru) eski konu TAŞINMAMALI
+        q = self._q_hist("peki ankarada",
+                         users=["kpss bilgisayar", "tıp taban puanı nedir istanbul"])
+        rt = routing_text(q).lower()
+        assert "tıp" in rt and "kpss" not in rt
+
+
+class TestUserExamContextSchema:
+    def test_yks_fields_retained(self):
+        # REGRESYON: şemada yks_puan yoktu → frontend gönderse de pydantic atıyordu
+        from unisense.api.v1.schemas import UserExamContext
+        c = UserExamContext(yks_puan=430, yks_turu="SAY", yks_sira=65550)
+        d = c.model_dump(exclude_none=True)
+        assert d["yks_puan"] == 430 and d["yks_turu"] == "SAY" and d["yks_sira"] == 65550
+
+
+class TestProfileContext:
+    def test_profile_block_has_scores_and_no_deny_instruction(self):
+        from unisense.application.services.intent_router import build_profile_context
+        b = build_profile_context({"yks_puan": 430, "yks_turu": "SAY", "kpss_puan": 78})
+        assert "430" in b and "78" in b and "SAY" in b
+        assert "erişemem" in b.lower()  # YÖNERGE: 'erişemem DEME' talimatı var
+        assert "başarı sırası" in b  # tek tutarlı sıra üretildi
+
+    def test_profile_block_empty_when_no_data(self):
+        from unisense.application.services.intent_router import build_profile_context
+        assert build_profile_context({}) == ""
+        assert build_profile_context(None) == ""
+
+    def test_schema_all_exam_fields(self):
+        from unisense.api.v1.schemas import UserExamContext
+        c = UserExamContext(yks_puan=430, tus_puan=55, lgs_yuzdelik=2.5,
+                            ags_net=60, tercih_sehirler=["ADANA"])
+        d = c.model_dump(exclude_none=True)
+        assert d["tus_puan"] == 55 and d["lgs_yuzdelik"] == 2.5 and d["ags_net"] == 60
+
+    def test_study_progress_in_profile_block(self):
+        from unisense.application.services.intent_router import build_profile_context
+        b = build_profile_context({
+            "calisma_toplam_konu": 120, "calisma_kalan_konu": 78,
+            "calisma_zayif": ["türev", "optik"],
+        })
+        assert "120" in b and "78" in b  # kalan/toplam yansır
+        assert "42" in b  # bitti = 120-78
+        assert "türev" in b and "optik" in b  # zayıf konular
+        assert "plan" in b.lower()  # planlama yönergesi eklendi
+
+    def test_study_schema_fields_and_clamps(self):
+        from unisense.api.v1.schemas import UserExamContext
+        c = UserExamContext(calisma_kalan_konu=50, calisma_toplam_konu=100,
+                            calisma_zayif=["a", "b", "c"])
+        d = c.model_dump(exclude_none=True)
+        assert d["calisma_kalan_konu"] == 50 and len(d["calisma_zayif"]) == 3
+
+
+class TestKpssNet:
+    def test_kpss_net_reverse(self):
+        assert _estimate_kpss_net(85) == 90   # 2×(85-40)
+        assert _estimate_kpss_net(70) == 60
+        assert _estimate_kpss_net(105) == 120  # tavan
+        assert _estimate_kpss_net(None) is None

@@ -128,6 +128,7 @@ class KpssService:
         puan: float | None = None,
         duzey: str | None = None,
         il: str | None = None,
+        iller: list[str] | None = None,
         limit: int = 30,
     ) -> dict:
         kadrolar, nitelikler, _ = _load()
@@ -137,11 +138,14 @@ class KpssService:
         kesin, adli, generic = (_matching_nitelik_codes(bolum, duzey)
                                 if bolum else (set(), set(), set()))
 
+        # Çoklu il desteği: `il` (tekil, geriye uyum) + `iller` birleşir
+        il_set = {fold_tr(x) for x in ([il] if il else []) + (iller or []) if x}
+
         items: list[dict] = []
         for k in kadrolar:
             if duzey and k["duzey"] != duzey:
                 continue
-            if il and fold_tr(k.get("il", "")) != fold_tr(il):
+            if il_set and fold_tr(k.get("il", "")) not in il_set:
                 continue
             kcodes = set(k.get("nitelikler", []))
             if bolum:
@@ -188,10 +192,39 @@ class KpssService:
         # Geçmiş tabanı bilinenler önce, taban artan (ulaşılabilirlik)
         items.sort(key=lambda x: (x["gecmis_taban"] is None,
                                   x["gecmis_taban"] or 999))
+        # Dönem etiketleri VERİDEN: scraper her kadroya keşfedilen dönemi
+        # damgalıyor (donem_ozeti ile aynı türetme) — yeni dönem verisi
+        # gelince metinler kendiliğinden günceller
+        donem = kadrolar[0].get("donem", "2026/1") if kadrolar else "2026/1"
+        gecmis_donemler = {p["donem"] for kayitlar in _taban_index().values() for p in kayitlar}
+        gecmis = max(gecmis_donemler) if gecmis_donemler else "geçmiş dönem"
         return {
-            "donem": "2026/1",
+            "donem": donem,
             "total": len(items),
+            "toplam_kontenjan": sum((it.get("kontenjan") or 0) for it in items),
             "items": items[:limit],
-            "uyari": ("Taban puanlar GEÇMİŞ dönem yerleştirmelerinden (2025) — "
-                      "2026/1 tabanları yerleştirme sonrası belli olur."),
+            "uyari": (f"Taban puanlar GEÇMİŞ dönem yerleştirmelerinden ({gecmis}) — "
+                      f"{donem} tabanları yerleştirme sonrası belli olur."),
+        }
+
+    def donem_ozeti(self) -> dict:
+        """Aktif dönemin genel istatistiği: toplam kadro + kontenjan, düzey kırılımı.
+
+        'Toplam kaç kontenjan / kaç kişilik açıldı' gibi istatistik soruları
+        için — tekil kadro örnekleri değil, bütünün özeti gerekir (BULGU).
+        """
+        kadrolar, _, _ = _load()
+        donem = kadrolar[0].get("donem", "2026/1") if kadrolar else "2026/1"
+        duzeyler: dict[str, dict] = {}
+        for k in kadrolar:
+            d = duzeyler.setdefault(k.get("duzey", "?"), {"kadro": 0, "kontenjan": 0})
+            d["kadro"] += 1
+            d["kontenjan"] += k.get("kontenjan") or 0
+        return {
+            "donem": donem,
+            "toplam_kadro": len(kadrolar),
+            "toplam_kontenjan": sum((k.get("kontenjan") or 0) for k in kadrolar),
+            "kurum_sayisi": len({k.get("kurum", "") for k in kadrolar}),
+            "il_sayisi": len({k.get("il", "") for k in kadrolar if k.get("il")}),
+            "duzeyler": duzeyler,
         }

@@ -1,0 +1,60 @@
+{
+  "surum": "v1 2026-07",
+  "not": "MEB/ÖSYM müfredatına göre hazırlanmış ilk sürüm — konular birlikte doğrulanıp genişletilecek.",
+  "sinavlar": {
+    "LGS": {
+      "ad": "LGS — Liseye Geçiş Sınavı (8. sınıf)",
+      "dersler": {
+        "Türkçe": ["Sözcükte Anlam", "Cümlede Anlam", "Paragrafta Anlam", "Söz Sanatları", "Cümle Türleri", "Fiilimsiler", "Cümlenin Ögeleri", "Anlatım Bozuklukları", "Yazım Kuralları", "Noktalama İşaretleri", "Metin Türleri", "Görsel/Grafik Yorumlama"],
+        "Matematik": ["Çarpanlar ve Katlar", "Üslü İfadeler", "Kareköklü İfadeler", "Veri Analizi", "Olasılık", "Cebirsel İfadeler ve Özdeşlikler", "Doğrusal Denklemler", "Eşitsizlikler", "Üçgenler", "Dönüşüm Geometrisi", "Geometrik Cisimler"],
+        "Fen Bilimleri": ["Mevsimler ve İklim", "DNA ve Genetik Kod", "Basınç", "Madde ve Endüstri", "Basit Makineler", "Enerji Dönüşümleri (Madde Döngüleri)", "Elektrik Yükleri ve Elektrik Enerjisi"],
+        "T.C. İnkılap Tarihi": ["Bir Kahraman Doğuyor", "Milli Uyanış", "Ya İstiklal Ya Ölüm", "Çağdaş Türkiye Yolunda Adımlar", "Atatürkçülük", "Demokratikleşme Çabaları", "Atatürk Dönemi Dış Politika"],
+        "Din Kültürü": ["Kader İnancı", "Zekat ve Sadaka", "Din ve Hayat", "Hz. Muhammed'in Örnekliği", "Kur'an-ı Kerim ve Özellikleri"],
+        "İngilizce": ["Friendship", "Teen Life", "In the Kitchen", "On the Phone", "The Internet", "Adventures", "Tourism", "Chores"]
+      }
+    },
+    "YKS": {
+      "ad": "YKS — TYT + AYT",
+      "gruplar": {
+        "TYT": {
+          "Türkçe": ["Sözcükte Anlam", "Cümlede Anlam", "Paragraf", "Ses Bilgisi", "Yazım Kuralları", "Noktalama", "Sözcük Türleri", "Cümlenin Ögeleri", "Cümle Türleri", "Anlatım Bozukluğu"],
+          "Matematik": ["Temel Kavramlar", "Sayı Basamakları", "Bölme ve Bölünebilme", "EBOB-EKOK", "Rasyonel Sayılar", "Basit Eşitsizlikler", "Mutlak Değer", "Üslü-Köklü Sayılar", "Çarpanlara Ayırma", "Oran-Orantı", "Problemler", "Kümeler", "Fonksiyonlar", "Permütasyon-Kombinasyon-Olasılık", "Geometri (Açılar, Üçgenler, Çokgenler, Çember, Analitik, Katı Cisimler)"],
+          "Fizik": ["Fizik Bilimine Giriş", "Madde ve Özellikleri", "Hareket ve Kuvvet", "Enerji", "Isı ve Sıcaklık", "Elektrostatik", "Basınç ve Kaldırma Kuvveti", "Optik", "Dalgalar"],
+          "Kimya": ["Kimya Bilimi", "Atom ve Periyodik Sistem", "Kimyasal Türler Arası Etkileşim", "Maddenin Halleri", "Kimyanın Temel Kanunları", "Karışımlar", "Asit-Baz-Tuz", "Kimya Her Yerde"],
+          "Biyoloji": ["Canlıların Ortak Özellikleri", "Hücre", "Canlıların Sınıflandırılması", "Hücre Bölünmeleri", "Ekosistem Ekolojisi", "Güncel Çevre Sorunları"],
+          "Tarih": ["Tarih ve Zaman", "İlk ve Orta Çağlarda Türk Dünyası", "İslam Medeniyeti", "Türklerin İslamiyeti Kabulü", "Osmanlı Kuruluş-Yükseliş", "Osmanlı Kültür ve Medeniyeti"],
+          "Coğrafya": ["Doğa ve İnsan", "Dünyanın Şekli ve Hareketleri", "Harita Bilgisi", "İklim Bilgisi", "Yerin Şekillenmesi", "Nüfus", "Yerleşme", "Türkiye'nin Coğrafi Konumu"],
+          "Felsefe": ["Felsefeye Giriş", "Bilgi Felsefesi", "Varlık Felsefesi", "Ahlak Felsefesi", "Sanat Felsefesi", "Din Felsefesi", "Siyaset Felsefesi", "Bilim Felsefesi"],
+          "Din Kültürü": ["Bilgi ve İnanç", "İslam ve İbadet", "Ahlaki Değerler", "Hz. Muhammed", "Vahiy ve Akıl"]
+        },
+        "AYT": {
+          "Matematik (AYT)": ["Fonksiyonlar", "Polinomlar", "İkinci Dereceden Denklemler", "Karmaşık Sayılar", "Logaritma", "Diziler", "Limit ve Süreklilik", "Türev", "İntegral", "Trigonometri", "Analitik Geometri"],
+          "Fizik (AYT)": ["Vektörler", "Kuvvet ve Hareket (Dinamik)", "İş-Güç-Enerji", "İtme ve Momentum", "Elektrik ve Manyetizma", "Çembersel Hareket", "Basit Harmonik Hareket", "Dalga Mekaniği", "Atom Fiziği ve Modern Fizik"],
+          "Kimya (AYT)": ["Modern Atom Teorisi", "Gazlar", "Sıvı Çözeltiler", "Kimyasal Tepkimelerde Enerji", "Kimyasal Tepkimelerde Hız", "Kimyasal Denge", "Asit-Baz Dengesi", "Çözünürlük Dengesi", "Elektrokimya", "Organik Kimya"],
+          "Biyoloji (AYT)": ["Sinir Sistemi", "Endokrin Sistem", "Duyu Organları", "Destek ve Hareket", "Sindirim-Dolaşım-Solunum-Boşaltım", "Üreme ve Gelişme", "Kalıtım", "Genden Proteine", "Bitki Biyolojisi", "Komünite ve Popülasyon Ekolojisi"],
+          "Edebiyat": ["Şiir Bilgisi", "Edebi Sanatlar", "İslamiyet Öncesi ve Geçiş Dönemi", "Halk Edebiyatı", "Divan Edebiyatı", "Tanzimat", "Servet-i Fünun", "Milli Edebiyat", "Cumhuriyet Dönemi", "Roman-Hikaye-Tiyatro"],
+          "Tarih (AYT)": ["Osmanlı Dağılma Dönemi", "20. Yüzyıl Başları", "Milli Mücadele", "Atatürk İlkeleri ve İnkılapları", "İki Savaş Arası Dönem", "II. Dünya Savaşı", "Soğuk Savaş", "Çağdaş Türk ve Dünya Tarihi"],
+          "Coğrafya (AYT)": ["Ekosistem", "Nüfus Politikaları", "Şehirleşme", "Ekonomik Faaliyetler", "Türkiye Ekonomisi (Tarım-Sanayi-Ticaret)", "Bölgeler", "Küresel Ortam ve Ülkeler", "Çevre ve Toplum"]
+        }
+      }
+    },
+    "KPSS": {
+      "ad": "KPSS — Genel Yetenek + Genel Kültür (Lisans)",
+      "dersler": {
+        "Türkçe": ["Sözcükte-Cümlede Anlam", "Paragraf", "Ses ve Yazım Bilgisi", "Sözcük Türleri", "Cümle Bilgisi", "Anlatım Bozuklukları", "Dil Bilgisi Kuralları"],
+        "Matematik": ["Temel Kavramlar", "Sayılar", "Bölme-Bölünebilme", "Rasyonel Sayılar", "Denklemler", "Problemler (Sayı, Kesir, Yaş, İşçi, Hareket, Yüzde, Faiz, Kâr-Zarar, Karışım)", "Kümeler-Fonksiyonlar", "Permütasyon-Kombinasyon-Olasılık", "Sayısal-Mantıksal Akıl Yürütme", "Geometri"],
+        "Tarih": ["İslamiyet Öncesi Türk Tarihi", "İlk Türk-İslam Devletleri", "Osmanlı Tarihi", "Kurtuluş Savaşı", "Atatürk İlke ve İnkılapları", "Çağdaş Türk ve Dünya Tarihi"],
+        "Coğrafya": ["Türkiye'nin Coğrafi Konumu", "Yer Şekilleri", "İklim", "Nüfus ve Yerleşme", "Ekonomik Coğrafya (Tarım-Hayvancılık-Sanayi-Madenler-Ulaşım-Turizm)", "Bölgeler"],
+        "Vatandaşlık": ["Hukukun Temel Kavramları", "Devlet Biçimleri", "Anayasa Hukuku", "Temel Hak ve Ödevler", "Yasama-Yürütme-Yargı", "İdare Hukuku"],
+        "Güncel Bilgiler": ["Güncel Ekonomik-Sosyal-Kültürel Olaylar", "Uluslararası Kuruluşlar", "Anayasal Kurumlar"]
+      }
+    },
+    "DGS": {
+      "ad": "DGS — Dikey Geçiş Sınavı",
+      "dersler": {
+        "Sayısal": ["Temel Matematik", "Sayılar ve İşlemler", "Problemler", "Geometri", "Sayısal Mantık", "Şekil-Grafik Yorumlama", "Sayı-Şekil Dizileri"],
+        "Sözel": ["Sözcükte-Cümlede Anlam", "Paragraf ve Anlatım", "Sözel Mantık", "Sözel Yeteneğe Dayalı Akıl Yürütme", "Anlam İlişkileri"]
+      }
+    }
+  }
+}
