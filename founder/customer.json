@@ -1,0 +1,41 @@
+{
+  "business": "UniSense — Türkiye üniversite tercih asistanı (RAG + resmi veri + sigmoid olasılık)",
+  "target": "YKS/DGS/KPSS/LGS/TUS sınavına girecek öğrenciler (17-24 yaş) + velileri (35-55 yaş), yıllık ~2.5M aday",
+  "where": "Türkiye geneli (web + mobil PWA)",
+  "age": [17, 24],
+  "segments": [
+    {"name": "YKS Lisans Adayı", "share": 0.45, "income": [0, 5000]},
+    {"name": "DGS Dikey Geçiş Adayı", "share": 0.12, "income": [0, 8000]},
+    {"name": "KPSS Memurluk Adayı", "share": 0.15, "income": [0, 10000]},
+    {"name": "LGS 8. Sınıf Öğrencisi (veli)", "share": 0.18, "income": [15000, 60000]},
+    {"name": "TUS/DUS Uzmanlık Adayı", "share": 0.10, "income": [5000, 30000]}
+  ],
+  "behaviours": [
+    {"name": "Araştırmacı", "share": 0.25, "how": "Her kararda 3+ kaynak karşılaştırır, Google/YouTube/Reddit tarar, resmi siteyi öncelikler."},
+    {"name": "Veli odaklı (veli karar veriyor)", "share": 0.20, "how": "Veli araştırıp karar verir, öğrenci onaylar; güven ve resmiyet öncelikli."},
+    {"name": "Hızlı karar / rehber istiyor", "share": 0.18, "how": "'Sadece bana güvenli liste ver' der, detaylı araştırma yapmaz, hazır özet ister."},
+    {"name": "Fiyat hassas / ücretsiz arayan", "share": 0.15, "how": "'Ücretsizse deneyeyim' der, premium için ödeme itirazı varsa çok geç olmadan vazgeçir."},
+    {"name": "Danışmanlık almış/alacak", "share": 0.12, "how": "Özel danışmanlık (500-5000 TL) almış/alacak; yazılım + danışman kombinasyonu değerlendirir."},
+    {"name": "Mobil-first / uygulamalı", "share": 0.10, "how": "Sadece mobil uygulama kullanır, web sitesini açmaz; offline/bildirim ister."}
+  ],
+  "objections": [
+    "YÖK Atlas zaten ücretsiz, niye bunu kullanayım?",
+    "RAG cevabı doğru mu? Yanlış taban puanı verir mi?",
+    "Premium için para vermek istemiyorum, ücretsiz yeterli",
+    "Tercih listesi yanlış çıkarsa kim sorumlu? Garanti var mı?",
+    "Mobil uygulaması var mı? Web sitesi mobilde yavaş/kullanışsız",
+    "Reklam var mı? Reklamsız mı? Verilerim satılıyor mu?",
+    "Danışmanlık firması (5000 TL) alsam daha güvenli değil mi?",
+    "YÖK Atlas verisini de burda görüyorsam fark ne?",
+    "Mobil uygulaması yoksa (PWA) telefonuma nasıl koyarım?",
+    "Velim İngilizce bilmiyor, arayüz karmaşık gelirse vazgeçer"
+  ],
+  "habits": [
+    "YKS sınavından 3-6 ay önce yoğun araştırma başlar",
+    "Veliler WhatsApp gruplarında tercih paylaşır, danışman önerir",
+    "Öğrenci Instagram/TikTok'ta 'tercih robotu' videoları izler",
+    "Sınav sonrası 48 saat içinde tercih listesi finalize edilir",
+    "Yerleşme sonrası bölüm mezunu iş ilanlarını takip eder (Kariyer sekmesi)",
+    "Okul rehber öğretmeni resmi YÖK Atlas linki verir, özel siteleri uyarır"
+  ]
+}

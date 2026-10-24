@@ -58,7 +58,7 @@ def _dept_matrix() -> tuple[np.ndarray, list[str]]:
             logger.warning("compass_dept_cache_read_failed", error=str(e)[:120])
 
     # Embedlemek için: ad + etiketler + kategori label
-    from unisense.infrastructure.embeddings import embed_texts
+    from unisense.infrastructure.embeddings_local import embed_texts_local as embed_texts
 
     texts = []
     for d in tax["departments"]:
@@ -91,7 +91,7 @@ def _axes_matrix() -> tuple[np.ndarray, list[str]]:
 
 
 def _normalize_query(text: str) -> np.ndarray:
-    from unisense.infrastructure.embeddings import embed_texts
+    from unisense.infrastructure.embeddings_local import embed_texts_local as embed_texts
 
     return embed_texts([text], task_type="SEMANTIC_SIMILARITY")[0]
 

@@ -1,0 +1,11 @@
+name,type,url,location_or_channel,price_of_comparable_item,what_it_sells,positioning_line,rating,review_count,source_date
+YÖK Atlas,Direct,https://yokatlas.yok.gov.tr,Türkiye (web),Ücretsiz (resmi),Üniversite/bölüm taban puanları, kontenjan, sıralama, yerleştirme verileri,"Resmi veri kaynağı — YÖK'un resmi tercih atlası",N/A,N/A,2026-10-25
+Tercih Robotu (tercihrobotu.com),Direct,https://tercihrobotu.com,Türkiye (web),Freemium (temel ücretsiz, premium ~200-500 TL/yıl),YKS/DGS tercih robotu, taban puan, sıralama, öneri,"Puanına göre güvenli/hedef/riskli liste","N/A (web)","N/A",2026-10-25
+Tercih Sihirbazı,Direct,https://tercihsihirbazi.com,Türkiye (web),Ücretli (~300-600 TL),YKS/DGS/KPSS tercih danışmanlığı + yazılım,"Danışman destekli tercih yazılımı","N/A","N/A",2026-10-25
+Tercih Rehberi,Direct,https://tercihrehberi.com,Türkiye (web),Ücretsiz/Freemium,Taban puan sorgulama, bölüm tanıtımı, tercih listesi,"Taban puanları ve bölüm bilgileri tek sayfada","N/A","N/A",2026-10-25
+YKS Tercih Asistanı (mobil uygulama),Direct,https://play.google.com/store/apps/details?id=com.ykstertip,Türkiye (Android/iOS),Freemium (reklamlı ücretsiz, premium ~50-100 TL),Mobil tercih robotu, puan hesaplama, bölüm bilgileri,"YKS tercih asistanınız yanınızda","4.2","10,000+",2026-10-25
+Danışmanlık Firmaları (özelleştirilmiş),Direct,Çeşitli (web/ofis),Türkiye (şehir bazlı),500-5000 TL (paket bazlı),1-1 tercih danışmanlığı, liste hazırlama, takip,"Kişisel danışmanlık ile güvenli tercih","N/A","N/A",2026-10-25
+Jooble / Careerjet (öğrenci filtresi),Indirect,https://tr.jooble.org / https://www.careerjet.com.tr,Türkiye (web),Ücretsiz,İş ilanları (staj, yeni mezun, part-time),"Dünyanın en büyük iş arama motoru","N/A","N/A",2026-10-25
+LinkedIn (öğrenci/mezun),Indirect,https://linkedin.com,Türkiye (web/app),Freemium (Premium ~$30/ay),Profesyonel ağ, staj/iş fırsatları, kariyer rehberliği,"İş dünyasına giriş kapınız","N/A","N/A",2026-10-25
+EBA / Morpa Kampüs (MEB),Indirect,https://eba.gov.tr / https://morpa.com,Türkiye (web/app),Ücretsiz (resmi/okul lisanslı),Ders içeriği, konu anlatımı, deneme, performans takibi,"Eğitimde fırsat eşitliği","N/A","N/A",2026-10-25
+Excel/Google Sheets (kendi listesi),Substitute,Offline/Online,0 TL,Kendi tercih listesi, puan hesaplama, manuel takip,"Kendi kontrolünde tam liste","N/A","N/A",2026-10-25

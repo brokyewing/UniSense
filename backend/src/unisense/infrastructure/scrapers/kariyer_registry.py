@@ -28,12 +28,12 @@ def yukle(yol: Path | str | None = None) -> list[dict]:
     p = Path(yol) if yol else defter_yolu()
     data = yaml.safe_load(p.read_text(encoding="utf-8"))
     if not isinstance(data, dict) or not isinstance(data.get("kaynaklar"), list):
-        raise ValueError(f"{p}: 'kaynaklar' listesi bulunamadı")
+        raise TypeError(f"{p}: 'kaynaklar' listesi bulunamadı")
     girdiler: list[dict] = []
     gorulen: set[str] = set()
     for i, g in enumerate(data["kaynaklar"]):
         if not isinstance(g, dict):
-            raise ValueError(f"{p}: girdi #{i} sözlük değil")
+            raise TypeError(f"{p}: girdi #{i} sözlük değil")
         eksik = [a for a in ZORUNLU if a not in g]
         if eksik:
             raise ValueError(f"{p}: '{g.get('kod', i)}' eksik alan: {eksik}")
@@ -58,10 +58,10 @@ def sirket_ats(yol: Path | str | None = None) -> list[dict]:
     p = Path(yol) if yol else defter_yolu()
     data = yaml.safe_load(p.read_text(encoding="utf-8"))
     if not isinstance(data, dict):
-        raise ValueError(f"{p}: sözlük değil")
+        raise TypeError(f"{p}: sözlük değil")
     liste = data.get("sirket_ats") or []
     if not isinstance(liste, list):
-        raise ValueError(f"{p}: 'sirket_ats' liste değil")
+        raise TypeError(f"{p}: 'sirket_ats' liste değil")
     return liste
 
 
@@ -70,8 +70,8 @@ def robots_kontrol(yol: Path | str | None = None) -> list[dict]:
     p = Path(yol) if yol else defter_yolu()
     data = yaml.safe_load(p.read_text(encoding="utf-8"))
     if not isinstance(data, dict):
-        raise ValueError(f"{p}: sözlük değil")
+        raise TypeError(f"{p}: sözlük değil")
     liste = data.get("robots_kontrol") or []
     if not isinstance(liste, list):
-        raise ValueError(f"{p}: 'robots_kontrol' liste değil")
+        raise TypeError(f"{p}: 'robots_kontrol' liste değil")
     return liste

@@ -7,6 +7,32 @@ Durum: `[ ]` açık · `[~]` devam ediyor · `[x]` bitti · `[!]` engellendi
       `ignore`'da, gerekçesi pyproject'te yazılı. Servis kodunda geniş yeniden yazım.
 - [ ] DTZ011 (5 nokta): `date.today()` → Europe/Istanbul mı UTC mi? Ürün kararı.
 
+## Ponytail Refactoring (opencode, 2026-10-24)
+- [x] `intent_router.py` çıkarıldı — `ask_service.py` 1121→630 satır (tek sorumluluk)
+- [x] `_CITY_SUFFIX` regex bug'ı düzeltildi (parantez dengesizdi, takip eden tüm testler geçti)
+- [x] Test suitesi temiz: 208 passed, 1 skipped
+- [x] Ruff temiz (import sıralama, forward ref quote'ları, `__all__` sort)
+- [x] `embeddings.py` sil (Gemini embedding kullanılmıyor — config `local` default)
+- [x] `firebase.js`: 6 tercih listesi CRUD → tek generic `watchTercih/addToTercih` (yaklaşık -500 satır)
+- [x] `kariyer_scraper.py`: 4 dosyaya böl (rg/jooble/careerjet/merge) + duplicate fonksiyonlar kaldırıldı
+- [ ] `BackgroundScene` opt-in: sadece Home, Search/Kariyer/Pusula'dan kaldır
+- [ ] Domain modelleri: 7 dosya → 1 `domain/models.py`
+
+## Founder Validation (opencode, 2026-10-24) — Şerit: board → competitors → consumer → pricing → offer → cfo → marketing → brand → ops → launch → plan
+- [x] **board**: `founder/idea.md` + `founder/board/brief.md` yazıldı
+- [x] **board**: 3 lens memo yazıldı (Offers 7/10 FUND IF, Monopoly 6/10 FUND IF, Product 8/10 FUND)
+- [x] **board**: Board özeti `founder/board.md` — 2 FUND IF + 1 FUND = **FUND IF** (ortalama 7.0/10), 9 koşul checklist
+- [ ] **competitors**: Rakip haritası (yokatlas, özel tercih robotları, danışmanlık firmaları, kariyer siteleri) + boşluk analizi → `founder/competitors.md`
+- [ ] **consumer**: 100 simüle alıcı paneli (YKS/DGS/KPSS/LGS/TUS segmentleri) → itirazlar, segment douleur
+- [ ] **pricing**: Van Westendorp anketi → freemium/premium fiyat merdiveni
+- [ ] **offer**: Grand slam offer (garanti + bonus + stack)
+- [ ] **cfo**: Birim ekonomisi (CAC/LTV, başabaş, nakit ihtiyacı)
+- [ ] **marketing**: 30 günlük kampanya planı + programmatic SEO şablonu
+- [ ] **brand**: Marka sesi, tagline, görsel brief
+- [ ] **ops**: Veri güncelleme SOP, on-call rotası, bus factor 2
+- [ ] **launch**: Waitlist, Product Hunt, ilk 30 gün planı
+- [ ] **plan**: Yatırımcı özeti (rakamlarla tek doküman)
+
 ## Kariyer platformu — YOL HARİTASI (ekleyen: Claude Code, 2026-09-05)
 
 **Uygulama sırası ve "bitti" tanımları: `.beyin/PLAN_KARIYER_YOL_HARITASI.md`.**
@@ -319,4 +345,19 @@ gerçekten güvenilir.
 - [ ] Çalışma şekli filtresi `varsayim` kayıtları varsayılan olarak dahil
       etsin ama "yalnız doğrulanmış" seçeneği bulunsun.
 - Kaynak: `kariyer_scraper.py` `_calisma_sekli_kaynak` (satır ~365).
+
+## Skill Analizi — Marketing + Founder + ECC (opencode, 2026-10-24)
+- **Marketing** yüklendi: `launch/`, `aso/`, `copywriting/`, `programmatic-seo/` — lansman/ASO/SEO sayfası hazırlığı için
+- **Founder** yüklendi: 11 adımlık pipeline (board→competitors→consumer→pricing→offer→cfo→marketing→brand→ops→launch→plan) — iş modeli validasyonu için
+- **ECC** arandı: ilgili skill'ler tanımlandı:
+  - `agent-architecture-audit` (153) — RAG/ajan stack derin denetimi
+  - `iterative-retrieval` (43) — context sorunu için
+  - `context-budget` (110) — token/context yönetimi
+  - `security-review` (83) + `agent-security-hardening` (60) — prod hardening
+  - `fastapi-patterns` (67) + `python-patterns` (72) — kod kalitesi
+  - `knowledge-ops` (36) — veri/ingestion yönetimi
+  - `investor-materials` (89) + `investor-outreach` (58) — yatırımcı dokümanları
+  - `marketing-campaign` (58) — uçtan uca kampanya planı
+- **Yerel öncelik** uygulandı: marketing/founder ECC yerine yerel paketler kullanıldı
+- **Karar bekleniyor:** Hangi validation/launch/aditi yönünde devam edilecek?
 

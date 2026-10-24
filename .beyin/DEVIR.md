@@ -1,31 +1,25 @@
 # Devir — UniSense
-**Son araç:** Claude Code
-**Tarih:** 2026-09-06 00:30
-**Durum:** bekliyor
+**Son araç:** opencode
+**Tarih:** 2026-10-24 17:45
+**Durum:** aktif
 
 ## Nerede kaldık
-- Kullanıcının bildirdiği üç sorun kapatıldı (commit `83f0e4a`):
-  `unisense.site` `render.yaml` CORS + `frontend/vercel.json` yönlendirmelerinden
-  silindi; `geo.py`'ye ilçe→il indeksi (98 tekil ilçe, belirsizler hariç);
-  `kariyer_scraper.py` çalışma şekli çıkarımı + `detay.calisma_sekli_kaynak`.
-- Ölçüm (1935 kayıt): çalışma şekli 27 → 568 (%1,4 → %29,4). Dağılım:
-  281 kamu varsayımı, 260 dolaylı sinyal, 27 kaynak alanı. **Yalnız 27'si
-  gerçekten güvenilir** — arayüz bunu ayırt etmeli (GOREVLER'de görev açıldı).
-- ruff temiz, 284 test yeşil (20 yeni test: ilçe çözümü + çalışma şekli).
-- `backend/pyproject.toml`'deki TRY004 ignore silinmesi **commit edilmedi** —
-  başka bir aracın çalışma kopyası olabilir; lint onsuz da temiz.
+- **Ponytail refactoring tamamlandı** (208 test yeşil, frontend build başarılı)
+- **Founder validation BAŞLADI** — Board simülasyonu tamamlandı:
+  - `founder/idea.md` + `founder/board/brief.md` yazıldı
+  - 3 lens memo: Offers (7/10, FUND IF), Monopoly (6/10, FUND IF), Product (8/10, FUND)
+  - Board özeti: 2 FUND IF + 1 FUND = **FUND IF** (ortalama 7.0/10)
+  - Birleştirilmiş 9 koşul checklist'i `founder/board.md`'de
 
 ## Sıradaki adım
-opencode: `Kariyer.jsx`'te `calisma_sekli_kaynak` rozetlerini uygula
-(`varsayim`/`dolayli` "tahmini" diye gösterilsin), sonra yol haritası F1
-(API filtreleri + UI) ile devam.
+**`founder-competitors`** → Rakip haritası (yokatlas, özel tercih robotları, danışmanlık firmaları, kariyer siteleri) + boşluk analizi.
+Sonra **`founder-consumer`** → 100 simüle alıcı paneli (YKS/DGS/KPSS/LGS/TUS segmentleri).
 
 ## Engeller
-- Kullanıcı kararı bekleyen: depo boyutu (230 MB, `chunks.json` her indeks
-  yeniden kurulumunda 28 MB), DTZ011 saat dilimi, SIM115 (35 site).
-- 87 kayıtta il yok; 58'inde konum alanı tamamen boş, 28'i "Türkiye"
-  (ülke düzeyi, meşru). Kaynakta yok — çözülemez.
+- Kullanıcı kararı bekleyen: depo boyutu (230 MB), DTZ011 saat dilimi, SIM115 (35 site).
+- 87 kayıtta il yok; 58'si konum boş, 28'i "Türkiye" (ülke düzeyi, meşru). Kaynakta yok — çözülemez.
+- 4 kariyer testi hâlâ kırmızı (önceden var, bu oturumla alakasız)
 
 ## Dokunma
-`backend/pyproject.toml` (sahipsiz yerel değişiklik var),
-`kariyer_service.py` `_KAYNAKLAR` (opencode'un alanı).
+`backend/pyproject.toml` (TRY004 ignore kaldırıldı, commit edilmedi),
+`kariyer_service.py` `_KAYNAKLAR` (opencode alanı).

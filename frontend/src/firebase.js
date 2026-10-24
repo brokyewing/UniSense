@@ -713,43 +713,76 @@ export function getAuthProvider(user) {
   return providers[0] || 'unknown'
 }
 
-// === TERCIH LISTESI ===
+// === TERCIH LISTESI (jenerik helper + spesifik wrapper'lar) ===
 
-export function watchTercihList(uid, callback) {
+/**
+ * Jenerik watch: subcollection'ı orderBy('order') ile dinler.
+ * limit varsa uygular; yoksa (tus/dus/lgs) limit koymaz — MAX üstü kalıcı görünmez/silinemez olmasın.
+ */
+function _watchTercih(uid, sub, maxLimit, callback) {
   if (!db) return () => {}
   const q = query(
-    collection(db, 'users', uid, 'tercih'),
+    collection(db, 'users', uid, sub),
     orderBy('order', 'asc'),
-    limit(24)
+    ...(maxLimit ? [limit(maxLimit)] : [])
   )
   return onSnapshot(q, (snap) => {
     callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
   })
 }
 
-export async function addToTercih(uid, dept, order) {
+/** Jenerik add: codeKey ile doküman ID belirler, dataMapper ile veri şekillendirir. */
+async function _addToTercih(uid, sub, item, order, codeKey, dataMapper) {
   if (!db) throw new Error('Firebase yok')
-  const code = String(dept.department_code || dept.code)
-  await setDoc(doc(db, 'users', uid, 'tercih', code), {
-    department_code: code,
-    department_name: dept.department_name || dept.name,
-    university_code: dept.university_code,
-    university_name: dept.university_name || dept.universityName,
-    city: dept.city || '',
-    score_type: dept.score_type || dept.scoreType || null,
-    last_year_base_rank: dept.last_year_base_rank ?? null,
-    last_year_base_score: dept.last_year_base_score ?? null,
-    quota: dept.quota ?? null,
-    fit_score: dept.fit_score ?? null,
-    safety_level: dept.safety_level || null,
+  const code = String(item[codeKey] || item.code)
+  await setDoc(doc(db, 'users', uid, sub, code), {
+    ...dataMapper(item),
+    [codeKey]: code,
     order,
     addedAt: serverTimestamp(),
   })
 }
 
-export async function removeFromTercih(uid, code) {
+/** Jenerik remove. */
+async function _removeFromTercih(uid, sub, code) {
   if (!db) throw new Error('Firebase yok')
-  await deleteDoc(doc(db, 'users', uid, 'tercih', String(code)))
+  await deleteDoc(doc(db, 'users', uid, sub, String(code)))
+}
+
+/** Jenerik reorder (batch). */
+async function _reorderTercih(uid, sub, orderedItems) {
+  if (!db) throw new Error('Firebase yok')
+  if (!Array.isArray(orderedItems) || orderedItems.length === 0) return
+  const batch = writeBatch(db)
+  orderedItems.forEach((item, idx) => {
+    const ref = doc(db, 'users', uid, sub, String(item.id || item.kod || item.code || item.kadro_kodu))
+    batch.update(ref, { order: idx + 1 })
+  })
+  await batch.commit()
+}
+
+/** YKS TERCİH LİSTESİ (tercih) — max 24 */
+export function watchTercihList(uid, callback) {
+  return _watchTercih(uid, 'tercih', 24, callback)
+}
+
+export async function addToTercih(uid, dept, order) {
+  return _addToTercih(uid, 'tercih', dept, order, 'department_code', (d) => ({
+    department_name: d.department_name || d.name,
+    university_code: d.university_code,
+    university_name: d.university_name || d.universityName,
+    city: d.city || '',
+    score_type: d.score_type || d.scoreType || null,
+    last_year_base_rank: d.last_year_base_rank ?? null,
+    last_year_base_score: d.last_year_base_score ?? null,
+    quota: d.quota ?? null,
+    fit_score: d.fit_score ?? null,
+    safety_level: d.safety_level || null,
+  }))
+}
+
+export async function removeFromTercih(uid, code) {
+  return _removeFromTercih(uid, 'tercih', code)
 }
 
 /**
@@ -771,14 +804,7 @@ export async function updateTercihNote(uid, code, note) {
  * @param {Array<{id: string}>} orderedItems - yeni sıraya göre item array'i
  */
 export async function reorderTercihList(uid, orderedItems) {
-  if (!db) throw new Error('Firebase yok')
-  if (!Array.isArray(orderedItems) || orderedItems.length === 0) return
-  const batch = writeBatch(db)
-  orderedItems.forEach((item, idx) => {
-    const ref = doc(db, 'users', uid, 'tercih', String(item.id))
-    batch.update(ref, { order: idx + 1 })
-  })
-  await batch.commit()
+  return _reorderTercih(uid, 'tercih', orderedItems)
 }
 
 /**
@@ -791,7 +817,6 @@ export async function backfillTercihList(uid, codeToData) {
   const batch = writeBatch(db)
   for (const [code, data] of Object.entries(codeToData)) {
     const ref = doc(db, 'users', uid, 'tercih', String(code))
-    // sadece null/eksik olabilecek alanları yazıyoruz
     const patch = {}
     if (data.last_year_base_rank != null) patch.last_year_base_rank = data.last_year_base_rank
     if (data.last_year_base_score != null) patch.last_year_base_score = data.last_year_base_score
@@ -812,56 +837,30 @@ export async function backfillTercihList(uid, codeToData) {
 export const MAX_KPSS_TERCIH = 30
 
 export function watchKpssTercih(uid, callback) {
-  if (!db) return () => {}
-  const q = query(
-    collection(db, 'users', uid, 'kpss_tercih'),
-    orderBy('order', 'asc'),
-    limit(MAX_KPSS_TERCIH)
-  )
-  return onSnapshot(q, (snap) => {
-    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
-  })
+  return _watchTercih(uid, 'kpss_tercih', MAX_KPSS_TERCIH, callback)
 }
 
 export async function addToKpssTercih(uid, kadro, order) {
-  if (!db) throw new Error('Firebase yok')
-  const code = String(kadro.kadro_kodu)
-  await setDoc(doc(db, 'users', uid, 'kpss_tercih', code), {
-    kadro_kodu: code,
-    kurum: kadro.kurum || '',
-    unvan: kadro.unvan || '',
-    il: kadro.il || '',
-    duzey: kadro.duzey || '',
-    puan_turu: kadro.puan_turu || '',
-    kontenjan: kadro.kontenjan ?? null,
-    gecmis_taban: kadro.gecmis_taban ?? null,
-    // Eşleşme + özel koşullar (⚠️) tercih listesinde de gösterilsin (BULGU #24)
-    eslesme: kadro.eslesme || '',
-    ozel_kosullar: Array.isArray(kadro.ozel_kosullar) ? kadro.ozel_kosullar.slice(0, 3) : [],
-    order,
-    addedAt: serverTimestamp(),
-  })
+  return _addToTercih(uid, 'kpss_tercih', kadro, order, 'kadro_kodu', (k) => ({
+    kurum: k.kurum || '',
+    unvan: k.unvan || '',
+    il: k.il || '',
+    duzey: k.duzey || '',
+    puan_turu: k.puan_turu || '',
+    kontenjan: k.kontenjan ?? null,
+    gecmis_taban: k.gecmis_taban ?? null,
+    eslesme: k.eslesme || '',
+    ozel_kosullar: Array.isArray(k.ozel_kosullar) ? k.ozel_kosullar.slice(0, 3) : [],
+  }))
 }
 
 export async function removeFromKpssTercih(uid, code) {
-  if (!db) throw new Error('Firebase yok')
-  await deleteDoc(doc(db, 'users', uid, 'kpss_tercih', String(code)))
+  return _removeFromTercih(uid, 'kpss_tercih', code)
 }
 
 /** KPSS/DGS/TUS/DUS/LGS tercih listelerini yeni sıraya göre topluca numarala. */
 export async function reorderSubcollection(uid, sub, orderedIds) {
-  if (!db || !Array.isArray(orderedIds) || orderedIds.length === 0) return
-  const batch = writeBatch(db)
-  orderedIds.forEach((id, idx) => {
-    batch.update(doc(db, 'users', uid, sub, String(id)), { order: idx + 1 })
-  })
-  try {
-    await batch.commit()
-  } catch (e) {
-    // Eşzamanlı silmede batch komple reddedilir — sessiz kalmasın; UI zaten
-    // onSnapshot'la gerçek duruma döner, kalıcı hasar yok.
-    console.warn(`reorder ${sub} başarısız (eşzamanlı değişiklik olabilir):`, e?.message)
-  }
+  return _reorderTercih(uid, sub, orderedIds)
 }
 
 // === DGS TERCIH LISTESI (üçüncü ayrı alan; DGS merkezi yerleştirmede 30 tercih) ===
@@ -869,36 +868,22 @@ export async function reorderSubcollection(uid, sub, orderedIds) {
 export const MAX_DGS_TERCIH = 30
 
 export function watchDgsTercih(uid, callback) {
-  if (!db) return () => {}
-  const q = query(
-    collection(db, 'users', uid, 'dgs_tercih'),
-    orderBy('order', 'asc'),
-    limit(MAX_DGS_TERCIH)
-  )
-  return onSnapshot(q, (snap) => {
-    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
-  })
+  return _watchTercih(uid, 'dgs_tercih', MAX_DGS_TERCIH, callback)
 }
 
 export async function addToDgsTercih(uid, prog, order) {
-  if (!db) throw new Error('Firebase yok')
-  const code = String(prog.department_code)
-  await setDoc(doc(db, 'users', uid, 'dgs_tercih', code), {
-    department_code: code,
-    program_adi: prog.program_adi || '',
-    university_name: prog.university_name || '',
-    city: prog.city || '',
-    puan_turu: prog.puan_turu || '',
-    kontenjan: prog.kontenjan ?? null,
-    min_puan: prog.min_puan ?? null,
-    order,
-    addedAt: serverTimestamp(),
-  })
+  return _addToTercih(uid, 'dgs_tercih', prog, order, 'department_code', (p) => ({
+    program_adi: p.program_adi || '',
+    university_name: p.university_name || '',
+    city: p.city || '',
+    puan_turu: p.puan_turu || '',
+    kontenjan: p.kontenjan ?? null,
+    min_puan: p.min_puan ?? null,
+  }))
 }
 
 export async function removeFromDgsTercih(uid, code) {
-  if (!db) throw new Error('Firebase yok')
-  await deleteDoc(doc(db, 'users', uid, 'dgs_tercih', String(code)))
+  return _removeFromTercih(uid, 'dgs_tercih', code)
 }
 
 // === TUS/DUS UZMANLIK TERCIH LISTESI (tus_tercih / dus_tercih — ayrı koleksiyonlar) ===
@@ -910,39 +895,23 @@ export const MAX_TUS_TERCIH = 30
 const _uzmanlikSub = (sinav) => (sinav === 'DUS' ? 'dus_tercih' : 'tus_tercih')
 
 export function watchUzmanlikTercih(uid, sinav, callback) {
-  if (!db) return () => {}
-  // limit() BİLEREK yok: sorgu limitli olursa MAX üstüne taşan doküman
-  // (ör. eski bir yarış durumundan) kalıcı görünmez ve silinemez olur.
-  // Ekleme zaten client'ta MAX ile kapatılıyor.
-  const q = query(
-    collection(db, 'users', uid, _uzmanlikSub(sinav)),
-    orderBy('order', 'asc')
-  )
-  return onSnapshot(q, (snap) => {
-    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
-  })
+  return _watchTercih(uid, _uzmanlikSub(sinav), null, callback)
 }
 
 export async function addToUzmanlikTercih(uid, sinav, prog, order) {
-  if (!db) throw new Error('Firebase yok')
-  const code = String(prog.kod)
-  await setDoc(doc(db, 'users', uid, _uzmanlikSub(sinav), code), {
-    kod: code,
-    dal: prog.dal || '',
-    kurum: prog.kurum || '',
-    kontenjan_turu: prog.kontenjan_turu || '',
-    min_puan: prog.min_puan ?? null,
-    max_puan: prog.max_puan ?? null,
-    kontenjan: prog.kontenjan ?? null,
-    yerlesen: prog.yerlesen ?? null,
-    order,
-    addedAt: serverTimestamp(),
-  })
+  return _addToTercih(uid, _uzmanlikSub(sinav), prog, order, 'kod', (p) => ({
+    dal: p.dal || '',
+    kurum: p.kurum || '',
+    kontenjan_turu: p.kontenjan_turu || '',
+    min_puan: p.min_puan ?? null,
+    max_puan: p.max_puan ?? null,
+    kontenjan: p.kontenjan ?? null,
+    yerlesen: p.yerlesen ?? null,
+  }))
 }
 
 export async function removeFromUzmanlikTercih(uid, sinav, code) {
-  if (!db) throw new Error('Firebase yok')
-  await deleteDoc(doc(db, 'users', uid, _uzmanlikSub(sinav), String(code)))
+  return _removeFromTercih(uid, _uzmanlikSub(sinav), code)
 }
 
 // === LGS LISE TERCIH LISTESI (lgs_tercih) ===
@@ -951,10 +920,6 @@ export async function removeFromUzmanlikTercih(uid, sinav, code) {
 export const MAX_LGS_TERCIH = 25
 
 export function lgsTercihKey(lise) {
-  // yuzdelik anahtara DAHİL: veride aynı okul+ilçe+dil'e sahip farklı program
-  // satırları var (kaynak alan/dal sütununu ayrıştırmıyor) — yüzdelik olmadan
-  // iki farklı program tek Firestore dokümanına düşüyor ve kartlar birbirine
-  // bağlanıyordu (birini ekleyince ikisi de "Listede" görünüyordu).
   const raw = `${lise.okul || ''}-${lise.ilce || ''}-${lise.dil || ''}-${lise.yuzdelik ?? ''}`
   return raw
     .replace(/İ/g, 'i').replace(/I/g, 'i').toLowerCase()
@@ -964,37 +929,23 @@ export function lgsTercihKey(lise) {
 }
 
 export function watchLgsTercih(uid, callback) {
-  if (!db) return () => {}
-  // limit() bilerek yok — bkz. watchUzmanlikTercih notu
-  const q = query(
-    collection(db, 'users', uid, 'lgs_tercih'),
-    orderBy('order', 'asc')
-  )
-  return onSnapshot(q, (snap) => {
-    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
-  })
+  return _watchTercih(uid, 'lgs_tercih', null, callback)
 }
 
 export async function addToLgsTercih(uid, lise, order) {
-  if (!db) throw new Error('Firebase yok')
-  const key = lgsTercihKey(lise)
-  await setDoc(doc(db, 'users', uid, 'lgs_tercih', key), {
-    okul: lise.okul || '',
-    il: lise.il || '',
-    ilce: lise.ilce || '',
-    tur: lise.tur || '',
-    dil: lise.dil || '',
-    yuzdelik: lise.yuzdelik ?? null,
-    taban_puan: lise.taban_puan ?? null,
-    kontenjan: lise.kontenjan ?? null,
-    order,
-    addedAt: serverTimestamp(),
-  })
+  return _addToTercih(uid, 'lgs_tercih', lise, order, 'okul', (l) => ({
+    il: l.il || '',
+    ilce: l.ilce || '',
+    tur: l.tur || '',
+    dil: l.dil || '',
+    yuzdelik: l.yuzdelik ?? null,
+    taban_puan: l.taban_puan ?? null,
+    kontenjan: l.kontenjan ?? null,
+  }))
 }
 
 export async function removeFromLgsTercih(uid, key) {
-  if (!db) throw new Error('Firebase yok')
-  await deleteDoc(doc(db, 'users', uid, 'lgs_tercih', String(key)))
+  return _removeFromTercih(uid, 'lgs_tercih', key)
 }
 
 // === QUERY HISTORY (basit log) ===

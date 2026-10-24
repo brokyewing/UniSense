@@ -18,7 +18,7 @@ from pathlib import Path
 import chromadb
 
 from unisense.core.config import get_settings
-from unisense.infrastructure.embeddings import embed_texts
+from unisense.infrastructure.embeddings_local import embed_texts_local as embed_texts
 
 if sys.platform == "win32":
     import io as _io

@@ -1,0 +1,39 @@
+{
+  "business": "UniSense Pro — Türkiye üniversite tercih asistanı (RAG + resmi veri + sigmoid + garantili)",
+  "unit": "kullanıcı/ay (aylık abonelik)",
+  "price": 39,
+  "currency": "TRY",
+  "variable": [
+    {"label": "Gemini API (RAG sorgusu/kullanıcı/ay)", "cost": 0.50},
+    {"label": "Firebase (Auth + Firestore + Storage)", "cost": 0.30},
+    {"label": "Render (Backend hosting, pay-as-you-go)", "cost": 1.20},
+    {"label": "Vercel (Frontend hosting, Pro plan paylaşımlı)", "cost": 0.50},
+    {"label": "Jooble/Careerjet API (Kariyer bonusu, premium)", "cost": 2.00},
+    {"label": "Payment gateway (İyzico/Stripe, %2.9 + 0.50 TL)", "cost": 1.63},
+    {"label": "SendGrid/Email + Twilio/SMS (Hatırlatıcı)", "cost": 0.80}
+  ],
+  "fixed_monthly": [
+    {"label": "Geliştirici maaş (part-time, 0.5 FTE)", "cost": 15000},
+    {"label": "Render (Backend, Starter plan)", "cost": 210},
+    {"label": "Vercel (Pro plan, paylaşımlı)", "cost": 20},
+    {"label": "Firebase (Spark plan - ücretsiz, quota içinde)", "cost": 0},
+    {"label": "Gemini API (Free tier quota içinde)", "cost": 0},
+    {"label": "Domain/SSL (unisense.com.tr)", "cost": 15},
+    {"label": "Monitoring (Sentry/UptimeRobot)", "cost": 30},
+    {"label": "Hesapçı/Muhasebe/Yasal", "cost": 500}
+  ],
+  "startup": [
+    {"label": "Geliştirme süresi (3 ay, 0.5 FTE)", "cost": 45000},
+    {"label": "Veri pipeline kurulumu (scraper + embed + ChromaDB)", "cost": 5000},
+    {"label": "PWA/QR/Video rehber geliştirme", "cost": 3000},
+    {"label": "Premium feature flag sistemi", "cost": 2000},
+    {"label": "Lansman reklamları (Google Ads YKS sezonu)", "cost": 10000},
+    {"label": "Tasarım/Logo/Brand (UI kit)", "cost": 5000},
+    {"label": "Hukuki/KVKK/Gizlilik politikası hazırlığı", "cost": 3000},
+    {"label": "Product Hunt / Lansman malzemeleri", "cost": 2000}
+  ],
+  "days_per_month": 30,
+  "capacity_per_day": 10000,
+  "plan_per_day": 50,
+  "ramp_per_day": [5, 15, 25, 40, 55, 70, 85, 100, 120, 150, 200, 300]
+}
