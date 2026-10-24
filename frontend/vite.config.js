@@ -1,7 +1,13 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import react from '@vitejs/plugin-react-swc'
+import path from 'path'
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
   plugins: [react()],
   server: {
     port: 5174,
@@ -18,7 +24,6 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       output: {
-        // Büyük kütüphaneleri ayrı chunk'lara böl — ilk paint hızlansın, cache verimli olsun
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'three-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
@@ -32,5 +37,6 @@ export default defineConfig({
         },
       },
     },
+    esbuild: false,
   },
 })

@@ -1,27 +1,32 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Send, Loader2, BookOpen, ExternalLink, Sparkles, Bot, User,
   TrendingUp, Building2, MapPin, GraduationCap, Menu,
   ChevronDown, ChevronUp, Compass, Plus, Check, Hash,
+  ShieldCheck, Target, Mountain, CreditCard, Crown,
 } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import ChatSidebar from '../components/ChatSidebar'
 import { useAuth } from '../contexts/AuthContext'
 import {
-  createSession, addSessionMessage, watchSessionMessages,
-  updateSessionTitle, MAX_SESSIONS_PER_USER,
-  addToTercih, watchTercihList,
-  getUserProfile,
-} from '../firebase'
-import { apiFetch } from '../lib/api'
+  useTercihList, useSessionMessages, useToast,
+} from '@/services/hooks'
+import {
+  createSession, addSessionMessage, updateSessionTitle,
+} from '@/services/firestore-push'
+import { getUserProfile } from '@/services/firestore-core'
+import { api } from '@/services/api'
 import { eksikKonular } from '../lib/konu'
+import { TERCIH_LIMITS, MAX_SESSIONS_PER_USER } from '@/services/constants'
+
+// --- UI Components ---
 
 function Avatar({ kind, photoURL }) {
   if (kind === 'user') {
     return photoURL ? (
-      <img src={photoURL} alt="" className="w-9 h-9 shrink-0 rounded-full" />
+      <img src={photoURL} alt="" className="w-9 h-9 shrink-0 rounded-full ring-2 ring-white/10" />
     ) : (
       <div className="w-9 h-9 shrink-0 rounded-full bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center shadow-lg">
         <User size={16} className="text-slate-200" />
@@ -35,12 +40,26 @@ function Avatar({ kind, photoURL }) {
   )
 }
 
+function SafetyBadge({ level }) {
+  const config = {
+    safe: { label: 'Güvenli', icon: ShieldCheck, color: 'from-emerald-500 to-emerald-700', bg: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' },
+    target: { label: 'Hedef', icon: Target, color: 'from-amber-500 to-orange-600', bg: 'bg-amber-500/15 text-amber-300 border-amber-500/30' },
+    reach: { label: 'Üst Seviye', icon: Mountain, color: 'from-rose-500 to-fuchsia-600', bg: 'bg-rose-500/15 text-rose-300 border-rose-500/30' },
+  }
+  const c = config[level] || config.target
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${c.bg} border`}>
+      <c.icon size={9} /> {c.label}
+    </span>
+  )
+}
+
 function Message({ msg, userPhoto, tercihIds, onAddToTercih, onAddToPusula, onBulkAddCodes, busyCode }) {
   const isUser = msg.role === 'user'
   const [sourcesOpen, setSourcesOpen] = useState(false)
   const hasDocs = !isUser && msg.docs && msg.docs.length > 0
 
-  // Cevaptan ÖSYM kodlarını parse et — [101410163] veya 101410163 formatında
+  // Cevaptan ÖSYM kodlarını parse et
   const codesInText = !isUser && msg.text ? Array.from(new Set(
     [...(msg.text.matchAll(/\b(\d{9})\b/g))].map(m => m[1])
   )) : []
@@ -152,6 +171,9 @@ function DocCard({ doc, isInTercih, onAddToTercih, onAddToPusula, busyCode }) {
   const isProgram = !!doc.department_code
   const code = String(doc.department_code || '')
   const busy = busyCode === code
+  const safety = doc.safety_level || (doc.placement_probability != null
+    ? doc.placement_probability >= 0.75 ? 'safe' : doc.placement_probability >= 0.4 ? 'target' : 'reach'
+    : null)
 
   return (
     <div className="group p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/5 hover:border-accent-500/30 transition-all">
@@ -195,6 +217,7 @@ function DocCard({ doc, isInTercih, onAddToTercih, onAddToPusula, busyCode }) {
               {doc.quota != null && (
                 <span className="text-slate-500">{doc.quota} kontenjan</span>
               )}
+              {safety && <SafetyBadge level={safety} />}
             </div>
           )}
         </div>
@@ -261,6 +284,38 @@ function DocCard({ doc, isInTercih, onAddToTercih, onAddToPusula, busyCode }) {
   )
 }
 
+// --- Premium/Upsell Banner Component ---
+
+function PremiumBanner({ onUpgrade }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="relative overflow-hidden rounded-2xl p-5 mb-4 bg-gradient-to-r from-amber-500/20 via-orange-500/10 to-rose-500/20 border border-amber-500/30"
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 to-transparent animate-shimmer" />
+      <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/30">
+            <Crown size={20} className="text-white" />
+          </div>
+          <div>
+            <h3 className="font-display font-bold text-white text-lg">UniSense Pro</h3>
+            <p className="text-sm text-slate-300 mt-1">Sınırsız sorgu, gelişmiş filtreler, öncelikli destek ve daha fazlası</p>
+          </div>
+        </div>
+        <button
+          onClick={onUpgrade}
+          className="shrink-0 px-5 py-2.5 rounded-xl font-semibold text-sm bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-lg hover:shadow-amber-500/40 transition-all disabled:opacity-40 flex items-center gap-2"
+        >
+          <CreditCard size={14} /> Pro'ya Yükselt
+        </button>
+      </div>
+    </motion.div>
+  )
+}
+
+// --- Main Search Component ---
 
 export default function Search() {
   const [params, setParams] = useSearchParams()
@@ -269,55 +324,48 @@ export default function Search() {
   const [loading, setLoading] = useState(false)
   const [activeSessionId, setActiveSessionId] = useState(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [tercihIds, setTercihIds] = useState(new Set())
   const [busyCode, setBusyCode] = useState(null)
-  const [pusulaToast, setPusulaToast] = useState(null)
-  const [tercihToast, setTercihToast] = useState(null)
+  const [showUpgrade, setShowUpgrade] = useState(false)
   const endRef = useRef(null)
   const { user, isAuthed } = useAuth()
-  const [examCtx, setExamCtx] = useState(null)  // profildeki KPSS/DGS puanları
+  const [examCtx, setExamCtx] = useState(null)
 
-  // Profildeki sınav puanları — "kpss ile nereye atanırım" tarzı sorularda
-  // puan yazmaya gerek kalmaz, backend profildekini kullanır
+  // Hooks
+  const { tercihIds, busyCode: hookBusyCode, setBusyCode: setHookBusyCode } = useTercihList()
+  const { messages: sessionMessages, loading: sessionLoading } = useSessionMessages(activeSessionId)
+  const { show: showToast, dismiss } = useToast()
+
+  // Sync busyCode from hook
+  useEffect(() => {
+    if (hookBusyCode !== busyCode) setBusyCode(hookBusyCode)
+  }, [hookBusyCode])
+
+  // Profildeki sınav puanları — user_context için
   useEffect(() => {
     if (!user) { setExamCtx(null); return }
     getUserProfile(user.uid).then(async (p) => {
       const prof = p?.profile || {}
       const ctx = {}
       if (prof.examTrack) ctx.exam_track = prof.examTrack
-      // YKS puanı/sırası — "puanıma göre X kazanabilir miyim" tarzı sorularda
-      // backend profildekini kullanır, kullanıcı tekrar yazmak zorunda kalmaz
-      if (prof.score) {
-        ctx.yks_puan = prof.score
-        if (prof.scoreType) ctx.yks_turu = prof.scoreType
-      }
+      if (prof.score) { ctx.yks_puan = prof.score; if (prof.scoreType) ctx.yks_turu = prof.scoreType }
       if (prof.rank) ctx.yks_sira = prof.rank
-      if (prof.kpss?.score) {
-        ctx.kpss_puan = prof.kpss.score
-        if (prof.kpss.duzey) ctx.kpss_duzey = prof.kpss.duzey
-      }
-      if (prof.dgs?.score) {
-        ctx.dgs_puan = prof.dgs.score
-        if (prof.dgs.type) ctx.dgs_turu = prof.dgs.type
-      }
-      // Tüm sınav profili → bot her sohbette kullanıcının tüm bilgilerine erişir
+      if (prof.kpss?.score) { ctx.kpss_puan = prof.kpss.score; if (prof.kpss.duzey) ctx.kpss_duzey = prof.kpss.duzey }
+      if (prof.dgs?.score) { ctx.dgs_puan = prof.dgs.score; if (prof.dgs.type) ctx.dgs_turu = prof.dgs.type }
       if (prof.tus?.score) ctx.tus_puan = prof.tus.score
       if (prof.dus?.score) ctx.dus_puan = prof.dus.score
       if (prof.lgs?.yuzdelik != null) ctx.lgs_yuzdelik = prof.lgs.yuzdelik
       if (prof.ags?.net != null) ctx.ags_net = prof.ags.net
       if (prof.preferredCities?.length) ctx.tercih_sehirler = prof.preferredCities.slice(0, 10)
-      if (prof.preferredUniType && prof.preferredUniType !== 'all') {
-        ctx.tercih_uni_turu = prof.preferredUniType
-      }
-      // Çalışma ilerlemesi → AI "bana X günde plan yap" sorularında gerçek veriye dayanır
+      if (prof.preferredUniType && prof.preferredUniType !== 'all') ctx.tercih_uni_turu = prof.preferredUniType
+      // Çalışma ilerlemesi
       const track = prof.examTrack
       if (track && ['YKS', 'DGS', 'KPSS', 'LGS'].includes(track)) {
         try {
           const checked = JSON.parse(localStorage.getItem('unisense_konu_v1_' + track) || '{}')
-          const konuData = await apiFetch(`/api/v1/konular?sinav=${track}`)
+          const konuData = await api.konular(track)
           const { toplam, eksik } = eksikKonular(konuData, checked)
           if (toplam) { ctx.calisma_toplam_konu = toplam; ctx.calisma_kalan_konu = eksik.length }
-        } catch { /* konu verisi alınamadı → atla */ }
+        } catch { /* konu verisi alınamadı */ }
         try {
           const m = new Map()
           for (const r of JSON.parse(localStorage.getItem('unisense_soru_' + track) || '[]')) {
@@ -333,151 +381,14 @@ export default function Search() {
     }).catch(() => {})
   }, [user])
 
-  // Tercih listesini canlı izle (Search chunk'larında "✓ Listemde" rozeti için)
+  // Sync session messages to local state
   useEffect(() => {
-    if (!user) {
-      setTercihIds(new Set())
-      return
+    if (sessionMessages.length > 0 || sessionLoading) {
+      setMessages(sessionMessages)
     }
-    const unsub = watchTercihList(user.uid, (items) => {
-      setTercihIds(new Set(items.map((i) => String(i.department_code || i.id))))
-    })
-    return unsub
-  }, [user])
+  }, [sessionMessages, sessionLoading])
 
-  // Pusulaya bölüm ekle — sessionStorage'a yansıt
-  function handleAddToPusula(doc) {
-    const groupName = doc.department_group_name || doc.department_name
-    if (!groupName) return
-    let payload
-    try {
-      const raw = sessionStorage.getItem('pusula_depts')
-      payload = raw ? JSON.parse(raw) : null
-    } catch {
-      payload = null
-    }
-    const names = new Set(payload?.names || [])
-    if (names.has(groupName)) {
-      setPusulaToast(`"${groupName}" zaten Pusulada`)
-    } else {
-      names.add(groupName)
-      const next = {
-        names: Array.from(names),
-        mode: payload?.mode || 'manual',
-        timestamp: Date.now(),
-      }
-      sessionStorage.setItem('pusula_depts', JSON.stringify(next))
-      setPusulaToast(`✓ "${groupName}" Pusulaya eklendi (${next.names.length} bölüm)`)
-    }
-    setTimeout(() => setPusulaToast(null), 3000)
-  }
-
-  async function handleBulkAddCodes(codes) {
-    if (!user) {
-      setTercihToast('Giriş yapman gerek')
-      setTimeout(() => setTercihToast(null), 2500)
-      return
-    }
-    const remaining = 24 - tercihIds.size
-    if (codes.length > remaining) {
-      setTercihToast(`${codes.length} kod var ama listede yer ${remaining}`)
-      setTimeout(() => setTercihToast(null), 2500)
-      return
-    }
-    try {
-      // Lookup ile programları çek
-      const data = await apiFetch('/api/v1/programs/lookup', {
-        method: 'POST',
-        body: { codes },
-      })
-      const found = (data.programs || []).filter((p) => p.found)
-      let nextOrder = tercihIds.size + 1
-      let added = 0, skipped = 0
-      for (const p of found) {
-        if (tercihIds.has(String(p.department_code))) {
-          skipped++
-          continue
-        }
-        try {
-          await addToTercih(user.uid, {
-            department_code: p.department_code,
-            department_name: p.department_name,
-            university_code: p.university_code,
-            university_name: p.university_name,
-            city: p.city,
-            score_type: p.score_type || null,
-            last_year_base_rank: p.last_year_base_rank ?? null,
-            last_year_base_score: p.last_year_base_score ?? null,
-            quota: p.quota ?? null,
-          }, nextOrder++)
-          added++
-        } catch {
-          skipped++
-        }
-      }
-      setTercihToast(`✓ ${added} program tercih listene eklendi${skipped > 0 ? ` (${skipped} atlandı)` : ''}`)
-    } catch (e) {
-      setTercihToast(`Hata: ${e.message || 'eklenemedi'}`)
-    } finally {
-      setTimeout(() => setTercihToast(null), 3500)
-    }
-  }
-
-  async function handleAddToTercih(doc) {
-    if (!user) {
-      setTercihToast('Giriş yapman gerek')
-      setTimeout(() => setTercihToast(null), 2500)
-      return
-    }
-    if (tercihIds.size >= 24) {
-      setTercihToast('Tercih listesi 24 dolu')
-      setTimeout(() => setTercihToast(null), 2500)
-      return
-    }
-    const code = String(doc.department_code)
-    setBusyCode(code)
-    try {
-      await addToTercih(user.uid, {
-        department_code: code,
-        department_name: doc.department_name || 'Bölüm',
-        university_code: doc.university_code,
-        university_name: doc.university_name || '',
-        city: doc.city || '',
-        score_type: doc.score_type || null,
-        last_year_base_rank: doc.last_year_base_rank ?? null,
-        last_year_base_score: doc.last_year_base_score ?? null,
-        quota: doc.quota ?? null,
-      }, tercihIds.size + 1)
-      setTercihToast(`✓ "${doc.department_name}" tercih listene eklendi`)
-    } catch (e) {
-      setTercihToast(`Hata: ${e.message || 'eklenemedi'}`)
-    } finally {
-      setBusyCode(null)
-      setTimeout(() => setTercihToast(null), 3000)
-    }
-  }
-
-  // Aktif session'ın mesajlarını gerçek zamanlı izle
-  useEffect(() => {
-    if (!user || !activeSessionId) {
-      // Session yoksa, mevcut local mesajları temizleme — yeni sohbet için sıfırlanmaz
-      return
-    }
-    const unsub = watchSessionMessages(user.uid, activeSessionId, (firestoreMsgs) => {
-      // Firestore'dan gelen mesajları frontend formatına çevir
-      const converted = firestoreMsgs.map((m) => ({
-        role: m.role,
-        text: m.text,
-        docs: m.docs || [],
-        latency: m.latency_ms,
-      }))
-      setMessages(converted)
-    })
-    return unsub
-  }, [user, activeSessionId])
-
-  // Sadece kullanıcı yeni mesaj attığında en alta in.
-  // Bot cevabı geldiğinde scroll YAPMA — cevap kullanıcının görüş alanında dursun.
+  // Scroll to bottom only on user message
   useEffect(() => {
     if (messages.length === 0) return
     const last = messages[messages.length - 1]
@@ -486,14 +397,13 @@ export default function Search() {
     }
   }, [messages])
 
-  // İlk yüklemede ?q parametresi varsa otomatik sor
+  // Auto-ask from URL param
   useEffect(() => {
     const q = params.get('q')
     if (q && messages.length === 0 && !activeSessionId && !loading) {
       setInput(q)
       ask(q)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function newChat() {
@@ -521,10 +431,7 @@ export default function Search() {
 
     // Kullanıcı mesajını Firestore'a yaz (varsa)
     if (sid && user) {
-      await addSessionMessage(user.uid, sid, {
-        role: 'user',
-        text,
-      }).catch((e) => console.warn('Mesaj yazılamadı:', e))
+      await addSessionMessage(user.uid, sid, { role: 'user', text }).catch((e) => console.warn('Mesaj yazılamadı:', e))
     } else {
       // Anonim kullanıcı: sadece local state
       setMessages((m) => [...m, { role: 'user', text }, { role: 'bot', loading: true }])
@@ -534,30 +441,21 @@ export default function Search() {
     setInput('')
     setParams({ q: text })
 
-    // Eğer login değilse local'a "loading" eklenmiş, login ise watchSessionMessages render edecek
-    // ama "loading" göstermek için local'a da geçici ekleyelim
     if (sid && user) {
       setMessages((m) => [...m, { role: 'bot', loading: true, _temp: true }])
     }
 
-    // Multi-turn için son 8 mesajı (~4 turn) history olarak ekle — aynı oturumda
-    // bağlam sürsün, bot eski mesajları hatırlasın. Yeni kullanıcı sorgusu HENÜZ
-    // messages'a girmemiş olabilir (logged-in için watchSessionMessages render
-    // edecek), o yüzden mevcut messages = öncesi.
+    // Multi-turn history
     const recentHistory = messages
       .filter((m) => !m._temp && !m.loading && m.text)
       .slice(-8)
       .map((m) => ({ role: m.role === 'bot' ? 'bot' : 'user', text: m.text }))
 
     try {
-      const data = await apiFetch('/api/v1/ask', {
-        method: 'POST',
-        body: {
-          query: text,
-          top_k: 12,
-          history: recentHistory,
-          ...(examCtx ? { user_context: examCtx } : {}),
-        },
+      const data = await api.ask(text, {
+        top_k: 12,
+        history: recentHistory,
+        user_context: examCtx,
       })
 
       const botMsg = {
@@ -569,17 +467,12 @@ export default function Search() {
 
       if (sid && user) {
         try {
-          // text rules sınırına (strMax 10000) kırpılır — aşan cevap yazımı reddettirmesin
           await addSessionMessage(user.uid, sid, { ...botMsg, text: String(botMsg.text).slice(0, 10000) })
-          // Loading temp'i sil — watchSessionMessages gerçek halini getirecek
           setMessages((m) => m.filter((x) => !x._temp))
-          // Session başlığını ilk mesajdan sonra güncelle
           if (messages.length === 0) {
             await updateSessionTitle(user.uid, sid, text).catch(() => {})
           }
         } catch {
-          // Kayıt başarısız (rules/offline) olsa bile ALINMIŞ cevabı ekranda göster —
-          // önceden dış catch'e düşüp yanıltıcı 'sunucuya ulaşılamadı' basılıyordu
           setMessages((m) => [
             ...m.filter((x) => !x._temp),
             { role: 'bot', text: botMsg.text, docs: botMsg.docs, latency: botMsg.latency_ms },
@@ -588,12 +481,7 @@ export default function Search() {
       } else {
         setMessages((m) => [
           ...m.slice(0, -1),
-          {
-            role: 'bot',
-            text: botMsg.text,
-            docs: botMsg.docs,
-            latency: botMsg.latency_ms,
-          },
+          { role: 'bot', text: botMsg.text, docs: botMsg.docs, latency: botMsg.latency_ms },
         ])
       }
     } catch (e) {
@@ -601,11 +489,7 @@ export default function Search() {
         ? `⚠️ ${e.message}`
         : `⚠️ Sunucuya ulaşılamadı: ${e.message}\n\nBackend ayakta mı? (port 8002)`
       if (sid && user) {
-        await addSessionMessage(user.uid, sid, {
-          role: 'bot',
-          text: errorMsg,
-          docs: [],
-        })
+        await addSessionMessage(user.uid, sid, { role: 'bot', text: errorMsg, docs: [] })
         setMessages((m) => m.filter((x) => !x._temp))
       } else {
         setMessages((m) => [
@@ -618,9 +502,99 @@ export default function Search() {
     }
   }
 
+  // Handlers using hooks
+  function handleAddToPusula(doc) {
+    const groupName = doc.department_group_name || doc.department_name
+    if (!groupName) return
+    let payload
+    try {
+      const raw = sessionStorage.getItem('pusula_depts')
+      payload = raw ? JSON.parse(raw) : null
+    } catch { payload = null }
+    const names = new Set(payload?.names || [])
+    if (names.has(groupName)) {
+      showToast(`"${groupName}" zaten Pusulada`, { type: 'info' })
+    } else {
+      names.add(groupName)
+      const next = { names: Array.from(names), mode: payload?.mode || 'manual', timestamp: Date.now() }
+      sessionStorage.setItem('pusula_depts', JSON.stringify(next))
+      showToast(`✓ "${groupName}" Pusulaya eklendi (${next.names.length} bölüm)`, { type: 'success' })
+    }
+  }
+
+  async function handleBulkAddCodes(codes) {
+    if (!user) { showToast('Giriş yapman gerek', { type: 'error' }); return }
+    const remaining = TERCIH_LIMITS.YKS - tercihIds.size
+    if (codes.length > remaining) {
+      showToast(`${codes.length} kod var ama listede yer ${remaining}`, { type: 'warning' })
+      return
+    }
+    try {
+      const data = await api.programsLookup(codes)
+      const found = (data.programs || []).filter((p) => p.found)
+      let nextOrder = tercihIds.size + 1
+      let added = 0, skipped = 0
+      for (const p of found) {
+        if (tercihIds.has(String(p.department_code))) { skipped++; continue }
+        try {
+          await import('@/services/firestore-prefs').then(m => m.addToTercih(user.uid, {
+            department_code: p.department_code,
+            department_name: p.department_name,
+            university_code: p.university_code,
+            university_name: p.university_name,
+            city: p.city,
+            score_type: p.score_type || null,
+            last_year_base_rank: p.last_year_base_rank ?? null,
+            last_year_base_score: p.last_year_base_score ?? null,
+            quota: p.quota ?? null,
+          }, nextOrder++))
+          added++
+        } catch { skipped++ }
+      }
+      showToast(`✓ ${added} program tercih listene eklendi${skipped > 0 ? ` (${skipped} atlandı)` : ''}`, { type: 'success' })
+    } catch (e) {
+      showToast(`Hata: ${e.message || 'eklenemedi'}`, { type: 'error' })
+    }
+  }
+
+  async function handleAddToTercih(doc) {
+    if (!user) { showToast('Giriş yapman gerek', { type: 'error' }); return }
+    if (tercihIds.size >= TERCIH_LIMITS.YKS) {
+      showToast('Tercih listesi 24 dolu', { type: 'warning' })
+      return
+    }
+    const code = String(doc.department_code)
+    setHookBusyCode(code)
+    try {
+      await import('@/services/firestore-prefs').then(m => m.addToTercih(user.uid, {
+        department_code: code,
+        department_name: doc.department_name || 'Bölüm',
+        university_code: doc.university_code,
+        university_name: doc.university_name || '',
+        city: doc.city || '',
+        score_type: doc.score_type || null,
+        last_year_base_rank: doc.last_year_base_rank ?? null,
+        last_year_base_score: doc.last_year_base_score ?? null,
+        quota: doc.quota ?? null,
+      }, tercihIds.size + 1))
+      showToast(`✓ "${doc.department_name}" tercih listene eklendi`, { type: 'success' })
+    } catch (e) {
+      showToast(`Hata: ${e.message || 'eklenemedi'}`, { type: 'error' })
+    } finally {
+      setHookBusyCode(null)
+    }
+  }
+
   function onSubmit(e) {
     e.preventDefault()
     ask(input)
+  }
+
+  // Upgrade modal/flow placeholder
+  function handleUpgrade() {
+    setShowUpgrade(true)
+    // TODO: Implement checkout flow
+    window.open('/hesap?upgrade=true', '_blank')
   }
 
   return (
@@ -629,7 +603,7 @@ export default function Search() {
 
       {/* Toast'lar — sağ üst */}
       <AnimatePresence>
-        {pusulaToast && (
+        {showToast && (
           <motion.div
             initial={{ opacity: 0, x: 50, y: -20 }}
             animate={{ opacity: 1, x: 0, y: 0 }}
@@ -637,45 +611,28 @@ export default function Search() {
             className="fixed top-24 right-6 z-[100] card border-emerald-500/40 bg-emerald-500/10 backdrop-blur-xl text-sm text-emerald-200 max-w-xs"
           >
             <div className="flex items-center gap-2">
-              <Compass size={14} className="text-emerald-300" />
-              {pusulaToast}
-            </div>
-          </motion.div>
-        )}
-        {tercihToast && (
-          <motion.div
-            initial={{ opacity: 0, x: 50, y: -20 }}
-            animate={{ opacity: 1, x: 0, y: 0 }}
-            exit={{ opacity: 0, x: 50 }}
-            className="fixed top-24 right-6 z-[100] card border-accent-500/40 bg-accent-500/10 backdrop-blur-xl text-sm text-accent-200 max-w-xs"
-            style={{ marginTop: pusulaToast ? '70px' : 0 }}
-          >
-            <div className="flex items-center gap-2">
-              <Plus size={14} className="text-accent-300" />
-              {tercihToast}
+              <Check size={14} className="text-emerald-300" />
+              {showToast}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="flex gap-4">
+      <div className="flex gap-4 h-[calc(100vh-80px)]">
         {/* Sidebar — sol */}
         <ChatSidebar
           activeSessionId={activeSessionId}
-          onSelectSession={(sid) => {
-            setActiveSessionId(sid)
-            setSidebarOpen(false)
-          }}
+          onSelectSession={(sid) => { setActiveSessionId(sid); setSidebarOpen(false) }}
           onNewChat={newChat}
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />
 
         {/* Ana Chat — sağ */}
-        <div className="flex-1 flex flex-col h-[calc(100vh-200px)] min-w-0">
+        <div className="flex-1 flex flex-col h-full min-w-0">
           {/* Üst bar — mobile menu */}
           {isAuthed && (
-            <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="flex items-center justify-between gap-2 mb-3 px-2">
               <button
                 onClick={() => setSidebarOpen(true)}
                 className="lg:hidden btn-ghost inline-flex items-center gap-2 text-sm"
@@ -683,6 +640,12 @@ export default function Search() {
                 <Menu size={14} />
                 Geçmiş Sohbetler
               </button>
+              {/* Pro indicator */}
+              {!user && (
+                <div className="ml-auto">
+                  <PremiumBanner onUpgrade={handleUpgrade} />
+                </div>
+              )}
             </div>
           )}
 
@@ -719,12 +682,22 @@ export default function Search() {
                     <button
                       key={q}
                       onClick={() => ask(q)}
-                      className="px-4 py-3 rounded-xl glass glass-hover text-sm text-slate-300 text-left"
+                      className="px-4 py-3 rounded-xl glass glass-hover text-sm text-slate-300 text-left hover:text-white"
                     >
                       💡 {q}
                     </button>
                   ))}
                 </div>
+                {/* Anonymous upsell */}
+                {!isAuthed && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-6 w-full max-w-md"
+                  >
+                    <PremiumBanner onUpgrade={handleUpgrade} />
+                  </motion.div>
+                )}
               </motion.div>
             )}
 
@@ -746,13 +719,13 @@ export default function Search() {
           </div>
 
           {/* Input */}
-          <form onSubmit={onSubmit} className="sticky bottom-0">
-            <div className="relative">
+          <form onSubmit={onSubmit} className="sticky bottom-0 p-2">
+            <div className="relative max-w-4xl mx-auto">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Sorunu yaz... (örn: Boğaziçi Bilgisayar taban puanı)"
-                className="input-glass pr-14 text-base"
+                className="input-glass pr-14 text-base w-full"
                 disabled={loading}
               />
               <button

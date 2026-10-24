@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { getUserProfile, updateUserProfile } from '../firebase'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Compass, Sparkles, MessageSquare, ListChecks, Loader2, Check,
@@ -9,6 +8,7 @@ import {
 } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import { apiFetch } from '../lib/api'
+import { useUserProfile } from '@/services/hooks'
 
 const MAX_SELECTIONS = 40
 const MIN_SELECTIONS = 3
@@ -67,7 +67,8 @@ function CardsMode({ onResult }) {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [savedToProfile, setSavedToProfile] = useState(false)
-  const [examTrack, setExamTrack] = useState('YKS')  // profil sınav yolu
+  const [examTrack, setExamTrack] = useState('YKS')
+  const { profile, loading: profileLoading } = useUserProfile()  // profil sınav yolu
 
   // İlgi taksonomisini yükle + login user'ın profile'ından önceki ilgileri al.
   // Taksonomi nadiren değişir → sessionStorage'dan ANINDA göster, arka planda tazele.
@@ -89,7 +90,7 @@ function CardsMode({ onResult }) {
 
     const taxoPromise = apiFetch('/api/v1/compass/interests')
     const profilePromise = user
-      ? getUserProfile(user.uid).catch(() => null)
+      ? (async () => { if (profileLoading) await new Promise(r => setTimeout(r, 100)); return profile })()
       : Promise.resolve(null)
 
     Promise.all([taxoPromise, profilePromise])
@@ -109,13 +110,13 @@ function CardsMode({ onResult }) {
         if (profileData?.profile?.examTrack) setExamTrack(profileData.profile.examTrack)
       })
       .catch((e) => {
-        if (cancelled || cached) return  // cache varsa arka plan hatasını yut
+        if (cancelled || cached) return
         console.error('[Pusula interests fetch]', e)
         setError(e.message || String(e))
       })
       .finally(() => !cancelled && setLoading(false))
     return () => { cancelled = true }
-  }, [user])
+  }, [user, profile, profileLoading])
 
   function toggle(id) {
     setSelected((prev) => {
@@ -144,7 +145,7 @@ function CardsMode({ onResult }) {
       // Login user — ilgileri profile'a kaydet (sessizce)
       if (user) {
         try {
-          await updateUserProfile(user.uid, { preferredInterests: interests })
+          await import('@/services/firestore-core').then(m => m.updateUserProfile(user.uid, { preferredInterests: interests }))
           setSavedToProfile(true)
         } catch (e) {
           console.warn('İlgiler profile kaydedilemedi:', e)

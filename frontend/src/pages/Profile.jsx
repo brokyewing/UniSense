@@ -6,15 +6,9 @@ import {
   Save, AlertCircle, Eye, EyeOff,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import {
-  PRESET_AVATARS,
-  updateUserBasicInfo,
-  updateUserProfile,
-  changePassword,
-  getUserProfile,
-  getAuthProvider,
-  getIstatistik,
-} from '../firebase'
+import { PRESET_AVATARS } from '../firebase'
+import { useUserProfile } from '@/services/hooks'
+import { getIstatistik } from '@/services/firestore-plan'
 import { hesaplaXP, seviyeBilgi, kazanilanRozetler } from '../lib/oyun'
 import BackgroundScene from '../components/three/BackgroundScene'
 
@@ -87,8 +81,8 @@ export default function Profile() {
 
 
 function SeviyeKarti({ user }) {
-  const [stats, setStats] = useState(null)
-  useEffect(() => { getIstatistik(user.uid).then(setStats).catch(() => {}) }, [user])
+  const { stats, loading: statsLoading, yukle } = useIstatistik()
+  useEffect(() => { yukle() }, [yukle])
   const xp = stats ? hesaplaXP(stats) : 0
   const sv = seviyeBilgi(xp)
   const rozet = stats ? kazanilanRozetler(stats).length : 0
@@ -184,10 +178,10 @@ function AccountTab({ user }) {
     setSaving(true)
     setMsg(null)
     try {
-      await updateUserBasicInfo(user, {
+      await import('@/services/firestore-core').then(m => m.updateUserBasicInfo(user, {
         displayName: name.trim(),
         photoURL,
-      })
+      }))
       setMsg({ type: 'success', text: 'Hesap bilgileri kaydedildi' })
     } catch (e) {
       setMsg({ type: 'error', text: e.message || 'Kayıt başarısız' })
@@ -338,7 +332,10 @@ function PasswordTab({ user }) {
   const [showPw, setShowPw] = useState(false)
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState(null)
-  const provider = getAuthProvider(user)
+  const { profile, loading: profileLoading } = useUserProfile()
+
+  // Provider'ı profilden al (fallback: getAuthProvider)
+  const provider = profile?.authProvider || 'email'
 
   if (provider === 'google') {
     return (
@@ -379,7 +376,7 @@ function PasswordTab({ user }) {
     }
     setSaving(true)
     try {
-      await changePassword(curr, pw)
+      await import('@/services/firestore-core').then(m => m.changePassword(curr, pw))
       setMsg({ type: 'success', text: 'Şifren güncellendi' })
       setCurr('')
       setPw('')
@@ -477,15 +474,15 @@ function YksTab({ user }) {
   const [scoreType, setScoreType] = useState('SAY')
   const [score, setScore] = useState('')
   const [rank, setRank] = useState('')
-  const [examTrack, setExamTrack] = useState('YKS')  // ana sınav yolu
-  const [kpssScore, setKpssScore] = useState('')  // KPSS GY-GK (Hesap'tan da dolar)
+  const [examTrack, setExamTrack] = useState('YKS')
+  const [kpssScore, setKpssScore] = useState('')
   const [kpssDuzey, setKpssDuzey] = useState('lisans')
-  const [dgsScore, setDgsScore] = useState('')    // DGS (Hesap'tan da dolar)
+  const [dgsScore, setDgsScore] = useState('')
   const [dgsType, setDgsType] = useState('SAY')
-  const [tusScore, setTusScore] = useState('')    // TUS (uzmanlık K/T puanı)
-  const [dusScore, setDusScore] = useState('')    // DUS
-  const [lgsYuzdelik, setLgsYuzdelik] = useState('')  // LGS yüzdelik dilim
-  const [agsNet, setAgsNet] = useState('')        // AGS toplam net (öğretmenlik)
+  const [tusScore, setTusScore] = useState('')
+  const [dusScore, setDusScore] = useState('')
+  const [lgsYuzdelik, setLgsYuzdelik] = useState('')
+  const [agsNet, setAgsNet] = useState('')
   const [cities, setCities] = useState('')
   const [uniType, setUniType] = useState('all')
   const [interests, setInterests] = useState([])
@@ -494,13 +491,15 @@ function YksTab({ user }) {
   const [loadError, setLoadError] = useState(false)
   const [msg, setMsg] = useState(null)
 
+  const { profile, loading: profileLoading } = useUserProfile()
+
   useEffect(() => {
     let cancelled = false
     ;(async () => {
       try {
-        const data = await getUserProfile(user.uid)
+        if (profileLoading) return
         if (cancelled) return
-        const p = data?.profile || {}
+        const p = profile?.profile || {}
         if (p.examTrack) setExamTrack(p.examTrack)
         if (p.scoreType) setScoreType(p.scoreType)
         if (p.score != null) setScore(String(p.score))
@@ -517,8 +516,6 @@ function YksTab({ user }) {
         if (p.lgs?.yuzdelik != null) setLgsYuzdelik(String(p.lgs.yuzdelik))
         if (p.ags?.net != null) setAgsNet(String(p.ags.net))
       } catch (e) {
-        // Yükleme başarısızsa (offline/rules/App Check) formu BOŞ varsayılanlarla
-        // açıp Kaydet'e izin verirsek merge:true null'ları yazıp mevcut profili siler.
         console.warn(e)
         if (!cancelled) setLoadError(true)
       } finally {
@@ -526,7 +523,7 @@ function YksTab({ user }) {
       }
     })()
     return () => { cancelled = true }
-  }, [user.uid])
+  }, [profile, profileLoading])
 
   function removeInterest(name) {
     setInterests((prev) => prev.filter((x) => x !== name))
@@ -537,7 +534,7 @@ function YksTab({ user }) {
     setSaving(true)
     setMsg(null)
     try {
-      await updateUserProfile(user.uid, {
+      await import('@/services/firestore-core').then(m => m.updateUserProfile(user.uid, {
         examTrack,
         scoreType,
         score: score ? parseFloat(score) : null,
@@ -556,7 +553,7 @@ function YksTab({ user }) {
         dus: dusScore ? { score: parseFloat(dusScore), updatedAt: Date.now() } : null,
         lgs: lgsYuzdelik ? { yuzdelik: parseFloat(lgsYuzdelik), updatedAt: Date.now() } : null,
         ags: agsNet ? { net: parseFloat(agsNet), updatedAt: Date.now() } : null,
-      })
+      }))
       setMsg({ type: 'success', text: 'Sınav profilin kaydedildi. Tercih ve öneri sayfalarında otomatik kullanılacak.' })
     } catch (e) {
       setMsg({ type: 'error', text: e.message || 'Kayıt başarısız' })

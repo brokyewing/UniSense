@@ -2,9 +2,9 @@ import { useState, useEffect, useMemo } from 'react'
 import { CheckCircle2, Circle, ListChecks, Loader2, RotateCcw } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
-import { apiFetch } from '../lib/api'
+import { api } from '@/services/api'
 import { useAuth } from '../contexts/AuthContext'
-import { getUserProfile, watchKonuIlerleme, setKonuIlerleme, recordActivity } from '../firebase'
+import { useKonuIlerleme } from '@/services/hooks'
 import { tasimaGerekli, damgala } from '../lib/bulutTasima'
 
 // Sıra Deneme sayfasıyla AYNI olmalı (YKS·DGS·KPSS·LGS) — tutarlı sekme deneyimi
@@ -58,52 +58,44 @@ export default function Konular({ embedded = false }) {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [checked, setChecked] = useState({})
   const [userPicked, setUserPicked] = useState(false)
+
+  const { checked, loading: checkedLoading } = useKonuIlerleme(sinav)
 
   // Profildeki sınav yoluna göre varsayılan sınav (kullanıcı seçmediyse)
   useEffect(() => {
-    if (!user || userPicked) return
-    getUserProfile(user.uid).then((p) => {
+    if (!user) return
+    import('@/services/firestore-core').then(m => m.getUserProfile(user.uid)).then((p) => {
       const track = p?.profile?.examTrack
       const map = { YKS: 'YKS', KPSS: 'KPSS', DGS: 'DGS', LGS: 'LGS' }
       if (map[track]) setSinav(map[track])
     }).catch(() => {})
-  }, [user, userPicked])
+  }, [user])
 
   // Seçili sınavın konularını yükle
   useEffect(() => {
     setLoading(true)
     setError('')
-    apiFetch(`/api/v1/konular?sinav=${sinav}`)
+    api.konular(sinav)
       .then(setData)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
   }, [sinav])
 
-  // Tikleri yükle: localStorage anında + girişliyse Firestore bulut senkronu.
-  // Bulut erişilemezse (kural/App Check/offline) localStorage'a düşer — asla kırılmaz.
-  useEffect(() => {
-    const key = LS_KEY(sinav)
-    setChecked(loadChecked(sinav))
-    if (!user) return
-    return watchKonuIlerleme(user.uid, sinav, (cloud) => {
-      if (cloud == null) return // erişilemedi → localStorage kalsın
-      const local = loadChecked(sinav) // her snapshot'ta TAZE oku (bayat closure kullanma)
-      if (tasimaGerekli(key, Object.keys(cloud).length === 0, Object.keys(local).length > 0)) {
-        // Yalnız SAHİPSİZ (gerçek misafir) veri taşınır — ayna damgası re-migration'ı önler
-        setKonuIlerleme(user.uid, sinav, local).catch(() => {})
-        damgala(key, user.uid)
-        setChecked(local)
-        return
+  const bl = useMemo(() => {
+    if (!data) return []
+    if (data.gruplar) {
+      const out = []
+      for (const [grup, dersler] of Object.entries(data.gruplar)) {
+        for (const [ders, konular] of Object.entries(dersler)) {
+          out.push({ grup, ders, konular })
+        }
       }
-      setChecked(cloud)
-      saveChecked(sinav, cloud) // cihaza da yansıt
-      damgala(key, user.uid) // bu ayna artık bu kullanıcıya ait → silinen tik geri gelmez
-    })
-  }, [user, sinav])
+      return out
+    }
+    return Object.entries(data.dersler || {}).map(([ders, konular]) => ({ grup: null, ders, konular }))
+  }, [data])
 
-  const bl = useMemo(() => bloklar(data), [data])
   const toplam = useMemo(() => bl.reduce((s, b) => s + b.konular.length, 0), [bl])
   const yapilan = useMemo(
     () => bl.reduce((s, b) => s + b.konular.filter((k) => checked[`${b.grup || ''}|${b.ders}|${k}`]).length, 0),
@@ -112,22 +104,30 @@ export default function Konular({ embedded = false }) {
 
   function toggle(b, konu) {
     const key = `${b.grup || ''}|${b.ders}|${konu}`
+    // UI anında güncelle
     setChecked((prev) => {
       const next = { ...prev }
       if (next[key]) delete next[key]
       else next[key] = true
-      saveChecked(sinav, next)
-      if (user) setKonuIlerleme(user.uid, sinav, next).catch(() => {}) // bulut senkronu
-      recordActivity(user?.uid).catch(() => {}) // günlük seri (streak)
       return next
     })
+    // localStorage hemen güncelle
+    const lsKey = `unisense_konu_v1_${sinav}`
+    const nextChecked = { ...checked, [`${b.grup || ''}|${b.ders}|${konu}`]: !checked[`${b.grup || ''}|${b.ders}|${konu}`] }
+    try { localStorage.setItem(`unisense_konu_v1_${sinav}`, JSON.stringify(nextChecked)) } catch { /* noop */ }
+    // Bulut senkronu
+    if (user) {
+      import('@/services/firestore-study').then(m => m.setKonuIlerleme(user.uid, sinav, nextChecked)).catch(() => {})
+    }
   }
 
   function sifirla() {
     if (!confirm(`${sinav} işaretlerini sıfırlamak istediğine emin misin?`)) return
     setChecked({})
-    saveChecked(sinav, {})
-    if (user) setKonuIlerleme(user.uid, sinav, {}).catch(() => {})
+    try { localStorage.removeItem(`unisense_konu_v1_${sinav}`) } catch { /* noop */ }
+    if (user) {
+      import('@/services/firestore-study').then(m => m.setKonuIlerleme(user.uid, sinav, {})).catch(() => {})
+    }
   }
 
   return (
@@ -175,7 +175,15 @@ export default function Konular({ embedded = false }) {
             <div className="card !py-3">
               <div className="flex items-center justify-between mb-2">
                 <div className="text-sm font-semibold text-white">{data?.ad || sinav}</div>
-                <button onClick={sifirla} title="Bu sınavın işaretlerini sıfırla"
+                <button onClick={() => {
+                  if (!confirm(`${sinav} işaretlerini sıfırlamak istediğine emin misin?`)) return
+                  if (user) {
+                    import('@/services/firestore-study').then(m => m.setKonuIlerleme(user.uid, sinav, {})).catch(() => {})
+                  }
+                  try { localStorage.removeItem(`unisense_konu_v1_${sinav}`) } catch { /* noop */ }
+                  // checked state'i de sıfırla
+                  window.location.reload()
+                }} title="Bu sınavın işaretlerini sıfırla"
                   className="text-[11px] text-slate-400 hover:text-rose-300 inline-flex items-center gap-1">
                   <RotateCcw size={11} /> sıfırla
                 </button>

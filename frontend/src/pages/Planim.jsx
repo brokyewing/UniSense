@@ -3,12 +3,11 @@ import { useLocation, Link } from 'react-router-dom'
 import { CalendarRange, Plus, Check, Loader2, Sparkles, Wand2, Trash2, Settings2, CheckCircle2, Target } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
-import { apiFetch } from '../lib/api'
+import { api } from '@/services/api'
 import { useAuth } from '../contexts/AuthContext'
 import {
-  getPlanConfig, setPlanConfig, watchPlanGorevler, addPlanGorev, addPlanGorevler,
-  updatePlanGorev, removePlanGorev, recordActivity, getUserProfile, getKonuChecked, getSoruList,
-} from '../firebase'
+  usePlanConfig, usePlanGorevler, useKonuIlerleme, useSoruKayit, useIstatistik, usePomodoro,
+} from '@/services/hooks'
 import { tasimaGerekli, damgala } from '../lib/bulutTasima'
 import { konuLocal } from '../lib/konu'
 import {
@@ -40,8 +39,7 @@ function grupla(list) {
 const soruOzetLocal = (track) => grupla(loadJSON('unisense_soru_' + track, '[]'))
 
 const fmtGun = (iso) => {
-  try { return new Date(iso + 'T00:00:00').toLocaleDateString('tr-TR', { weekday: 'short', day: 'numeric', month: 'short' }) }
-  catch { return iso }
+  try { return new Date(iso + 'T00:00:00').toLocaleDateString('tr-TR', { weekday: 'short', day: 'numeric', month: 'short' }) } catch { return iso }
 }
 const turEtiket = (t) => (t.source === 'manual' ? { ad: 'Elle', cls: 'bg-slate-500/20 text-slate-300' }
   : t.source === 'tekrar' || t.tur === 'tekrar' ? { ad: 'Tekrar', cls: 'bg-violet-500/20 text-violet-300' }
@@ -54,18 +52,21 @@ export default function Planim({ embedded = false }) {
   const bugun = useMemo(() => isoGun(), [])
   const hafta = useMemo(() => isoHafta(new Date()), [])
 
-  const [config, setConfig] = useState(undefined) // undefined=yükleniyor, null=kurulmadı
-  const [tasks, setTasks] = useState([])
+  const { config, loading: configLoading, updateConfig } = usePlanConfig()
+  const { gorevler: tasks, loading: tasksLoading } = usePlanGorevler(hafta)
+  const track = config?.track
+  const { checked, loading: checkedLoading } = useKonuIlerleme(track)
+  const { kayitlar: soruKayit, loading: soruKayitLoading } = useSoruKayit(track)
+  const { stats, loading: statsLoading, yukle: statsYukle } = useIstatistik()
+
   const [konuData, setKonuData] = useState(null)
-  const [checked, setChecked] = useState({}) // konu ilerlemesi (bulut hidrasyonlu — Rev-4)
-  const [soruOzet, setSoruOzet] = useState([]) // çözülen soru özeti (bulut hidrasyonlu)
   const [kalanGun, setKalanGun] = useState(null)
   const [defaultTrack, setDefaultTrack] = useState('YKS')
 
   const [manuel, setManuel] = useState(loc.state?.gorev || '')
   const [toast, setToast] = useState('')
   const [ai, setAi] = useState({ loading: false, text: '', oncelik: null })
-  const [ayar, setAyar] = useState(false) // ayar panelini aç
+  const [ayar, setAyar] = useState(false)
   const [hedefMetin, setHedefMetin] = useState('')
   const [hedefAI, setHedefAI] = useState({ loading: false, text: '' })
 
@@ -75,64 +76,23 @@ export default function Planim({ embedded = false }) {
   useEffect(() => {
     let iptal = false
     ;(async () => {
-      if (!user) { setConfig(loadJSON(CFG_LS, 'null')); return }
-      getUserProfile(user.uid).then((p) => {
+      if (!user) { return }
+      import('@/services/firestore-core').then(m => m.getUserProfile(user.uid)).then((p) => {
         const tr = p?.profile?.examTrack
         if (tr && SINAVLAR.includes(tr)) setDefaultTrack(tr)
       }).catch(() => {})
-      const cloud = await getPlanConfig(user.uid)
-      if (iptal) return
-      const local = loadJSON(CFG_LS, 'null')
-      if (tasimaGerekli(CFG_LS, cloud == null, local != null)) {
-        setPlanConfig(user.uid, local).catch(() => {}); damgala(CFG_LS, user.uid); setConfig(local); return
-      }
-      damgala(CFG_LS, user.uid)
-      // ORTAK cihaz sızıntısı (Finding 2): migration yoksa YALNIZ bulutu göster — başka
-      // kullanıcının bayat local ayarına DÜŞME. Bulut yoksa kurulum akışı (null).
-      setConfig(cloud || null)
-      if (cloud) saveJSON(CFG_LS, cloud)
     })()
     return () => { iptal = true }
   }, [user])
 
   // --- Haftanın görevlerini yükle + carry-forward (girişsiz local / girişli bulut) ---
-  useEffect(() => {
-    if (!user) {
-      const local = loadJSON(WK_LS(hafta), '[]')
-      const cf = carryForward(local, bugun)
-      setTasks(cf)
-      if (JSON.stringify(cf) !== JSON.stringify(local)) saveJSON(WK_LS(hafta), cf)
-      return
-    }
-    return watchPlanGorevler(user.uid, hafta, (items) => {
-      if (items == null) { setTasks(carryForward(loadJSON(WK_LS(hafta), '[]'), bugun)); return }
-      const local = loadJSON(WK_LS(hafta), '[]')
-      // Guest→bulut migration (bir kez, sahipsiz veri): her görevi doküman olarak taşı
-      if (tasimaGerekli(WK_LS(hafta), items.length === 0, local.length > 0)) {
-        const cf = carryForward(local, bugun)
-        addPlanGorevler(user.uid, cf.map((t) => ({ ...t, hafta }))).catch(() => {})
-        damgala(WK_LS(hafta), user.uid); setTasks(cf); return
-      }
-      damgala(WK_LS(hafta), user.uid)
-      const cf = carryForward(items, bugun)
-      setTasks(cf); saveJSON(WK_LS(hafta), cf)
-      // carry-forward tarih taşıdıysa o görevleri güncelle (idempotent → snapshot döngüsü yok).
-      // moved bayrağı da yazılır (Rev-1: gecikme sinyali reload sonrası kalıcı olsun).
-      for (const t of cf) {
-        const orig = items.find((x) => x.id === t.id)
-        if (orig && orig.tarih !== t.tarih) {
-          updatePlanGorev(user.uid, t.id, { tarih: t.tarih, source: t.source, moved: true }).catch(() => {})
-        }
-      }
-    })
-  }, [user, hafta, bugun])
+  // usePlanGorevler hook'u zaten hallediyor
 
   // --- Konu listesi + geri sayım + konu/soru ilerlemesi (bulut hidrasyonu — Rev-4) ---
-  const track = config?.track
   useEffect(() => {
     if (!track) return
-    apiFetch(`/api/v1/konular?sinav=${track}`).then(setKonuData).catch(() => setKonuData(null))
-    apiFetch('/api/v1/takvim').then((d) => {
+    api.konular(track).then(setKonuData).catch(() => setKonuData(null))
+    api.takvim().then((d) => {
       const ev = (d?.yaklasan || []).find((e) => e.sinav === track && e.tur === 'sinav')
       setKalanGun(ev ? ev.kalan_gun : null)
     }).catch(() => {})
@@ -140,26 +100,16 @@ export default function Planim({ embedded = false }) {
     // /planim'e gelen, Konular/Çalışmalarım'ı bu tarayıcıda açmamış kullanıcı için).
     const yerelChecked = konuLocal(track)
     const yerelSoru = soruOzetLocal(track)
-    setChecked(yerelChecked); setSoruOzet(yerelSoru)
-    if (user) {
-      if (!Object.keys(yerelChecked).length) {
-        getKonuChecked(user.uid, track).then((c) => { if (c && Object.keys(c).length) setChecked(c) }).catch(() => {})
-      }
-      if (!yerelSoru.length) {
-        getSoruList(user.uid, track).then((l) => { if (l?.length) setSoruOzet(grupla(l)) }).catch(() => {})
-      }
-    }
-  }, [track, user])
+    // useKonuIlerleme ve useSoruKayit hook'ları zaten hallediyor
+  }, [track])
 
   // --- Kalıcılık: girişli = doküman başına Firestore op; girişsiz = local hafta dizisi ---
-  const guestSave = useCallback((next) => { setTasks(next); saveJSON(WK_LS(hafta), next) }, [hafta])
+  // usePlanGorevler ve usePlanConfig hook'ları zaten hallediyor
 
   function kur(cfg) {
     const eff = { ...VARSAYILAN, ...cfg, kuruldu: true }
-    setConfig(eff); setAyar(false)
-    if (user) setPlanConfig(user.uid, eff).catch(() => {})
-    else saveJSON(CFG_LS, eff)
-    damgala(CFG_LS, user?.uid)
+    updateConfig(eff)
+    setAyar(false)
   }
 
   // Aralıklı tekrar: bir görev İLK kez tamamlanınca sıradaki tekrarı ilgili haftaya ekle.
@@ -171,21 +121,16 @@ export default function Planim({ embedded = false }) {
     const revDate = tekrarTarihleri(bugun)[idx]
     const wk = isoHafta(new Date(revDate + 'T00:00:00'))
     const rev = { ...gorevYap({ id: `rev-${t.konu}-${idx}`, ders: t.ders, konu: t.konu, title: `${t.konu} — tekrar`, tarih: revDate, source: 'tekrar', tur: 'tekrar' }), tekrarNo: idx, hafta: wk }
-    if (user) { addPlanGorev(user.uid, rev).catch(() => {}); return }
-    const cur = loadJSON(WK_LS(wk), '[]')
-    const next = [...cur, rev]
-    saveJSON(WK_LS(wk), next)
-    if (wk === hafta) setTasks(next)
+    import('@/services/firestore-plan').then(m => m.addPlanGorev(user.uid, { ...rev, hafta })).catch(() => {})
   }
 
   function toggle(t) {
     const done = t.status !== 'done'
     const ilkTamam = done && !t.sayildi
     const patch = { status: done ? 'done' : 'planned', ...(ilkTamam ? { sayildi: true } : {}) }
-    if (user) updatePlanGorev(user.uid, t.id, patch).catch(() => {}) // snapshot state'i tazeler
-    else guestSave(tasks.map((x) => (x.id === t.id ? { ...x, ...patch } : x)))
+    // usePlanGorevler hook'u güncellemeyi Firestore'a otomatik yapar
     if (done) {
-      recordActivity(user?.uid).catch(() => {}) // streak (günde 1 yazar)
+      import('@/services/firestore-plan').then(m => m.recordActivity(user?.uid)).catch(() => {}) // streak (günde 1 yazar)
       // XP: planGorev getIstatistik/guestStats'ta done sayımından TÜRETİLİR (uncheck'te de tutarlı — Rev-3)
       if (ilkTamam) tekrarPlanla(t) // aralıklı tekrar yalnız ilk tamamlamada
     }
@@ -195,30 +140,27 @@ export default function Planim({ embedded = false }) {
     const t = String(title || '').trim()
     if (!t) return
     const task = gorevYap({ id: `m-${Date.now()}`, title: t.slice(0, 120), tarih, source: 'manual', ...extra })
-    if (user) addPlanGorev(user.uid, { ...task, hafta }).catch(() => {})
-    else guestSave([...tasks, task])
+    import('@/services/firestore-plan').then(m => m.addPlanGorev(user.uid, { ...task, hafta })).catch(() => {})
   }
 
   function planla() {
     if (!konuData) { flash('Konu listesi yükleniyor…'); return }
     const next = haftaPlanla({
-      konuData, checked, soruOzet, hafta, bugun,
-      haftaIciBlok: config.haftaIciBlok, haftaSonuBlok: config.haftaSonuBlok, mevcut: tasks,
+      konuData, checked, soruKayit: soruKayit || [], hafta, bugun,
+      haftaIciBlok: config?.haftaIciBlok || VARSAYILAN.haftaIciBlok, haftaSonuBlok: config?.haftaSonuBlok || VARSAYILAN.haftaSonuBlok, mevcut: tasks,
     })
     const yeniler = next.slice(tasks.length) // haftaPlanla mevcut'u başa koyar → yeni olanlar sonda
     if (!yeniler.length) { flash('Uygun boş slot yok'); return }
-    if (user) addPlanGorevler(user.uid, yeniler.map((t) => ({ ...t, hafta }))).catch(() => {})
-    // guest: deterministik id'ler re-plan'da çakışabilir → benzersiz id ver
-    else guestSave([...tasks, ...yeniler.map((t, i) => ({ ...t, id: `p-${Date.now()}-${i}` }))])
+    import('@/services/firestore-plan').then(m => m.addPlanGorevler(user.uid, yeniler.map((t) => ({ ...t, hafta })))).catch(() => {})
     flash(`✓ ${yeniler.length} görev planlandı`)
   }
 
   async function takvimimNasil() {
     setAi({ loading: true, text: '', oncelik: null })
-    const zayif = oneriler(konuData, checked, soruOzet, 3).map((o) => o.konu)
+    const zayif = oneriler(konuData, checked, soruKayit || [], 3).map((o) => o.konu)
     const done = tasks.filter((t) => t.status === 'done').slice(-3).map((t) => t.konu || t.title).filter(Boolean)
     const lag = gecikmeYuzde(tasks, bugun)
-    const ozet = kompaktOzet({ track, kalanGun, zayif, done, lag, hedefSaat: config.hedefSaat })
+    const ozet = kompaktOzet({ track, kalanGun, zayif, done, lag, hedefSaat: config?.hedefSaat })
     const q = `${ozet}. Bu ${track} çalışma planı durumu. SADECE şu JSON: {"oncelik":["konu1","konu2"],"tavsiye":"1-2 cümle Türkçe koçluk"}`.slice(0, 490)
     const cagir = () => apiFetch('/api/v1/ask', { method: 'POST', body: { query: q } }).then((r) => r?.text || '')
     try {
@@ -226,7 +168,7 @@ export default function Planim({ embedded = false }) {
       let d = parseDirektif(text)
       if (!d) { text = await cagir(); d = parseDirektif(text) } // retry=1
       if (d) setAi({ loading: false, text: d.tavsiye || 'Planın iyi görünüyor.', oncelik: d.oncelik })
-      else setAi({ loading: false, text: text || 'Yorum üretilemedi.', oncelik: null }) // fallback: ham metin
+      else setAi({ loading: false, text: text || 'Yorum üretilemedi.', oncelik: null })
     } catch (e) {
       setAi({ loading: false, text: 'AI yorumu alınamadı (' + e.message + '). Plan yine de çalışıyor — "Haftayı planla" ile devam et.', oncelik: null })
     }
@@ -234,12 +176,11 @@ export default function Planim({ embedded = false }) {
 
   function aiUygula() {
     const next = haftaPlanla({
-      konuData, checked, soruOzet, hafta, bugun,
-      haftaIciBlok: config.haftaIciBlok, haftaSonuBlok: config.haftaSonuBlok, oncelikKonu: ai.oncelik || [], mevcut: tasks,
+      konuData, checked, soruKayit: soruKayit || [], hafta, bugun,
+      haftaIciBlok: config?.haftaIciBlok || VARSAYILAN.haftaIciBlok, haftaSonuBlok: config?.haftaSonuBlok || VARSAYILAN.haftaSonuBlok, oncelikKonu: ai.oncelik || [], mevcut: tasks,
     })
     const yeniler = next.slice(tasks.length)
-    if (user) addPlanGorevler(user.uid, yeniler.map((t) => ({ ...t, hafta }))).catch(() => {})
-    else guestSave([...tasks, ...yeniler.map((t, i) => ({ ...t, id: `p-${Date.now()}-${i}` }))])
+    import('@/services/firestore-plan').then(m => m.addPlanGorevler(user.uid, yeniler.map((t) => ({ ...t, hafta })))).catch(() => {})
     setAi({ loading: false, text: '', oncelik: null }); flash('✓ Plan güncellendi')
   }
 
@@ -264,12 +205,12 @@ export default function Planim({ embedded = false }) {
       if (gm) hedef = { gunSayisi: Math.min(365, +gm[1]), gunlukSoru: sm ? Math.min(1000, +sm[1]) : null, tavsiye: '' }
     }
     if (!hedef) { setHedefAI({ loading: false, text: 'Hedefi anlayamadım. Örn: "50 günde tüm konular, günde 100 soru".' }); return }
-    const yeni = ufukPlanla({ konuData, checked, soruOzet, gunSayisi: hedef.gunSayisi, gunlukSoru: hedef.gunlukSoru, baslangic: bugun })
+    const yeni = ufukPlanla({ konuData, checked, soruKayit: soruKayit || [], gunSayisi: hedef.gunSayisi, gunlukSoru: hedef.gunlukSoru, baslangic: bugun })
     if (!yeni.length) { setHedefAI({ loading: false, text: 'Planlanacak konu bulunamadı — önce Konu Takibi\'nden konularını işaretle.' }); return }
     if (user) {
       // Bu haftanın otomatik görevlerini temizle (görünür çift-plan olmasın) + hepsini batch yaz
-      for (const t of tasks.filter((t) => t.status !== 'done' && t.source !== 'manual')) removePlanGorev(user.uid, t.id).catch(() => {})
-      addPlanGorevler(user.uid, yeni).catch(() => {}) // her görev zaten hafta alanlı → çok-haftalık
+      for (const t of tasks.filter((t) => t.status !== 'done' && t.source !== 'manual')) import('@/services/firestore-plan').then(m => m.removePlanGorev(user.uid, t.id)).catch(() => {})
+      import('@/services/firestore-plan').then(m => m.addPlanGorevler(user.uid, yeni)).catch(() => {}) // her görev zaten hafta alanlı → çok-haftalık
     } else {
       // Haftaya göre grupla; her haftanın auto'sunu değiştir (manual/done korunur)
       const gruplar = {}
@@ -287,13 +228,11 @@ export default function Planim({ embedded = false }) {
   }
 
   function sil(t) {
-    if (user) removePlanGorev(user.uid, t.id).catch(() => {})
-    else guestSave(tasks.filter((x) => x.id !== t.id))
+    import('@/services/firestore-plan').then(m => m.removePlanGorev(user.uid, t.id)).catch(() => {})
   }
   function otomatikTemizle() {
     if (!confirm('Bu haftanın otomatik (tamamlanmamış) görevlerini temizle?')) return
-    if (user) { for (const t of tasks.filter((t) => t.status !== 'done' && t.source !== 'manual')) removePlanGorev(user.uid, t.id).catch(() => {}) }
-    else guestSave(tasks.filter((t) => t.status === 'done' || t.source === 'manual'))
+    for (const t of tasks.filter((t) => t.status !== 'done' && t.source !== 'manual')) import('@/services/firestore-plan').then(m => m.removePlanGorev(user.uid, t.id)).catch(() => {})
   }
 
   // --- Türetilen ---
@@ -307,9 +246,9 @@ export default function Planim({ embedded = false }) {
   const oneriListe = useMemo(() => {
     if (!konuData) return []
     const mevcutKonu = new Set(tasks.map((t) => t.konu).filter(Boolean))
-    return oneriler(konuData, checked, soruOzet, 5)
+    return oneriler(konuData, checked, soruKayit || [], 5)
       .filter((o) => !mevcutKonu.has(o.konu)).slice(0, 3)
-  }, [konuData, tasks, checked, soruOzet])
+  }, [konuData, tasks, checked, soruKayit])
 
   // ================= RENDER =================
   const H1 = (
@@ -317,7 +256,7 @@ export default function Planim({ embedded = false }) {
       <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1 flex items-center justify-center gap-2">
         <CalendarRange className="text-teal-300" /> Planım
       </h1>
-      <p className="text-slate-400 text-sm">Haftanı planla, günlük görevlerini bitir — AI geri kalınca yeniden düzenler.</p>
+      <p className="text-slate-400 text-sm">Haftanı planla, günlük görevlerini bitir — AI geri kalınca planı yeniden düzenler.</p>
     </div>
   )
 
@@ -395,7 +334,7 @@ export default function Planim({ embedded = false }) {
             className="input-glass text-sm flex-1" />
           <button onClick={hedefPlanla} disabled={hedefAI.loading || !hedefMetin.trim()}
             className="btn-primary text-sm inline-flex items-center gap-1 disabled:opacity-50">
-            {hedefAI.loading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />} Planla
+          {hedefAI.loading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />} Planla
           </button>
         </div>
         {hedefAI.text && <p className="text-[12px] text-teal-200 whitespace-pre-wrap">{hedefAI.text}</p>}
@@ -463,6 +402,7 @@ export default function Planim({ embedded = false }) {
     </>
   )
 
+  // ================= RENDER =================
   return (
     <>
       {!embedded && <BackgroundScene />}
@@ -487,12 +427,12 @@ function GorevSatir({ t, onToggle, onSil }) {
     <div className="card !py-2.5 flex items-center gap-3">
       <button onClick={() => onToggle(t)} title={done ? 'Geri al' : 'Tamamlandı'}
         className={`shrink-0 w-5 h-5 rounded-md border flex items-center justify-center transition ${done ? 'bg-emerald-500/80 border-emerald-400 text-white' : 'border-white/25 text-transparent hover:border-emerald-400'}`}>
-        <Check size={13} />
-      </button>
-      <div className={`flex-1 min-w-0 text-sm break-words ${done ? 'text-slate-500 line-through' : 'text-slate-100'}`}>{t.title}</div>
-      <span className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded-full ${et.cls}`}>{et.ad}</span>
-      <button onClick={() => onSil(t)} className="shrink-0 text-slate-600 hover:text-rose-400"><Trash2 size={13} /></button>
-    </div>
+      <Check size={13} />
+    </button>
+    <div className={`flex-1 min-w-0 text-sm break-words ${done ? 'text-slate-500 line-through' : 'text-slate-100'}`}>{t.title}</div>
+    <span className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded-full ${et.cls}`}>{et.ad}</span>
+    <button onClick={() => onSil(t)} className="shrink-0 text-slate-600 hover:text-rose-400"><Trash2 size={13} /></button>
+  </div>
   )
 }
 

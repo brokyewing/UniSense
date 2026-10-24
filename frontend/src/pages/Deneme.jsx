@@ -3,12 +3,9 @@ import { Link } from 'react-router-dom'
 import { Loader2, Plus, Trash2, TrendingUp, Target, X, LineChart, ArrowRight, Sparkles } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
-import { apiFetch } from '../lib/api'
+import { api } from '@/services/api'
 import { useAuth } from '../contexts/AuthContext'
-import {
-  getUserProfile, watchDenemeler, addDeneme, removeDeneme, recordActivity, getKonuIlerleme,
-  watchSoruKayit, addSoruKayit, removeSoruKayit,
-} from '../firebase'
+import { useDenemeler, useSoruKayit, useKonuIlerleme } from '@/services/hooks'
 import { track } from '../lib/analytics'
 import { konuLocal, eksikKonular, konuBloklari } from '../lib/konu'
 import { tasimaGerekli, damgala } from '../lib/bulutTasima'
@@ -69,8 +66,6 @@ export default function Deneme({ embedded = false }) {
   const [tarih, setTarih] = useState(bugun())
   const [ad, setAd] = useState('')
   const [girdi, setGirdi] = useState({}) // {fieldId: {d, y}}
-  const [denemeler, setDenemeler] = useState([])
-  const [soruKayit, setSoruKayit] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [showSoru, setShowSoru] = useState(false)
   const [soruF, setSoruF] = useState({ blokIdx: '', konu: '', cozulen: '', dogru: '' })
@@ -81,14 +76,18 @@ export default function Deneme({ embedded = false }) {
   const [kocLoading, setKocLoading] = useState(false)
   const [konuData, setKonuData] = useState(null)
 
+  const { denemeler, loading: denemelerLoading } = useDenemeler(sinav)
+  const { kayitlar: soruKayit, loading: soruKayitLoading } = useSoruKayit(sinav)
+  const { checked: konuChecked, loading: konuCheckedLoading } = useKonuIlerleme(sinav)
+
   // Profilden varsayılan sınav + tür + diploma + koç için profil
   useEffect(() => {
     if (!user) return
-    getUserProfile(user.uid).then((p) => {
+    import('@/services/firestore-core').then(m => m.getUserProfile(user.uid)).then((p) => {
       const pr = p?.profile || {}
       setProfil(pr)
       // switchSinav ile AYNI uyarlama — aksi halde DGS profilinde 100'lük diploma
-      // 4'lük GPA alanına sızıyor (AÖBP sessizce 0 oluyordu) ve DİL türü DGS'e taşıyordu
+      // 4'lük GPA alanına sızıyordu (AÖBP sessizce 0 oluyordu) ve DİL türü DGS'e taşıyordu
       const s = ['YKS', 'DGS', 'KPSS', 'LGS'].includes(pr.examTrack) ? pr.examTrack : 'YKS'
       setSinav(s)
       const t = turlerFor(s)
@@ -108,83 +107,14 @@ export default function Deneme({ embedded = false }) {
     setDiploma(s === 'YKS' ? '85' : '') // YKS: 100'lük, DGS: 4'lük GPA (boş başla)
   }
 
-  // Denemeleri yükle — sınav başına ayrı liste; girişli bulut, girişsiz localStorage
-  useEffect(() => {
-    setGirdi({})
-    if (!user) { setDenemeler(loadLocal(sinav)); return }
-    const key = lsKey(sinav)
-    return watchDenemeler(user.uid, sinav, (items) => {
-      if (items == null) { setDenemeler(loadLocal(sinav)); return }
-      const local = loadLocal(sinav)
-      if (tasimaGerekli(key, items.length === 0, local.length > 0)) {
-        // Yalnız SAHİPSİZ (gerçek misafir) veri taşınır — ayna damgası bunu güvence altına alır.
-        // Alanları kırp + null/yerel alanları at (rules type:null / uzun ad'ı reddeder).
-        for (const d of local) {
-          const temiz = {
-            sinav: d.sinav || sinav, tarih: String(d.tarih || '').slice(0, 20),
-            ad: String(d.ad || 'Deneme').slice(0, 120),
-            dersNet: d.dersNet || {}, toplamNet: d.toplamNet || 0, puan: d.puan || 0,
-          }
-          if (typeof d.type === 'string') temiz.type = d.type.slice(0, 8)
-          if (typeof d.sira === 'number') temiz.sira = d.sira
-          addDeneme(user.uid, temiz).catch(() => {})
-        }
-        damgala(key, user.uid)
-        setDenemeler(local)
-        return
-      }
-      setDenemeler(items); saveLocal(sinav, items); damgala(key, user.uid)
-    })
-  }, [user, sinav])
-
-  // Çözülen soru kaydını yükle — sınav başına ayrı; girişli bulut, girişsiz localStorage
-  useEffect(() => {
-    if (!user) { setSoruKayit(loadSoru(sinav)); return }
-    const key = soruKey(sinav)
-    return watchSoruKayit(user.uid, sinav, (items) => {
-      if (items == null) { setSoruKayit(loadSoru(sinav)); return }
-      const local = loadSoru(sinav)
-      if (tasimaGerekli(key, items.length === 0, local.length > 0)) {
-        for (const s of local) {
-          addSoruKayit(user.uid, {
-            sinav: s.sinav || sinav, ders: String(s.ders || '').slice(0, 60),
-            konu: String(s.konu || '').slice(0, 120), cozulen: s.cozulen || 0,
-            dogru: s.dogru || 0, tarih: String(s.tarih || '').slice(0, 20),
-          }).catch(() => {})
-        }
-        damgala(key, user.uid); setSoruKayit(local); return
-      }
-      setSoruKayit(items); saveSoru(sinav, items); damgala(key, user.uid)
-    })
-  }, [user, sinav])
-
   // Seçili sınavın konu listesi (koç tavsiyesi + soru kaydı konu seçimi için)
   useEffect(() => {
     setKonuData(null)
-    apiFetch(`/api/v1/konular?sinav=${sinav}`).then(setKonuData).catch(() => {})
+    api.konular(sinav).then(setKonuData).catch(() => {})
   }, [sinav])
   // Konu işaretleri: girişli → bulut (bu cihazda Konular hiç açılmamış olabilir),
   // erişilemezse/girişsiz → localStorage
-  const [konuChecked, setKonuChecked] = useState({})
-  useEffect(() => {
-    let live = true
-    if (!user) { setKonuChecked(konuLocal(sinav)); return undefined }
-    getKonuIlerleme(user.uid, sinav).then((c) => { if (live) setKonuChecked(c ?? konuLocal(sinav)) })
-    return () => { live = false }
-  }, [user, sinav])
-  const konuDurum = useMemo(() => (konuData ? eksikKonular(konuData, konuChecked) : null), [konuData, konuChecked])
-  // Konu bloklarını (grup·ders + konular) soru kaydı seçimi için hazırla
-  const bloklar = useMemo(() => konuBloklari(konuData), [konuData])
-  // Konu bazında soru çözüm özeti (birden çok kayıt toplanır) — gösterim + AI koç
-  const soruOzet = useMemo(() => {
-    const m = {}
-    for (const s of soruKayit) {
-      const k = `${s.ders || ''}|${s.konu || ''}`
-      if (!m[k]) m[k] = { ders: s.ders, konu: s.konu, cozulen: 0, dogru: 0 }
-      m[k].cozulen += s.cozulen || 0; m[k].dogru += s.dogru || 0
-    }
-    return Object.values(m).sort((a, b) => b.cozulen - a.cozulen)
-  }, [soruKayit])
+  // useKonuIlerleme hook'u zaten hallediyor
 
   const fields = useMemo(() => denemeAlanlari(sinav, type), [sinav, type])
   const canli = useMemo(
@@ -227,9 +157,9 @@ export default function Deneme({ embedded = false }) {
       ...(sira != null ? { sira } : {}),
     }
     try {
-      if (user) await addDeneme(user.uid, deneme)
+      if (user) await import('@/services/firestore-study').then(m => m.addDeneme(user.uid, deneme))
       else { const a = [...denemeler, { ...deneme, id: 'l' + Date.now() }]; saveLocal(sinav, a); setDenemeler(a) }
-      recordActivity(user?.uid).catch(() => {}) // günlük seri (streak)
+      recordActivity(user?.uid).catch(() => {})
       track('deneme_kaydedildi', { sinav })
       setGirdi({}); setAd(''); setShowForm(false)
       flash('✓ Deneme kaydedildi')
@@ -237,7 +167,7 @@ export default function Deneme({ embedded = false }) {
   }
 
   async function sil(d) {
-    if (user && !String(d.id).startsWith('l')) { await removeDeneme(user.uid, d.id).catch(() => {}) }
+    if (user && !String(d.id).startsWith('l')) { await import('@/services/firestore-study').then(m => m.removeDeneme(user.uid, d.id)).catch(() => {}) }
     else { const a = denemeler.filter((x) => x.id !== d.id); saveLocal(sinav, a); setDenemeler(a) }
   }
 
@@ -252,7 +182,7 @@ export default function Deneme({ embedded = false }) {
     const kayit = { sinav, ders, konu: soruF.konu, cozulen, dogru, tarih }
     setSaving(true)
     try {
-      if (user) await addSoruKayit(user.uid, kayit)
+      if (user) await import('@/services/firestore-study').then(m => m.addSoruKayit(user.uid, kayit))
       else { const a = [{ ...kayit, id: 'l' + Date.now(), createdAt: Date.now() }, ...soruKayit]; saveSoru(sinav, a); setSoruKayit(a) }
       recordActivity(user?.uid).catch(() => {})
       track('soru_kaydedildi', { sinav })
@@ -262,7 +192,7 @@ export default function Deneme({ embedded = false }) {
   }
 
   async function soruSil(s) {
-    if (user && !String(s.id).startsWith('l')) { await removeSoruKayit(user.uid, s.id).catch(() => {}) }
+    if (user && !String(s.id).startsWith('l')) { await import('@/services/firestore-study').then(m => m.removeSoruKayit(user.uid, s.id)).catch(() => {}) }
     else { const a = soruKayit.filter((x) => x.id !== s.id); saveSoru(sinav, a); setSoruKayit(a) }
   }
 
@@ -317,6 +247,22 @@ export default function Deneme({ embedded = false }) {
       setKoc(r?.text || 'Tavsiye üretilemedi.')
     } catch (e) { setKoc('Tavsiye alınamadı: ' + e.message) } finally { setKocLoading(false) }
   }
+
+  const konuDurum = useMemo(() => (konuData ? eksikKonular(konuData, konuChecked) : null), [konuData, konuChecked])
+  // Konu bloklarını (grup·ders + konular) soru kaydı seçimi için hazırla
+  const bloklar = useMemo(() => konuBloklari(konuData), [konuData])
+  // Konu bazında soru çözüm özeti (birden çok kayıt toplanır) — gösterim + AI koç
+  const soruOzet = useMemo(() => {
+    const m = {}
+    for (const s of soruKayit) {
+      const k = `${s.ders || ''}|${s.konu || ''}`
+      if (!m[k]) m[k] = { ders: s.ders, konu: s.konu, cozulen: 0, dogru: 0 }
+      m[k].cozulen += s.cozulen || 0; m[k].dogru += s.dogru || 0
+    }
+    return Object.values(m).sort((a, b) => b.cozulen - a.cozulen)
+  }, [soruKayit])
+
+  function flash(m) { setToast(m); setTimeout(() => setToast(''), 2500) }
 
   return (
     <>
