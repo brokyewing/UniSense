@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Bell, BellRing, Loader2, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import { pushAvailable, enablePush, disablePush } from '../firebase'
+import { pushAvailable, enablePush, disablePush } from '@/services/firestore-push'
 import { track } from '../lib/analytics'
 
 // Günlük çalışma hatırlatması opt-in kartı. Yalnızca: girişli + tarayıcı destekli

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { kullanimEkle } from '../firebase'
+import { kullanimEkle } from '@/services/firestore-study'
 
 // Uygulamada geçirilen AKTİF süreyi dakika olarak biriktirir → XP/seviyeye katkı
 // ("ne kadar kalırsan seviye atlarsın"). Sadece sekme GÖRÜNÜR ve son 2 dk içinde
