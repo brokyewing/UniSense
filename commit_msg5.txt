@@ -1,0 +1,7 @@
+feat: remove premium upsell banner - app is free
+
+- Removed PremiumBanner component from Search.jsx
+- Removed handleUpgrade function and showUpgrade state
+- Removed Crown and CreditCard icon imports
+- Removed two PremiumBanner usages (anonymous upsell and pro indicator)
+- App is free, no payment integration needed
