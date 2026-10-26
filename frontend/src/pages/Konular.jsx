@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { CheckCircle2, Circle, ListChecks, Loader2, RotateCcw } from 'lucide-react'
-import BackgroundScene from '../components/three/BackgroundScene'
+import BackgroundScene from '../components/three/LazyBackgroundScene'
 import Seo from '../components/Seo'
 import { api } from '@/services/api'
 import { useAuth } from '../contexts/AuthContext'

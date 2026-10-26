@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Trophy, Loader2, Sparkles, LogOut, Check, Pencil } from 'lucide-react'
-import BackgroundScene from '../components/three/BackgroundScene'
+import BackgroundScene from '../components/three/LazyBackgroundScene'
 import Seo from '../components/Seo'
 import { useAuth } from '../contexts/AuthContext'
 import { getIstatistik, siralamaBenim, siralamaKaydet, siralamaCik, siralamaListe, siralamaSira } from '@/services/firestore-plan'

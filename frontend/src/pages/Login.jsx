@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Mail, Lock, User, Loader2, ArrowRight } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import BackgroundScene from '../components/three/BackgroundScene'
+import BackgroundScene from '../components/three/LazyBackgroundScene'
 import Logo from '../components/Logo'
 
 export default function Login() {

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ListTodo, LineChart, CalendarRange, BookMarked, NotebookPen, LayoutDashboard } from 'lucide-react'
-import BackgroundScene from '../components/three/BackgroundScene'
+import BackgroundScene from '../components/three/LazyBackgroundScene'
 import PushOptIn from '../components/PushOptIn'
 import Konular from './Konular'
 import Deneme from './Deneme'

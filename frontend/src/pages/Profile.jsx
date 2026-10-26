@@ -10,7 +10,7 @@ import { PRESET_AVATARS } from '@/services/constants'
 import { useUserProfile } from '@/services/hooks'
 import { getIstatistik } from '@/services/firestore-plan'
 import { hesaplaXP, seviyeBilgi, kazanilanRozetler } from '../lib/oyun'
-import BackgroundScene from '../components/three/BackgroundScene'
+import BackgroundScene from '../components/three/LazyBackgroundScene'
 
 const SCORE_TYPES = [
   { v: 'SAY', label: 'Sayısal', color: 'from-blue-500 to-cyan-400' },

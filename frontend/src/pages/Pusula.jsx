@@ -6,7 +6,7 @@ import {
   Compass, Sparkles, MessageSquare, ListChecks, Loader2, Check,
   Search as SearchIcon, X, ChevronRight, Wand2, Brain, ArrowRight,
 } from 'lucide-react'
-import BackgroundScene from '../components/three/BackgroundScene'
+import BackgroundScene from '../components/three/LazyBackgroundScene'
 import { apiFetch } from '../lib/api'
 import { useUserProfile } from '@/services/hooks'
 

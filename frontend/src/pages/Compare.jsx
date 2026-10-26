@@ -6,7 +6,7 @@ import {
   Award, Calendar, Users, Building2,
   MapPin, GraduationCap, ExternalLink, X,
 } from 'lucide-react'
-import BackgroundScene from '../components/three/BackgroundScene'
+import BackgroundScene from '../components/three/LazyBackgroundScene'
 import MiniTrend from '../components/MiniTrend'
 import { apiFetch } from '../lib/api'
 

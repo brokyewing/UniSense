@@ -5,9 +5,9 @@ import {
   Send, Loader2, BookOpen, ExternalLink, Sparkles, Bot, User,
   TrendingUp, Building2, MapPin, GraduationCap, Menu,
   ChevronDown, ChevronUp, Compass, Plus, Check, Hash,
-  ShieldCheck, Target, Mountain, CreditCard, Crown,
+  ShieldCheck, Target, Mountain,
 } from 'lucide-react'
-import BackgroundScene from '../components/three/BackgroundScene'
+import BackgroundScene from '../components/three/LazyBackgroundScene'
 import ChatSidebar from '../components/ChatSidebar'
 import { useAuth } from '../contexts/AuthContext'
 import {
@@ -284,37 +284,6 @@ function DocCard({ doc, isInTercih, onAddToTercih, onAddToPusula, busyCode }) {
   )
 }
 
-// --- Premium/Upsell Banner Component ---
-
-function PremiumBanner({ onUpgrade }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="relative overflow-hidden rounded-2xl p-5 mb-4 bg-gradient-to-r from-amber-500/20 via-orange-500/10 to-rose-500/20 border border-amber-500/30"
-    >
-      <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 to-transparent animate-shimmer" />
-      <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/30">
-            <Crown size={20} className="text-white" />
-          </div>
-          <div>
-            <h3 className="font-display font-bold text-white text-lg">UniSense Pro</h3>
-            <p className="text-sm text-slate-300 mt-1">Sınırsız sorgu, gelişmiş filtreler, öncelikli destek ve daha fazlası</p>
-          </div>
-        </div>
-        <button
-          onClick={onUpgrade}
-          className="shrink-0 px-5 py-2.5 rounded-xl font-semibold text-sm bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-lg hover:shadow-amber-500/40 transition-all disabled:opacity-40 flex items-center gap-2"
-        >
-          <CreditCard size={14} /> Pro'ya Yükselt
-        </button>
-      </div>
-    </motion.div>
-  )
-}
-
 // --- Main Search Component ---
 
 export default function Search() {
@@ -325,7 +294,6 @@ export default function Search() {
   const [activeSessionId, setActiveSessionId] = useState(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [busyCode, setBusyCode] = useState(null)
-  const [showUpgrade, setShowUpgrade] = useState(false)
   const endRef = useRef(null)
   const { user, isAuthed } = useAuth()
   const [examCtx, setExamCtx] = useState(null)
@@ -590,13 +558,6 @@ export default function Search() {
     ask(input)
   }
 
-  // Upgrade modal/flow placeholder
-  function handleUpgrade() {
-    setShowUpgrade(true)
-    // TODO: Implement checkout flow
-    window.open('/hesap?upgrade=true', '_blank')
-  }
-
   return (
     <>
       <BackgroundScene />
@@ -640,12 +601,7 @@ export default function Search() {
                 <Menu size={14} />
                 Geçmiş Sohbetler
               </button>
-              {/* Pro indicator */}
-              {!user && (
-                <div className="ml-auto">
-                  <PremiumBanner onUpgrade={handleUpgrade} />
-                </div>
-              )}
+              {/* Ücretsiz — premium upsell kaldırıldı */}
             </div>
           )}
 
@@ -688,16 +644,7 @@ export default function Search() {
                     </button>
                   ))}
                 </div>
-                {/* Anonymous upsell */}
-                {!isAuthed && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-6 w-full max-w-md"
-                  >
-                    <PremiumBanner onUpgrade={handleUpgrade} />
-                  </motion.div>
-                )}
+                {/* Ücretsiz — premium upsell kaldırıldı */}
               </motion.div>
             )}
 

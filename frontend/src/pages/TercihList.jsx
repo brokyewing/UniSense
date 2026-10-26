@@ -31,7 +31,7 @@ import {
 import { api } from '@/services/api'
 import { yksLevel, dgsLevel, kpssLevel, YKS_SAFE_RATIO } from '../lib/riskLevels'
 import { TERCIH_LIMITS, MAX_DGS_TERCIH, MAX_KPSS_TERCIH, MAX_TUS_TERCIH, MAX_LGS_TERCIH } from '@/services/constants'
-import BackgroundScene from '../components/three/BackgroundScene'
+import BackgroundScene from '../components/three/LazyBackgroundScene'
 
 // Placeholder components
 function AnalizPanel() { return <div className="card p-4">Analiz Panel</div> }
