@@ -87,6 +87,22 @@ export const STORAGE_KEYS = {
 // Firestore belge ID maksimum uzunluğu (strMax kuralı)
 export const FIRESTORE_MAX_ID_LENGTH = 200;
 
+// Preset avatars (DiceBear API, ücretsiz)
+export const PRESET_AVATARS = [
+  { id: 'av1',  url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=UniSense01&backgroundColor=b6e3f4' },
+  { id: 'av2',  url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=UniSense02&backgroundColor=ffd5dc' },
+  { id: 'av3',  url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=UniSense03&backgroundColor=c0aede' },
+  { id: 'av4',  url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=UniSense04&backgroundColor=d1d4f9' },
+  { id: 'av5',  url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=UniSense05&backgroundColor=b6e3f4' },
+  { id: 'av6',  url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=UniSense06&backgroundColor=ffdfbf' },
+  { id: 'av7',  url: 'https://api.dicebear.com/7.x/lorelei/svg?seed=UniSense07&backgroundColor=ffd5dc' },
+  { id: 'av8',  url: 'https://api.dicebear.com/7.x/lorelei/svg?seed=UniSense08&backgroundColor=b6e3f4' },
+  { id: 'av9',  url: 'https://api.dicebear.com/7.x/notionists/svg?seed=UniSense09&backgroundColor=c0aede' },
+  { id: 'av10', url: 'https://api.dicebear.com/7.x/notionists/svg?seed=UniSense10&backgroundColor=d1d4f9' },
+  { id: 'av11', url: 'https://api.dicebear.com/7.x/bottts/svg?seed=UniSense11&backgroundColor=b6e3f4' },
+  { id: 'av12', url: 'https://api.dicebear.com/7.x/bottts/svg?seed=UniSense12&backgroundColor=ffd5dc' },
+]
+
 // Session limiti
 export const MAX_SESSIONS_PER_USER = 5;
 

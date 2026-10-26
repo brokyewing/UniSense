@@ -5,7 +5,7 @@ import {
   loginWithEmail as fbLoginEmail,
   registerWithEmail as fbRegister,
   logout as fbLogout,
-} from '../firebase'
+} from '@/services/auth'
 
 const AuthContext = createContext(null)
 

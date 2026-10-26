@@ -7,7 +7,7 @@
  *   (backend SECURITY_REQUIRE_AUTH=true iken /ask ve /recommend bunu ister).
  * - 401/429 için kullanıcı-dostu Türkçe mesajlı ApiError fırlatır.
  */
-import { auth } from '../firebase'
+import { auth } from '@/services/auth'
 
 export const API_BASE = import.meta.env.VITE_API_URL || ''
 

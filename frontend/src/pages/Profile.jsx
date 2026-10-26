@@ -6,7 +6,7 @@ import {
   Save, AlertCircle, Eye, EyeOff,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import { PRESET_AVATARS } from '../firebase'
+import { PRESET_AVATARS } from '@/services/constants'
 import { useUserProfile } from '@/services/hooks'
 import { getIstatistik } from '@/services/firestore-plan'
 import { hesaplaXP, seviyeBilgi, kazanilanRozetler } from '../lib/oyun'

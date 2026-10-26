@@ -13,6 +13,7 @@ export { db, watchSubcollection, getSubcollectionDoc, getSubcollectionAll, addSu
 export { auth, googleProvider, loginWithGoogle, loginWithEmail, registerWithEmail, logout, watchAuth, updateUserBasicInfo, changePassword, getAuthProvider } from './auth'
 
 // Firestore Domain Services
+export * from './firestore-user'
 export * from './firestore-study'
 export * from './firestore-prefs'
 export * from './firestore-plan'

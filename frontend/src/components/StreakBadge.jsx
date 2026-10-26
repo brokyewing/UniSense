@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Flame } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import { getStreak } from '../firebase'
+import { getStreak } from '@/services/firestore-plan'
 
 // Günlük çalışma serisi rozeti. compact=true → satır içi küçük; yoksa kart.
 export default function StreakBadge({ compact = false }) {

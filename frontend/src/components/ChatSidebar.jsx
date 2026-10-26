@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, MessageSquare, Trash2, Clock, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import { watchSessions, deleteSession, MAX_SESSIONS_PER_USER } from '../firebase'
+import { watchSessions, deleteSession } from '@/services/firestore-push'
+import { MAX_SESSIONS_PER_USER } from '@/services/constants'
 
 export default function ChatSidebar({
   activeSessionId,

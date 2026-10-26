@@ -4,8 +4,7 @@ import { Trophy, Loader2, Sparkles, LogOut, Check, Pencil } from 'lucide-react'
 import BackgroundScene from '../components/three/BackgroundScene'
 import Seo from '../components/Seo'
 import { useAuth } from '../contexts/AuthContext'
-import { getIstatistik } from '@/services/firestore-plan'
-import { siralamaBenim, siralamaKaydet, siralamaCik, siralamaListe, siralamaSira } from '../firebase'
+import { getIstatistik, siralamaBenim, siralamaKaydet, siralamaCik, siralamaListe, siralamaSira } from '@/services/firestore-plan'
 import { hesaplaXP, seviyeBilgi } from '../lib/oyun'
 
 const nf = (n) => (n || 0).toLocaleString('tr-TR')

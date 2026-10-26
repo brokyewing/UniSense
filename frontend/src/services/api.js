@@ -2,7 +2,7 @@
  * API Service — Backend ile iletişim.
  * lib/api.js'nin temizlenmiş / genişletilmiş hali.
  */
-import { auth } from '../firebase'
+import { auth } from './auth'
 
 export const API_BASE = import.meta.env.VITE_API_URL || ''
 
