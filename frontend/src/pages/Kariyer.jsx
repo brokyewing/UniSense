@@ -5,7 +5,7 @@ import {
   Briefcase, Loader2, Search, ExternalLink, Sparkles, BookOpen,
   Landmark, Building2, Globe, SlidersHorizontal, ChevronDown, CalendarClock,
 } from 'lucide-react'
-import BackgroundScene from '../components/three/BackgroundScene'
+import BackgroundScene from '../components/three/LazyBackgroundScene'
 import { apiFetch } from '../lib/api'
 
 const HATLAR = [

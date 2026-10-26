@@ -4,7 +4,7 @@ import {
   Shield, Database, Cloud, Lock, UserCheck, Mail, FileText,
   Cookie, ExternalLink, AlertCircle, Trash2, Download,
 } from 'lucide-react'
-import BackgroundScene from '../components/three/BackgroundScene'
+import BackgroundScene from '../components/three/LazyBackgroundScene'
 
 const LAST_UPDATED = '17 Mayıs 2026'
 

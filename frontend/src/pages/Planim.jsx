@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import { CalendarRange, Plus, Check, Loader2, Sparkles, Wand2, Trash2, Settings2, CheckCircle2, Target } from 'lucide-react'
-import BackgroundScene from '../components/three/BackgroundScene'
+import BackgroundScene from '../components/three/LazyBackgroundScene'
 import Seo from '../components/Seo'
 import { api } from '@/services/api'
 import { useAuth } from '../contexts/AuthContext'

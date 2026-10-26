@@ -50,7 +50,7 @@ import {
   GraduationCap, BookOpen, Sparkles, Building2, MapPin,
   Hash, TrendingUp, School,
 } from 'lucide-react'
-import BackgroundScene from '../components/three/BackgroundScene'
+import BackgroundScene from '../components/three/LazyBackgroundScene'
 import { useAuth } from '../contexts/AuthContext'
 import { useUserProfile } from '@/services/hooks'
 import { apiFetch } from '../lib/api'

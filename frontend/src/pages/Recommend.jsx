@@ -7,7 +7,7 @@ import {
   Compass, X, ArrowRight, Check, Plus,
   GraduationCap, Briefcase, AlertTriangle,
 } from 'lucide-react'
-import BackgroundScene from '../components/three/BackgroundScene'
+import BackgroundScene from '../components/three/LazyBackgroundScene'
 import { useAuth } from '../contexts/AuthContext'
 import {
   useTercihList, useDgsTercih, useKpssTercih, useToast,

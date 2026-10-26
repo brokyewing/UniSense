@@ -1,0 +1,7 @@
+perf: lazy load BackgroundScene with React.lazy for better initial load
+
+- Created LazyBackgroundScene.jsx using React.lazy + Suspense
+- Updated 25 pages to use LazyBackgroundScene instead of direct import
+- BackgroundScene now loads as separate chunk (1.91 kB) instead of being bundled
+- three-core (687 kB) remains as the only large chunk (core three.js library)
+- Build passes: 631 URLs prerendered

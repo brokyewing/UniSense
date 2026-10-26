@@ -5,7 +5,7 @@ import {
   Search, ListChecks, Database, Sparkles,
   BookOpen, Compass, Calculator, CalendarDays, ArrowRight,
 } from 'lucide-react'
-import BackgroundScene from '../components/three/BackgroundScene'
+import BackgroundScene from '../components/three/LazyBackgroundScene'
 import StreakBadge from '../components/StreakBadge'
 import { apiFetch } from '../lib/api'
 import { TERCIH_YILI } from '../lib/donem'
