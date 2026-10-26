@@ -10,12 +10,13 @@
 ### 1. Service Layer Kurulumu (`src/services/`)
 | Dosya | Sorumluluk |
 |-------|------------|
-| `constants.js` | Limitler, koleksiyon isimleri, eşikler, PRESET_AVATARS — **tek kaynak** |
+| `firebase-init.js` | Firebase app/auth/db/storage init — **tek kaynak** |
+| `constants.js` | Limitler, koleksiyon isimleri, eşikler, PRESET_AVATARS |
 | `auth.js` | Firebase Auth (login, register, logout, password) |
-| `firestore-core.js` | **Jenerik** `watchSubcollection`, CRUD helpers, `app` import |
+| `firestore-core.js` | **Jenerik** `watchSubcollection`, CRUD helpers, `db` import |
 | `firestore-study.js` | Konu, deneme, soru, yanlış, not, kartlar, istatistik |
 | `firestore-prefs.js` | **TÜM tercih listeleri** (YKS/DGS/KPSS/TUS/DUS/LGS) — tek `_watchTercih` pattern |
-| `firestore-plan.js` | Planlayıcı, istatistik, streak, sıralama (`siralama*` fonksiyonları dahil) |
+| `firestore-plan.js` | Planlayıcı, istatistik, streak, sıralama |
 | `firestore-push.js` | FCM push, avatar, query log, chat sessions |
 | `firestore-user.js` | `ensureUserDoc` (kullanıcı profili oluşturma) |
 | `api.js` | Backend API (timeout, auth header, ApiError) |
@@ -23,32 +24,35 @@
 | `index.js` | Barrel export |
 
 ### 2. Component Migration'ları (16 sayfa + 3 component + 3 lib + 1 context)
-**Sayfalar:**
-Search, Recommend, Calisma, Deneme, Konular, Planim, TercihList, Hesap, Ozetler, Notlar, Pano, LGS, Siralama, Pusula, Profile, TusDus
+**Sayfalar:** Search, Recommend, Calisma, Deneme, Konular, Planim, TercihList, Hesap, Ozetler, Notlar, Pano, LGS, Siralama, Pusula, Profile, TusDus
 
-**Component'ler:**
-- PushOptIn.jsx, StreakBadge.jsx, ChatSidebar.jsx
+**Component'ler:** PushOptIn, StreakBadge, ChatSidebar
 
-**Lib'ler:**
-- usage.js, api.js
+**Lib'ler:** usage.js, api.js
 
-**Context'ler:**
-- AuthContext.jsx
+**Context'ler:** AuthContext.jsx
 
-### 3. Build & Deploy
+### 3. Firebase.js Tamamen Kaldırıldı
+- `firebase.js` (1068 satır) silindi
+- `firebase-init.js` oluşturuldu — `app`, `auth`, `db`, `storage`, `googleProvider`, `appCheck` export eder
+- Tüm service dosyaları artık `firebase-init.js`'den import eder
+- **Legacy firebase import: 0** (sadece service layer içinde)
+
+### 4. Chunk Size Optimizasyonu
+- `three-vendor` (857 kB) → `three-core` (688 kB) + `three-fiber` (131 kB) + `three-drei` (36 kB)
+- `firebase-vendor` (520 kB) → `firebase-auth` (174 kB) + `firebase-firestore` (311 kB) + `firebase-storage` (34 kB) + `firebase-messaging` (44 kB) + `firebase-app` (1 kB)
+- Sadece `three-core` (688 kB) hala >500 kB (core three.js library)
+
+### 5. Build & Deploy
 - ✅ Build başarılı - 631 URL prerender
-- ✅ Chunk splitting çalışıyor (react-vendor, three-vendor, firebase-vendor, ui-vendor)
 - ✅ Vite proxy `/api` → `localhost:8002` çalışıyor
 - ✅ ngrok tunnel aktif: `https://75ce-88-227-34-121.ngrok-free.app`
 - ✅ Firebase Emulators: Firestore (8085), Auth (9099), UI (4000)
 
 ## Kalan İşler
-1. **Chunk boyutu**: `three-vendor` (857 kB) ve `firebase-vendor` (520 kB) büyük - code-splitting iyileştirilebilir
-2. **Legacy firebase.js**: Sadece `app` ve `auth` core instance'ları için kullanılıyor (service layer'ın temeli)
-
-## Sıradaki Adım
-- Chunk splitting optimizasyonu (dynamic import ile code-split)
-- `firebase.js`'i tamamen ortadan kaldırmak (app/auth instance'larını service layer'a taşımak)
+1. **three-core chunk** (688 kB) — dynamic import ile code-split (lazy loading)
+2. **Test coverage** — Yeni service layer için unit test'ler
+3. **TypeScript migration** — uzun vadeli
 
 ## Bloker
 - Yok - tüm servisler sağlıklı

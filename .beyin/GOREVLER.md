@@ -3,9 +3,10 @@
 ## ✅ Tamamlananlar
 
 ### Service Layer (`src/services/`)
+- [x] `firebase-init.js` - Firebase app/auth/db/storage init — **tek kaynak**
 - [x] `constants.js` - Limitler, koleksiyon isimleri, eşikler, PRESET_AVATARS
 - [x] `auth.js` - Firebase Auth
-- [x] `firestore-core.js` - Jenerik CRUD + `watchSubcollection`, `app` import
+- [x] `firestore-core.js` - Jenerik CRUD + `watchSubcollection`, `db` import
 - [x] `firestore-study.js` - Konu, deneme, soru, yanlış, not, kartlar
 - [x] `firestore-prefs.js` - TÜM tercih listeleri (tek `_watchTercih` pattern)
 - [x] `firestore-plan.js` - Planlayıcı, istatistik, streak, sıralama
@@ -24,22 +25,31 @@
 
 ### Build & Deploy
 - [x] Build başarılı (631 URL prerender)
-- [x] Chunk splitting optimize edildi
+- [x] Chunk splitting optimize edildi (9 ayrı chunk)
 - [x] Vite proxy + ngrok + Firebase Emulators çalışıyor
+
+### Legacy Cleanup
+- [x] `firebase.js` (1068 satır) tamamen silindi
+- [x] `firebase-init.js` oluşturuldu
+- [x] Tüm `../firebase` importları service layer'a taşındı
+- [x] `PRESET_AVATARS` → `constants.js`
+- [x] `siralama*` fonksiyonları → `firestore-plan.js`
+- [x] `@vercel/analytics` kuruldu
 
 ### Temizlik
 - [x] `TercihListYKSContent.jsx` silindi
 - [x] `fix_tercih.ps1` / `fix_end.ps1` silindi
-- [x] `@vercel/analytics` kuruldu
 
 ## 🔄 Devam Eden / Sıradaki
 
-### Chunk Size Optimizasyonu
-- [ ] `three-vendor` (857 kB) - dynamic import ile code-split
-- [ ] `firebase-vendor` (520 kB) - dynamic import ile code-split
+### Chunk Size Optimizasyonu (Kalan)
+- [ ] `three-core` (688 kB) - dynamic import ile code-split (lazy loading)
 
-### Legacy Cleanup
-- [ ] `firebase.js`'i tamamen ortadan kaldırmak (app/auth instance'larını service layer'a taşımak)
+### Test Coverage
+- [ ] Service layer için unit test'ler
+
+### TypeScript Migration (Uzun Vadeli)
+- [ ] JS → TS migration
 
 ## 📋 Notlar
 - `constants.js`'e `MAX_DGS_TERCIH`, `MAX_KPSS_TERCIH`, `MAX_TUS_TERCIH`, `MAX_LGS_TERCIH`, `PRESET_AVATARS` exportları eklendi
@@ -47,4 +57,4 @@
 - `hooks.js` tüm gerekli hook'ları içeriyor
 - Dynamic import pattern: `import('@/services/firestore-prefs').then(m => m.addToDgsTercih(...))`
 - Build: `npm run build` → 631 URL prerender, 0 hata
-- Legacy firebase imports: sadece `services/auth.js` ve `services/firestore-core.js` (app/auth core instance'ları)
+- Legacy firebase imports: 0 (sadece service layer içinde `firebase-init.js` import edilir)
