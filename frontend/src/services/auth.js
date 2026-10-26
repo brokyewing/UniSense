@@ -15,7 +15,7 @@ import {
   EmailAuthProvider,
   reauthenticateWithCredential,
 } from 'firebase/auth'
-import { app } from '../firebase'
+import { app } from './firebase-init'
 import { ensureUserDoc } from './firestore-user'
 
 let auth = null

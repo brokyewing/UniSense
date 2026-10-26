@@ -22,11 +22,8 @@ import {
   deleteField as _deleteField,
   getCountFromServer as _getCountFromServer,
 } from 'firebase/firestore'
-import { app } from '../firebase'
+import { app, db } from './firebase-init'
 import { FIRESTORE_COLLECTIONS, MAX_SESSIONS_PER_USER } from './constants'
-
-let db = null
-if (app) db = getFirestore(app)
 
 // Re-export individual functions to avoid Vite dev server issues
 export const doc = _doc
