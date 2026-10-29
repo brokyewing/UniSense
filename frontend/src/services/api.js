@@ -114,6 +114,14 @@ export const api = {
   employmentByProgram: (code) => apiFetch(`/api/v1/employment/program/${code}`),
   employmentYears: () => apiFetch('/api/v1/employment/years'),
 
+  // Analytics
+  analyticsLog: (event_type, page, user_id) => apiFetch('/api/v1/analytics/log', {
+    method: 'POST',
+    body: { event_type, page, user_id },
+  }),
+  analyticsSummary: () => apiFetch('/api/v1/analytics/summary'),
+  analyticsClear: () => apiFetch('/api/v1/analytics/clear', { method: 'DELETE' }),
+
   // Billing / İyzico
   checkout: (payload) => apiFetch('/api/v1/billing/checkout', { method: 'POST', body: payload }),
   webhook: (payload) => apiFetch('/api/v1/billing/webhook', { method: 'POST', body: payload }),

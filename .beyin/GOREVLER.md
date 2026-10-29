@@ -43,6 +43,22 @@
 - [ ] Service layer (hooks, firestore-*) için test'ler
 - [ ] Component test'leri (React Testing Library)
 
+### Burs/Ücret Veritabanı
+- [x] `scholarship.py` model (ScholarshipInfo, ScholarshipListResponse)
+- [x] `scholarship_service.py` (list, by_program, years - yıl bazlı)
+- [x] `scholarship_data.json` (2026 data, sample vakıf/devlet programlar)
+- [x] API endpoints: `/scholarship/list`, `/scholarship/program/{code}`, `/scholarship/years`
+- [x] Frontend API: `api.scholarshipList`, `api.scholarshipByProgram`, `api.scholarshipYears`
+- [ ] Frontend UI (burs bilgisi gösterimi in Compare/Hesap)
+
+### Mezun İstihdam Verisi
+- [x] `employment.py` model (EmploymentInfo, EmploymentListResponse)
+- [x] `employment_service.py` (list, by_program, years - yıl bazlı)
+- [x] `employment_data.json` (2026 data, sample CS programs)
+- [x] API endpoints: `/employment/list`, `/employment/program/{code}`, `/employment/years`
+- [x] Frontend API: `api.employmentList`, `api.employmentByProgram`, `api.employmentYears`
+- [ ] Frontend UI (istihdam bilgisi gösterimi in BolumDetay)
+
 ### Service Layer Migration (Önceki)
 - [x] Tüm 16 sayfa + 3 component + 3 lib + 1 context migrate edildi
 - [x] `firebase.js` tamamen kaldırıldı
@@ -51,20 +67,10 @@
 
 ## 🔄 Devam Eden / Sıradaki
 
-### Burs/Ücret Veritabanı (Yüksek Zorluk)
-- [ ] Backend: burs/ücret veri modeli + API endpoint
-- [ ] Frontend: burs bilgisi gösterimi (Hesap/Öneriler sayfalarında)
-- [ ] Her sene güncellenecek şekilde veri yapısı (yıl bazlı)
-- [ ] Vakıf üniversiteleri burs oranları
-
-### Mezun İstihdam Verisi (Yüksek Zorluk)
-- [ ] Backend: TÜİK/İŞKUR veri entegrasyonu
-- [ ] Frontend: bölüm sayfasında istihdam bilgisi
-- [ ] İş bulma oranı, maaş aralığı, istihdam sektörü
-
 ### Analytics Dashboard (Yüksek Zorluk)
 - [ ] Kullanıcı davranış analizi
-- [ ] Admin paneli (basit)
+- [ ] Backend: event logging endpoint
+- [ ] Frontend: admin paneli (basit)
 
 ### TypeScript Migration (Uzun Vadeli)
 - [ ] JS → TS migration (uzun vadeli)
@@ -73,8 +79,8 @@
 
 ## 📋 Notlar
 - Tüm özellikler ücretsiz olacak (premium kaldırıldı)
-- Her özellik için build test + GitHub push yapılacak
-- PWA + Error Boundary + Compare AI + Tercih Optimization + Unit Tests + Push Backend tamamlandı
-- Push notification: backend endpoint'ler hazır, Firebase Admin SDK + service account key gerekli
-- Burs/Ücret, İstihdam, Analytics: büyük feature'lar, veri kaynağı gerekli
+- Her özellik için build test + GitHub push yapıldı
+- PWA + Error Boundary + Compare AI + Tercih Optimization + Unit Tests + Push Backend + Burs + İstihdam tamamlandı
+- Kalan: Analytics Dashboard, TypeScript Migration
+- Analytics: backend event logging + frontend admin paneli gerekli
 - TypeScript: uzun vadeli, sayfa sayfa migrate edilebilir

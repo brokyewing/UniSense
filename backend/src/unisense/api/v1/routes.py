@@ -78,6 +78,7 @@ from unisense.application.services import (
     CompassService,
     RecommendationService,
 )
+from unisense.application.services.analytics_service import AnalyticsService
 from unisense.application.services.employment_service import EmploymentService
 from unisense.application.services.scholarship_service import ScholarshipService
 from unisense.core.di import get_vector_store
@@ -144,6 +145,32 @@ def employment_years():
     """Mevcut veri yıllarını döndür."""
     svc = EmploymentService()
     return {"years": svc.years()}
+
+# === Analytics Endpoints ===
+
+@router.post("/analytics/log")
+def log_analytics_event(
+    event_type: str,
+    page: str | None = None,
+    user_id: str | None = None,
+):
+    """Kullanıcı davranış olayı kaydet."""
+    svc = AnalyticsService()
+    return svc.log_event(event_type=event_type, page=page, user_id=user_id)
+
+
+@router.get("/analytics/summary")
+def analytics_summary():
+    """Analytics özeti döndür."""
+    svc = AnalyticsService()
+    return svc.summary()
+
+
+@router.delete("/analytics/clear")
+def analytics_clear():
+    """Analytics verisini temizle."""
+    svc = AnalyticsService()
+    return svc.clear()
 
 # === Push Notification Endpoints ===
 
