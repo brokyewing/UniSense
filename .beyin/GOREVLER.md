@@ -77,3 +77,4 @@
 - PWA + Error Boundary + Compare AI + Tercih Optimization + Unit Tests + Push Backend tamamlandı
 - Push notification: backend endpoint'ler hazır, Firebase Admin SDK + service account key gerekli
 - Burs/Ücret, İstihdam, Analytics: büyük feature'lar, veri kaynağı gerekli
+- TypeScript: uzun vadeli, sayfa sayfa migrate edilebilir

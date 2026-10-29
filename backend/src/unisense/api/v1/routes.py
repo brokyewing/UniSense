@@ -78,6 +78,7 @@ from unisense.application.services import (
     CompassService,
     RecommendationService,
 )
+from unisense.application.services.scholarship_service import ScholarshipService
 from unisense.core.di import get_vector_store
 from unisense.core.logging import get_logger
 from unisense.domain.models import Query, StudentProfile
@@ -87,6 +88,36 @@ from unisense.security.firebase_auth import require_user
 from unisense.security.input_sanitizer import sanitize_history_text, sanitize_query
 
 router = APIRouter(prefix="/api/v1", tags=["v1"])
+
+# === Burs/Ücret Endpoints ===
+
+@router.get("/scholarship/list")
+def scholarship_list(
+    year: int | None = None,
+    university: str | None = None,
+    department: str | None = None,
+    type_filter: str | None = None,
+):
+    """Burs/ücret listesini filtrele."""
+    svc = ScholarshipService()
+    return svc.list(year=year, university=university, department=department, type_filter=type_filter)
+
+
+@router.get("/scholarship/program/{program_code}")
+def scholarship_by_program(program_code: str):
+    """Belirli bir programın burs/ücret bilgisini döndür."""
+    svc = ScholarshipService()
+    result = svc.by_program(program_code)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Burs bilgisi bulunamadı")
+    return result
+
+
+@router.get("/scholarship/years")
+def scholarship_years():
+    """Mevcut veri yıllarını döndür."""
+    svc = ScholarshipService()
+    return {"years": svc.years()}
 
 # === Push Notification Endpoints ===
 

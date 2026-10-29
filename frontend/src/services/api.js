@@ -92,6 +92,18 @@ export const api = {
   // Konular
   konular: (sinav) => apiFetch(`/api/v1/konular?sinav=${sinav}`),
 
+  // Burs/Ücret
+  scholarshipList: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.year) qs.set('year', params.year)
+    if (params.university) qs.set('university', params.university)
+    if (params.department) qs.set('department', params.department)
+    if (params.type) qs.set('type_filter', params.type)
+    return apiFetch(`/api/v1/scholarship/list?${qs.toString()}`)
+  },
+  scholarshipByProgram: (code) => apiFetch(`/api/v1/scholarship/program/${code}`),
+  scholarshipYears: () => apiFetch('/api/v1/scholarship/years'),
+
   // Billing / İyzico
   checkout: (payload) => apiFetch('/api/v1/billing/checkout', { method: 'POST', body: payload }),
   webhook: (payload) => apiFetch('/api/v1/billing/webhook', { method: 'POST', body: payload }),
