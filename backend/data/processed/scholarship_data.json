@@ -1,0 +1,39 @@
+{
+  "year": 2026,
+  "items": [
+    {
+      "program_code": "101410163",
+      "university_name": "İstanbul Teknik Üniversitesi",
+      "department_name": "Bilgisayar Mühendisliği",
+      "year": 2026,
+      "university_type": "Devlet",
+      "fee_try": 0,
+      "scholarship_rate": 100,
+      "scholarship_type": "Devlet (ücretsiz)",
+      "notes": "Devlet üniversitesi - öğrenim ücreti yok"
+    },
+    {
+      "program_code": "203910363",
+      "university_name": "Bahçeşehir Üniversitesi",
+      "department_name": "Bilgisayar Mühendisliği",
+      "year": 2026,
+      "university_type": "Vakıf",
+      "fee_try": 185000,
+      "scholarship_rate": 50,
+      "scholarship_type": "%50 Burs",
+      "notes": "YKS puanına göre burs oranı değişir"
+    },
+    {
+      "program_code": "105610081",
+      "university_name": "Boğaziçi Üniversitesi",
+      "department_name": "Bilgisayar Mühendisliği",
+      "year": 2026,
+      "university_type": "Devlet",
+      "fee_try": 0,
+      "scholarship_rate": 100,
+      "scholarship_type": "Devlet (ücretsiz)",
+      "notes": "Devlet üniversitesi - öğrenim ücreti yok"
+    }
+  ],
+  "not": "2026 yılı burs/ücret bilgileri. Vakıf üniversiteleri için burs oranları YKS puanına göre değişebilir."
+}
