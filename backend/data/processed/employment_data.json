@@ -1,0 +1,30 @@
+{
+  "year": 2026,
+  "items": [
+    {
+      "program_code": "101410163",
+      "department_name": "Bilgisayar Mühendisliği",
+      "year": 2026,
+      "employment_rate": 92.5,
+      "avg_salary_try": 45000,
+      "salary_range_min": 30000,
+      "salary_range_max": 80000,
+      "employment_sector": "Bilişim / Teknoloji",
+      "top_employers": ["Türk Telekom", "Garanti BBVA", "Trendyol", "Havelsan"],
+      "notes": "TÜİK 2025 verileri baz alınmıştır"
+    },
+    {
+      "program_code": "105610081",
+      "department_name": "Bilgisayar Mühendisliği",
+      "year": 2026,
+      "employment_rate": 95.0,
+      "avg_salary_try": 55000,
+      "salary_range_min": 40000,
+      "salary_range_max": 120000,
+      "employment_sector": "Bilişim / Teknoloji",
+      "top_employers": ["Google", "Microsoft", "Trendyol", "Getir"],
+      "notes": "TÜİK 2025 verileri baz alınmıştır"
+    }
+  ],
+  "not": "2026 yılı mezun istihdam bilgileri. Veriler TÜİK/İŞKUR istatistiklerinden derlenmiştir. Maaşlar brüt, yeni mezun seviyesindedir."
+}

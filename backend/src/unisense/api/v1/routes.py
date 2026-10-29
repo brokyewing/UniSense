@@ -78,6 +78,7 @@ from unisense.application.services import (
     CompassService,
     RecommendationService,
 )
+from unisense.application.services.employment_service import EmploymentService
 from unisense.application.services.scholarship_service import ScholarshipService
 from unisense.core.di import get_vector_store
 from unisense.core.logging import get_logger
@@ -117,6 +118,31 @@ def scholarship_by_program(program_code: str):
 def scholarship_years():
     """Mevcut veri yıllarını döndür."""
     svc = ScholarshipService()
+    return {"years": svc.years()}
+
+# === Mezun İstihdam Endpoints ===
+
+@router.get("/employment/list")
+def employment_list(year: int | None = None, department: str | None = None):
+    """Mezun istihdam bilgisi listesini filtrele."""
+    svc = EmploymentService()
+    return svc.list(year=year, department=department)
+
+
+@router.get("/employment/program/{program_code}")
+def employment_by_program(program_code: str):
+    """Belirli bir programın istihdam bilgisini döndür."""
+    svc = EmploymentService()
+    result = svc.by_program(program_code)
+    if result is None:
+        raise HTTPException(status_code=404, detail="İstihdam bilgisi bulunamadı")
+    return result
+
+
+@router.get("/employment/years")
+def employment_years():
+    """Mevcut veri yıllarını döndür."""
+    svc = EmploymentService()
     return {"years": svc.years()}
 
 # === Push Notification Endpoints ===

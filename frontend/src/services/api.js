@@ -104,6 +104,16 @@ export const api = {
   scholarshipByProgram: (code) => apiFetch(`/api/v1/scholarship/program/${code}`),
   scholarshipYears: () => apiFetch('/api/v1/scholarship/years'),
 
+  // Mezun İstihdam
+  employmentList: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.year) qs.set('year', params.year)
+    if (params.department) qs.set('department', params.department)
+    return apiFetch(`/api/v1/employment/list?${qs.toString()}`)
+  },
+  employmentByProgram: (code) => apiFetch(`/api/v1/employment/program/${code}`),
+  employmentYears: () => apiFetch('/api/v1/employment/years'),
+
   // Billing / İyzico
   checkout: (payload) => apiFetch('/api/v1/billing/checkout', { method: 'POST', body: payload }),
   webhook: (payload) => apiFetch('/api/v1/billing/webhook', { method: 'POST', body: payload }),
