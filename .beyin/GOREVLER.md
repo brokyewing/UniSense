@@ -15,6 +15,34 @@
 - [x] User-friendly error UI with retry and reload buttons
 - [x] Error details in dev mode only
 
+### Bölüm Karşılaştırma (Side-by-Side)
+- [x] Compare.jsx sayfası mevcut (25+ metrik karşılaştırma)
+- [x] AI destekli karşılaştırma özeti eklendi
+- [ ] Tercih listesinden "Karşılaştır" butonu ekle
+
+### Tercih Sırası Optimizasyonu
+- [x] AI destekli tercih sıralama önerisi (TercihList.jsx)
+- [x] "Analiz Et" butonu ve sonuç gösterimi
+- [ ] Risk analizi (güvenli/hedef/riskli dağılımı) UI
+
+### Push Notification Backend
+- [x] `push_service.py` - FCM push notification service (firebase-admin)
+- [x] API endpoints: `/push/send`, `/push/exam-reminder`, `/push/streak-reminder`
+- [x] `firebase-admin` added to requirements.txt
+- [ ] Service account key setup (Firebase Console)
+- [ ] Scheduled jobs (cron) for periodic notifications
+- [ ] Frontend integration (call backend endpoints)
+
+### Unit Test Coverage
+- [x] Vitest 2.1.0 kurulumu
+- [x] `vitest.config.js` - jsdom environment
+- [x] `test/setup.js` - cleanup
+- [x] `constants.test.js` - 12 test
+- [x] `api.test.js` - 2 test
+- [x] `test` ve `test:watch` scripts
+- [ ] Service layer (hooks, firestore-*) için test'ler
+- [ ] Component test'leri (React Testing Library)
+
 ### Service Layer Migration (Önceki)
 - [x] Tüm 16 sayfa + 3 component + 3 lib + 1 context migrate edildi
 - [x] `firebase.js` tamamen kaldırıldı
@@ -23,46 +51,22 @@
 
 ## 🔄 Devam Eden / Sıradaki
 
-### 1. Bölüm Karşılaştırma (Side-by-Side) — Zaten Mevcut
-- [x] Compare.jsx sayfası mevcut (25+ metrik karşılaştırma)
-- [ ] AI destekli karşılaştırma özeti ekle
-- [ ] Tercih listesinden "Karşılaştır" butonu ekle
-- [ ] Test + deploy
-
-### 2. Tercih Sırası Optimizasyonu
-- [ ] AI destekli tercih sıralama önerisi
-- [ ] "Bu sıralamayla en iyi strateji şu" mesajı
-- [ ] Risk analizi (güvenli/hedef/riskli dağılımı)
-- [ ] Test + deploy
-
-### 3. Unit Test Coverage
-- [ ] Vitest kurulumu
-- [ ] Service layer test'leri
-- [ ] Component test'leri (React Testing Library)
-- [ ] CI/CD'de test çalıştırma
-
-### 4. Push Notification Backend
-- [ ] Firebase Admin SDK kurulumu (backend)
-- [ ] Push notification endpoint
-- [ ] Sınav tarihi hatırlatma (scheduled job)
-- [ ] Tercih dönemi başladığında push bildirim
-
-### 5. Burs/Ücret Veritabanı
+### Burs/Ücret Veritabanı (Yüksek Zorluk)
 - [ ] Backend: burs/ücret veri modeli + API endpoint
-- [ ] Frontend: burs bilgisi gösterimi
+- [ ] Frontend: burs bilgisi gösterimi (Hesap/Öneriler sayfalarında)
 - [ ] Her sene güncellenecek şekilde veri yapısı (yıl bazlı)
 - [ ] Vakıf üniversiteleri burs oranları
 
-### 6. Mezun İstihdam Verisi
+### Mezun İstihdam Verisi (Yüksek Zorluk)
 - [ ] Backend: TÜİK/İŞKUR veri entegrasyonu
 - [ ] Frontend: bölüm sayfasında istihdam bilgisi
 - [ ] İş bulma oranı, maaş aralığı, istihdam sektörü
 
-### 7. Analytics Dashboard
+### Analytics Dashboard (Yüksek Zorluk)
 - [ ] Kullanıcı davranış analizi
 - [ ] Admin paneli (basit)
 
-### 8. TypeScript Migration (Uzun Vadeli)
+### TypeScript Migration (Uzun Vadeli)
 - [ ] JS → TS migration (uzun vadeli)
 - [ ] Tip tanımları
 - [ ] Gradual migration (sayfa sayfa)
@@ -70,5 +74,6 @@
 ## 📋 Notlar
 - Tüm özellikler ücretsiz olacak (premium kaldırıldı)
 - Her özellik için build test + GitHub push yapılacak
-- PWA + Error Boundary tamamlandı
-- Compare.jsx zaten mevcut ve kapsamlı (25+ metrik)
+- PWA + Error Boundary + Compare AI + Tercih Optimization + Unit Tests + Push Backend tamamlandı
+- Push notification: backend endpoint'ler hazır, Firebase Admin SDK + service account key gerekli
+- Burs/Ücret, İstihdam, Analytics: büyük feature'lar, veri kaynağı gerekli

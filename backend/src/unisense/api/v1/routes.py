@@ -87,6 +87,42 @@ from unisense.security.firebase_auth import require_user
 from unisense.security.input_sanitizer import sanitize_history_text, sanitize_query
 
 router = APIRouter(prefix="/api/v1", tags=["v1"])
+
+# === Push Notification Endpoints ===
+
+@router.post("/push/send")
+async def send_push(request: Request, uid: str = Depends(require_user)):
+    """Kullanıcıya push bildirim gönder (test amaçlı)."""
+    try:
+        from unisense.application.services.push_service import send_push_notification
+        result = send_push_notification(
+            tokens=[],
+            title="Test Bildirim",
+            body="UniSense push notification testi",
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/push/exam-reminder")
+async def exam_reminder(request: Request, uid: str = Depends(require_user)):
+    """Sınav hatırlatma bildirimi gönder."""
+    try:
+        from unisense.application.services.push_service import send_exam_reminder
+        send_exam_reminder(uid, "YKS", 30)
+        return {"status": "ok", "message": "Exam reminder sent"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/push/streak-reminder")
+async def streak_reminder(request: Request, uid: str = Depends(require_user)):
+    """Seri hatırlatma bildirimi gönder."""
+    try:
+        from unisense.application.services.push_service import send_streak_reminder
+        send_streak_reminder(uid, 5)
+        return {"status": "ok", "message": "Streak reminder sent"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 logger = get_logger(__name__)
 
 # LLM cevabındaki ÖSYM program kodları (9 hane) — doğrulama için
