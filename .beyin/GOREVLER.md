@@ -1,60 +1,73 @@
-# GOREVLER - UniSense Frontend Refactoring
+# GOREVLER - UniSense Ekstra Özellikler
 
-## ✅ Tamamlananlar
+## 📋 Yapılacaklar (Sıralı)
 
-### Service Layer (`src/services/`)
-- [x] `firebase-init.js` - Firebase app/auth/db/storage init — **tek kaynak**
-- [x] `constants.js` - Limitler, koleksiyon isimleri, eşikler, PRESET_AVATARS
-- [x] `auth.js` - Firebase Auth
-- [x] `firestore-core.js` - Jenerik CRUD + `watchSubcollection`, `db` import
-- [x] `firestore-study.js` - Konu, deneme, soru, yanlış, not, kartlar
-- [x] `firestore-prefs.js` - TÜM tercih listeleri (tek `_watchTercih` pattern)
-- [x] `firestore-plan.js` - Planlayıcı, istatistik, streak, sıralama
-- [x] `firestore-push.js` - FCM push, avatar, query log, chat sessions
-- [x] `firestore-user.js` - `ensureUserDoc`
-- [x] `api.js` - Backend API client
-- [x] `hooks.js` - Tüm custom hook'lar
-- [x] `index.js` - Barrel export
+### 1. PWA / Offline Destek
+- [ ] `manifest.json` oluştur (app name, icons, theme color, display: standalone)
+- [ ] Service worker (`sw.js`) oluştur (cache strategy: cache-first for assets, network-first for API)
+- [ ] `index.html`'e manifest link ve meta tags ekle
+- [ ] Vite config'de service worker build desteği
+- [ ] "Ana ekrana ekle" prompt'u (beforeinstallprompt event)
+- [ ] Offline fallback sayfası
+- [ ] Build test + deploy
 
-### Component Migrations (16 sayfa + 3 component + 3 lib + 1 context)
-- [x] **Search.jsx**, **Recommend.jsx**, **Calisma.jsx**, **Deneme.jsx**, **Konular.jsx**
-- [x] **Planim.jsx**, **TercihList.jsx**, **Hesap.jsx**, **Ozetler.jsx**, **Notlar.jsx**
-- [x] **Pano.jsx**, **LGS.jsx**, **Siralama.jsx**, **Pusula.jsx**, **Profile.jsx**, **TusDus.jsx**
-- [x] **PushOptIn.jsx**, **StreakBadge.jsx**, **ChatSidebar.jsx**
-- [x] **usage.js**, **api.js**, **AuthContext.jsx**
+### 2. Bildirim Sistemi (Push)
+- [ ] FCM token yönetimi (zaten var - firestore-push.js)
+- [ ] Bildirim izni isteme UI (PushOptIn component var)
+- [ ] Sınav tarihi hatırlatma (backend scheduled job)
+- [ ] Tercih dönemi başladığında push bildirim
+- [ ] Bildirim tercihleri (hangi bildirimler açık/kapalı)
+- [ ] Backend: push notification endpoint
+- [ ] Test + deploy
 
-### Build & Deploy
-- [x] Build başarılı (631 URL prerender)
-- [x] Chunk splitting optimize edildi (9 ayrı chunk)
-- [x] Vite proxy + ngrok + Firebase Emulators çalışıyor
+### 3. Bölüm Karşılaştırma (Side-by-Side)
+- [ ] Compare.jsx sayfası iyileştirme (zaten var, geliştirilecek)
+- [ ] 2-3 bölümü yan yana karşılaştırma UI
+- [ ] Puan, kontenjan, şehir, iş imkanı karşılaştırma
+- [ ] AI destekli karşılaştırma özeti
+- [ ] Test + deploy
 
-### Legacy Cleanup
-- [x] `firebase.js` (1068 satır) tamamen silindi
-- [x] `firebase-init.js` oluşturuldu
-- [x] Tüm `../firebase` importları service layer'a taşındı
-- [x] `PRESET_AVATARS` → `constants.js`
-- [x] `siralama*` fonksiyonları → `firestore-plan.js`
-- [x] `@vercel/analytics` kuruldu
+### 4. Tercih Sırası Optimizasyonu
+- [ ] AI destekli tercih sıralama önerisi
+- [ ] "Bu sıralamayla en iyi strateji şu" mesajı
+- [ ] Risk analizi (güvenli/hedef/riskli dağılımı)
+- [ ] Test + deploy
 
-### Temizlik
-- [x] `TercihListYKSContent.jsx` silindi
-- [x] `fix_tercih.ps1` / `fix_end.ps1` silindi
+### 5. Burs/Ücret Veritabanı
+- [ ] Backend: burs/ücret veri modeli + API endpoint
+- [ ] Frontend: burs bilgisi gösterimi (Hesap/Öneriler sayfalarında)
+- [ ] Her sene güncellenecek şekilde veri yapısı (yıl bazlı)
+- [ ] Vakıf üniversiteleri burs oranları
+- [ ] Test + deploy
 
-## 🔄 Devam Eden / Sıradaki
+### 6. Mezun İstihdam Verisi
+- [ ] Backend: TÜİK/İŞKUR veri entegrasyonu
+- [ ] Frontend: bölüm sayfasında istihdam bilgisi
+- [ ] İş bulma oranı, maaş aralığı, istihdam sektörü
+- [ ] Test + deploy
 
-### Chunk Size Optimizasyonu (Kalan)
-- [ ] `three-core` (688 kB) - dynamic import ile code-split (lazy loading)
+### 7. Unit Test Coverage
+- [ ] Service layer (hooks, firestore-*) için test'ler
+- [ ] Vitest kurulumu
+- [ ] Component test'leri (React Testing Library)
+- [ ] CI/CD'de test çalıştırma
 
-### Test Coverage
-- [ ] Service layer için unit test'ler
+### 8. TypeScript Migration
+- [ ] JS → TS migration (uzun vadeli)
+- [ ] Tip tanımları
+- [ ] Gradual migration (sayfa sayfa)
 
-### TypeScript Migration (Uzun Vadeli)
-- [ ] JS → TS migration
+### 9. Error Boundary
+- [ ] React error boundary component
+- [ ] Crash recovery UI
+- [ ] Hata raporlama (Sentry veya benzeri)
+
+### 10. Analytics Dashboard
+- [ ] Kullanıcı davranış analizi
+- [ ] Hangi sayfalar, hangi sorular
+- [ ] Admin paneli (basit)
 
 ## 📋 Notlar
-- `constants.js`'e `MAX_DGS_TERCIH`, `MAX_KPSS_TERCIH`, `MAX_TUS_TERCIH`, `MAX_LGS_TERCIH`, `PRESET_AVATARS` exportları eklendi
-- `firestore-core.js` duplicate export hatası düzeltildi
-- `hooks.js` tüm gerekli hook'ları içeriyor
-- Dynamic import pattern: `import('@/services/firestore-prefs').then(m => m.addToDgsTercih(...))`
-- Build: `npm run build` → 631 URL prerender, 0 hata
-- Legacy firebase imports: 0 (sadece service layer içinde `firebase-init.js` import edilir)
+- Tüm özellikler ücretsiz olacak (premium kaldırıldı)
+- Her özellik için build test + GitHub push yapılacak
+- Sıralı ilerleme: her biri tamamlandıktan sonra sıradakine geçilecek

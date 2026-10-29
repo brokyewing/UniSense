@@ -25,6 +25,7 @@ import OzetDetay from './pages/OzetDetay.jsx'
 import Siralama from './pages/Siralama.jsx'
 import { AuthProvider } from './contexts/AuthContext.jsx'
 import { ThemeProvider } from './contexts/ThemeContext.jsx'
+import PWAInstallPrompt from './components/PWAInstallPrompt.jsx'
 import './index.css'
 
 inject()
@@ -83,6 +84,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               ))}
             </Route>
           </Routes>
+          <PWAInstallPrompt />
         </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>

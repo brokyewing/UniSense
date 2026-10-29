@@ -1,0 +1,6 @@
+feat: add PWA install prompt component
+
+- Created PWAInstallPrompt.jsx (beforeinstallprompt handler)
+- Added to main.jsx render tree
+- PWA already had manifest.webmanifest + sw.js + registration
+- Now shows custom "Ana ekrana ekle" prompt on mobile/desktop
