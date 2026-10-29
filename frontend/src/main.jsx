@@ -26,6 +26,7 @@ import Siralama from './pages/Siralama.jsx'
 import { AuthProvider } from './contexts/AuthContext.jsx'
 import { ThemeProvider } from './contexts/ThemeContext.jsx'
 import PWAInstallPrompt from './components/PWAInstallPrompt.jsx'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 import './index.css'
 
 inject()
@@ -49,10 +50,11 @@ function LegacyRedirect({ to }) {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ThemeProvider>
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
             <Route element={<App />}>
               <Route index element={<Splash />} />
               <Route path="/anasayfa" element={<Home />} />
@@ -88,6 +90,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>
+    </ErrorBoundary>
   </React.StrictMode>,
 )
 
