@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import {
   BarChart3, Loader2, AlertCircle, ArrowLeft, TrendingUp,
   Award, Calendar, Users, Building2,
-  MapPin, GraduationCap, ExternalLink, X,
+  MapPin, GraduationCap, ExternalLink, X, Sparkles,
 } from 'lucide-react'
 import BackgroundScene from '../components/three/LazyBackgroundScene'
 import MiniTrend from '../components/MiniTrend'
@@ -141,6 +141,8 @@ export default function Compare() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [aiSummary, setAiSummary] = useState('')
+  const [aiLoading, setAiLoading] = useState(false)
 
   useEffect(() => {
     if (codesFromUrl.length < 2) {
@@ -177,6 +179,32 @@ export default function Compare() {
 
     return () => { cancelled = true }
   }, [codesFromUrl])
+
+  // AI comparison summary
+  useEffect(() => {
+    if (!data || !data.items || data.items.filter((it) => it.found).length < 2) {
+      setAiSummary('')
+      return
+    }
+    const found = data.items.filter((it) => it.found)
+    const names = found.map((it) => `${it.department_name} (${it.university_name})`).join(', ')
+    const summary = found.map((it) => {
+      const parts = [it.department_name]
+      if (it.base_rank != null) parts.push(`sıra: ${it.base_rank.toLocaleString('tr-TR')}`)
+      if (it.base_score != null) parts.push(`puan: ${it.base_score.toFixed(2)}`)
+      if (it.university_type) parts.push(it.university_type)
+      if (it.city) parts.push(it.city)
+      return parts.join(' · ')
+    }).join('\\n')
+    const q = `Şu programları karşılaştır: ${names}. Veriler:\\n${summary}\\n\\nBu programlar arasında en iyi seçim hangisi ve neden? Kısa (3-4 cümle) Türkçe tavsiye ver.`
+    if (q.length > 490) return
+
+    setAiLoading(true)
+    apiFetch('/api/v1/ask', { method: 'POST', body: { query: q } })
+      .then((r) => setAiSummary(r?.text || ''))
+      .catch(() => setAiSummary(''))
+      .finally(() => setAiLoading(false))
+  }, [data])
 
   function removeCode(code) {
     const remaining = codesFromUrl.filter((c) => c !== code)
@@ -343,6 +371,30 @@ export default function Compare() {
                     </div>
                   ))}
                 </div>
+              </motion.div>
+            )}
+
+            {/* AI Karşılaştırma Özeti */}
+            {found.length >= 2 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.3 }}
+                className="card border-accent-500/30 bg-accent-500/5 mt-4"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles size={16} className="text-accent-300" />
+                  <h3 className="font-display font-semibold text-white text-sm">AI Karşılaştırma Özeti</h3>
+                </div>
+                {aiLoading ? (
+                  <div className="flex items-center gap-2 text-sm text-slate-400">
+                    <Loader2 size={14} className="animate-spin" /> Analiz ediliyor…
+                  </div>
+                ) : aiSummary ? (
+                  <p className="text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">{aiSummary}</p>
+                ) : (
+                  <p className="text-xs text-slate-500">Karşılaştırma özeti yükleniyor…</p>
+                )}
               </motion.div>
             )}
 

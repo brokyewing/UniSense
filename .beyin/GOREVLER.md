@@ -1,73 +1,74 @@
 # GOREVLER - UniSense Ekstra Özellikler
 
-## 📋 Yapılacaklar (Sıralı)
+## ✅ Tamamlananlar
 
-### 1. PWA / Offline Destek
-- [ ] `manifest.json` oluştur (app name, icons, theme color, display: standalone)
-- [ ] Service worker (`sw.js`) oluştur (cache strategy: cache-first for assets, network-first for API)
-- [ ] `index.html`'e manifest link ve meta tags ekle
-- [ ] Vite config'de service worker build desteği
-- [ ] "Ana ekrana ekle" prompt'u (beforeinstallprompt event)
-- [ ] Offline fallback sayfası
-- [ ] Build test + deploy
+### PWA / Offline Destek
+- [x] `manifest.webmanifest` - app name, icons, theme color, display: standalone
+- [x] Service worker (`sw.js`) - network-first caching, offline fallback
+- [x] `index.html` - manifest link, meta tags, theme-color
+- [x] Service worker registration (`main.jsx`)
+- [x] `PWAInstallPrompt.jsx` - custom "Ana ekrana ekle" prompt
 
-### 2. Bildirim Sistemi (Push)
-- [ ] FCM token yönetimi (zaten var - firestore-push.js)
-- [ ] Bildirim izni isteme UI (PushOptIn component var)
-- [ ] Sınav tarihi hatırlatma (backend scheduled job)
-- [ ] Tercih dönemi başladığında push bildirim
-- [ ] Bildirim tercihleri (hangi bildirimler açık/kapalı)
-- [ ] Backend: push notification endpoint
+### Error Boundary
+- [x] `ErrorBoundary.jsx` - class component with getDerivedStateFromError
+- [x] Wrapped entire app in ErrorBoundary (main.jsx)
+- [x] User-friendly error UI with retry and reload buttons
+- [x] Error details in dev mode only
+
+### Service Layer Migration (Önceki)
+- [x] Tüm 16 sayfa + 3 component + 3 lib + 1 context migrate edildi
+- [x] `firebase.js` tamamen kaldırıldı
+- [x] Chunk splitting optimize edildi
+- [x] Build: 631 URL prerender, 0 hata
+
+## 🔄 Devam Eden / Sıradaki
+
+### 1. Bölüm Karşılaştırma (Side-by-Side) — Zaten Mevcut
+- [x] Compare.jsx sayfası mevcut (25+ metrik karşılaştırma)
+- [ ] AI destekli karşılaştırma özeti ekle
+- [ ] Tercih listesinden "Karşılaştır" butonu ekle
 - [ ] Test + deploy
 
-### 3. Bölüm Karşılaştırma (Side-by-Side)
-- [ ] Compare.jsx sayfası iyileştirme (zaten var, geliştirilecek)
-- [ ] 2-3 bölümü yan yana karşılaştırma UI
-- [ ] Puan, kontenjan, şehir, iş imkanı karşılaştırma
-- [ ] AI destekli karşılaştırma özeti
-- [ ] Test + deploy
-
-### 4. Tercih Sırası Optimizasyonu
+### 2. Tercih Sırası Optimizasyonu
 - [ ] AI destekli tercih sıralama önerisi
 - [ ] "Bu sıralamayla en iyi strateji şu" mesajı
 - [ ] Risk analizi (güvenli/hedef/riskli dağılımı)
 - [ ] Test + deploy
 
+### 3. Unit Test Coverage
+- [ ] Vitest kurulumu
+- [ ] Service layer test'leri
+- [ ] Component test'leri (React Testing Library)
+- [ ] CI/CD'de test çalıştırma
+
+### 4. Push Notification Backend
+- [ ] Firebase Admin SDK kurulumu (backend)
+- [ ] Push notification endpoint
+- [ ] Sınav tarihi hatırlatma (scheduled job)
+- [ ] Tercih dönemi başladığında push bildirim
+
 ### 5. Burs/Ücret Veritabanı
 - [ ] Backend: burs/ücret veri modeli + API endpoint
-- [ ] Frontend: burs bilgisi gösterimi (Hesap/Öneriler sayfalarında)
+- [ ] Frontend: burs bilgisi gösterimi
 - [ ] Her sene güncellenecek şekilde veri yapısı (yıl bazlı)
 - [ ] Vakıf üniversiteleri burs oranları
-- [ ] Test + deploy
 
 ### 6. Mezun İstihdam Verisi
 - [ ] Backend: TÜİK/İŞKUR veri entegrasyonu
 - [ ] Frontend: bölüm sayfasında istihdam bilgisi
 - [ ] İş bulma oranı, maaş aralığı, istihdam sektörü
-- [ ] Test + deploy
 
-### 7. Unit Test Coverage
-- [ ] Service layer (hooks, firestore-*) için test'ler
-- [ ] Vitest kurulumu
-- [ ] Component test'leri (React Testing Library)
-- [ ] CI/CD'de test çalıştırma
+### 7. Analytics Dashboard
+- [ ] Kullanıcı davranış analizi
+- [ ] Admin paneli (basit)
 
-### 8. TypeScript Migration
+### 8. TypeScript Migration (Uzun Vadeli)
 - [ ] JS → TS migration (uzun vadeli)
 - [ ] Tip tanımları
 - [ ] Gradual migration (sayfa sayfa)
 
-### 9. Error Boundary
-- [ ] React error boundary component
-- [ ] Crash recovery UI
-- [ ] Hata raporlama (Sentry veya benzeri)
-
-### 10. Analytics Dashboard
-- [ ] Kullanıcı davranış analizi
-- [ ] Hangi sayfalar, hangi sorular
-- [ ] Admin paneli (basit)
-
 ## 📋 Notlar
 - Tüm özellikler ücretsiz olacak (premium kaldırıldı)
 - Her özellik için build test + GitHub push yapılacak
-- Sıralı ilerleme: her biri tamamlandıktan sonra sıradakine geçilecek
+- PWA + Error Boundary tamamlandı
+- Compare.jsx zaten mevcut ve kapsamlı (25+ metrik)
