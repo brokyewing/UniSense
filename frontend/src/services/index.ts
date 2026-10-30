@@ -4,7 +4,7 @@
  */
 
 // Constants
-export * from './constants'
+export { TERCIH_LIMITS, MAX_DGS_TERCIH, MAX_KPSS_TERCIH, MAX_TUS_TERCIH, MAX_LGS_TERCIH, EXAM_TYPES, SCORE_TYPES, FIRESTORE_COLLECTIONS, RISK_THRESHOLDS, API_TIMEOUT_MS, STORAGE_KEYS, FIRESTORE_MAX_ID_LENGTH, MAX_SESSIONS_PER_USER, DEFAULT_LIMITS, PRESET_AVATARS } from './constants'
 
 // Core Firestore
 export { db, watchSubcollection, getSubcollectionDoc, getSubcollectionAll, addSubcollectionDoc, setSubcollectionDoc, updateSubcollectionDoc, deleteSubcollectionDoc, batchWrite } from './firestore-core'

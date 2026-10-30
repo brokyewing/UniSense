@@ -37,12 +37,12 @@ const BOYUT = 30
 
 function kalanGun(sonBasvuru) {
   if (!sonBasvuru) return null
-  const gun = Math.ceil((new Date(sonBasvuru) - new Date()) / 86400000)
+  const gun = Math.ceil((new Date(sonBasvuru).getTime() - new Date().getTime()) / 86400000)
   return gun
 }
 
 function SinyalKart({ ilan, bolumAd }) {
-  const eslesme = Object.entries(ilan.detay?.eslesme || {}).filter(([, c]) => c > 0)
+  const eslesme = Object.entries(ilan.detay?.eslesme || {}).filter(([, c]) => (c as number) > 0)
   const kalan = kalanGun(ilan.son_basvuru)
   const yer = [ilan.il || ilan.sehir, ilan.ilce].filter(Boolean).join(' / ')
   return (
@@ -89,7 +89,7 @@ function SinyalKart({ ilan, bolumAd }) {
         <div className="flex flex-wrap gap-1.5 mt-2.5">
           {eslesme.map(([grup, sayi]) => (
             <span key={grup} className="text-[10px] px-2 py-0.5 rounded-full border bg-accent-500/10 text-accent-200 border-accent-500/30">
-              {grup.replaceAll('_', ' ')}: {sayi}
+              {String(grup).split('_').join(' ')}: {String(sayi)}
             </span>
           ))}
         </div>
@@ -158,7 +158,7 @@ function useFiltreDurumu() {
     const p = new URLSearchParams()
     for (const [k, v] of Object.entries(yeni)) {
       if (Array.isArray(v)) v.forEach((x) => x && p.append(k, x))
-      else if (v) p.set(k, v)
+      else if (v) p.set(k, String(v))
     }
     setParams(p, { replace: true })
   }
@@ -179,7 +179,7 @@ export default function Kariyer() {
   const [toplam, setToplam] = useState(0)
   const [kaynaklar, setKaynaklar] = useState([])
   const [bolumler, setBolumler] = useState([])
-  const [facet, setFacet] = useState({})
+  const [facet, setFacet] = useState<any>({})
   const [meta, setMeta] = useState(null)
   const [yukleniyor, setYukleniyor] = useState(true)
   const [hata, setHata] = useState('')
@@ -230,13 +230,13 @@ export default function Kariyer() {
         if (!iptal) setYukleniyor(false)
       }
     }
-    const t = setTimeout(() => yukle(false), q ? 400 : 0)
+    const t = setTimeout(() => yukle(), q ? 400 : 0)
     return () => { iptal = true; clearTimeout(t) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtreAnahtari])
 
   const guncelle = (yama) => {
-    const mevcut = { hat, bolum, q, bolge, il, ilce, calisma, istihdam, deneyim, kpss, sira }
+    const mevcut: any = { hat, bolum, q, bolge, il, ilce, calisma, istihdam, deneyim, kpss, sira }
     if (sadeceYeni) mevcut.yeni = '1'
     yaz({ ...mevcut, ...yama })
   }

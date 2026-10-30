@@ -4,8 +4,10 @@ import { Loader2, Plus, Trash2, TrendingUp, Target, X, LineChart, ArrowRight, Sp
 import BackgroundScene from '../components/three/LazyBackgroundScene'
 import Seo from '../components/Seo'
 import { api } from '@/services/api'
+import { apiFetch } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
 import { useDenemeler, useSoruKayit, useKonuIlerleme } from '@/services/hooks'
+import { recordActivity } from '@/services/firestore-plan'
 import { track } from '../lib/analytics'
 import { konuLocal, eksikKonular, konuBloklari } from '../lib/konu'
 import { tasimaGerekli, damgala } from '../lib/bulutTasima'
@@ -81,8 +83,8 @@ export default function Deneme({ embedded = false }) {
   const [kocLoading, setKocLoading] = useState(false)
   const [konuData, setKonuData] = useState(null)
 
-  const { denemeler, loading: denemelerLoading } = useDenemeler(sinav)
-  const { kayitlar: soruKayit, loading: soruKayitLoading } = useSoruKayit(sinav)
+  const { denemeler, loading: denemelerLoading, setDenemeler } = useDenemeler(sinav)
+  const { kayitlar: soruKayit, loading: soruKayitLoading, setKayitlar: setSoruKayit } = useSoruKayit(sinav)
   const { checked: konuChecked, loading: konuCheckedLoading } = useKonuIlerleme(sinav)
 
   // Profilden varsayılan sınav + tür + diploma + koç için profil
@@ -215,8 +217,8 @@ export default function Deneme({ embedded = false }) {
   const kimDeyisi = () => (turlerFor(sinav) ? `${type} (${sinav})` : sinav)
 
   // user_context yalnız ilgili sınavın verisini gönderir (DGS'de YKS puanı GİTMESİN)
-  function trackUc() {
-    const uc = {}
+  function trackUc(): Record<string, any> {
+    const uc: Record<string, any> = {}
     if (sinav === 'YKS') {
       if (profil?.score) { uc.yks_puan = profil.score; if (profil.scoreType) uc.yks_turu = profil.scoreType }
       if (profil?.rank) uc.yks_sira = profil.rank
@@ -258,16 +260,14 @@ export default function Deneme({ embedded = false }) {
   const bloklar = useMemo(() => konuBloklari(konuData), [konuData])
   // Konu bazında soru çözüm özeti (birden çok kayıt toplanır) — gösterim + AI koç
   const soruOzet = useMemo(() => {
-    const m = {}
+    const m: Record<string, any> = {}
     for (const s of soruKayit) {
       const k = `${s.ders || ''}|${s.konu || ''}`
       if (!m[k]) m[k] = { ders: s.ders, konu: s.konu, cozulen: 0, dogru: 0 }
       m[k].cozulen += s.cozulen || 0; m[k].dogru += s.dogru || 0
     }
-    return Object.values(m).sort((a, b) => b.cozulen - a.cozulen)
+    return Object.values(m).sort((a: any, b: any) => b.cozulen - a.cozulen)
   }, [soruKayit])
-
-  function flash(m) { setToast(m); setTimeout(() => setToast(''), 2500) }
 
   return (
     <>

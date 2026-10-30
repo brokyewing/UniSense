@@ -306,7 +306,7 @@ export default function Search() {
   // Hooks
   const { tercihIds, busyCode: hookBusyCode, setBusyCode: setHookBusyCode } = useTercihList()
   const { messages: sessionMessages, loading: sessionLoading } = useSessionMessages(activeSessionId)
-  const { show: showToast, dismiss } = useToast()
+  const { toasts, show: showToast, dismiss } = useToast()
 
   // Sync busyCode from hook
   useEffect(() => {
@@ -317,8 +317,8 @@ export default function Search() {
   useEffect(() => {
     if (!user) { setExamCtx(null); return }
     getUserProfile(user.uid).then(async (p) => {
-      const prof = p?.profile || {}
-      const ctx = {}
+      const prof: any = p?.profile || {}
+      const ctx: any = {}
       if (prof.examTrack) ctx.exam_track = prof.examTrack
       if (prof.score) { ctx.yks_puan = prof.score; if (prof.scoreType) ctx.yks_turu = prof.scoreType }
       if (prof.rank) ctx.yks_sira = prof.rank
@@ -569,8 +569,9 @@ export default function Search() {
 
       {/* Toast'lar — sağ üst */}
       <AnimatePresence>
-        {showToast && (
+        {toasts.map((t) => (
           <motion.div
+            key={t.id}
             initial={{ opacity: 0, x: 50, y: -20 }}
             animate={{ opacity: 1, x: 0, y: 0 }}
             exit={{ opacity: 0, x: 50 }}
@@ -578,10 +579,10 @@ export default function Search() {
           >
             <div className="flex items-center gap-2">
               <Check size={14} className="text-emerald-300" />
-              {showToast}
+              {t.message}
             </div>
           </motion.div>
-        )}
+        ))}
       </AnimatePresence>
 
       <div className="flex gap-4 h-[calc(100vh-80px)]">

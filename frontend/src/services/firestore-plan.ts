@@ -2,7 +2,7 @@
  * Firestore Plan & Stats Service — planlayıcı, istatistik, streak, sıralama.
  */
 import { FIRESTORE_COLLECTIONS } from './constants'
-import { db, collection, doc, query, where, orderBy, limit as fbLimit, onSnapshot, getDoc, getDocs, setDoc, updateDoc, deleteDoc, writeBatch, increment, serverTimestamp, deleteField, getCountFromServer } from './firestore-core'
+import { db, collection, doc, query, where, orderBy, limit as fbLimit, onSnapshot, getDoc, getDocs, setDoc, updateDoc, deleteDoc, writeBatch, increment, serverTimestamp, deleteField, getCountFromServer, addDoc } from './firestore-core'
 import { serisiIsle, bugunStr, guncelSeri } from '../lib/streak'
 
 // === Planlayıcı ===

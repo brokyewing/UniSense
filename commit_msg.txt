@@ -1,7 +1,0 @@
-feat: migrate all components to new service layer (src/services/)
-
-- Created modular service layer in src/services/ (9 modules + hooks.js)
-- Migrated 12 pages to use new hooks: Ozetler, Notlar, Pano, Hesap, Konular, Deneme, TercihList, LGS, Siralama, Pusula, Profile, TusDus
-- Fixed TercihList.jsx (was the main blocker with duplicate declarations)
-- All 631 URLs prerender successfully
-- Build passes with @vitejs/plugin-react-swc and esbuild: false

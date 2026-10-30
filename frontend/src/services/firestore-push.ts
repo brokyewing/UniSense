@@ -2,7 +2,7 @@
  * Firestore Push/Messaging Service — FCM bildirimleri, avatar upload.
  */
 import { FIRESTORE_COLLECTIONS } from './constants'
-import { app, db, addDoc, collection, query as fbQuery, orderBy, onSnapshot, getDocs, setDoc, updateDoc, deleteDoc, writeBatch, doc, serverTimestamp } from './firestore-core'
+import { app, db, addDoc, collection, query as fbQuery, orderBy, onSnapshot, getDocs, setDoc, updateDoc, deleteDoc, writeBatch, doc, serverTimestamp, getDoc } from './firestore-core'
 import { getMessaging, getToken, deleteToken, isSupported as isMessagingSupported } from 'firebase/messaging'
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 

@@ -1,8 +1,0 @@
-feat: add unit test infrastructure (Vitest + React Testing Library)
-
-- Installed vitest@2.1.0, @testing-library/react, jest-dom, user-event, jsdom
-- Created vitest.config.js with jsdom environment
-- Created test/setup.js with cleanup
-- Added constants.test.js (12 tests) and api.test.js (2 tests)
-- Added test and test:watch scripts to package.json
-- All 14 tests passing

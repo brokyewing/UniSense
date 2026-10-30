@@ -68,7 +68,7 @@ export default function Ozetler({ embedded = false }) {
   }, [kartlar, q, sinav])
 
   const byDers = useMemo(() => {
-    const m = {}
+    const m: Record<string, any[]> = {}
     for (const k of filtered) { (m[k.ders] = m[k.ders] || []).push(k) }
     return m
   }, [filtered])

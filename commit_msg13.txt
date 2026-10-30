@@ -1,9 +1,0 @@
-feat: add scholarship/fee database (backend + frontend API)
-
-- Created scholarship.py model (ScholarshipInfo, ScholarshipListResponse)
-- Created scholarship_service.py (list, by_program, years - year-based)
-- Created scholarship_data.json (2026 data, sample vakif/devlet programs)
-- Added API endpoints: /scholarship/list, /scholarship/program/{code}, /scholarship/years
-- Added api.scholarshipList, api.scholarshipByProgram, api.scholarshipYears to frontend
-- Build passes: 631 URLs prerendered
-- Backend tests: 209 passed

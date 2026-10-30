@@ -1,8 +1,0 @@
-feat: TypeScript migration - firestore-core.js to firestore-core.ts
-
-- Migrated firestore-core.js to firestore-core.ts with proper TypeScript types
-- Added type annotations for all functions (uid, subcollection, options, etc.)
-- Used firebase/firestore type imports (Firestore, DocumentReference, etc.)
-- Deleted firestore-core.js
-- Build passes: 631 URLs prerendered
-- Tests pass: 14 tests

@@ -1,7 +1,0 @@
-feat: add Error Boundary component for crash recovery
-
-- Created ErrorBoundary.jsx (class component with getDerivedStateFromError)
-- Shows user-friendly error UI with retry and reload buttons
-- Shows error details in dev mode only
-- Wrapped entire app in ErrorBoundary in main.jsx
-- Build passes: 631 URLs prerendered

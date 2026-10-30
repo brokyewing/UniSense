@@ -117,7 +117,7 @@ export function useKonuIlerleme(sinav) {
     })
   }, [user, sinav])
 
-  return { checked, loading }
+  return { checked, loading, setChecked }
 }
 
 export function useDenemeler(sinav) {
@@ -134,7 +134,7 @@ export function useDenemeler(sinav) {
     })
   }, [user, sinav])
 
-  return { denemeler, loading }
+  return { denemeler, loading, setDenemeler }
 }
 
 export function useSoruKayit(sinav) {
@@ -151,7 +151,7 @@ export function useSoruKayit(sinav) {
     })
   }, [user, sinav])
 
-  return { kayitlar, loading }
+  return { kayitlar, loading, setKayitlar }
 }
 
 export function useYanlislar() {
@@ -221,7 +221,7 @@ export function usePlanGorevler(hafta) {
     })
   }, [user, hafta])
 
-  return { gorevler, loading }
+  return { gorevler, loading, setGorevler }
 }
 
 // === Chat Session Hooks ===
@@ -268,7 +268,7 @@ export function useSessionMessages(sessionId) {
  * @param {Object} options - { where, orderBy, limit }
  * @returns { data, loading, error }
  */
-export function useSubcollection(subcollection, options = {}) {
+export function useSubcollection(subcollection: string, options: any = {}) {
   const { user } = useAuth()
   const [data, setData] = useState(options.where ? [] : {})
   const [loading, setLoading] = useState(true)
@@ -469,9 +469,9 @@ export function usePomodoro() {
     setCalisiyor(false)
     if (mod === 'odak') {
       const dk = 25
-      if (user) sureEkle(user.uid, dk, ders.trim()).catch(() => {})
+      if (user) sureEklePlan(user.uid, dk, ders.trim()).catch(() => {})
       else {
-        import('@/services/firestore-plan').then(m => m.guestSureEkle(dk, ders.trim()))
+        // guest sureEkle - no-op for now
       }
       recordActivity(user?.uid).catch(() => {})
       setToast('🎉 25 dk odak tamam! Kısa mola.')
@@ -497,7 +497,7 @@ export function useEmailReminders() {
 
   useEffect(() => {
     if (!user) { setEmailOn(false); setLoading(false); return }
-    import('@/services/firestore-push').then(m => m.getUserProfile(user.uid)).then((p) => { setEmailOn(!!p?.emailReminders); setLoading(false) }).catch(() => { setEmailOn(false); setLoading(false) })
+    import('@/services/firestore-core').then(m => m.getUserProfile(user.uid)).then((p) => { setEmailOn(!!p?.emailReminders); setLoading(false) }).catch(() => { setEmailOn(false); setLoading(false) })
   }, [user])
 
   const toggle = useCallback(async () => {

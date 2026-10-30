@@ -95,7 +95,7 @@ export default function Pano({ embedded = false }) {
   const buHaftaDk = useMemo(() => {
     if (!stats?.sureHafta) return 0
     const now = Date.now(); let dk = 0
-    for (const [d, m] of Object.entries(stats.sureHafta)) if (now - new Date(d).getTime() < 7 * 864e5) dk += m
+    for (const [d, m] of Object.entries(stats.sureHafta)) if (now - new Date(d).getTime() < 7 * 864e5) dk += (m as number)
     return dk
   }, [stats])
   const saat = (dk) => (dk >= 60 ? `${(dk / 60).toFixed(1)} sa` : `${dk} dk`)

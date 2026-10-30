@@ -86,7 +86,7 @@ export const removeKart = (uid: string, id: string) => deleteSubcollectionDoc(ui
 
 // === İstatistik / Çalışma Süresi ===
 
-export async function sureEkle(uid: string, dk: number, ders: string): Promise<void> {
+async function sureEkle(uid: string, dk: number, ders: string): Promise<void> {
   if (!db || !uid || !dk) return
   const today = new Date().toISOString().slice(0, 10)
   const patch: any = { sureDk: increment(dk), sureHafta: { [today]: increment(dk) }, updatedAt: serverTimestamp() }

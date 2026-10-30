@@ -280,12 +280,12 @@ function CardsMode({ onResult }) {
         >
           {Array.from(selected).map((id) => (
             <button
-              key={id}
-              onClick={() => toggle(id)}
+              key={String(id)}
+              onClick={() => toggle(id as string)}
               className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-500/30 hover:bg-rose-500/20 hover:text-rose-200 hover:border-rose-500/40 transition flex items-center gap-1"
             >
               <Check size={11} />
-              {id}
+              {String(id)}
               <X size={11} />
             </button>
           ))}

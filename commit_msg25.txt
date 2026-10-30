@@ -1,7 +1,0 @@
-feat: TypeScript migration - firestore-prefs.js to firestore-prefs.ts
-
-- Migrated firestore-prefs.js to firestore-prefs.ts with proper TypeScript types
-- Added type annotations for all functions (uid, sub, callback, etc.)
-- Deleted firestore-prefs.js
-- Build passes: 631 URLs prerendered
-- Tests pass: 14 tests

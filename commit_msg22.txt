@@ -1,8 +1,0 @@
-feat: TypeScript migration - api.js to api.ts
-
-- Migrated api.js to api.ts with proper TypeScript types
-- Added type annotations for all convenience methods
-- ApiError class with typed constructor
-- Deleted api.js
-- Build passes: 631 URLs prerendered
-- Tests pass: 14 tests

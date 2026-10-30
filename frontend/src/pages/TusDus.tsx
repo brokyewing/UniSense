@@ -82,6 +82,7 @@ export function TusRobot() {
   const { user } = useAuth()
   const [tercihIds, setTercihIds] = useState(new Set())
   const [toast, setToast] = useState('')
+  const [autoNot, setAutoNot] = useState('')
 
   // Analytics: sayfa görüntüleme
   useEffect(() => {

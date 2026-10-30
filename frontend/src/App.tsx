@@ -83,7 +83,7 @@ export default function App() {
     return <>{seoEl}<Outlet /></>
   }
 
-  const navItem = (to, label, Icon, activePaths) => {
+  const navItem = (to: string, label: string, Icon: any, activePaths?: string[]) => {
     const active = activePaths
       ? activePaths.some((p) => loc.pathname === p)
       : loc.pathname === to

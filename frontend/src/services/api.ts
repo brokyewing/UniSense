@@ -70,6 +70,7 @@ export const api = {
   tusPrograms: (params: unknown) => apiFetch('/api/v1/tus/programlar', { method: 'POST', body: params }),
   lgsLiseler: (params: unknown) => apiFetch('/api/v1/lgs/liseler', { method: 'POST', body: params }),
   konular: (sinav: string) => apiFetch(`/api/v1/konular?sinav=${sinav}`),
+  takvim: () => apiFetch('/api/v1/takvim'),
   scholarshipList: (params: Record<string, unknown> = {}) => {
     const qs = new URLSearchParams()
     if (params.year) qs.set('year', String(params.year))

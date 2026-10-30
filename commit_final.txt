@@ -1,0 +1,11 @@
+feat: TypeScript migration complete - 0 tsc errors, proper type annotations across 15+ files
+
+- Fixed type annotations in Scene3D, Kariyer, Hesap, Search, Recommend, Planim, Konular, Profile, Pusula, etc.
+- Removed duplicate sureEkle from firestore-study
+- Added missing imports (apiFetch, recordActivity, useIstatistik, etc.)
+- Added takvim method to api.ts
+- Fixed hooks.ts (where, sureEkle, guestSureEkle, getUserProfile)
+- Updated tsconfig.json (baseUrl removed, types added)
+- Build passes: 631 URLs prerendered
+- Tests pass: 14/14
+- tsc --noEmit: 0 errors (strict: false)

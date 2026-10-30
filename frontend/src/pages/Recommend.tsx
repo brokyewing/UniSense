@@ -209,12 +209,12 @@ const DgsOneriPanel = ({ user, profile }) => {
 
   useEffect(() => { if (!profile) return; if (profile.dgs?.score != null) setPuan(String(profile.dgs.score)); if (profile.dgs?.type) setPt(profile.dgs.type); if (profile.preferredUniType) setUniType(profile.preferredUniType) }, [profile])
 
-  async function ara(bolumOverride) {
+  async function ara(bolumOverride?: string) {
     const p = parseFloat(puan)
     if (!p || p < 100 || p > 600) { setError('Geçerli bir DGS puanı gir (100–600)'); return }
     setLoading(true); setError('')
     try {
-      const d = await api.dgsProgramlar({ puan_turu: pt, puan: p, bolum: bolumOverride ?? bolum, il: il.trim() || null, uni_turu: uniType === 'all' ? null : uniType, oneri: true, limit: 100 })
+      const d = await api.dgsPrograms({ puan_turu: pt, puan: p, bolum: bolumOverride ?? bolum, il: il.trim() || null, uni_turu: uniType === 'all' ? null : uniType, oneri: true, limit: 100 })
       setRes({ ...d, puan: p })
     } catch (e) { setError(e.message) } finally { setLoading(false) }
   }
@@ -391,7 +391,7 @@ export default function Recommend() {
 
   useEffect(() => { try { const raw = sessionStorage.getItem('pusula_depts'); if (raw) { const parsed = JSON.parse(raw); if (parsed?.names?.length) setPusulaState(parsed) } } catch (e) { console.warn('Pusula state okunamadı:', e) } }, [])
 
-  useEffect(() => { if (!user) { setTercihIds(new Set()); return } const unsub = import('@/services/firestore-prefs').then(m => m.watchTercihList(user.uid, items => setTercihIds(new Set(items.map(i => String(i.department_code || i.id)))))); return () => unsub.then(unsub => unsub?.()) }, [user])
+  useEffect(() => { if (!user) { setTercihIds(new Set()); return } const unsub = import('@/services/firestore-prefs').then(m => m.watchTercihList(user.uid, items => setTercihIds(new Set(items.map(i => String(i.department_code || i.id)))))); return () => { unsub.then((u: any) => u?.()) } }, [user])
 
   async function handleAddToTercih(item) {
     if (!user) { setTercihError('Giriş yapman gerek'); return }

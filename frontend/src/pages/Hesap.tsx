@@ -255,14 +255,14 @@ function gpa4ToAobp(gpa4) {
 // === Ham puan hesabı (ders bazlı katsayılar). Negatif netler de toplama
 // katılır (ÖSYM kuralı) — sadece n>0 alınsaydı çok yanlışlı ders yok sayılır,
 // puan olduğundan yüksek çıkardı.
-function weightedSum(nets, coefMap) {
+function weightedSum(nets: any, coefMap: any) {
   let total = 0
   let anyNet = false
   for (const [key, coef] of Object.entries(coefMap)) {
     const n = parseFloat(nets[key]) || 0
     if (n !== 0) {
       anyNet = true
-      total += n * coef
+      total += n * (coef as number)
     }
   }
   return anyNet ? total : 0
@@ -470,7 +470,7 @@ export default function Hesap() {
 
   // Tüm net'leri hesapla
   const nets = useMemo(() => {
-    const out = {}
+    const out: any = {}
     const allFields = [
       ...TYT_FIELDS, ...AYT_SAY_FIELDS, ...AYT_EA_FIELDS,
       ...AYT_SOZ_FIELDS, ...AYT_DIL_FIELDS, ...DGS_FIELDS, ...KPSS_FIELDS,
@@ -480,7 +480,7 @@ export default function Hesap() {
     for (const f of allFields) {
       if (seen.has(f.id)) continue
       seen.add(f.id)
-      out[f.id] = netOf(data[`${f.id}_d`], data[`${f.id}_y`], f.pen ?? 0.25)
+      out[f.id] = netOf(data[`${f.id}_d`], data[`${f.id}_y`], (f as any).pen ?? 0.25)
     }
     return out
   }, [data])
@@ -507,7 +507,7 @@ export default function Hesap() {
     }
     if (tab === 'DGS') {
       const scores = dgsScores(nets, aobp)  // {SAY, EA, SÖZ} — AÖBP dahil
-      const best = Math.max(scores.SAY, scores.EA, scores['SÖZ'])
+      const best = Math.max((scores as any).SAY, (scores as any).EA, (scores as any)['SÖZ'])
       return {
         scoreType: 'DGS',
         ham: best > 0 ? best - aobp : 0,
@@ -518,7 +518,7 @@ export default function Hesap() {
     }
     if (tab === 'ALES') {
       const wn = alesWeightedNets(nets)  // {SAY, EA, SÖZ} ağırlıklı net
-      const best = Math.max(wn.SAY, wn.EA, wn['SÖZ'])
+      const best = Math.max((wn as any).SAY, (wn as any).EA, (wn as any)['SÖZ'])
       return {
         scoreType: 'ALES',
         alesNets: wn,
@@ -607,7 +607,7 @@ export default function Hesap() {
     setSaving(true)
     try {
       // Aktif tab puan/sıra olarak Profile'da setlemek istiyorsa: scoreType + score
-      const profilePatch = {
+      const profilePatch: any = {
         calculator: {
           netler: data,
           diploma100: diploma100 ? parseFloat(diploma100) : null,

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { PRESET_AVATARS } from '@/services/constants'
-import { useUserProfile } from '@/services/hooks'
+import { useUserProfile, useIstatistik } from '@/services/hooks'
 import { getIstatistik } from '@/services/firestore-plan'
 import { hesaplaXP, seviyeBilgi, kazanilanRozetler } from '../lib/oyun'
 import BackgroundScene from '../components/three/LazyBackgroundScene'
@@ -183,7 +183,7 @@ function AccountTab({ user }) {
     setSaving(true)
     setMsg(null)
     try {
-      await import('@/services/firestore-core').then(m => m.updateUserBasicInfo(user, {
+      await import('@/services/auth').then(m => m.updateUserBasicInfo(user, {
         displayName: name.trim(),
         photoURL,
       }))
@@ -381,7 +381,7 @@ function PasswordTab({ user }) {
     }
     setSaving(true)
     try {
-      await import('@/services/firestore-core').then(m => m.changePassword(curr, pw))
+      await import('@/services/auth').then(m => m.changePassword(curr, pw))
       setMsg({ type: 'success', text: 'Şifren güncellendi' })
       setCurr('')
       setPw('')

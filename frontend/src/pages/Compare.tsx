@@ -9,6 +9,7 @@ import {
 import BackgroundScene from '../components/three/LazyBackgroundScene'
 import MiniTrend from '../components/MiniTrend'
 import { apiFetch } from '../lib/api'
+import { api } from '@/services/api'
 
 
 function numberOrDash(v, fmt = (x) => x) {
@@ -47,7 +48,7 @@ function DiffMark({ field, code, diffs }) {
 }
 
 
-function Row({ label, items, fmt, diffField, diffs, Icon }) {
+function Row({ label, items, fmt, diffField, diffs, Icon }: { label: string; items: any[]; fmt: (it: any) => any; diffField?: string; diffs?: any; Icon?: any }) {
   return (
     <div className="grid grid-cols-[120px_repeat(auto-fit,minmax(0,1fr))] gap-2 py-2 border-b border-white/5 last:border-b-0">
       <div className="text-xs text-slate-400 flex items-center gap-1.5">
