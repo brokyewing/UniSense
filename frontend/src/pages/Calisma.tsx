@@ -31,7 +31,7 @@ export default function Calisma({ tab = 'konular' }) {
       <div className="space-y-4 mb-5">
         <div className="text-center">
           <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1 flex items-center justify-center gap-2">
-            <meta.Icon className={meta!.renk} /> {meta!.h1}
+            {meta && (() => { const M = meta.Icon; return <M className={meta.renk} /> })()} {meta?.h1}
           </h1>
           <p className="text-slate-400 text-sm">{meta!.alt}</p>
         </div>

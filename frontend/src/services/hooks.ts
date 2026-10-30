@@ -209,7 +209,7 @@ export function useKartlar() {
 
 export function usePlanGorevler(hafta: any) {
   const { user } = useAuth()
-  const [gorevler, setGorevler] = useState([])
+  const [gorevler, setGorevler] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

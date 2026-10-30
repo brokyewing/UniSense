@@ -19,14 +19,14 @@ import {
 
 const SINAVLAR = ['YKS', 'DGS', 'KPSS', 'LGS']
 const CFG_LS = 'unisense_plan_cfg'
-const WK_LS = (h) => `unisense_plan_${h}`
+const WK_LS = (h: any) => `unisense_plan_${h}`
 const VARSAYILAN = { hedefSaat: 15, haftaIciBlok: 2, haftaSonuBlok: 4 }
 
-const loadJSON = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || d) } catch { return JSON.parse(d) } }
-const saveJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)) } catch { /* noop */ } }
+const loadJSON = (k: any, d: any) => { try { return JSON.parse(localStorage.getItem(k) || d) } catch { return JSON.parse(d) } }
+const saveJSON = (k: any, v: any) => { try { localStorage.setItem(k, JSON.stringify(v)) } catch { /* noop */ } }
 
 // Çözülen soru kayıtlarını konu bazında özetle (hem localStorage hem bulut listesi için)
-function grupla(list) {
+function grupla(list: any) {
   const m = new Map()
   for (const r of list || []) {
     const key = r.konu || r.ders
@@ -37,12 +37,12 @@ function grupla(list) {
   }
   return [...m.values()]
 }
-const soruOzetLocal = (track) => grupla(loadJSON('unisense_soru_' + track, '[]'))
+const soruOzetLocal = (track: any) => grupla(loadJSON('unisense_soru_' + track, '[]'))
 
-const fmtGun = (iso) => {
+const fmtGun = (iso: any) => {
   try { return new Date(iso + 'T00:00:00').toLocaleDateString('tr-TR', { weekday: 'short', day: 'numeric', month: 'short' }) } catch { return iso }
 }
-const turEtiket = (t) => (t.source === 'manual' ? { ad: 'Elle', cls: 'bg-slate-500/20 text-slate-300' }
+const turEtiket = (t: any) => (t.source === 'manual' ? { ad: 'Elle', cls: 'bg-slate-500/20 text-slate-300' }
   : t.source === 'tekrar' || t.tur === 'tekrar' ? { ad: 'Tekrar', cls: 'bg-violet-500/20 text-violet-300' }
     : t.source === 'ai' ? { ad: 'AI', cls: 'bg-amber-500/20 text-amber-300' }
       : { ad: 'Yeni', cls: 'bg-emerald-500/20 text-emerald-300' })
@@ -65,25 +65,25 @@ export default function Planim({ embedded = false }) {
   const { kayitlar: soruKayit, loading: soruKayitLoading } = useSoruKayit(track)
   const { stats, loading: statsLoading, yukle: statsYukle } = useIstatistik()
 
-  const [konuData, setKonuData] = useState(null)
-  const [kalanGun, setKalanGun] = useState(null)
+  const [konuData, setKonuData] = useState<any>(null)
+  const [kalanGun, setKalanGun] = useState<any>(null)
   const [defaultTrack, setDefaultTrack] = useState('YKS')
 
   const [manuel, setManuel] = useState(loc.state?.gorev || '')
   const [toast, setToast] = useState('')
-  const [ai, setAi] = useState({ loading: false, text: '', oncelik: null })
+  const [ai, setAi] = useState<any>({ loading: false, text: '', oncelik: null })
   const [ayar, setAyar] = useState(false)
   const [hedefMetin, setHedefMetin] = useState('')
   const [hedefAI, setHedefAI] = useState({ loading: false, text: '' })
 
-  const flash = useCallback((m) => { setToast(m); setTimeout(() => setToast(''), 2200) }, [])
+  const flash = useCallback((m: any) => { setToast(m); setTimeout(() => setToast(''), 2200) }, [])
 
   // --- Ayar (config) yükle: girişsiz local, girişli bulut + migration ---
   useEffect(() => {
     let iptal = false
     ;(async () => {
       if (!user) { return }
-      import('@/services/firestore-core').then(m => m.getUserProfile(user.uid)).then((p) => {
+      import('@/services/firestore-core').then(m => m.getUserProfile(user!.uid)).then((p) => {
         const tr = p?.profile?.examTrack
         if (tr && SINAVLAR.includes(tr)) setDefaultTrack(tr)
       }).catch(() => {})
@@ -99,7 +99,7 @@ export default function Planim({ embedded = false }) {
     if (!track) return
     api.konular(track).then(setKonuData).catch(() => setKonuData(null))
     api.takvim().then((d) => {
-      const ev = (d?.yaklasan || []).find((e) => e.sinav === track && e.tur === 'sinav')
+      const ev = (d?.yaklasan || []).find((e: any) => e.sinav === track && e.tur === 'sinav')
       setKalanGun(ev ? ev.kalan_gun : null)
     }).catch(() => {})
     // İlerleme: önce local ayna; girişli + local BOŞSA buluttan doldur (doğrudan
@@ -112,7 +112,7 @@ export default function Planim({ embedded = false }) {
   // --- Kalıcılık: girişli = doküman başına Firestore op; girişsiz = local hafta dizisi ---
   // usePlanGorevler ve usePlanConfig hook'ları zaten hallediyor
 
-  function kur(cfg) {
+  function kur(cfg: any) {
     const eff = { ...VARSAYILAN, ...cfg, kuruldu: true }
     updateConfig(eff)
     setAyar(false)
@@ -121,32 +121,32 @@ export default function Planim({ embedded = false }) {
   // Aralıklı tekrar: bir görev İLK kez tamamlanınca sıradaki tekrarı ilgili haftaya ekle.
   // Yalnız ilk tamamlamada çağrılır (toggle'daki ilkTamam) → çift ekleme yok; tek doküman
   // eklemesi (addPlanGorev) → oku-değiştir-yaz yarışı yok (Rev-2).
-  function tekrarPlanla(t) {
+  function tekrarPlanla(t: any) {
     const idx = (t.tekrarNo ?? -1) + 1
     if (!t.konu || idx >= TEKRAR_ARALIK.length) return
     const revDate = tekrarTarihleri(bugun)[idx]
     const wk = isoHafta(new Date(revDate + 'T00:00:00'))
     const rev = { ...gorevYap({ id: `rev-${t.konu}-${idx}`, ders: t.ders, konu: t.konu, title: `${t.konu} — tekrar`, tarih: revDate, source: 'tekrar', tur: 'tekrar' }), tekrarNo: idx, hafta: wk }
-    import('@/services/firestore-plan').then(m => m.addPlanGorev(user.uid, { ...rev, hafta })).catch(() => {})
+    import('@/services/firestore-plan').then(m => m.addPlanGorev(user!.uid, { ...rev, hafta })).catch(() => {})
   }
 
-  function toggle(t) {
+  function toggle(t: any) {
     const done = t.status !== 'done'
     const ilkTamam = done && !t.sayildi
     const patch = { status: done ? 'done' : 'planned', ...(ilkTamam ? { sayildi: true } : {}) }
     // usePlanGorevler hook'u güncellemeyi Firestore'a otomatik yapar
     if (done) {
-      import('@/services/firestore-plan').then(m => m.recordActivity(user?.uid)).catch(() => {}) // streak (günde 1 yazar)
+      import('@/services/firestore-plan').then(m => m.recordActivity(user?.uid ?? null)).catch(() => {}) // streak (günde 1 yazar)
       // XP: planGorev getIstatistik/guestStats'ta done sayımından TÜRETİLİR (uncheck'te de tutarlı — Rev-3)
       if (ilkTamam) tekrarPlanla(t) // aralıklı tekrar yalnız ilk tamamlamada
     }
   }
 
-  function ekleGorev(title, tarih = bugun, extra = {}) {
+  function ekleGorev(title: any, tarih: any = bugun, extra: any = {}) {
     const t = String(title || '').trim()
     if (!t) return
     const task = gorevYap({ id: `m-${Date.now()}`, title: t.slice(0, 120), tarih, source: 'manual', ders: '', konu: '', tur: 'yeni', ...extra } as any)
-    import('@/services/firestore-plan').then(m => m.addPlanGorev(user.uid, { ...task, hafta })).catch(() => {})
+    import('@/services/firestore-plan').then(m => m.addPlanGorev(user!.uid, { ...task, hafta })).catch(() => {})
   }
 
   function planla() {
@@ -157,14 +157,14 @@ export default function Planim({ embedded = false }) {
     })
     const yeniler = next.slice(tasks.length) // haftaPlanla mevcut'u başa koyar → yeni olanlar sonda
     if (!yeniler.length) { flash('Uygun boş slot yok'); return }
-    import('@/services/firestore-plan').then(m => m.addPlanGorevler(user.uid, yeniler.map((t) => ({ ...t, hafta })))).catch(() => {})
+    import('@/services/firestore-plan').then(m => m.addPlanGorevler(user!.uid, yeniler.map((t: any) => ({ ...t, hafta })))).catch(() => {})
     flash(`✓ ${yeniler.length} görev planlandı`)
   }
 
   async function takvimimNasil() {
     setAi({ loading: true, text: '', oncelik: null })
     const zayif = oneriler(konuData, checked, soruKayit || [], 3).map((o) => o.konu)
-    const done = tasks.filter((t) => t.status === 'done').slice(-3).map((t) => t.konu || t.title).filter(Boolean)
+    const done = tasks.filter((t: any) => t.status === 'done').slice(-3).map((t: any) => t.konu || t.title).filter(Boolean)
     const lag = gecikmeYuzde(tasks, bugun)
     const ozet = kompaktOzet({ track, kalanGun, zayif, done, lag, hedefSaat: config?.hedefSaat })
     const q = `${ozet}. Bu ${track} çalışma planı durumu. SADECE şu JSON: {"oncelik":["konu1","konu2"],"tavsiye":"1-2 cümle Türkçe koçluk"}`.slice(0, 490)
@@ -175,7 +175,7 @@ export default function Planim({ embedded = false }) {
       if (!d) { text = await cagir(); d = parseDirektif(text) } // retry=1
       if (d) setAi({ loading: false, text: d.tavsiye || 'Planın iyi görünüyor.', oncelik: d.oncelik })
       else setAi({ loading: false, text: text || 'Yorum üretilemedi.', oncelik: null })
-    } catch (e) {
+    } catch (e: any) {
       setAi({ loading: false, text: 'AI yorumu alınamadı (' + e.message + '). Plan yine de çalışıyor — "Haftayı planla" ile devam et.', oncelik: null })
     }
   }
@@ -186,7 +186,7 @@ export default function Planim({ embedded = false }) {
       haftaIciBlok: config?.haftaIciBlok || VARSAYILAN.haftaIciBlok, haftaSonuBlok: config?.haftaSonuBlok || VARSAYILAN.haftaSonuBlok, oncelikKonu: ai.oncelik || [], mevcut: tasks,
     })
     const yeniler = next.slice(tasks.length)
-    import('@/services/firestore-plan').then(m => m.addPlanGorevler(user.uid, yeniler.map((t) => ({ ...t, hafta })))).catch(() => {})
+    import('@/services/firestore-plan').then(m => m.addPlanGorevler(user!.uid, yeniler.map((t: any) => ({ ...t, hafta })))).catch(() => {})
     setAi({ loading: false, text: '', oncelik: null }); flash('✓ Plan güncellendi')
   }
 
@@ -215,15 +215,15 @@ export default function Planim({ embedded = false }) {
     if (!yeni.length) { setHedefAI({ loading: false, text: 'Planlanacak konu bulunamadı — önce Konu Takibi\'nden konularını işaretle.' }); return }
     if (user) {
       // Bu haftanın otomatik görevlerini temizle (görünür çift-plan olmasın) + hepsini batch yaz
-      for (const t of tasks.filter((t) => t.status !== 'done' && t.source !== 'manual')) import('@/services/firestore-plan').then(m => m.removePlanGorev(user.uid, t.id)).catch(() => {})
-      import('@/services/firestore-plan').then(m => m.addPlanGorevler(user.uid, yeni)).catch(() => {}) // her görev zaten hafta alanlı → çok-haftalık
+      for (const t of tasks.filter((t: any) => t.status !== 'done' && t.source !== 'manual')) import('@/services/firestore-plan').then(m => m.removePlanGorev(user!.uid, t.id)).catch(() => {})
+      import('@/services/firestore-plan').then(m => m.addPlanGorevler(user!.uid, yeni)).catch(() => {}) // her görev zaten hafta alanlı → çok-haftalık
     } else {
       // Haftaya göre grupla; her haftanın auto'sunu değiştir (manual/done korunur)
-      const gruplar = {}
-      for (const t of yeni) (gruplar[t.hafta] = gruplar[t.hafta] || []).push(t)
+      const gruplar: any = {}
+      for (const t of yeni) (gruplar[t.hafta as any] = gruplar[t.hafta as any] || []).push(t)
       for (const [wk, list] of Object.entries(gruplar)) {
-        const cur = (loadJSON(WK_LS(wk), '[]') as any[]).filter((t) => t.status === 'done' || t.source === 'manual')
-        const merged = [...cur, ...(list as any[]).map((t, i) => ({ ...t, id: `u-${wk}-${i}` }))]
+        const cur = (loadJSON(WK_LS(wk), '[]') as any[]).filter((t: any) => t.status === 'done' || t.source === 'manual')
+        const merged = [...cur, ...(list as any[]).map((t: any, i: number) => ({ ...t, id: `u-${wk}-${i}` }))]
         saveJSON(WK_LS(wk), merged)
         if (wk === hafta) setTasks(merged)
       }
@@ -233,16 +233,16 @@ export default function Planim({ embedded = false }) {
     flash('✓ Plan oluşturuldu')
   }
 
-  function sil(t) {
-    import('@/services/firestore-plan').then(m => m.removePlanGorev(user.uid, t.id)).catch(() => {})
+  function sil(t: any) {
+    import('@/services/firestore-plan').then(m => m.removePlanGorev(user!.uid, t.id)).catch(() => {})
   }
   function otomatikTemizle() {
     if (!confirm('Bu haftanın otomatik (tamamlanmamış) görevlerini temizle?')) return
-    for (const t of tasks.filter((t) => t.status !== 'done' && t.source !== 'manual')) import('@/services/firestore-plan').then(m => m.removePlanGorev(user.uid, t.id)).catch(() => {})
+    for (const t of tasks.filter((t: any) => t.status !== 'done' && t.source !== 'manual')) import('@/services/firestore-plan').then(m => m.removePlanGorev(user!.uid, t.id)).catch(() => {})
   }
 
   // --- Türetilen ---
-  const bugunTasks = useMemo(() => tasks.filter((t) => t.tarih === bugun), [tasks, bugun])
+  const bugunTasks = useMemo(() => tasks.filter((t: any) => t.tarih === bugun), [tasks, bugun])
   const ileri = useMemo(() => {
     const g = new Map()
     for (const t of tasks) if (gunFark(bugun, t.tarih) > 0) { if (!g.has(t.tarih)) g.set(t.tarih, []); g.get(t.tarih).push(t) }
@@ -251,7 +251,7 @@ export default function Planim({ embedded = false }) {
   const uyum = useMemo(() => uyumYuzde(tasks, bugun), [tasks, bugun])
   const oneriListe = useMemo(() => {
     if (!konuData) return []
-    const mevcutKonu = new Set(tasks.map((t) => t.konu).filter(Boolean))
+    const mevcutKonu = new Set(tasks.map((t: any) => t.konu).filter(Boolean))
     return oneriler(konuData, checked, soruKayit || [], 5)
       .filter((o) => !mevcutKonu.has(o.konu)).slice(0, 3)
   }, [konuData, tasks, checked, soruKayit])
@@ -319,7 +319,7 @@ export default function Planim({ embedded = false }) {
           <p className="text-sm text-slate-200 whitespace-pre-wrap">{ai.text}</p>
           {ai.oncelik?.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
-              {ai.oncelik.slice(0, 6).map((k, i) => <span key={i} className="text-[11px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-200">{k}</span>)}
+              {ai.oncelik.slice(0, 6).map((k: any, i: number) => <span key={i} className="text-[11px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-200">{k}</span>)}
             </div>
           )}
           <div className="flex gap-2 pt-1">
@@ -384,7 +384,7 @@ export default function Planim({ embedded = false }) {
           <div className="card text-center py-6 text-sm text-slate-400">
             Bugün için görev yok. <span className="text-teal-300">Haftayı planla</span> ya da yukarıdan öneri ekle.
           </div>
-        ) : bugunTasks.map((t) => <GorevSatir key={t.id} t={t} onToggle={toggle} onSil={sil} />)}
+        ) : bugunTasks.map((t: any) => <GorevSatir key={t.id} t={t} onToggle={toggle} onSil={sil} />)}
       </div>
 
       {/* Bu hafta (ileri günler) */}
@@ -394,7 +394,7 @@ export default function Planim({ embedded = false }) {
           {ileri.map(([tarih, gs]) => (
             <div key={tarih} className="space-y-1.5">
               <div className="text-[11px] text-slate-500 px-1">{fmtGun(tarih)}</div>
-              {gs.map((t) => <GorevSatir key={t.id} t={t} onToggle={toggle} onSil={sil} />)}
+              {gs.map((t: any) => <GorevSatir key={t.id} t={t} onToggle={toggle} onSil={sil} />)}
             </div>
           ))}
         </div>
@@ -426,7 +426,7 @@ export default function Planim({ embedded = false }) {
 }
 
 // ---- Görev satırı ----
-function GorevSatir({ t, onToggle, onSil }) {
+function GorevSatir({ t, onToggle, onSil }: any) {
   const et = turEtiket(t)
   const done = t.status === 'done'
   return (
@@ -443,7 +443,7 @@ function GorevSatir({ t, onToggle, onSil }) {
 }
 
 // ---- Onboarding / ayar formu ----
-function OnboardingForm({ defaultTrack, config, onKur, onIptal }) {
+function OnboardingForm({ defaultTrack, config, onKur, onIptal }: any) {
   const [track, setTrack] = useState(config?.track || defaultTrack || 'YKS')
   const [hedefSaat, setHedefSaat] = useState(config?.hedefSaat ?? VARSAYILAN.hedefSaat)
   const [ici, setIci] = useState(config?.haftaIciBlok ?? VARSAYILAN.haftaIciBlok)
