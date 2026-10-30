@@ -24,7 +24,7 @@ export function isoHafta(d = new Date()) {
   const ocak4 = new Date(yil, 0, 4)
   const o4gun = (ocak4.getDay() + 6) % 7
   const ilkPer = new Date(yil, 0, 4 - o4gun + 3)
-  const hafta = 1 + Math.round((t - ilkPer) / (7 * 86400000))
+  const hafta = 1 + Math.round((t.getTime() - ilkPer.getTime()) / (7 * 86400000))
   return `${yil}-W${String(hafta).padStart(2, '0')}`
 }
 
@@ -44,7 +44,7 @@ export function haftaGunleri(d = new Date()) {
 export function gunFark(aIso, bIso) {
   const a = new Date(aIso + 'T00:00:00')
   const b = new Date(bIso + 'T00:00:00')
-  return Math.round((b - a) / 86400000)
+  return Math.round((b.getTime() - a.getTime()) / 86400000)
 }
 
 const HAFTA_SONU = new Set([0, 6]) // Paz, Cmt
@@ -235,7 +235,7 @@ export function parseHedef(text) {
  * blok sayısı (~20 soru/görev) ve görev başına soru ondan türetilir. Konu havuzu
  * gün sayısını doldurmazsa döner (pekiştirme/tekrar) — böylece hedef tempo korunur.
  */
-export function ufukPlanla({ konuData, checked, soruOzet = [], gunSayisi = 30, gunlukSoru, gunlukBlok, baslangic = isoGun() }) {
+export function ufukPlanla({ konuData, checked, soruOzet = [], gunSayisi = 30, gunlukSoru, gunlukBlok = 4, baslangic = isoGun() }) {
   const havuzListe = havuz(konuData, checked, soruOzet)
   if (!havuzListe.length || gunSayisi < 1) return []
   let blok = gunlukBlok

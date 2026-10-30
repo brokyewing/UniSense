@@ -145,14 +145,14 @@ export default function Planim({ embedded = false }) {
   function ekleGorev(title, tarih = bugun, extra = {}) {
     const t = String(title || '').trim()
     if (!t) return
-    const task = gorevYap({ id: `m-${Date.now()}`, title: t.slice(0, 120), tarih, source: 'manual', ...extra })
+    const task = gorevYap({ id: `m-${Date.now()}`, title: t.slice(0, 120), tarih, source: 'manual', ders: '', konu: '', tur: 'yeni', ...extra } as any)
     import('@/services/firestore-plan').then(m => m.addPlanGorev(user.uid, { ...task, hafta })).catch(() => {})
   }
 
   function planla() {
     if (!konuData) { flash('Konu listesi yükleniyor…'); return }
     const next = haftaPlanla({
-      konuData, checked, soruKayit: soruKayit || [], hafta, bugun,
+      konuData, checked, soruOzet: soruKayit || [], hafta, bugun,
       haftaIciBlok: config?.haftaIciBlok || VARSAYILAN.haftaIciBlok, haftaSonuBlok: config?.haftaSonuBlok || VARSAYILAN.haftaSonuBlok, mevcut: tasks,
     })
     const yeniler = next.slice(tasks.length) // haftaPlanla mevcut'u başa koyar → yeni olanlar sonda
@@ -182,7 +182,7 @@ export default function Planim({ embedded = false }) {
 
   function aiUygula() {
     const next = haftaPlanla({
-      konuData, checked, soruKayit: soruKayit || [], hafta, bugun,
+      konuData, checked, soruOzet: soruKayit || [], hafta, bugun,
       haftaIciBlok: config?.haftaIciBlok || VARSAYILAN.haftaIciBlok, haftaSonuBlok: config?.haftaSonuBlok || VARSAYILAN.haftaSonuBlok, oncelikKonu: ai.oncelik || [], mevcut: tasks,
     })
     const yeniler = next.slice(tasks.length)
@@ -211,7 +211,7 @@ export default function Planim({ embedded = false }) {
       if (gm) hedef = { gunSayisi: Math.min(365, +gm[1]), gunlukSoru: sm ? Math.min(1000, +sm[1]) : null, tavsiye: '' }
     }
     if (!hedef) { setHedefAI({ loading: false, text: 'Hedefi anlayamadım. Örn: "50 günde tüm konular, günde 100 soru".' }); return }
-    const yeni = ufukPlanla({ konuData, checked, soruKayit: soruKayit || [], gunSayisi: hedef.gunSayisi, gunlukSoru: hedef.gunlukSoru, baslangic: bugun })
+    const yeni = ufukPlanla({ konuData, checked, soruOzet: soruKayit || [], gunSayisi: hedef.gunSayisi, gunlukSoru: hedef.gunlukSoru, baslangic: bugun })
     if (!yeni.length) { setHedefAI({ loading: false, text: 'Planlanacak konu bulunamadı — önce Konu Takibi\'nden konularını işaretle.' }); return }
     if (user) {
       // Bu haftanın otomatik görevlerini temizle (görünür çift-plan olmasın) + hepsini batch yaz

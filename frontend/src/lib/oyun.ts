@@ -7,7 +7,7 @@
 export const XP_PER = { konu: 5, deneme: 20, cozulen: 0.2, yanlis: 5, dakika: 1, kullanim: 1, soru: 10, gorev: 3 }
 
 /** İstatistiklerden toplam XP (yapılan işler + çözülen soru + uygulamada geçen süre). */
-export function hesaplaXP(s = {}) {
+export function hesaplaXP(s: any = {}) {
   return (s.konuDone || 0) * XP_PER.konu
     + (s.denemeSayisi || 0) * XP_PER.deneme
     + Math.floor((s.soruCozulen || 0) * XP_PER.cozulen)
@@ -19,7 +19,7 @@ export function hesaplaXP(s = {}) {
 }
 
 /** Toplam XP → seviye + bu seviyedeki ilerleme. Her seviye biraz daha fazla XP ister. */
-export function seviyeBilgi(xp) {
+export function seviyeBilgi(xp: any) {
   let seviye = 1, acc = 0, need = 100
   while (xp >= acc + need) { acc += need; seviye += 1; need = 100 + (seviye - 1) * 60 }
   const mevcut = xp - acc

@@ -1,0 +1,10 @@
+feat: strict migration progress - hooks.ts + lib files typed, 0 errors (strict false)
+
+- hooks.ts: all implicit any params typed, useState typed, bitisRef typed
+- streak.ts: renamed from .js, added types
+- lib/*.js -> .ts: 12 files renamed (analytics, api, bulutTasima, donem, iller, konu, oyun, planlayici, riskLevels, tekrar, usage, yksHesap)
+- Fixed strict-mode-friendly types in oyun.ts, planlayici.ts, yksHesap.ts, analytics.ts
+- Build passes: 631 URLs prerendered
+- Tests pass: 14/14
+- tsc --noEmit: 0 errors (strict: false)
+- Remaining: 883 strict-mode errors (gradual migration)
