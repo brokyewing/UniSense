@@ -1,0 +1,13 @@
+feat: TypeScript migration - proper type annotations for ErrorBoundary, PWAInstallPrompt, StreakBadge, PushOptIn, MiniTrend, Logo, Seo, ThemeToggle
+
+- ErrorBoundary: ErrorBoundaryProps, ErrorBoundaryState interfaces
+- PWAInstallPrompt: BeforeInstallPromptEvent interface
+- StreakBadge: StreakBadgeProps, StreakData interfaces
+- PushOptIn: typed state union type
+- MiniTrend: TrendPoint, MiniTrendProps interfaces
+- Logo: LogoProps interface
+- Seo: SeoProps interface
+- ThemeToggle: ThemeToggleProps interface
+- Created types/index.ts with shared type definitions
+- Build passes: 631 URLs prerendered
+- Tests pass: 14 tests

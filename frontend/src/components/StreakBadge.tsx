@@ -3,14 +3,22 @@ import { Flame } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { getStreak } from '@/services/firestore-plan'
 
-// Günlük çalışma serisi rozeti. compact=true → satır içi küçük; yoksa kart.
-export default function StreakBadge({ compact = false }) {
+interface StreakBadgeProps {
+  compact?: boolean
+}
+
+interface StreakData {
+  current: number
+  longest: number
+}
+
+export default function StreakBadge({ compact = false }: StreakBadgeProps) {
   const { user } = useAuth()
-  const [s, setS] = useState({ current: 0, longest: 0 })
+  const [s, setS] = useState<StreakData>({ current: 0, longest: 0 })
 
   useEffect(() => {
     let ok = true
-    getStreak(user?.uid).then((r) => { if (ok) setS(r) }).catch(() => {})
+    getStreak(user?.uid ?? null).then((r: StreakData) => { if (ok) setS(r) }).catch(() => {})
     return () => { ok = false }
   }, [user])
 
