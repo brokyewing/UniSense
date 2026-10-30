@@ -64,12 +64,12 @@ export function diploma100ToObp(diploma100) {
   return d * 5
 }
 
-function weightedSum(nets, coefMap) {
+function weightedSum(nets: any, coefMap: any) {
   let total = 0
   let any = false
   for (const [key, coef] of Object.entries(coefMap)) {
     const n = parseFloat(nets[key]) || 0
-    if (n !== 0) { any = true; total += n * coef }
+    if (n !== 0) { any = true; total += n * (coef as number) }
   }
   return any ? total : 0
 }
@@ -87,7 +87,7 @@ export function denemeHesapla(girdi, type, obp = 0) {
   const fields = [...TYT_FIELDS, ...(AYT_FIELDS[type] || [])]
   const nets = {}
   let toplamNet = 0
-  const dersNet = {}
+  const dersNet: any = {}
   for (const f of fields) {
     const g = girdi[f.id] || {}
     const net = netOf(g.d, g.y)
@@ -143,7 +143,7 @@ export function denemeAlanlari(sinav, type = 'SAY') {
 /** Sınava göre net + puan. Döner: {dersNet, toplamNet, puan, puanTuru}. */
 export function denemeHesaplaSinav(sinav, type, girdi, obp = 0) {
   const fields = denemeAlanlari(sinav, type)
-  const dersNet = {}
+  const dersNet: any = {}
   let toplamNet = 0
   for (const f of fields) {
     const g = girdi[f.id] || {}

@@ -87,7 +87,7 @@ export function useLgsTercih() {
   return { tercihIds }
 }
 
-export function useUzmanlikTercih(sinav) {
+export function useUzmanlikTercih(sinav: any) {
   const { user } = useAuth()
   const [tercihIds, setTercihIds] = useState(new Set())
 
@@ -103,7 +103,7 @@ export function useUzmanlikTercih(sinav) {
 
 // === Çalışma Takibi Hooks ===
 
-export function useKonuIlerleme(sinav) {
+export function useKonuIlerleme(sinav: any) {
   const { user } = useAuth()
   const [checked, setChecked] = useState({})
   const [loading, setLoading] = useState(true)
@@ -120,7 +120,7 @@ export function useKonuIlerleme(sinav) {
   return { checked, loading, setChecked }
 }
 
-export function useDenemeler(sinav) {
+export function useDenemeler(sinav: any) {
   const { user } = useAuth()
   const [denemeler, setDenemeler] = useState([])
   const [loading, setLoading] = useState(true)
@@ -137,7 +137,7 @@ export function useDenemeler(sinav) {
   return { denemeler, loading, setDenemeler }
 }
 
-export function useSoruKayit(sinav) {
+export function useSoruKayit(sinav: any) {
   const { user } = useAuth()
   const [kayitlar, setKayitlar] = useState([])
   const [loading, setLoading] = useState(true)
@@ -207,7 +207,7 @@ export function useKartlar() {
 
 // === Planlayıcı Hooks ===
 
-export function usePlanGorevler(hafta) {
+export function usePlanGorevler(hafta: any) {
   const { user } = useAuth()
   const [gorevler, setGorevler] = useState([])
   const [loading, setLoading] = useState(true)
@@ -228,7 +228,7 @@ export function usePlanGorevler(hafta) {
 
 export function useSessions() {
   const { user } = useAuth()
-  const [sessions, setSessions] = useState([])
+  const [sessions, setSessions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -243,9 +243,9 @@ export function useSessions() {
   return { sessions, loading }
 }
 
-export function useSessionMessages(sessionId) {
+export function useSessionMessages(sessionId: any) {
   const { user } = useAuth()
-  const [messages, setMessages] = useState([])
+  const [messages, setMessages] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -272,7 +272,7 @@ export function useSubcollection(subcollection: string, options: any = {}) {
   const { user } = useAuth()
   const [data, setData] = useState(options.where ? [] : {})
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<any>(null)
 
   useEffect(() => {
     if (!user) { setData(options.where ? [] : {}); setLoading(false); return }
@@ -293,7 +293,7 @@ export function useSubcollection(subcollection: string, options: any = {}) {
 
 // === Debounced Search / Input Hook ===
 
-export function useDebounce(value, delay = 300) {
+export function useDebounce(value: any, delay = 300) {
   const [debounced, setDebounced] = useState(value)
   useEffect(() => {
     const id = setTimeout(() => setDebounced(value), delay)
@@ -304,12 +304,12 @@ export function useDebounce(value, delay = 300) {
 
 // === LocalStorage Sync Hook ===
 
-export function useLocalStorage(key, initialValue) {
+export function useLocalStorage(key: any, initialValue: any) {
   const [value, setValue] = useState(() => {
     try { const item = localStorage.getItem(key); return item ? JSON.parse(item) : initialValue } catch { return initialValue }
   })
 
-  const setStoredValue = useCallback((newValue) => {
+  const setStoredValue = useCallback((newValue: any) => {
     try { const val = newValue instanceof Function ? newValue(value) : newValue; setValue(val); localStorage.setItem(key, JSON.stringify(val)) } catch {}
   }, [key, value])
 
@@ -318,12 +318,12 @@ export function useLocalStorage(key, initialValue) {
 
 // === SessionStorage Hook ===
 
-export function useSessionStorage(key, initialValue) {
+export function useSessionStorage(key: any, initialValue: any) {
   const [value, setValue] = useState(() => {
     try { const item = sessionStorage.getItem(key); return item ? JSON.parse(item) : initialValue } catch { return initialValue }
   })
 
-  const setStoredValue = useCallback((newValue) => {
+  const setStoredValue = useCallback((newValue: any) => {
     try { const val = newValue instanceof Function ? newValue(value) : newValue; setValue(val); sessionStorage.setItem(key, JSON.stringify(val)) } catch {}
   }, [key, value])
 
@@ -333,16 +333,16 @@ export function useSessionStorage(key, initialValue) {
 // === Toast / Notification Hook ===
 
 export function useToast() {
-  const [toasts, setToasts] = useState([])
+  const [toasts, setToasts] = useState<any[]>([])
 
-  const show = useCallback((message, { type = 'info', duration = 3000 } = {}) => {
+  const show = useCallback((message: any, { type = 'info', duration = 3000 }: any = {}) => {
     const id = Date.now() + Math.random()
     setToasts(prev => [...prev, { id, message, type }])
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), duration)
     return id
   }, [])
 
-  const dismiss = useCallback((id) => {
+  const dismiss = useCallback((id: any) => {
     setToasts(prev => prev.filter(t => t.id !== id))
   }, [])
 
@@ -351,12 +351,12 @@ export function useToast() {
 
 // === Async Operation Hook (loading/error state management) ===
 
-export function useAsync(asyncFn) {
+export function useAsync(asyncFn: any) {
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [data, setData] = useState(null)
+  const [error, setError] = useState<any>(null)
+  const [data, setData] = useState<any>(null)
 
-  const execute = useCallback(async (...args) => {
+  const execute = useCallback(async (...args: any[]) => {
     setLoading(true)
     setError(null)
     try { const result = await asyncFn(...args); setData(result); return result } catch (e) { setError(e); throw e } finally { setLoading(false) }
@@ -367,7 +367,7 @@ export function useAsync(asyncFn) {
 
 // === Intersection Observer Hook (lazy load, infinite scroll) ===
 
-export function useIntersectionObserver(ref, options = {}) {
+export function useIntersectionObserver(ref: any, options: any = {}) {
   const [isIntersecting, setIsIntersecting] = useState(false)
 
   useEffect(() => {
@@ -382,13 +382,13 @@ export function useIntersectionObserver(ref, options = {}) {
 
 // === Media Query Hook ===
 
-export function useMediaQuery(query) {
+export function useMediaQuery(query: any) {
   const [matches, setMatches] = useState(false)
 
   useEffect(() => {
     const media = window.matchMedia(query)
     if (media.matches !== matches) setMatches(media.matches)
-    const listener = (e) => setMatches(e.matches)
+    const listener = (e: any) => setMatches(e.matches)
     media.addEventListener('change', listener)
     return () => media.removeEventListener('change', listener)
   }, [matches, query])
@@ -400,7 +400,7 @@ export function useMediaQuery(query) {
 
 export function usePlanConfig() {
   const { user } = useAuth()
-  const [config, setConfig] = useState(null)
+  const [config, setConfig] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -409,10 +409,10 @@ export function usePlanConfig() {
     getPlanConfig(user.uid).then((c) => { setConfig(c); setLoading(false) }).catch(() => { setConfig(null); setLoading(false) })
   }, [user])
 
-  const updateConfig = useCallback(async (cfg) => {
+  const updateConfig = useCallback(async (cfg: any) => {
     if (!user) return
     await setPlanConfig(user.uid, cfg)
-    setConfig((prev) => ({ ...prev, ...cfg }))
+    setConfig((prev: any) => ({ ...prev, ...cfg }))
   }, [user])
 
   return { config, loading, updateConfig }
@@ -422,7 +422,7 @@ export function usePlanConfig() {
 
 export function useIstatistik() {
   const { user } = useAuth()
-  const [stats, setStats] = useState(null)
+  const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   const yukle = useCallback(async () => {
@@ -448,7 +448,7 @@ export function usePomodoro() {
   const ODAK = 25 * 60
   const MOLA = 5 * 60
 
-  const bitisRef = useRef(null)
+  const bitisRef = useRef<any>(null)
 
   const yukle = useCallback(async () => {
     if (user) {
@@ -460,7 +460,7 @@ export function usePomodoro() {
   useEffect(() => {
     if (!calisiyor) { bitisRef.current = null; return }
     bitisRef.current = Date.now() + kalan * 1000
-    const t = setInterval(() => setKalan(Math.max(0, Math.round((bitisRef.current - Date.now()) / 1000))), 1000)
+    const t = setInterval(() => setKalan(Math.max(0, Math.round(((bitisRef.current || 0) - Date.now()) / 1000))), 1000)
     return () => clearInterval(t)
   }, [calisiyor])
 
@@ -473,7 +473,7 @@ export function usePomodoro() {
       else {
         // guest sureEkle - no-op for now
       }
-      recordActivity(user?.uid).catch(() => {})
+      recordActivity(user?.uid ?? null).catch(() => {})
       setToast('🎉 25 dk odak tamam! Kısa mola.')
       setTimeout(() => setToast(''), 2500)
       setMod('mola'); setKalan(5 * 60)
@@ -483,7 +483,7 @@ export function usePomodoro() {
   }, [kalan, calisiyor, mod, ders, user])
 
   const sifirla = () => { setCalisiyor(false); setKalan(mod === 'odak' ? 25 * 60 : 5 * 60) }
-  const modDegis = (m) => { setCalisiyor(false); setMod(m); setKalan(m === 'odak' ? 25 * 60 : 5 * 60) }
+  const modDegis = (m: any) => { setCalisiyor(false); setMod(m); setKalan(m === 'odak' ? 25 * 60 : 5 * 60) }
 
   return { mod, kalan, calisiyor, ders, setDers, setCalisiyor, modDegis, sifirla, toast, setToast }
 }
@@ -514,7 +514,7 @@ export function useEmailReminders() {
 
 export function useAnalytics() {
   const { user } = useAuth()
-  const logEvent = useCallback((eventType, page, metadata = {}) => {
+  const logEvent = useCallback((eventType: any, page: any, metadata: any = {}) => {
     import('@/services/api').then(m => m.api.analyticsLog(eventType, page, user?.uid || null).catch(() => {}))
   }, [user])
   return { logEvent }

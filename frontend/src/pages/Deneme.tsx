@@ -210,7 +210,7 @@ export default function Deneme({ embedded = false }) {
     if (!son?.dersNet) return []
     return Object.entries(son.dersNet)
       .map(([id, net]) => ({ id, net, ...(ALL_LABELS[id] || { label: id, max: 1 }) }))
-      .map((x) => ({ ...x, oran: x.net / x.max }))
+      .map((x: any) => ({ ...x, oran: x.net / x.max }))
       .sort((a, b) => a.oran - b.oran).slice(0, 3)
   }, [son])
 
@@ -328,7 +328,7 @@ export default function Deneme({ embedded = false }) {
                 <div className="flex flex-wrap gap-1.5">
                   {zayif.map((z) => (
                     <span key={z.id} className="text-[11px] px-2 py-1 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/25">
-                      {z.label}: {z.net.toFixed(1)}/{z.max}
+                      {z.label}: {Number(z.net).toFixed(1)}/{z.max}
                     </span>
                   ))}
                 </div>

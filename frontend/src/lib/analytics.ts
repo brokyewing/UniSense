@@ -38,7 +38,7 @@ export function resetIdentity() {
   if (ph) ph.reset()
 }
 
-export function track(event, props) {
+export function track(event: any, props?: any) {
   if (!KEY) return
   ready().then((p) => p && p.capture(event, props))
 }

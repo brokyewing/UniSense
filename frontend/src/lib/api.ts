@@ -20,15 +20,16 @@ if (!API_BASE && import.meta.env.PROD) {
 }
 
 export class ApiError extends Error {
-  constructor(message, status) {
+  status: number
+  constructor(message: string, status: number) {
     super(message)
     this.name = 'ApiError'
     this.status = status
   }
 }
 
-async function authHeaders() {
-  const headers = { 'Content-Type': 'application/json' }
+async function authHeaders(): Promise<Record<string, string>> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
   if (auth?.currentUser) {
     try {
       const token = await auth.currentUser.getIdToken()
@@ -45,7 +46,7 @@ async function authHeaders() {
  * @param {string} path - /api/v1/... yolu
  * @param {{method?: string, body?: any, signal?: AbortSignal}} [options]
  */
-export async function apiFetch(path, { method = 'GET', body, signal } = {}) {
+export async function apiFetch(path: string, { method = 'GET', body, signal }: { method?: string; body?: any; signal?: AbortSignal } = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
     method,
     headers: await authHeaders(),
