@@ -53,12 +53,12 @@ export const AYT_FIELDS = {
 }
 
 /** Net = doğru − penalty×yanlış (ÖSYM kuralı; negatif kalabilir). */
-export function netOf(dogru, yanlis, pen = YKS_PEN) {
+export function netOf(dogru: any, yanlis: any, pen: any = YKS_PEN) {
   return (parseFloat(dogru) || 0) - pen * (parseFloat(yanlis) || 0)
 }
 
 /** diploma notu (50-100) → OBP (250-500). */
-export function diploma100ToObp(diploma100) {
+export function diploma100ToObp(diploma100: any) {
   const d = parseFloat(diploma100)
   if (!d || d < 50 || d > 100) return 0
   return d * 5
@@ -75,17 +75,17 @@ function weightedSum(nets: any, coefMap: any) {
 }
 
 /** Yerleştirme puanı (SAY/EA/SÖZ/DİL). nets: {tyt_*, ayt_*}. obp: 0-500. */
-export function placementScore(nets, type, obp = 0) {
-  const ayt = weightedSum(nets, AYT_COEF[type] || {})
+export function placementScore(nets: any, type: any, obp = 0) {
+  const ayt = weightedSum(nets, (AYT_COEF as any)[type] || {})
   if (ayt <= 0) return 0
   const tyt = weightedSum(nets, TYT_PLACEMENT_COEF)
   return 100 + tyt + ayt + obp * OBP_MULT
 }
 
 /** Bir deneme girdisinden (ders→{d,y}) net haritası + toplam net + puan üret. */
-export function denemeHesapla(girdi, type, obp = 0) {
-  const fields = [...TYT_FIELDS, ...(AYT_FIELDS[type] || [])]
-  const nets = {}
+export function denemeHesapla(girdi: any, type: any, obp = 0) {
+  const fields = [...TYT_FIELDS, ...((AYT_FIELDS as any)[type] || [])]
+  const nets: any = {}
   let toplamNet = 0
   const dersNet: any = {}
   for (const f of fields) {
@@ -126,22 +126,22 @@ export const DGS_COEF_BY_TYPE = {
 }
 
 /** Önlisans GPA (4'lük, 0-4) → AÖBP (0-50; DGS yerleştirmeye eklenir). */
-export function gpa4ToAobp(gpa4) {
+export function gpa4ToAobp(gpa4: any) {
   const d = parseFloat(gpa4)
   if (!d || d < 0 || d > 4) return 0
   return d * 25 * 0.5 // 4.00 → 50
 }
 
 /** Sınava göre ders alanları. YKS/DGS için type gerekir. */
-export function denemeAlanlari(sinav, type = 'SAY') {
+export function denemeAlanlari(sinav: any, type: any = 'SAY') {
   if (sinav === 'KPSS') return KPSS_FIELDS
   if (sinav === 'LGS') return LGS_FIELDS
   if (sinav === 'DGS') return DGS_FIELDS
-  return [...TYT_FIELDS, ...(AYT_FIELDS[type] || [])]
+  return [...TYT_FIELDS, ...((AYT_FIELDS as any)[type] || [])]
 }
 
 /** Sınava göre net + puan. Döner: {dersNet, toplamNet, puan, puanTuru}. */
-export function denemeHesaplaSinav(sinav, type, girdi, obp = 0) {
+export function denemeHesaplaSinav(sinav: any, type: any, girdi: any, obp = 0) {
   const fields = denemeAlanlari(sinav, type)
   const dersNet: any = {}
   let toplamNet = 0
@@ -167,7 +167,7 @@ export function denemeHesaplaSinav(sinav, type, girdi, obp = 0) {
     puan = herhangi ? Math.max(100, 100 + (w / 270) * 400) : 0
     puanTuru = 'LGS · MSP'
   } else if (sinav === 'DGS') {
-    const w = weightedSum(dersNet, DGS_COEF_BY_TYPE[type] || DGS_COEF_BY_TYPE.SAY)
+    const w = weightedSum(dersNet, (DGS_COEF_BY_TYPE as any)[type] || (DGS_COEF_BY_TYPE as any).SAY)
     puan = w > 0 ? 100 + w + obp : 0 // obp burada AÖBP (0-50)
     puanTuru = `DGS ${type}`
   } else {

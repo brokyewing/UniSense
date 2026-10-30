@@ -6,17 +6,17 @@ import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
 
 /** Basit markdown → JSX: **kalın**, * madde, satır başlıkları. AI içeriği hafif biçimli. */
-function renderContent(content) {
+function renderContent(content: any) {
   const lines = (content || '').split('\n')
-  const out = []
-  let list = []
-  const flush = (key) => {
+  const out: any[] = []
+  let list: any[] = []
+  const flush = (key: any) => {
     if (list.length) {
       out.push(<ul key={`ul${key}`} className="list-disc pl-5 space-y-0.5 my-1.5 text-slate-300">{list}</ul>)
       list = []
     }
   }
-  lines.forEach((raw, i) => {
+  lines.forEach((raw: any, i: number) => {
     const line = raw.trim()
     if (!line) { flush(i); return }
     if (line.startsWith('*') || line.startsWith('-')) {
@@ -34,9 +34,9 @@ function renderContent(content) {
   flush('end')
   return out
 }
-function bold(text) {
+function bold(text: any) {
   const parts = text.split(/(\*\*[^*]+\*\*)/g)
-  return parts.map((p, i) =>
+  return parts.map((p: any, i: number) =>
     p.startsWith('**') && p.endsWith('**')
       ? <strong key={i} className="text-white">{p.slice(2, -2)}</strong>
       : p)
@@ -44,7 +44,7 @@ function bold(text) {
 
 export default function BolumDetay() {
   const { slug } = useParams()
-  const [data, setData] = useState(null)
+  const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [il, setIl] = useState('')
@@ -61,7 +61,7 @@ export default function BolumDetay() {
   const programs = useMemo(() => {
     if (!data) return []
     const ilf = il.trim().toLocaleLowerCase('tr')
-    return data.programs.filter((p) => {
+    return data.programs.filter((p: any) => {
       if (ilf && !p.city.toLocaleLowerCase('tr').includes(ilf)) return false
       if (tur !== 'all' && !(p.university_type || '').toLowerCase().startsWith(tur.toLowerCase())) return false
       return true
@@ -76,7 +76,7 @@ export default function BolumDetay() {
     </div>
   )
 
-  const tabanlilar = programs.filter((p) => p.base_score != null)
+  const tabanlilar = programs.filter((p: any) => p.base_score != null)
 
   return (
     <>
@@ -138,7 +138,7 @@ export default function BolumDetay() {
                 </tr>
               </thead>
               <tbody>
-                {programs.map((p) => (
+                {programs.map((p: any) => (
                   <tr key={p.department_code} className="border-b border-white/5 last:border-0 hover:bg-white/5">
                     <td className="py-2 pr-2">
                       <div className="text-slate-200 flex items-center gap-1.5">

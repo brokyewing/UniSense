@@ -1,0 +1,1 @@
+chore: strict migration progress - Hesap, LGS, Search, Deneme, Compare, Pusula, Kariyer, Konular, Profile, Analytics, BolumDetay, Notlar, Ozetler, OzetDetay, BolumKatalog, Siralama, Pano typed - 0 errors strict false

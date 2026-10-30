@@ -31,7 +31,7 @@ import { FIRESTORE_COLLECTIONS, TERCIH_LIMITS } from './constants'
 export function useTercihList() {
   const { user } = useAuth()
   const [tercihIds, setTercihIds] = useState(new Set())
-  const [busyCode, setBusyCode] = useState(null)
+  const [busyCode, setBusyCode] = useState<any>(null)
 
   useEffect(() => {
     if (!user) { setTercihIds(new Set()); return }
@@ -46,7 +46,7 @@ export function useTercihList() {
 export function useDgsTercih() {
   const { user } = useAuth()
   const [tercihIds, setTercihIds] = useState(new Set())
-  const [busyCode, setBusyCode] = useState(null)
+  const [busyCode, setBusyCode] = useState<any>(null)
 
   useEffect(() => {
     if (!user) { setTercihIds(new Set()); return }
@@ -61,7 +61,7 @@ export function useDgsTercih() {
 export function useKpssTercih() {
   const { user } = useAuth()
   const [tercihIds, setTercihIds] = useState(new Set())
-  const [busyCode, setBusyCode] = useState(null)
+  const [busyCode, setBusyCode] = useState<any>(null)
 
   useEffect(() => {
     if (!user) { setTercihIds(new Set()); return }
@@ -105,7 +105,7 @@ export function useUzmanlikTercih(sinav: any) {
 
 export function useKonuIlerleme(sinav: any) {
   const { user } = useAuth()
-  const [checked, setChecked] = useState({})
+  const [checked, setChecked] = useState<any>({})
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -122,7 +122,7 @@ export function useKonuIlerleme(sinav: any) {
 
 export function useDenemeler(sinav: any) {
   const { user } = useAuth()
-  const [denemeler, setDenemeler] = useState([])
+  const [denemeler, setDenemeler] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -139,7 +139,7 @@ export function useDenemeler(sinav: any) {
 
 export function useSoruKayit(sinav: any) {
   const { user } = useAuth()
-  const [kayitlar, setKayitlar] = useState([])
+  const [kayitlar, setKayitlar] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -524,7 +524,7 @@ export function useAnalytics() {
 
 export function useUserProfile() {
   const { user } = useAuth()
-  const [profile, setProfile] = useState(null)
+  const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

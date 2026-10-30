@@ -7,7 +7,7 @@ export function konuBloklari(data: any) {
   if (data.gruplar) {
     const out = []
     for (const [grup, dersler] of Object.entries(data.gruplar)) {
-      for (const [ders, konular] of Object.entries(dersler)) out.push({ grup, ders, konular })
+      for (const [ders, konular] of Object.entries(dersler as any)) out.push({ grup, ders, konular })
     }
     return out
   }

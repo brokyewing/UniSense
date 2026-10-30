@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext'
 
 export default function Analytics() {
   const { user, isAuthed } = useAuth()
-  const [summary, setSummary] = useState(null)
+  const [summary, setSummary] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -25,7 +25,7 @@ export default function Analytics() {
     try {
       await api.analyticsClear()
       setSummary({ total_events: 0, unique_users: 0, top_pages: [], top_events: [], daily_active: 0 })
-    } catch (e) {
+    } catch (e: any) {
       setError(e.message)
     }
   }
@@ -94,7 +94,7 @@ export default function Analytics() {
               <div className="card">
                 <h3 className="text-sm font-semibold text-white mb-3">En Çok Ziyaret Edilen Sayfalar</h3>
                 <div className="space-y-2">
-                  {summary.top_pages.map((p, i) => (
+                  {summary.top_pages.map((p: any, i: number) => (
                     <div key={i} className="flex items-center justify-between text-sm">
                       <span className="text-slate-300 truncate">{p.page}</span>
                       <span className="text-accent-300 font-mono shrink-0 ml-2">{p.count}</span>
@@ -109,7 +109,7 @@ export default function Analytics() {
               <div className="card">
                 <h3 className="text-sm font-semibold text-white mb-3">En Çok Gerçekleşen Olaylar</h3>
                 <div className="space-y-2">
-                  {summary.top_events.map((e, i) => (
+                  {summary.top_events.map((e: any, i: number) => (
                     <div key={i} className="flex items-center justify-between text-sm">
                       <span className="text-slate-300 truncate">{e.event}</span>
                       <span className="text-emerald-300 font-mono shrink-0 ml-2">{e.count}</span>

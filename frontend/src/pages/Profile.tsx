@@ -85,7 +85,7 @@ export default function Profile() {
 }
 
 
-function SeviyeKarti({ user }) {
+function SeviyeKarti({ user }: { user: any }) {
   const { stats, loading: statsLoading, yukle } = useIstatistik()
   useEffect(() => { yukle() }, [yukle])
   const xp = stats ? hesaplaXP(stats) : 0
@@ -116,7 +116,7 @@ function SeviyeKarti({ user }) {
 }
 
 
-function TabBtn({ active, onClick, icon: Icon, children }) {
+function TabBtn({ active, onClick, icon: Icon, children }: any) {
   return (
     <button
       onClick={onClick}
@@ -137,7 +137,7 @@ function TabBtn({ active, onClick, icon: Icon, children }) {
 
 
 /* === Avatar Display === */
-function ProfileAvatar({ user, size = 56 }) {
+function ProfileAvatar({ user, size = 56 }: any) {
   if (user.photoURL) {
     return (
       <img
@@ -162,14 +162,14 @@ function ProfileAvatar({ user, size = 56 }) {
 
 
 /* === ACCOUNT TAB === */
-function AccountTab({ user }) {
+function AccountTab({ user }: any) {
   const [name, setName] = useState(user.displayName || '')
   const [photoURL, setPhotoURL] = useState(user.photoURL || '')
   const [showAvatars, setShowAvatars] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [msg, setMsg] = useState(null)
+  const [msg, setMsg] = useState<any>(null)
 
-  async function handleSelectPreset(url) {
+  async function handleSelectPreset(url: any) {
     setPhotoURL(url)
     setShowAvatars(false)
   }
@@ -188,7 +188,7 @@ function AccountTab({ user }) {
         photoURL,
       }))
       setMsg({ type: 'success', text: 'Hesap bilgileri kaydedildi' })
-    } catch (e) {
+    } catch (e: any) {
       setMsg({ type: 'error', text: e.message || 'Kayıt başarısız' })
     } finally {
       setSaving(false)
@@ -330,13 +330,13 @@ function AccountTab({ user }) {
 
 
 /* === PASSWORD TAB === */
-function PasswordTab({ user }) {
+function PasswordTab({ user }: any) {
   const [curr, setCurr] = useState('')
   const [pw, setPw] = useState('')
   const [pwc, setPwc] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [msg, setMsg] = useState(null)
+  const [msg, setMsg] = useState<any>(null)
   const { profile, loading: profileLoading } = useUserProfile()
 
   // Provider'ı profilden al (fallback: getAuthProvider)
@@ -368,7 +368,7 @@ function PasswordTab({ user }) {
     )
   }
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: any) {
     e.preventDefault()
     setMsg(null)
     if (pw.length < 6) {
@@ -386,7 +386,7 @@ function PasswordTab({ user }) {
       setCurr('')
       setPw('')
       setPwc('')
-    } catch (e) {
+    } catch (e: any) {
       setMsg({ type: 'error', text: parseAuthErr(e) })
     } finally {
       setSaving(false)
@@ -442,7 +442,7 @@ function PasswordTab({ user }) {
 }
 
 
-function PasswordInput({ label, value, onChange, showPw, toggleShow }) {
+function PasswordInput({ label, value, onChange, showPw, toggleShow }: any) {
   return (
     <div>
       <label className="text-xs text-slate-400 mb-1 block">{label}</label>
@@ -475,7 +475,7 @@ const UNI_TYPES = [
   { v: 'Vakıf',  label: 'Vakıf (Özel)',    desc: 'Vakıf üniversiteleri', color: 'from-rose-500 to-pink-600' },
 ]
 
-function YksTab({ user }) {
+function YksTab({ user }: any) {
   const [scoreType, setScoreType] = useState('SAY')
   const [score, setScore] = useState('')
   const [rank, setRank] = useState('')
@@ -494,7 +494,7 @@ function YksTab({ user }) {
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
-  const [msg, setMsg] = useState(null)
+  const [msg, setMsg] = useState<any>(null)
 
   const { profile, loading: profileLoading } = useUserProfile()
 
@@ -520,7 +520,7 @@ function YksTab({ user }) {
         if (p.dus?.score != null) setDusScore(String(p.dus.score))
         if (p.lgs?.yuzdelik != null) setLgsYuzdelik(String(p.lgs.yuzdelik))
         if (p.ags?.net != null) setAgsNet(String(p.ags.net))
-      } catch (e) {
+      } catch (e: any) {
         console.warn(e)
         if (!cancelled) setLoadError(true)
       } finally {
@@ -530,7 +530,7 @@ function YksTab({ user }) {
     return () => { cancelled = true }
   }, [profile, profileLoading])
 
-  function removeInterest(name) {
+  function removeInterest(name: any) {
     setInterests((prev) => prev.filter((x) => x !== name))
   }
 
@@ -560,7 +560,7 @@ function YksTab({ user }) {
         ags: agsNet ? { net: parseFloat(agsNet), updatedAt: Date.now() } : null,
       }))
       setMsg({ type: 'success', text: 'Sınav profilin kaydedildi. Tercih ve öneri sayfalarında otomatik kullanılacak.' })
-    } catch (e) {
+    } catch (e: any) {
       setMsg({ type: 'error', text: e.message || 'Kayıt başarısız' })
     } finally {
       setSaving(false)
@@ -930,7 +930,7 @@ function YksTab({ user }) {
 }
 
 
-function Banner({ msg }) {
+function Banner({ msg }: any) {
   const isErr = msg.type === 'error'
   return (
     <motion.div
@@ -951,7 +951,7 @@ function Banner({ msg }) {
 }
 
 
-function parseAuthErr(e) {
+function parseAuthErr(e: any) {
   const m = e?.message || String(e)
   if (m.includes('wrong-password')) return 'Mevcut şifren yanlış'
   if (m.includes('weak-password')) return 'Yeni şifre çok zayıf'

@@ -13,7 +13,7 @@ const CAT_LABEL = {
 }
 
 export default function BolumKatalog() {
-  const [items, setItems] = useState([])
+  const [items, setItems] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [q, setQ] = useState('')
@@ -28,7 +28,7 @@ export default function BolumKatalog() {
   const filtered = useMemo(() => {
     const f = q.trim().toLocaleLowerCase('tr')
     if (!f) return items
-    return items.filter((it) => it.name.toLocaleLowerCase('tr').includes(f))
+    return items.filter((it: any) => it.name.toLocaleLowerCase('tr').includes(f))
   }, [items, q])
 
   return (
@@ -82,7 +82,7 @@ export default function BolumKatalog() {
                         <ArrowRight size={14} className="text-slate-500 group-hover:text-accent-300 transition shrink-0" />
                       </div>
                       <div className="flex items-center gap-2 mt-0.5 text-[10px] text-slate-500">
-                        {CAT_LABEL[it.category] && <span>{CAT_LABEL[it.category]}</span>}
+                        {(CAT_LABEL as any)[it.category] && <span>{(CAT_LABEL as any)[it.category]}</span>}
                         <span>· {it.program_count} program</span>
                       </div>
                       <p className="text-xs text-slate-400 mt-1.5 line-clamp-2">{it.summary}</p>
