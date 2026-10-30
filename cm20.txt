@@ -1,0 +1,1 @@
+chore: update GOREVLER.md - mark push frontend integration done, service account key blocked
