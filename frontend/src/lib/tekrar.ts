@@ -5,7 +5,7 @@ export const TEKRAR_ARALIK = [1, 2, 4, 8, 16] // kutu → kaç gün sonra tekrar
 // YEREL tarih (toISOString UTC döndürür — TR'de gece 00:00-03:00 işlemleri
 // önceki güne yazılıp 1 günlük tekrar aralığını ~2.5 saate düşürüyordu)
 const pad2 = (n: any) => String(n).padStart(2, '0')
-const tarihStr = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+const tarihStr = (d: any) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
 
 export function bugunStr() {
   return tarihStr(new Date())
