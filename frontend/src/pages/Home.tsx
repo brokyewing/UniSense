@@ -12,7 +12,7 @@ import { TERCIH_YILI } from '../lib/donem'
 
 // Yaklaşan sınavlar widget'ı — /takvim'den ilk 3 etkinlik
 function UpcomingExams() {
-  const [items, setItems] = useState(null)
+  const [items, setItems] = useState<any[] | null>(null)
   useEffect(() => {
     apiFetch('/api/v1/takvim').then((d) => setItems(d.yaklasan?.slice(0, 3) || [])).catch(() => setItems([]))
   }, [])
