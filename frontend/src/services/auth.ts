@@ -14,12 +14,15 @@ import {
   updatePassword,
   EmailAuthProvider,
   reauthenticateWithCredential,
+  type Auth,
+  type User,
+  type UserCredential,
 } from 'firebase/auth'
 import { app } from './firebase-init'
 import { ensureUserDoc } from './firestore-user'
 
-let auth = null
-let googleProvider = null
+let auth: Auth | null = null
+let googleProvider: GoogleAuthProvider | null = null
 
 if (app) {
   auth = getAuth(app)
@@ -29,23 +32,28 @@ if (app) {
 
 export { auth, googleProvider }
 
-export async function loginWithGoogle(examTrack) {
+export async function loginWithGoogle(examTrack?: string): Promise<User> {
   if (!auth || !googleProvider) throw new Error('Firebase Auth yok')
-  const result = await signInWithPopup(auth, googleProvider)
+  const result: UserCredential = await signInWithPopup(auth, googleProvider)
   await ensureUserDoc(result.user, examTrack)
   return result.user
 }
 
-export async function loginWithEmail(email, password) {
+export async function loginWithEmail(email: string, password: string): Promise<User> {
   if (!auth) throw new Error('Firebase Auth yok')
-  const result = await signInWithEmailAndPassword(auth, email, password)
+  const result: UserCredential = await signInWithEmailAndPassword(auth, email, password)
   await ensureUserDoc(result.user)
   return result.user
 }
 
-export async function registerWithEmail(email, password, displayName, examTrack) {
+export async function registerWithEmail(
+  email: string,
+  password: string,
+  displayName?: string,
+  examTrack?: string,
+): Promise<User> {
   if (!auth) throw new Error('Firebase Auth yok')
-  const result = await createUserWithEmailAndPassword(auth, email, password)
+  const result: UserCredential = await createUserWithEmailAndPassword(auth, email, password)
   if (displayName) {
     await updateProfile(result.user, { displayName })
   }
@@ -53,19 +61,22 @@ export async function registerWithEmail(email, password, displayName, examTrack)
   return result.user
 }
 
-export async function logout() {
+export async function logout(): Promise<void> {
   if (!auth) return
   await signOut(auth)
 }
 
-export function watchAuth(callback) {
+export function watchAuth(callback: (user: User | null) => void): () => void {
   if (!auth) return () => {}
   return onAuthStateChanged(auth, callback)
 }
 
-export async function updateUserBasicInfo(user, { displayName, photoURL }) {
+export async function updateUserBasicInfo(
+  user: User,
+  { displayName, photoURL }: { displayName?: string; photoURL?: string },
+): Promise<void> {
   if (!auth) throw new Error('Firebase Auth yok')
-  const updates = {}
+  const updates: Record<string, string> = {}
   if (displayName !== undefined) updates.displayName = displayName
   if (photoURL !== undefined) updates.photoURL = photoURL
   if (Object.keys(updates).length > 0) {
@@ -74,7 +85,7 @@ export async function updateUserBasicInfo(user, { displayName, photoURL }) {
   // Firestore güncellemesi ensureUserDoc/zaten ayrı yapılıyor
 }
 
-export async function changePassword(currentPassword, newPassword) {
+export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
   if (!auth || !auth.currentUser) throw new Error('Giriş yapmamışsın')
   const user = auth.currentUser
   if (!user.email) {
@@ -85,7 +96,7 @@ export async function changePassword(currentPassword, newPassword) {
   await updatePassword(user, newPassword)
 }
 
-export function getAuthProvider(user) {
+export function getAuthProvider(user: User | null): string | null {
   if (!user) return null
   const providers = user.providerData?.map((p) => p.providerId) || []
   if (providers.includes('google.com')) return 'google'

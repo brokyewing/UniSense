@@ -1,0 +1,8 @@
+feat: TypeScript migration - auth.js to auth.ts
+
+- Migrated auth.js to auth.ts with proper TypeScript types
+- Added type annotations for all functions (User, UserCredential, Auth)
+- Used firebase/auth type imports
+- Deleted auth.js
+- Build passes: 631 URLs prerendered
+- Tests pass: 14 tests
