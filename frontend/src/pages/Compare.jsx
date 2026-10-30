@@ -215,6 +215,31 @@ export default function Compare() {
   const diffs = data?.diffs || {}
   const found = items.filter((it) => it.found)
 
+  // Burs/Ücret ve İstihdam bilgilerini yükle
+  const [scholarshipData, setScholarshipData] = useState({})
+  const [employmentData, setEmploymentData] = useState({})
+
+  useEffect(() => {
+    if (found.length === 0) return
+    const codes = found.map((it) => it.code)
+    // Burs bilgisi
+    Promise.all(codes.map((code) =>
+      api.scholarshipByProgram(code).catch(() => null)
+    )).then((results) => {
+      const map = {}
+      results.forEach((r, i) => { if (r) map[codes[i]] = r })
+      setScholarshipData(map)
+    })
+    // İstihdam bilgisi
+    Promise.all(codes.map((code) =>
+      api.employmentByProgram(code).catch(() => null)
+    )).then((results) => {
+      const map = {}
+      results.forEach((r, i) => { if (r) map[codes[i]] = r })
+      setEmploymentData(map)
+    })
+  }, [data])
+
   return (
     <>
       <BackgroundScene />
@@ -312,6 +337,34 @@ export default function Compare() {
                 <Row label="Eğitim dili"       items={items} fmt={(it) => it.education_language || '—'} />
                 <Row label="Burs"               items={items} fmt={(it) => it.scholarship || '—'} />
                 <Row label="Ücret"              items={items} fmt={(it) => fmtFee(it)} diffField="fee_try" diffs={diffs} />
+                {Object.keys(scholarshipData).length > 0 && (
+                  <>
+                    <Row label="Burs oranı"     items={items} fmt={(it) => {
+                      const s = scholarshipData[it.code]
+                      return s ? (s.scholarship_rate != null ? `%${s.scholarship_rate}` : '—') : '—'
+                    }} />
+                    <Row label="Burs türü"      items={items} fmt={(it) => {
+                      const s = scholarshipData[it.code]
+                      return s?.scholarship_type || '—'
+                    }} />
+                  </>
+                )}
+                {Object.keys(employmentData).length > 0 && (
+                  <>
+                    <Row label="İş bulma oranı" items={items} fmt={(it) => {
+                      const e = employmentData[it.code]
+                      return e?.employment_rate != null ? `%${e.employment_rate}` : '—'
+                    }} diffField="employment_rate" diffs={diffs} />
+                    <Row label="Ort. maaş"      items={items} fmt={(it) => {
+                      const e = employmentData[it.code]
+                      return e?.avg_salary_try != null ? `${e.avg_salary_try.toLocaleString('tr-TR')} ₺` : '—'
+                    }} />
+                    <Row label="İstihdam sektörü" items={items} fmt={(it) => {
+                      const e = employmentData[it.code]
+                      return e?.employment_sector || '—'
+                    }} />
+                  </>
+                )}
                 <Row label="Akreditasyon"      items={items} fmt={(it) => it.accreditation || '—'} />
                 <Row label="Min başarı sırası" items={items} fmt={(it) => it.min_basari_sirasi_kosul || '—'} />
                 {/* DGS (dikey geçiş) — kod eşleşen programlarda; DGS'li kullanıcı
