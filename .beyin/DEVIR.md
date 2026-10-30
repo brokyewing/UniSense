@@ -4,39 +4,39 @@
 - **Build**: ✅ BAŞARILI (631 URL prerender)
 - **Tüm servisler çalışıyor**: Backend (8002), Frontend (5177), ngrok, Firebase Emulators
 - **Service Layer**: `src/services/` altına modüler yapı kuruldu
-- **TypeScript**: Başladı (constants.ts ilk adım)
+- **TypeScript**: Tüm dosyalar .ts/.tsx, strict: false ile çalışıyor
 
 ## Tamamlanan Migration'lar
 
-### 1. Service Layer Kurulumu (`src/services/`)
+### 1. Service Layer Kurulumu (`src/services/`) — Tümü TypeScript
 | Dosya | Sorumluluk | Tip |
 |-------|------------|-----|
-| `firebase-init.js` | Firebase app/auth/db/storage init | JS |
-| `constants.ts` | Limitler, koleksiyon isimleri, eşikler, PRESET_AVATARS | **TS** ✅ |
-| `auth.js` | Firebase Auth (login, register, logout, password) | JS |
-| `firestore-core.js` | **Jenerik** `watchSubcollection`, CRUD helpers, `db` import | JS |
-| `firestore-study.js` | Konu, deneme, soru, yanlış, not, kartlar, istatistik | JS |
-| `firestore-prefs.js` | **TÜM tercih listeleri** (YKS/DGS/KPSS/TUS/DUS/LGS) — tek `_watchTercih` pattern | JS |
-| `firestore-plan.js` | Planlayıcı, istatistik, streak, sıralama | JS |
-| `firestore-push.js` | FCM push, avatar, query log, chat sessions | JS |
-| `firestore-user.js` | `ensureUserDoc` (kullanıcı profili oluşturma) | JS |
-| `api.js` | Backend API (timeout, auth header, ApiError) | JS |
-| `hooks.js` | Tüm custom hook'lar (20+ hook) | JS |
-| `index.js` | Barrel export | JS |
+| `firebase-init.ts` | Firebase app/auth/db/storage init — **tek kaynak** | TS ✅ |
+| `constants.ts` | Limitler, koleksiyon isimleri, eşikler, PRESET_AVATARS | TS ✅ |
+| `auth.ts` | Firebase Auth (login, register, logout, password) | TS ✅ |
+| `firestore-core.ts` | **Jenerik** `watchSubcollection`, CRUD helpers, `db` import | TS ✅ |
+| `firestore-study.ts` | Konu, deneme, soru, yanlış, not, kartlar, istatistik | TS ✅ |
+| `firestore-prefs.ts` | **TÜM tercih listeleri** (YKS/DGS/KPSS/TUS/DUS/LGS) — tek `_watchTercih` pattern | TS ✅ |
+| `firestore-plan.ts` | Planlayıcı, istatistik, streak, sıralama | TS ✅ |
+| `firestore-push.ts` | FCM push, avatar, query log, chat sessions | TS ✅ |
+| `firestore-user.ts` | `ensureUserDoc` (kullanıcı profili oluşturma) | TS ✅ |
+| `api.ts` | Backend API (timeout, auth header, ApiError) | TS ✅ |
+| `hooks.ts` | Tüm custom hook'lar (20+ hook) | TS ✅ |
+| `index.ts` | Barrel export | TS ✅ |
 
 ### 2. Component Migration'ları (16 sayfa + 3 component + 3 lib + 1 context)
-**Sayfalar:** Search, Recommend, Calisma, Deneme, Konular, Planim, TercihList, Hesap, Ozetler, Notlar, Pano, LGS, Siralama, Pusula, Profile, TusDus
+**Sayfalar (tümü .tsx):** Search, Recommend, Calisma, Deneme, Konular, Planim, TercihList, Hesap, Ozetler, Notlar, Pano, LGS, Siralama, Pusula, Profile, TusDus, Analytics
 
-**Component'ler:** PushOptIn, StreakBadge, ChatSidebar, ErrorBoundary, PWAInstallPrompt, LazyBackgroundScene
+**Component'ler (.tsx):** PushOptIn, StreakBadge, ChatSidebar, ErrorBoundary, PWAInstallPrompt, LazyBackgroundScene, Logo, MiniTrend, Seo, ThemeToggle, BackgroundScene, Scene3D
 
-**Lib'ler:** usage.js, api.js
+**Lib'ler:** usage.js, api.ts (api.ts migrate edildi)
 
-**Context'ler:** AuthContext.jsx
+**Context'ler:** AuthContext.tsx, ThemeContext.tsx
 
 ### 3. Firebase.js Tamamen Kaldırıldı
 - `firebase.js` (1068 satır) silindi
-- `firebase-init.js` oluşturuldu — `app`, `auth`, `db`, `storage`, `googleProvider`, `appCheck` export eder
-- Tüm service dosyaları artık `firebase-init.js`'den import eder
+- `firebase-init.ts` oluşturuldu — `app`, `auth`, `db`, `storage`, `googleProvider`, `appCheck` export eder
+- Tüm service dosyaları artık `firebase-init.ts`'den import eder
 - **Legacy firebase import: 0** (sadece service layer içinde)
 
 ### 4. Chunk Size Optimizasyonu
@@ -55,7 +55,7 @@
 - ✅ Burs/Ücret Veritabanı — backend + API + frontend UI
 - ✅ Mezun İstihdam Verisi — backend + API + frontend UI
 - ✅ Analytics Dashboard — backend + API + frontend admin paneli
-- ✅ TypeScript Migration (başladı) — constants.ts ilk adım
+- ✅ TypeScript Migration (başladı) — tüm dosyalar .ts/.tsx, strict: false
 
 ### 6. Build & Deploy
 - ✅ Build başarılı - 631 URL prerender
@@ -64,10 +64,10 @@
 - ✅ Firebase Emulators: Firestore (8085), Auth (9099), UI (4000)
 
 ## Kalan İşler
-1. **TypeScript Migration** — gradual migration (auth.ts, api.ts, firestore-*.ts, hooks.ts, components, pages)
+1. **TypeScript Migration** — proper type annotations (gradual, sayfa sayfa, strict: true)
 2. **Push notification setup** — Firebase Admin SDK service account key + scheduled jobs
 3. **Burs/Ücret ve İstihdam veri genişletme** — gerçek veri (YÖK Atlas, TÜİK/İŞKUR)
-4. **Analytics frontend entegrasyonu** — sayfa görüntüleme olaylarını loglama
+4. **Analytics frontend entegrasyonu** — sayfa görüntüleme olaylarını loglama (kısmen yapıldı)
 
 ## Bloker
 - Yok - tüm servisler sağlıklı

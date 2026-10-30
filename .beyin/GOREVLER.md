@@ -6,23 +6,23 @@
 - [x] `manifest.webmanifest` - app name, icons, theme color, display: standalone
 - [x] Service worker (`sw.js`) - network-first caching, offline fallback
 - [x] `index.html` - manifest link, meta tags, theme-color
-- [x] Service worker registration (`main.jsx`)
-- [x] `PWAInstallPrompt.jsx` - custom "Ana ekrana ekle" prompt
+- [x] Service worker registration (`main.tsx`)
+- [x] `PWAInstallPrompt.tsx` - custom "Ana ekrana ekle" prompt
 
 ### Error Boundary
-- [x] `ErrorBoundary.jsx` - class component with getDerivedStateFromError
-- [x] Wrapped entire app in ErrorBoundary (main.jsx)
+- [x] `ErrorBoundary.tsx` - class component with getDerivedStateFromError
+- [x] Wrapped entire app in ErrorBoundary (main.tsx)
 - [x] User-friendly error UI with retry and reload buttons
 - [x] Error details in dev mode only
 
 ### Bölüm Karşılaştırma (Side-by-Side)
-- [x] Compare.jsx sayfası mevcut (25+ metrik karşılaştırma)
+- [x] Compare.tsx sayfası mevcut (25+ metrik karşılaştırma)
 - [x] AI destekli karşılaştırma özeti eklendi
-- [x] Burs/Ücret ve İstihdam bilgisi Compare.jsx'e eklendi
+- [x] Burs/Ücret ve İstihdam bilgisi Compare.tsx'e eklendi
 - [ ] Tercih listesinden "Karşılaştır" butonu ekle
 
 ### Tercih Sırası Optimizasyonu
-- [x] AI destekli tercih sıralama önerisi (TercihList.jsx)
+- [x] AI destekli tercih sıralama önerisi (TercihList.tsx)
 - [x] "Analiz Et" butonu ve sonuç gösterimi
 - [ ] Risk analizi (güvenli/hedef/riskli dağılımı) UI
 
@@ -50,7 +50,7 @@
 - [x] `scholarship_data.json` (2026 data, sample vakıf/devlet programlar)
 - [x] API endpoints: `/scholarship/list`, `/scholarship/program/{code}`, `/scholarship/years`
 - [x] Frontend API: `api.scholarshipList`, `api.scholarshipByProgram`, `api.scholarshipYears`
-- [x] Frontend UI (burs bilgisi Compare.jsx'te gösteriliyor)
+- [x] Frontend UI (burs bilgisi Compare.tsx'te gösteriliyor)
 
 ### Mezun İstihdam Verisi
 - [x] `employment.py` model (EmploymentInfo, EmploymentListResponse)
@@ -58,26 +58,33 @@
 - [x] `employment_data.json` (2026 data, sample CS programs)
 - [x] API endpoints: `/employment/list`, `/employment/program/{code}`, `/employment/years`
 - [x] Frontend API: `api.employmentList`, `api.employmentByProgram`, `api.employmentYears`
-- [x] Frontend UI (istihdam bilgisi Compare.jsx'te gösteriliyor)
+- [x] Frontend UI (istihdam bilgisi Compare.tsx'te gösteriliyor)
 
 ### Analytics Dashboard
 - [x] `analytics.py` model (AnalyticsEvent, AnalyticsSummary)
 - [x] `analytics_service.py` (log_event, summary, clear - JSON-based)
 - [x] API endpoints: `/analytics/log`, `/analytics/summary`, `/analytics/clear`
 - [x] Frontend API: `api.analyticsLog`, `api.analyticsSummary`, `api.analyticsClear`
-- [x] Frontend admin paneli (Analytics.jsx)
+- [x] Frontend admin paneli (Analytics.tsx)
 - [x] 16 sayfaya page_view tracking eklendi
 
 ### TypeScript Migration (Başladı)
 - [x] TypeScript + @types/react + @types/react-dom kuruldu
 - [x] `tsconfig.json` ve `tsconfig.node.json` oluşturuldu
 - [x] `constants.js` → `constants.ts` migrate edildi
-- [ ] `auth.js` → `auth.ts`
-- [ ] `api.js` → `api.ts`
-- [ ] `firestore-*.js` → `firestore-*.ts`
-- [ ] `hooks.js` → `hooks.ts`
-- [ ] Components → `.tsx`
-- [ ] Pages → `.tsx`
+- [x] `auth.js` → `auth.ts` migrate edildi
+- [x] `api.js` → `api.ts` migrate edildi
+- [x] `firestore-core.js` → `firestore-core.ts` migrate edildi
+- [x] `firestore-study.js` → `firestore-study.ts` migrate edildi
+- [x] `firestore-prefs.js` → `firestore-prefs.ts` migrate edildi
+- [x] `firestore-plan.js` → `firestore-plan.ts` migrate edildi
+- [x] `firestore-push.js` → `firestore-push.ts` migrate edildi
+- [x] `firestore-user.js` → `firestore-user.ts` migrate edildi
+- [x] `hooks.js` → `hooks.ts` migrate edildi
+- [x] `index.js` → `index.ts` migrate edildi
+- [x] Tüm 43 `.jsx` dosya → `.tsx` yeniden adlandırıldı
+- [x] `index.html` → `main.tsx` referansı güncellendi
+- [ ] Proper type annotations (strict: false ile şu an çalışıyor, gradual migration)
 
 ### Service Layer Migration (Önceki)
 - [x] Tüm 16 sayfa + 3 component + 3 lib + 1 context migrate edildi
@@ -87,22 +94,16 @@
 
 ## 🔄 Devam Eden / Sıradaki
 
-### TypeScript Migration (Devam)
-- [ ] `auth.js` → `auth.ts`
-- [ ] `api.js` → `api.ts`
-- [ ] `firestore-core.js` → `firestore-core.ts`
-- [ ] `firestore-study.js` → `firestore-study.ts`
-- [ ] `firestore-prefs.js` → `firestore-prefs.ts`
-- [ ] `firestore-plan.js` → `firestore-plan.ts`
-- [ ] `firestore-push.js` → `firestore-push.ts`
-- [ ] `firestore-user.js` → `firestore-user.ts`
-- [ ] `hooks.js` → `hooks.ts`
-- [ ] Components → `.tsx`
-- [ ] Pages → `.tsx`
+### TypeScript Migration (Devam - Uzun Vadeli)
+- [ ] Proper type annotations ekleme (sayfa sayfa)
+- [ ] `strict: true` yapma
+- [ ] Tip tanımları (interfaces, types)
 
 ## 📋 Notlar
 - Tüm özellikler ücretsiz olacak (premium kaldırıldı)
 - Her özellik için build test + GitHub push yapıldı
-- PWA + Error Boundary + Compare AI + Tercih Optimization + Unit Tests + Push Backend + Burs + İstihdam + Analytics + TS Migration (başladı) tamamlandı
-- TypeScript: gradual migration, sayfa sayfa. constants.ts ilk adım.
-- Kalan: TypeScript migration devam (uzun vadeli)
+- PWA + Error Boundary + Compare AI + Tercih Optimization + Unit Tests + Push Backend + Burs + İstihdam + Analytics + TypeScript Migration (başladı) tamamlandı
+- Push notification: backend endpoint'ler + scheduler hazır, Firebase Admin SDK + service account key gerekli
+- Burs/Ücret ve İstihdam: backend + API + frontend UI tamamlandı (Compare.tsx)
+- Analytics: backend + API + frontend admin paneli + page view tracking tamamlandı
+- TypeScript: tüm dosyalar .ts/.tsx, strict: false ile çalışıyor. Proper type annotations gradual olarak eklenebilir.
