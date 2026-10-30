@@ -94,6 +94,10 @@ export const api = {
   }),
   analyticsSummary: () => apiFetch('/api/v1/analytics/summary'),
   analyticsClear: () => apiFetch('/api/v1/analytics/clear', { method: 'DELETE' }),
+  // Push notifications (backend endpoints - require Firebase Admin SDK)
+  pushSend: () => apiFetch('/api/v1/push/send', { method: 'POST' }),
+  pushExamReminder: () => apiFetch('/api/v1/push/exam-reminder', { method: 'POST' }),
+  pushStreakReminder: () => apiFetch('/api/v1/push/streak-reminder', { method: 'POST' }),
   checkout: (payload: unknown) => apiFetch('/api/v1/billing/checkout', { method: 'POST', body: payload }),
   webhook: (payload: unknown) => apiFetch('/api/v1/billing/webhook', { method: 'POST', body: payload }),
   userProfile: () => apiFetch('/api/v1/user/profile'),

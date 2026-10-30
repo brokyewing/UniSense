@@ -32,7 +32,7 @@
 - [x] `firebase-admin` added to requirements.txt
 - [x] Scheduled jobs (daily 09:00 UTC push notification loop)
 - [ ] Service account key setup (Firebase Console)
-- [ ] Frontend integration (call backend endpoints)
+- [x] Frontend integration (call backend endpoints) - pushSend, pushExamReminder, pushStreakReminder added to api.ts
 
 ### Unit Test Coverage
 - [x] Vitest 2.1.0 kurulumu
