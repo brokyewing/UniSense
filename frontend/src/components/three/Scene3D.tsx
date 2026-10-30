@@ -10,8 +10,8 @@ import * as THREE from 'three'
  * - Yumuşak distortion + neon ışık
  */
 
-function KnowledgeSphere({ position = [0, 0, 0], color = '#8b5cf6', scale = 1 }) {
-  const ref = useRef()
+function KnowledgeSphere({ position = [0, 0, 0], color = '#8b5cf6', scale = 1 }: { position?: number[]; color?: string; scale?: number }) {
+  const ref = useRef<any>(null)
   useFrame((state, delta) => {
     if (ref.current) {
       ref.current.rotation.y += delta * 0.15
