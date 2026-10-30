@@ -1,9 +1,0 @@
-feat: add Vitest tests for service layer (riskLevels, konu, tekrar, oyun) - 46 tests pass
-
-- riskLevels.test.ts: 14 tests (yksLevel, dgsLevel, kpssLevel)
-- konu.test.ts: 7 tests (konuAnahtar, konuBloklari, eksikKonular, rastgeleSec)
-- tekrar.test.ts: 7 tests (sonrakiTekrar, tekrarZamani, sm2)
-- oyun.test.ts: 4 tests (hesaplaXP, seviyeBilgi, kazanilanRozetler)
-- Updated vitest.config.js to include .ts/.tsx test files
-- Fixed oyun.ts ROZETLER to handle undefined values
-- All 46 tests pass
