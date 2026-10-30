@@ -1,0 +1,5 @@
+feat: add push notification API methods to frontend (pushSend, pushExamReminder, pushStreakReminder)
+
+- Frontend integration with backend push endpoints
+- tsc --noEmit: 0 errors (strict: true)
+- Build passes: 631 URLs prerendered
