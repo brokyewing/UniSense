@@ -8,12 +8,12 @@ import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'fire
 
 const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY
 
-export async function pushAvailable() {
+export async function pushAvailable(): Promise<boolean> {
   if (!app || !VAPID_KEY) return false
   try { return await isMessagingSupported() } catch { return false }
 }
 
-export async function enablePush(uid) {
+export async function enablePush(uid: string): Promise<{ ok: boolean; reason?: string }> {
   if (!app || !db || !uid) return { ok: false, reason: 'no-auth' }
   if (!VAPID_KEY) return { ok: false, reason: 'no-vapid' }
   if (!(await isMessagingSupported().catch(() => false))) return { ok: false, reason: 'unsupported' }
@@ -42,12 +42,7 @@ export async function enablePush(uid) {
   return { ok: true }
 }
 
-export async function setEmailReminders(uid, on) {
-  if (!db || !uid) throw new Error('giriş gerekli')
-  await setDoc(doc(db, 'users', uid), { emailReminders: !!on }, { merge: true })
-}
-
-export async function disablePush(uid) {
+export async function disablePush(uid: string): Promise<void> {
   if (!app || !db || !uid) return
   try {
     if (await isMessagingSupported().catch(() => false)) {
@@ -61,7 +56,7 @@ export async function disablePush(uid) {
   } catch {}
 }
 
-export async function uploadAvatar(uid, file) {
+export async function uploadAvatar(uid: string, file: File): Promise<string> {
   const storage = app ? getStorage(app) : null
   if (!storage) throw new Error('Firebase Storage yok')
   if (file.size > 5 * 1024 * 1024) throw new Error('Dosya çok büyük (max 5 MB)')
@@ -73,9 +68,7 @@ export async function uploadAvatar(uid, file) {
   return await getDownloadURL(ref)
 }
 
-// === Query History ===
-
-export async function logQuery(uid, queryText, response) {
+export async function logQuery(uid: string, queryText: string, response: any): Promise<void> {
   if (!db) return
   try {
     await addDoc(collection(db, 'users', uid, FIRESTORE_COLLECTIONS.QUERIES), {
@@ -85,26 +78,24 @@ export async function logQuery(uid, queryText, response) {
   } catch (e) { console.warn('Query log fail', e) }
 }
 
-// === Chat Sessions ===
-
-export function watchSessions(uid, callback) {
+export function watchSessions(uid: string, callback: (data: any[]) => void): () => void {
   if (!db) return () => {}
   const q = fbQuery(collection(db, 'users', uid, FIRESTORE_COLLECTIONS.SESSIONS), orderBy('updatedAt', 'desc'))
-  return onSnapshot(q, (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() }))))
+  return onSnapshot(q, (snap: any) => callback(snap.docs.map((d: any) => ({ id: d.id, ...d.data() }))))
 }
 
-export function watchSessionMessages(uid, sessionId, callback) {
+export function watchSessionMessages(uid: string, sessionId: string, callback: (data: any[]) => void): () => void {
   if (!db || !sessionId) return () => {}
   const q = fbQuery(collection(db, 'users', uid, FIRESTORE_COLLECTIONS.SESSIONS, sessionId, 'messages'), orderBy('createdAt', 'asc'))
-  return onSnapshot(q, (snap) => callback(snap.docs.map(d => ({ id: d.id, ...d.data() }))))
+  return onSnapshot(q, (snap: any) => callback(snap.docs.map((d: any) => ({ id: d.id, ...d.data() }))))
 }
 
-export async function createSession(uid, firstQuery = '') {
-  if (!db) throw new Error('Firestore yok')
+export async function createSession(uid: string, firstQuery: string = ''): Promise<string> {
+  if (!db) throw new Error('Firebase yok')
   const sessionsRef = collection(db, 'users', uid, FIRESTORE_COLLECTIONS.SESSIONS)
   const allSnap = await getDocs(fbQuery(sessionsRef, orderBy('updatedAt', 'desc')))
-  if (allSnap.size >= MAX_SESSIONS_PER_USER) {
-    const oldestDocs = allSnap.docs.slice(MAX_SESSIONS_PER_USER - 1)
+  if (allSnap.size >= 5) {
+    const oldestDocs = allSnap.docs.slice(4)
     for (const d of oldestDocs) await deleteSession(uid, d.id)
   }
   const ref = doc(sessionsRef)
@@ -113,12 +104,12 @@ export async function createSession(uid, firstQuery = '') {
   return ref.id
 }
 
-export async function updateSessionTitle(uid, sessionId, title) {
+export async function updateSessionTitle(uid: string, sessionId: string, title: string): Promise<void> {
   if (!db) return
   await updateDoc(doc(db, 'users', uid, FIRESTORE_COLLECTIONS.SESSIONS, sessionId), { title: title.slice(0, 60), updatedAt: serverTimestamp() })
 }
 
-export async function addSessionMessage(uid, sessionId, message) {
+export async function addSessionMessage(uid: string, sessionId: string, message: any): Promise<string | null> {
   if (!db || !sessionId) return null
   const messagesRef = collection(db, 'users', uid, FIRESTORE_COLLECTIONS.SESSIONS, sessionId, 'messages')
   const docRef = await addDoc(messagesRef, { ...message, createdAt: serverTimestamp() })
@@ -129,18 +120,23 @@ export async function addSessionMessage(uid, sessionId, message) {
   return docRef.id
 }
 
-export async function deleteSession(uid, sessionId) {
+export async function deleteSession(uid: string, sessionId: string): Promise<void> {
   if (!db || !sessionId) return
   const messagesRef = collection(db, 'users', uid, FIRESTORE_COLLECTIONS.SESSIONS, sessionId, 'messages')
   const messagesSnap = await getDocs(messagesRef)
   const batch = writeBatch(db)
-  messagesSnap.docs.forEach(m => batch.delete(m.ref))
+  messagesSnap.docs.forEach((m: any) => batch.delete(m.ref))
   batch.delete(doc(db, 'users', uid, FIRESTORE_COLLECTIONS.SESSIONS, sessionId))
   await batch.commit()
 }
 
-export async function getSessionCount(uid) {
+export async function getSessionCount(uid: string): Promise<number> {
   if (!db) return 0
   const snap = await getDocs(collection(db, 'users', uid, FIRESTORE_COLLECTIONS.SESSIONS))
   return snap.size
+}
+
+export async function setEmailReminders(uid: string, on: boolean): Promise<void> {
+  if (!db || !uid) throw new Error('giriş gerekli')
+  await setDoc(doc(db, 'users', uid), { emailReminders: !!on }, { merge: true })
 }
