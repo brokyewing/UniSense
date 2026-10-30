@@ -26,7 +26,7 @@ export default function TercihList() {
     try {
       const r = await apiFetch('/api/v1/ask', { method: 'POST', body: { query: 'Tercih sıralaması optimal mi?' } })
       setAiOpt(r?.text || 'Tavsiye üretilemedi.')
-    } catch (e) {
+    } catch (e: any) {
       setAiOpt('Tavsiye alınamadı: ' + e.message)
     } finally {
       setAiOptLoading(false)

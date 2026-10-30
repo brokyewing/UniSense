@@ -82,7 +82,7 @@ const USER_RIGHTS = [
 ]
 
 
-function Section({ icon: Icon, title, children, delay = 0 }) {
+function Section({ icon: Icon, title, children, delay = 0 }: { icon: any; title: string; children: any; delay?: number }) {
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}

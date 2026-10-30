@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 
-const ThemeContext = createContext(null)
+const ThemeContext = createContext<any>(null)
 
-export function ThemeProvider({ children }) {
+export function ThemeProvider({ children }: { children: any }) {
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem('unisense-theme')
     if (saved === 'light' || saved === 'dark') return saved

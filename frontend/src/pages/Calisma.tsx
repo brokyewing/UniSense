@@ -31,9 +31,9 @@ export default function Calisma({ tab = 'konular' }) {
       <div className="space-y-4 mb-5">
         <div className="text-center">
           <h1 className="text-3xl md:text-4xl font-display font-bold text-white mb-1 flex items-center justify-center gap-2">
-            <meta.Icon className={meta.renk} /> {meta.h1}
+            <meta.Icon className={meta!.renk} /> {meta!.h1}
           </h1>
-          <p className="text-slate-400 text-sm">{meta.alt}</p>
+          <p className="text-slate-400 text-sm">{meta!.alt}</p>
         </div>
         <div className="flex justify-center">
           <div className="inline-flex gap-1 p-1 rounded-xl bg-white/5 border border-white/10 max-w-full overflow-x-auto no-scrollbar">

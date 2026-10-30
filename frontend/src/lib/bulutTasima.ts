@@ -6,10 +6,10 @@
 //
 // Çözüm: aynaya OWNER (uid) damgası koy. Sadece SAHİPSİZ (owner yok = gerçek misafir)
 // veri taşınır. Damgalı ayna (kendi/başka kullanıcı) asla taşınmaz.
-const ownerKey = (k) => k + '_owner'
+const ownerKey = (k: any) => k + '_owner'
 
 /** Taşıma gerekli mi? Yalnız bulut boş + yerel dolu + ayna SAHİPSİZ (guest) ise. */
-export function tasimaGerekli(lsKey, cloudBos, localDolu) {
+export function tasimaGerekli(lsKey: any, cloudBos: any, localDolu: any) {
   if (!cloudBos || !localDolu) return false
   let owner = null
   try { owner = localStorage.getItem(ownerKey(lsKey)) } catch { /* noop */ }
@@ -17,6 +17,6 @@ export function tasimaGerekli(lsKey, cloudBos, localDolu) {
 }
 
 /** Bu aynanın sahibini uid olarak işaretle (her snapshot'ta çağrılır). */
-export function damgala(lsKey, uid) {
+export function damgala(lsKey: any, uid: any) {
   try { if (uid) localStorage.setItem(ownerKey(lsKey), uid) } catch { /* noop */ }
 }

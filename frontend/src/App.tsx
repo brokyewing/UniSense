@@ -68,7 +68,7 @@ export default function App() {
   // /bolum* sayfaları kendi <Seo>'sunu basar (dinamik başlık) — App burada basmaz,
   // yoksa parent effect child'ı ezip yanlış başlık kalır.
   const ownsSeo = loc.pathname.startsWith('/bolum') || loc.pathname.startsWith('/ozet/')
-  const seo = ROUTE_SEO[loc.pathname] || ROUTE_SEO['/anasayfa']
+  const seo = (ROUTE_SEO as any)[loc.pathname] || ROUTE_SEO['/anasayfa']
   const seoEl = ownsSeo ? null : (
     <Seo
       title={seo.title}

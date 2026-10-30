@@ -2,7 +2,7 @@
 // checked haritası localStorage'da 'unisense_konu_v1_{sinav}' anahtarında,
 // key = `${grup||''}|${ders}|${konu}` (Konular.jsx ile birebir).
 
-export function konuBloklari(data) {
+export function konuBloklari(data: any) {
   if (!data) return []
   if (data.gruplar) {
     const out = []
@@ -14,18 +14,18 @@ export function konuBloklari(data) {
   return Object.entries(data.dersler || {}).map(([ders, konular]) => ({ grup: null, ders, konular }))
 }
 
-export const konuAnahtar = (grup, ders, konu) => `${grup || ''}|${ders}|${konu}`
+export const konuAnahtar = (grup: any, ders: any, konu: any) => `${grup || ''}|${ders}|${konu}`
 
-export function konuLocal(sinav) {
+export function konuLocal(sinav: any) {
   try { return JSON.parse(localStorage.getItem('unisense_konu_v1_' + sinav) || '{}') } catch { return {} }
 }
 
 /** Toplam/yapılan konu + işaretlenmemiş (eksik) konu listesi. */
-export function eksikKonular(data, checked = {}) {
+export function eksikKonular(data: any, checked: any = {}) {
   const bl = konuBloklari(data)
   const eksik = []
   let toplam = 0, yapilan = 0
-  for (const b of bl) {
+  for (const b of bl as any[]) {
     for (const k of b.konular) {
       toplam++
       if (checked[konuAnahtar(b.grup, b.ders, k)]) yapilan++
@@ -36,7 +36,7 @@ export function eksikKonular(data, checked = {}) {
 }
 
 /** Rastgele n eksik konu seç (mini-test için). */
-export function rastgeleSec(liste, n) {
+export function rastgeleSec(liste: any, n: any) {
   const a = [...liste]
   for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]] }
   return a.slice(0, n)

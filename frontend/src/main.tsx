@@ -44,12 +44,12 @@ const LEGACY_ROUTES = [
   ['/kartlar', '/deneme'],     // Bilgi Kartları kaldırıldı → Çalışmalarım
 ]
 
-function LegacyRedirect({ to }) {
+function LegacyRedirect({ to }: { to: string }) {
   const loc = useLocation()
   return <Navigate to={{ pathname: to, search: loc.search, hash: loc.hash }} replace />
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ErrorBoundary>
       <ThemeProvider>

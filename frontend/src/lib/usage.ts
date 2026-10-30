@@ -11,9 +11,9 @@ import { kullanimEkle } from '@/services/firestore-study'
 const LS = 'unisense_kullanim'
 const LOCK = 'unisense_kullanim_lock'
 const load = () => { try { return JSON.parse(localStorage.getItem(LS) || '{}') } catch { return {} } }
-const save = (o) => { try { localStorage.setItem(LS, JSON.stringify(o)) } catch { /* noop */ } }
+const save = (o: any) => { try { localStorage.setItem(LS, JSON.stringify(o)) } catch { /* noop */ } }
 
-export function useAppTime(user) {
+export function useAppTime(user: any) {
   const lastActive = useRef(Date.now())
   const pending = useRef(0)
   const tabId = useRef(Math.random().toString(36).slice(2))

@@ -8,14 +8,14 @@
 // "psikoloji", "kapıcı", "koyarak", "robot", "model" gibi masum adlar geçer.
 
 // Türkçe karakter + leetspeak katlama, harf-dışını at.
-function normalize(s) {
-  const map = {
+function normalize(s: any) {
+  const map: any = {
     'ı': 'i', 'ş': 's', 'ğ': 'g', 'ü': 'u', 'ö': 'o', 'ç': 'c', 'â': 'a', 'î': 'i', 'û': 'u',
     '0': 'o', '1': 'i', '3': 'e', '4': 'a', '5': 's', '7': 't', '8': 'b', '9': 'g', '@': 'a', '$': 's', '!': 'i',
   }
   return String(s || '')
     .toLowerCase()
-    .replace(/./g, (c) => (map[c] !== undefined ? map[c] : c))
+    .replace(/./g, (c: any) => (map[c] !== undefined ? map[c] : c))
     .replace(/[^a-z]/g, '')
 }
 
@@ -38,7 +38,7 @@ const TAKLIT_PARCA = ['admin', 'unisense', 'yonetici', 'yonetim', 'moderator', '
  * Takma ad uygun mu? Uygunsa '' döner; değilse kullanıcıya gösterilecek TR mesaj.
  * (Uzunluk/temizlik kontrolü çağıran tarafta; bu yalnız içerik denetler.)
  */
-export function adDenetle(ad) {
+export function adDenetle(ad: any) {
   const c = normalize(ad)
   if (!c) return ''
   const loose = c.replace(/(.)\1+/g, '$1') // tekrar eden harfleri sıkıştır (siktirrr → siktir)

@@ -4,8 +4,8 @@
 // KVKK notu: key ekleyip analitiği açarsan gizlilik metnini analitik kullanımıyla güncelle.
 const KEY = import.meta.env.VITE_POSTHOG_KEY
 const HOST = import.meta.env.VITE_POSTHOG_HOST || 'https://eu.i.posthog.com'
-let ph = null
-let yukleniyor = null
+let ph: any = null
+let yukleniyor: any = null
 
 export function analitikAcik() { return !!KEY }
 
@@ -29,9 +29,9 @@ export function initAnalytics() {
 const ready = () => (ph ? Promise.resolve(ph) : initAnalytics())
 
 /** Girişli kullanıcıyı (opak Firebase UID ile) tanımla — retention cohort için. */
-export function identify(uid) {
+export function identify(uid: any) {
   if (!KEY || !uid) return
-  ready().then((p) => p && p.identify(uid))
+  ready().then((p: any) => p && p.identify(uid))
 }
 
 export function resetIdentity() {
@@ -40,10 +40,10 @@ export function resetIdentity() {
 
 export function track(event: any, props?: any) {
   if (!KEY) return
-  ready().then((p) => p && p.capture(event, props))
+  ready().then((p: any) => p && p.capture(event, props))
 }
 
-export function capturePageview(path) {
+export function capturePageview(path: any) {
   if (!KEY) return
-  ready().then((p) => p && p.capture('$pageview', path ? { $pathname: path } : undefined))
+  ready().then((p: any) => p && p.capture('$pageview', path ? { $pathname: path } : undefined))
 }
