@@ -1,0 +1,6 @@
+feat: TypeScript migration - proper type annotations for Takvim.tsx
+
+- Added TakvimEvent interface
+- Typed state variables
+- Build passes: 631 URLs prerendered
+- Tests pass: 14 tests
