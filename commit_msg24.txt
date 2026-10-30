@@ -1,0 +1,7 @@
+feat: TypeScript migration - firestore-study.js to firestore-study.ts
+
+- Migrated firestore-study.js to firestore-study.ts with proper TypeScript types
+- Added type annotations for all functions (uid, sinav, callback, etc.)
+- Deleted firestore-study.js
+- Build passes: 631 URLs prerendered
+- Tests pass: 14 tests
