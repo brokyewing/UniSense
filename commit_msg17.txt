@@ -1,0 +1,7 @@
+feat: add Analytics dashboard page
+
+- Created Analytics.jsx with summary cards (total events, unique users, daily active, top pages)
+- Added /analytics route to main.jsx
+- Top pages and top events lists with counts
+- Clear analytics data button
+- Build passes: 631 URLs prerendered
