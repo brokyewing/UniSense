@@ -1,0 +1,10 @@
+feat: TypeScript migration - all service files complete
+
+- Migrated firestore-prefs.js, firestore-plan.js, firestore-push.js, firestore-user.js to .ts
+- Migrated hooks.js to hooks.ts (fixed duplicate key)
+- Migrated index.js to index.ts
+- All service layer files are now TypeScript
+- Build passes: 631 URLs prerendered
+- Tests pass: 14 tests
+
+Remaining: Proper type annotations for components and pages (gradual migration)
