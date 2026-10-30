@@ -1,7 +1,0 @@
-feat: add push notification scheduler (daily 09:00 UTC)
-
-- Added _push_notification_loop() async task in lifespan
-- Runs daily at 09:00 UTC for exam/streak reminders
-- Gracefully skips if firebase_admin not available
-- TODO: Firestore token reading + actual notification sending (requires service account key)
-- Build passes, 209 tests green

@@ -5,6 +5,7 @@ import BackgroundScene from '../components/three/LazyBackgroundScene'
 import Seo from '../components/Seo'
 import { useAuth } from '../contexts/AuthContext'
 import { useNotlar } from '@/services/hooks'
+import { recordActivity } from '@/services/firestore-plan'
 import { tasimaGerekli, damgala } from '../lib/bulutTasima'
 
 const LS = 'unisense_notlar'

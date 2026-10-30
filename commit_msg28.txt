@@ -1,7 +1,0 @@
-feat: TypeScript migration - firestore-user.js to firestore-user.ts
-
-- Migrated firestore-user.js to firestore-user.ts with proper TypeScript types
-- Added type annotations for ensureUserDoc function
-- Deleted firestore-user.js
-- Build passes: 631 URLs prerendered
-- Tests pass: 14 tests

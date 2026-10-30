@@ -86,7 +86,7 @@ export async function updateUserProfile(uid: string, profile: any): Promise<void
 export function watchSubcollection(uid: string, subcollection: string, callback: (data: any) => void, options: any = {}): () => void {
   if (!db || !uid) { callback(options.where ? [] : {}); return () => {} }
   const constraints: any[] = []
-  if (options.where) constraints.push(where(...options.where))
+  if (options.where) constraints.push(where(...(options.where as [any, any, any])))
   if (options.orderBy) constraints.push(orderBy(options.orderBy, options.orderDir || 'asc'))
   if (options.limit) constraints.push(limit(options.limit))
   const q = query(collection(db, 'users', uid, subcollection), ...constraints)

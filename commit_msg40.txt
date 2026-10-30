@@ -1,6 +1,0 @@
-feat: TypeScript migration - proper type annotations for BackgroundScene.tsx
-
-- Added proper types for useThemeWatcher, FloatingShapes
-- useRef<any> for ref typing
-- Build passes: 631 URLs prerendered
-- Tests pass: 14 tests

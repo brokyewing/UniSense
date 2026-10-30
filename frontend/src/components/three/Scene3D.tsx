@@ -10,7 +10,7 @@ import * as THREE from 'three'
  * - Yumuşak distortion + neon ışık
  */
 
-function KnowledgeSphere({ position = [0, 0, 0], color = '#8b5cf6', scale = 1 }: { position?: number[]; color?: string; scale?: number }) {
+function KnowledgeSphere({ position = [0, 0, 0], color = '#8b5cf6', scale = 1 }: { position?: [number, number, number]; color?: string; scale?: number }) {
   const ref = useRef<any>(null)
   useFrame((state, delta) => {
     if (ref.current) {
@@ -37,7 +37,7 @@ function KnowledgeSphere({ position = [0, 0, 0], color = '#8b5cf6', scale = 1 }:
 }
 
 function OrbitingNode({ radius = 3, speed = 0.5, size = 0.15, color = '#22d3ee', startAngle = 0 }) {
-  const ref = useRef()
+  const ref = useRef<any>(null)
   useFrame((state) => {
     const t = state.clock.elapsedTime * speed + startAngle
     if (ref.current) {
@@ -62,7 +62,7 @@ function OrbitingNode({ radius = 3, speed = 0.5, size = 0.15, color = '#22d3ee',
 }
 
 function ParticleField({ count = 800 }) {
-  const meshRef = useRef()
+  const meshRef = useRef<any>(null)
   const positions = useMemo(() => {
     const pos = new Float32Array(count * 3)
     for (let i = 0; i < count; i++) {
@@ -97,7 +97,7 @@ function ParticleField({ count = 800 }) {
   )
 }
 
-export default function Scene3D({ camera = { position: [0, 0, 6], fov: 50 } }) {
+export default function Scene3D({ camera = { position: [0, 0, 6] as [number, number, number], fov: 50 } }) {
   return (
     <Canvas camera={camera} dpr={[1, 2]}>
       <Suspense fallback={null}>

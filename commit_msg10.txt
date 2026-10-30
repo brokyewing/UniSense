@@ -1,6 +1,0 @@
-feat: add AI-powered tercih order optimization to TercihList
-
-- Added optimizeOrder() function using /api/v1/ask endpoint
-- Added AI analysis card with loading state and result display
-- Added Sparkles icon import
-- Build passes: 631 URLs prerendered

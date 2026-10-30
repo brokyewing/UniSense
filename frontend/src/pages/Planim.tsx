@@ -4,6 +4,7 @@ import { CalendarRange, Plus, Check, Loader2, Sparkles, Wand2, Trash2, Settings2
 import BackgroundScene from '../components/three/LazyBackgroundScene'
 import Seo from '../components/Seo'
 import { api } from '@/services/api'
+import { apiFetch } from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
 import {
   usePlanConfig, usePlanGorevler, useKonuIlerleme, useSoruKayit, useIstatistik, usePomodoro,
@@ -58,7 +59,7 @@ export default function Planim({ embedded = false }) {
   const hafta = useMemo(() => isoHafta(new Date()), [])
 
   const { config, loading: configLoading, updateConfig } = usePlanConfig()
-  const { gorevler: tasks, loading: tasksLoading } = usePlanGorevler(hafta)
+  const { gorevler: tasks, loading: tasksLoading, setGorevler: setTasks } = usePlanGorevler(hafta)
   const track = config?.track
   const { checked, loading: checkedLoading } = useKonuIlerleme(track)
   const { kayitlar: soruKayit, loading: soruKayitLoading } = useSoruKayit(track)
@@ -221,8 +222,8 @@ export default function Planim({ embedded = false }) {
       const gruplar = {}
       for (const t of yeni) (gruplar[t.hafta] = gruplar[t.hafta] || []).push(t)
       for (const [wk, list] of Object.entries(gruplar)) {
-        const cur = loadJSON(WK_LS(wk), '[]').filter((t) => t.status === 'done' || t.source === 'manual')
-        const merged = [...cur, ...list.map((t, i) => ({ ...t, id: `u-${wk}-${i}` }))]
+        const cur = (loadJSON(WK_LS(wk), '[]') as any[]).filter((t) => t.status === 'done' || t.source === 'manual')
+        const merged = [...cur, ...(list as any[]).map((t, i) => ({ ...t, id: `u-${wk}-${i}` }))]
         saveJSON(WK_LS(wk), merged)
         if (wk === hafta) setTasks(merged)
       }

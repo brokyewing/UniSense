@@ -37,7 +37,6 @@ export interface UserProfile {
   lgs?: { yuzdelik: number; updatedAt?: number }
   ags?: { net: number; updatedAt?: number }
   emailReminders?: boolean
-  lgs?: { yuzdelik: number; updatedAt?: number }
 }
 
 export interface AuthUser {

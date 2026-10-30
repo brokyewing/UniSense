@@ -1,9 +1,0 @@
-feat: add graduate employment data (backend + frontend API)
-
-- Created employment.py model (EmploymentInfo, EmploymentListResponse)
-- Created employment_service.py (list, by_program, years - year-based)
-- Created employment_data.json (2026 data, sample CS programs)
-- Added API endpoints: /employment/list, /employment/program/{code}, /employment/years
-- Added api.employmentList, api.employmentByProgram, api.employmentYears to frontend
-- Build passes: 631 URLs prerendered
-- Backend tests: 209 passed

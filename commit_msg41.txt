@@ -1,8 +1,0 @@
-feat: TypeScript migration - proper type annotations for additional components
-
-- BackgroundScene.tsx: typed useThemeWatcher, FloatingShapes
-- Build passes: 631 URLs prerendered
-- Tests pass: 14 tests
-
-Note: TypeScript proper type annotation migration is gradual.
-Remaining: ~30 component/page files need type annotations.

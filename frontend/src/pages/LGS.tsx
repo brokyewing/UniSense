@@ -54,7 +54,7 @@ function YuzdelikTrend({ trend }) {
   }))
   const path = points.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`).join(' ')
   return (
-    <svg width={W} height={H} className="block" title={`${pts[0].yil}→${pts[pts.length - 1].yil} yüzdelik trendi`}>
+    <svg width={W} height={H} className="block" aria-label={`${pts[0].yil}→${pts[pts.length - 1].yil} yüzdelik trendi`}>
       <path d={path} stroke="currentColor" strokeWidth="1.5" fill="none" className="text-accent-400" />
       {points.map((pt, i) => <circle key={i} cx={pt.x} cy={pt.y} r="1.6" className="fill-accent-300" />)}
     </svg>

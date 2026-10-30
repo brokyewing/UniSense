@@ -1,5 +1,0 @@
-feat: add analytics page view tracking to all pages
-
-- Added page_view logging to 16 pages (Home, Search, Recommend, Hesap, TercihList, Konular, Deneme, Planim, Pano, Ozetler, Notlar, Pusula, LGS, TusDus, Profile, Siralama)
-- Uses dynamic import of api module for analytics logging
-- Build passes: 631 URLs prerendered

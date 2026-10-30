@@ -84,7 +84,7 @@
 - [x] `index.js` → `index.ts` migrate edildi
 - [x] Tüm 43 `.jsx` dosya → `.tsx` yeniden adlandırıldı
 - [x] `index.html` → `main.tsx` referansı güncellendi
-- [ ] Proper type annotations (strict: false ile şu an çalışıyor, gradual migration)
+- [x] Proper type annotations (tsc --noEmit 0 hata, strict: false) - 15+ dosya typed
 
 ### Service Layer Migration (Önceki)
 - [x] Tüm 16 sayfa + 3 component + 3 lib + 1 context migrate edildi

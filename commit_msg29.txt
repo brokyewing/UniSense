@@ -1,7 +1,0 @@
-feat: TypeScript migration - hooks.js to hooks.ts
-
-- Migrated hooks.js to hooks.ts with proper TypeScript types
-- Fixed duplicate key "calisiyor" in usePomodoro return
-- Deleted hooks.js
-- Build passes: 631 URLs prerendered
-- Tests pass: 14 tests

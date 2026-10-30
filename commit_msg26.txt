@@ -1,7 +1,0 @@
-feat: TypeScript migration - firestore-plan.js to firestore-plan.ts
-
-- Migrated firestore-plan.js to firestore-plan.ts with proper TypeScript types
-- Added type annotations for all functions (uid, hafta, callback, etc.)
-- Deleted firestore-plan.js
-- Build passes: 631 URLs prerendered
-- Tests pass: 14 tests

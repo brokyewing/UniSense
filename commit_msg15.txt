@@ -1,8 +1,0 @@
-feat: add analytics dashboard (backend + frontend API)
-
-- Created analytics.py model (AnalyticsEvent, AnalyticsSummary)
-- Created analytics_service.py (log_event, summary, clear - JSON-based)
-- Added API endpoints: /analytics/log, /analytics/summary, /analytics/clear
-- Added api.analyticsLog, api.analyticsSummary, api.analyticsClear to frontend
-- Build passes: 631 URLs prerendered
-- Backend tests: 209 passed

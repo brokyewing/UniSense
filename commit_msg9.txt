@@ -1,6 +1,0 @@
-feat: add AI-powered comparison summary to Compare.jsx
-
-- Added AI comparison summary card (uses /api/v1/ask endpoint)
-- Shows loading state, summary text, and fallback
-- Sparkles icon imported for visual indicator
-- Build passes: 631 URLs prerendered

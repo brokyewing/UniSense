@@ -1,7 +1,0 @@
-feat: TypeScript migration - proper type annotations for ChatSidebar.tsx
-
-- Added ChatSidebarProps interface with typed props
-- Added Session interface for session data
-- Typed handleDelete, formatDate functions
-- Build passes: 631 URLs prerendered
-- Tests pass: 14 tests

@@ -1,4 +1,5 @@
-import { useState, useEffect, useNavigate } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ListChecks, Loader2, Sparkles } from 'lucide-react'
 import BackgroundScene from '../components/three/LazyBackgroundScene'
 import { useAuth } from '../contexts/AuthContext'

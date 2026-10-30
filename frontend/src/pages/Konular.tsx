@@ -65,7 +65,7 @@ export default function Konular({ embedded = false }) {
   const [error, setError] = useState('')
   const [userPicked, setUserPicked] = useState(false)
 
-  const { checked, loading: checkedLoading } = useKonuIlerleme(sinav)
+  const { checked, loading: checkedLoading, setChecked } = useKonuIlerleme(sinav)
 
   // Profildeki sınav yoluna göre varsayılan sınav (kullanıcı seçmediyse)
   useEffect(() => {

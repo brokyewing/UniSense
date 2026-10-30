@@ -1,8 +1,0 @@
-feat: TypeScript migration - index.js to index.ts
-
-- Migrated index.js to index.ts
-- All service files now TypeScript (constants, auth, api, firestore-core, firestore-study, firestore-prefs, firestore-plan, firestore-push, firestore-user, hooks, index)
-- Deleted index.js
-- Build passes: 631 URLs prerendered
-- Tests pass: 14 tests
-- Remaining: Components and Pages (.jsx to .tsx)

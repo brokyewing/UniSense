@@ -1,7 +1,0 @@
-feat: add scholarship and employment info to Compare.jsx
-
-- Fetch scholarship and employment data per program code
-- Add Burs orani, Burs turu rows to comparison table
-- Add Is bulma orani, Ort. maas, Istihdam sektoru rows
-- Data loaded from backend scholarship/employment endpoints
-- Build passes: 631 URLs prerendered

@@ -1,7 +1,0 @@
-feat: TypeScript migration - firestore-push.js to firestore-push.ts
-
-- Migrated firestore-push.js to firestore-push.ts with proper TypeScript types
-- Added type annotations for all functions
-- Deleted firestore-push.js
-- Build passes: 631 URLs prerendered
-- Tests pass: 14 tests
