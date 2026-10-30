@@ -3,7 +3,7 @@
  */
 import { db, doc, getDoc, setDoc, serverTimestamp } from './firestore-core'
 
-export async function ensureUserDoc(user, examTrack) {
+export async function ensureUserDoc(user: any, examTrack?: string): Promise<void> {
   if (!db || !user) return
   const ref = doc(db, 'users', user.uid)
   const snap = await getDoc(ref)
