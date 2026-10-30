@@ -1,0 +1,8 @@
+feat: TypeScript migration - all .jsx files renamed to .tsx
+
+- Renamed 43 .jsx files to .tsx (pages, components, contexts)
+- Updated index.html to reference main.tsx
+- All service layer files now TypeScript (.ts)
+- Build passes: 631 URLs prerendered
+- Tests pass: 14 tests
+- Note: Proper type annotations can be added gradually (strict: false for now)
