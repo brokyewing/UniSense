@@ -4,24 +4,25 @@
 - **Build**: ✅ BAŞARILI (631 URL prerender)
 - **Tüm servisler çalışıyor**: Backend (8002), Frontend (5177), ngrok, Firebase Emulators
 - **Service Layer**: `src/services/` altına modüler yapı kuruldu
+- **TypeScript**: Başladı (constants.ts ilk adım)
 
 ## Tamamlanan Migration'lar
 
 ### 1. Service Layer Kurulumu (`src/services/`)
-| Dosya | Sorumluluk |
-|-------|------------|
-| `firebase-init.js` | Firebase app/auth/db/storage init — **tek kaynak** |
-| `constants.js` | Limitler, koleksiyon isimleri, eşikler, PRESET_AVATARS |
-| `auth.js` | Firebase Auth (login, register, logout, password) |
-| `firestore-core.js` | **Jenerik** `watchSubcollection`, CRUD helpers, `db` import |
-| `firestore-study.js` | Konu, deneme, soru, yanlış, not, kartlar, istatistik |
-| `firestore-prefs.js` | **TÜM tercih listeleri** (YKS/DGS/KPSS/TUS/DUS/LGS) — tek `_watchTercih` pattern |
-| `firestore-plan.js` | Planlayıcı, istatistik, streak, sıralama |
-| `firestore-push.js` | FCM push, avatar, query log, chat sessions |
-| `firestore-user.js` | `ensureUserDoc` (kullanıcı profili oluşturma) |
-| `api.js` | Backend API (timeout, auth header, ApiError) |
-| `hooks.js` | Tüm custom hook'lar (20+ hook) |
-| `index.js` | Barrel export |
+| Dosya | Sorumluluk | Tip |
+|-------|------------|-----|
+| `firebase-init.js` | Firebase app/auth/db/storage init | JS |
+| `constants.ts` | Limitler, koleksiyon isimleri, eşikler, PRESET_AVATARS | **TS** ✅ |
+| `auth.js` | Firebase Auth (login, register, logout, password) | JS |
+| `firestore-core.js` | **Jenerik** `watchSubcollection`, CRUD helpers, `db` import | JS |
+| `firestore-study.js` | Konu, deneme, soru, yanlış, not, kartlar, istatistik | JS |
+| `firestore-prefs.js` | **TÜM tercih listeleri** (YKS/DGS/KPSS/TUS/DUS/LGS) — tek `_watchTercih` pattern | JS |
+| `firestore-plan.js` | Planlayıcı, istatistik, streak, sıralama | JS |
+| `firestore-push.js` | FCM push, avatar, query log, chat sessions | JS |
+| `firestore-user.js` | `ensureUserDoc` (kullanıcı profili oluşturma) | JS |
+| `api.js` | Backend API (timeout, auth header, ApiError) | JS |
+| `hooks.js` | Tüm custom hook'lar (20+ hook) | JS |
+| `index.js` | Barrel export | JS |
 
 ### 2. Component Migration'ları (16 sayfa + 3 component + 3 lib + 1 context)
 **Sayfalar:** Search, Recommend, Calisma, Deneme, Konular, Planim, TercihList, Hesap, Ozetler, Notlar, Pano, LGS, Siralama, Pusula, Profile, TusDus
@@ -50,10 +51,11 @@
 - ✅ Bölüm Karşılaştırma — AI özeti + burs/istihdam bilgisi
 - ✅ Tercih Sırası Optimizasyonu — AI analiz butonu
 - ✅ Unit Test Coverage — Vitest + 14 test
-- ✅ Push Notification Backend — FCM + API endpoints + scheduler
+- ✅ Push Notification Backend — FCM + API + scheduler
 - ✅ Burs/Ücret Veritabanı — backend + API + frontend UI
 - ✅ Mezun İstihdam Verisi — backend + API + frontend UI
 - ✅ Analytics Dashboard — backend + API + frontend admin paneli
+- ✅ TypeScript Migration (başladı) — constants.ts ilk adım
 
 ### 6. Build & Deploy
 - ✅ Build başarılı - 631 URL prerender
@@ -62,7 +64,7 @@
 - ✅ Firebase Emulators: Firestore (8085), Auth (9099), UI (4000)
 
 ## Kalan İşler
-1. **TypeScript Migration** — uzun vadeli, gradual migration (sayfa sayfa)
+1. **TypeScript Migration** — gradual migration (auth.ts, api.ts, firestore-*.ts, hooks.ts, components, pages)
 2. **Push notification setup** — Firebase Admin SDK service account key + scheduled jobs
 3. **Burs/Ücret ve İstihdam veri genişletme** — gerçek veri (YÖK Atlas, TÜİK/İŞKUR)
 4. **Analytics frontend entegrasyonu** — sayfa görüntüleme olaylarını loglama

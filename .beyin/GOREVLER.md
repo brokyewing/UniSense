@@ -66,6 +66,18 @@
 - [x] API endpoints: `/analytics/log`, `/analytics/summary`, `/analytics/clear`
 - [x] Frontend API: `api.analyticsLog`, `api.analyticsSummary`, `api.analyticsClear`
 - [x] Frontend admin paneli (Analytics.jsx)
+- [x] 16 sayfaya page_view tracking eklendi
+
+### TypeScript Migration (Başladı)
+- [x] TypeScript + @types/react + @types/react-dom kuruldu
+- [x] `tsconfig.json` ve `tsconfig.node.json` oluşturuldu
+- [x] `constants.js` → `constants.ts` migrate edildi
+- [ ] `auth.js` → `auth.ts`
+- [ ] `api.js` → `api.ts`
+- [ ] `firestore-*.js` → `firestore-*.ts`
+- [ ] `hooks.js` → `hooks.ts`
+- [ ] Components → `.tsx`
+- [ ] Pages → `.tsx`
 
 ### Service Layer Migration (Önceki)
 - [x] Tüm 16 sayfa + 3 component + 3 lib + 1 context migrate edildi
@@ -75,16 +87,22 @@
 
 ## 🔄 Devam Eden / Sıradaki
 
-### TypeScript Migration (Uzun Vadeli)
-- [ ] JS → TS migration (uzun vadeli)
-- [ ] Tip tanımları
-- [ ] Gradual migration (sayfa sayfa)
+### TypeScript Migration (Devam)
+- [ ] `auth.js` → `auth.ts`
+- [ ] `api.js` → `api.ts`
+- [ ] `firestore-core.js` → `firestore-core.ts`
+- [ ] `firestore-study.js` → `firestore-study.ts`
+- [ ] `firestore-prefs.js` → `firestore-prefs.ts`
+- [ ] `firestore-plan.js` → `firestore-plan.ts`
+- [ ] `firestore-push.js` → `firestore-push.ts`
+- [ ] `firestore-user.js` → `firestore-user.ts`
+- [ ] `hooks.js` → `hooks.ts`
+- [ ] Components → `.tsx`
+- [ ] Pages → `.tsx`
 
 ## 📋 Notlar
 - Tüm özellikler ücretsiz olacak (premium kaldırıldı)
 - Her özellik için build test + GitHub push yapıldı
-- PWA + Error Boundary + Compare AI + Tercih Optimization + Unit Tests + Push Backend + Burs + İstihdam + Analytics tamamlandı
-- Push notification: backend endpoint'ler + scheduler hazır, Firebase Admin SDK + service account key gerekli
-- Burs/Ücret ve İstihdam: backend + API + frontend UI tamamlandı (Compare.jsx)
-- Analytics: backend + API + frontend admin paneli tamamlandı
-- Kalan: TypeScript Migration (uzun vadeli)
+- PWA + Error Boundary + Compare AI + Tercih Optimization + Unit Tests + Push Backend + Burs + İstihdam + Analytics + TS Migration (başladı) tamamlandı
+- TypeScript: gradual migration, sayfa sayfa. constants.ts ilk adım.
+- Kalan: TypeScript migration devam (uzun vadeli)
