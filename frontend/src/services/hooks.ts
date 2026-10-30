@@ -485,7 +485,7 @@ export function usePomodoro() {
   const sifirla = () => { setCalisiyor(false); setKalan(mod === 'odak' ? 25 * 60 : 5 * 60) }
   const modDegis = (m) => { setCalisiyor(false); setMod(m); setKalan(m === 'odak' ? 25 * 60 : 5 * 60) }
 
-  return { mod, kalan, calisiyor, ders, setDers, calisiyor, setCalisiyor, modDegis, sifirla, toast, setToast }
+  return { mod, kalan, calisiyor, ders, setDers, setCalisiyor, modDegis, sifirla, toast, setToast }
 }
 
 // === Email Reminders Hook ===
