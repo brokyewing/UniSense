@@ -41,7 +41,7 @@
 - [x] `constants.test.js` - 12 test
 - [x] `api.test.js` - 2 test
 - [x] `test` ve `test:watch` scripts
-- [ ] Service layer (hooks, firestore-*) için test'ler
+- [x] Service layer (hooks, firestore-*) için test'ler - riskLevels, konu, tekrar, oyun test'leri (46 test)
 - [ ] Component test'leri (React Testing Library)
 
 ### Burs/Ücret Veritabanı
