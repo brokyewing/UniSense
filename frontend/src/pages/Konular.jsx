@@ -55,6 +55,11 @@ function ProgressBar({ done, total }) {
 export default function Konular({ embedded = false }) {
   const { user } = useAuth()
   const [sinav, setSinav] = useState('YKS')
+
+  // Analytics: sayfa görüntüleme
+  useEffect(() => {
+    import('@/services/api').then(m => m.api.analyticsLog('page_view', '/konular', user?.uid).catch(() => {}))
+  }, [])
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')

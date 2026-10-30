@@ -27,6 +27,11 @@ function guestSureEkle(dk, ders) {
 export default function Pano({ embedded = false }) {
   const { user } = useAuth()
   const { stats, loading: statsLoading, yukle } = useIstatistik()
+
+  // Analytics: sayfa görüntüleme
+  useEffect(() => {
+    import('@/services/api').then(m => m.api.analyticsLog('page_view', '/pano', user?.uid).catch(() => {}))
+  }, [])
   const { emailOn, loading: emailLoading, toggle: emailToggle } = useEmailReminders()
   const { profile, loading: profileLoading } = useUserProfile()
 

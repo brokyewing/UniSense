@@ -734,6 +734,11 @@ function ResultsSection({ result, onClear, onRemoveMatch }) {
 // === Ana sayfa ===
 export default function Pusula() {
   const [tab, setTab] = useState('cards')
+
+  // Analytics: sayfa görüntüleme
+  useEffect(() => {
+    import('@/services/api').then(m => m.api.analyticsLog('page_view', '/pusula', null).catch(() => {}))
+  }, [])
   const [result, setResult] = useState(null)
   const resultRef = useRef(null)
 

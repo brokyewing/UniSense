@@ -418,6 +418,11 @@ export default function Hesap() {
   const navigate = useNavigate()
   const { user, isAuthed } = useAuth()
   const { profile, loading: profileLoading } = useUserProfile()
+
+  // Analytics: sayfa görüntüleme
+  useEffect(() => {
+    import('@/services/api').then(m => m.api.analyticsLog('page_view', '/hesap', user?.uid).catch(() => {}))
+  }, [])
   const [tab, setTab] = useState('SAY')
   const [diploma100, setDiploma100] = useState('') // YKS: 100'lük, örn: 85
   const [gpa4, setGpa4] = useState('')             // DGS: 4'lük, örn: 3.2

@@ -510,6 +510,16 @@ export function useEmailReminders() {
   return { emailOn, loading, toggle }
 }
 
+// === Analytics Hook ===
+
+export function useAnalytics() {
+  const { user } = useAuth()
+  const logEvent = useCallback((eventType, page, metadata = {}) => {
+    import('@/services/api').then(m => m.api.analyticsLog(eventType, page, user?.uid || null).catch(() => {}))
+  }, [user])
+  return { logEvent }
+}
+
 // === User Profile Hook ===
 
 export function useUserProfile() {

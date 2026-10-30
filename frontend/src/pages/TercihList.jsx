@@ -68,6 +68,11 @@ export default function TercihList() {
     if (!authLoading && !isAuthed) nav('/giris')
   }, [authLoading, isAuthed, nav])
 
+  // Analytics: sayfa görüntüleme
+  useEffect(() => {
+    import('@/services/api').then(m => m.api.analyticsLog('page_view', '/tercih', user?.uid).catch(() => {}))
+  }, [])
+
   const { tercihIds: yksTercihIds, busyCode: yksBusyCode, setBusyCode: setYksBusyCode } = useTercihList()
   const { show: showToast } = useToast()
 

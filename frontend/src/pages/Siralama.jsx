@@ -14,6 +14,11 @@ export default function Siralama() {
   const nav = useNavigate()
   const { user, isAuthed, loading } = useAuth()
 
+  // Analytics: sayfa görüntüleme
+  useEffect(() => {
+    import('@/services/api').then(m => m.api.analyticsLog('page_view', '/siralama', user?.uid).catch(() => {}))
+  }, [])
+
   const [yukleniyor, setYukleniyor] = useState(true)
   const [liste, setListe] = useState([])
   const [benimAd, setBenimAd] = useState(null) // katıldıysa takma ad, yoksa null
