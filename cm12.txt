@@ -1,0 +1,6 @@
+feat: add React Testing Library component tests (ErrorBoundary, StreakBadge) - 50 tests pass
+
+- ErrorBoundary.test.tsx: renders children, shows error UI on throw
+- StreakBadge.test.tsx: compact badge, full card (with waitFor for async data)
+- Updated GOREVLER.md: component tests done
+- All 50 tests pass (8 test files)

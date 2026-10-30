@@ -42,7 +42,7 @@
 - [x] `api.test.js` - 2 test
 - [x] `test` ve `test:watch` scripts
 - [x] Service layer (hooks, firestore-*) için test'ler - riskLevels, konu, tekrar, oyun test'leri (46 test)
-- [ ] Component test'leri (React Testing Library)
+- [x] Component test'leri (React Testing Library) - ErrorBoundary, StreakBadge (4 test)
 
 ### Burs/Ücret Veritabanı
 - [x] `scholarship.py` model (ScholarshipInfo, ScholarshipListResponse)
