@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import {
   watchAuth,
   loginWithGoogle as fbLoginGoogle,
@@ -6,11 +6,22 @@ import {
   registerWithEmail as fbRegister,
   logout as fbLogout,
 } from '@/services/auth'
+import type { User } from 'firebase/auth'
 
-const AuthContext = createContext(null)
+interface AuthContextValue {
+  user: User | null
+  loading: boolean
+  isAuthed: boolean
+  loginWithGoogle: (examTrack?: string) => Promise<User>
+  loginWithEmail: (email: string, password: string) => Promise<User>
+  register: (email: string, password: string, displayName?: string, examTrack?: string) => Promise<User>
+  logout: () => Promise<void>
+}
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
+const AuthContext = createContext<AuthContextValue | null>(null)
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -18,14 +29,13 @@ export function AuthProvider({ children }) {
       setUser(u)
       setLoading(false)
     })
-    // Firebase yoksa watchAuth no-op döner, sadece loading'i kapat
     if (!unsub || typeof unsub !== 'function') {
       setLoading(false)
     }
     return unsub
   }, [])
 
-  const value = {
+  const value: AuthContextValue = {
     user,
     loading,
     isAuthed: !!user,
@@ -38,7 +48,7 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
-export function useAuth() {
+export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext)
   if (!ctx) throw new Error('useAuth must be inside AuthProvider')
   return ctx
