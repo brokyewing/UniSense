@@ -4,15 +4,13 @@ import { useAuth } from '../contexts/AuthContext'
 import { pushAvailable, enablePush, disablePush } from '@/services/firestore-push'
 import { track } from '../lib/analytics'
 
-// Günlük çalışma hatırlatması opt-in kartı. Yalnızca: girişli + tarayıcı destekli
-// + VAPID key yapılandırılmışsa görünür. Kapatılınca (dismiss) bir daha basmaz.
 const LS_ON = 'unisense_push_on'
 const LS_DISMISS = 'unisense_push_dismiss'
 
 export default function PushOptIn() {
   const { user } = useAuth()
   const [avail, setAvail] = useState(false)
-  const [state, setState] = useState('idle') // idle | on | denied | loading
+  const [state, setState] = useState<'idle' | 'on' | 'denied' | 'loading'>('idle')
   const [dismissed, setDismissed] = useState(() => !!localStorage.getItem(LS_DISMISS))
 
   useEffect(() => {
@@ -31,8 +29,6 @@ export default function PushOptIn() {
   async function ac() {
     setState('loading')
     try {
-      // enablePush fırlatabilir (SW register hatası, FCM 'push service error', rules
-      // reddi) — yakalanmazsa buton sonsuza dek spinner'da kalıyordu
       const r = await enablePush(user.uid)
       if (r.ok) { localStorage.setItem(LS_ON, '1'); setState('on'); track('push_acildi') }
       else if (r.reason === 'denied') setState('denied')

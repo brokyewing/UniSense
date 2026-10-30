@@ -1,15 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Download, X } from 'lucide-react'
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+}
+
 export default function PWAInstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState(null)
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [showPrompt, setShowPrompt] = useState(false)
 
   useEffect(() => {
-    const handler = (e) => {
+    const handler = (e: Event) => {
       e.preventDefault()
-      setDeferredPrompt(e)
-      // Daha önce reddedilmişse gösterme
+      setDeferredPrompt(e as BeforeInstallPromptEvent)
       const dismissed = localStorage.getItem('pwa-install-dismissed')
       if (!dismissed) setShowPrompt(true)
     }
@@ -17,7 +21,7 @@ export default function PWAInstallPrompt() {
     return () => window.removeEventListener('beforeinstallprompt', handler)
   }, [])
 
-  const handleInstall = async () => {
+  const handleInstall = useCallback(async () => {
     if (!deferredPrompt) return
     deferredPrompt.prompt()
     const { outcome } = await deferredPrompt.userChoice
@@ -25,12 +29,12 @@ export default function PWAInstallPrompt() {
       setShowPrompt(false)
     }
     setDeferredPrompt(null)
-  }
+  }, [deferredPrompt])
 
-  const handleDismiss = () => {
+  const handleDismiss = useCallback(() => {
     setShowPrompt(false)
     localStorage.setItem('pwa-install-dismissed', '1')
-  }
+  }, [])
 
   if (!showPrompt) return null
 
