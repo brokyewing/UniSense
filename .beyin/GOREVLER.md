@@ -59,6 +59,13 @@
 - [x] Frontend API: `api.employmentList`, `api.employmentByProgram`, `api.employmentYears`
 - [ ] Frontend UI (istihdam bilgisi gösterimi in BolumDetay)
 
+### Analytics Dashboard
+- [x] `analytics.py` model (AnalyticsEvent, AnalyticsSummary)
+- [x] `analytics_service.py` (log_event, summary, clear - JSON-based)
+- [x] API endpoints: `/analytics/log`, `/analytics/summary`, `/analytics/clear`
+- [x] Frontend API: `api.analyticsLog`, `api.analyticsSummary`, `api.analyticsClear`
+- [ ] Frontend admin paneli (basit)
+
 ### Service Layer Migration (Önceki)
 - [x] Tüm 16 sayfa + 3 component + 3 lib + 1 context migrate edildi
 - [x] `firebase.js` tamamen kaldırıldı
@@ -66,11 +73,6 @@
 - [x] Build: 631 URL prerender, 0 hata
 
 ## 🔄 Devam Eden / Sıradaki
-
-### Analytics Dashboard (Yüksek Zorluk)
-- [ ] Kullanıcı davranış analizi
-- [ ] Backend: event logging endpoint
-- [ ] Frontend: admin paneli (basit)
 
 ### TypeScript Migration (Uzun Vadeli)
 - [ ] JS → TS migration (uzun vadeli)
@@ -80,7 +82,8 @@
 ## 📋 Notlar
 - Tüm özellikler ücretsiz olacak (premium kaldırıldı)
 - Her özellik için build test + GitHub push yapıldı
-- PWA + Error Boundary + Compare AI + Tercih Optimization + Unit Tests + Push Backend + Burs + İstihdam tamamlandı
-- Kalan: Analytics Dashboard, TypeScript Migration
-- Analytics: backend event logging + frontend admin paneli gerekli
-- TypeScript: uzun vadeli, sayfa sayfa migrate edilebilir
+- PWA + Error Boundary + Compare AI + Tercih Optimization + Unit Tests + Push Backend + Burs + İstihdam + Analytics tamamlandı
+- Kalan: TypeScript Migration (uzun vadeli)
+- Push notification: backend endpoint'ler hazır, Firebase Admin SDK + service account key gerekli
+- Burs/Ücret ve İstihdam: backend + API hazır, frontend UI eklenebilir
+- Analytics: backend + API hazır, frontend admin paneli eklenebilir
