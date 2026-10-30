@@ -3,13 +3,15 @@ import { useEffect } from 'react'
 const SITE = 'https://www.unisense.com.tr'
 const DEFAULT_IMAGE = `${SITE}/logo.png`
 
-/**
- * Rota-bazlı <head> yönetimi — bağımlılıksız, useEffect ile DOM'u doğrudan günceller.
- * index.html'deki sabit canonical=anasayfa bug'ını çözer: her rota kendine-referanslı
- * (self-referencing) canonical + doğru og:url alır → alt sayfalar deindexlenmez.
- * Prerender/SSG (Dalga 3) headless tarayıcıda effect'i çalıştırıp bu head'i HTML'e gömer.
- */
-function upsertMeta(attr, key, value) {
+interface SeoProps {
+  title?: string
+  description?: string
+  path?: string
+  noindex?: boolean
+  image?: string
+}
+
+function upsertMeta(attr: string, key: string, value: string): void {
   let el = document.head.querySelector(`meta[${attr}="${key}"]`)
   if (!el) {
     el = document.createElement('meta')
@@ -19,7 +21,7 @@ function upsertMeta(attr, key, value) {
   el.setAttribute('content', value)
 }
 
-function upsertLink(rel, href) {
+function upsertLink(rel: string, href: string): void {
   let el = document.head.querySelector(`link[rel="${rel}"]`)
   if (!el) {
     el = document.createElement('link')
@@ -29,7 +31,7 @@ function upsertLink(rel, href) {
   el.setAttribute('href', href)
 }
 
-export default function Seo({ title, description, path = '', noindex = false, image }) {
+export default function Seo({ title, description, path = '', noindex = false, image }: SeoProps) {
   useEffect(() => {
     const url = SITE + (path || '')
     if (title) document.title = title

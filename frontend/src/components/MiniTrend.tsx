@@ -1,11 +1,16 @@
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 
-/**
- * Geçmiş yıl taban SIRASI trendi (sparkline). `trend` = [{year, base_rank}, ...].
- * Küçük rank = iyi = grafikte yukarı. compact=true kartlar için etiketsiz mini hali.
- * Compare (tam) ve Search/Recommend/Tercih kartları (compact) ortak kullanır.
- */
-export default function MiniTrend({ trend, compact = false }) {
+interface TrendPoint {
+  year: number
+  base_rank: number | null
+}
+
+interface MiniTrendProps {
+  trend?: TrendPoint[]
+  compact?: boolean
+}
+
+export default function MiniTrend({ trend, compact = false }: MiniTrendProps) {
   const pts = (trend || []).filter((t) => t.base_rank != null)
   if (pts.length < 2) {
     return compact
@@ -16,19 +21,18 @@ export default function MiniTrend({ trend, compact = false }) {
   const W = compact ? 96 : 140
   const H = compact ? 26 : 50
   const P = compact ? 3 : 6
-  const ranks = pts.map((p) => p.base_rank)
+  const ranks = pts.map((p) => p.base_rank as number)
   const minR = Math.min(...ranks)
   const range = Math.max(Math.max(...ranks) - minR, 1)
 
   const points = pts.map((p, i) => ({
     x: P + (i / (pts.length - 1)) * (W - P * 2),
-    y: P + ((p.base_rank - minR) / range) * (H - P * 2),
+    y: P + ((p.base_rank as number - minR) / range) * (H - P * 2),
     p,
   }))
   const path = points.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${pt.x} ${pt.y}`).join(' ')
 
-  // Momentum: ilk vs son (pozitif = sıra düştü = iyileşme)
-  const diff = pts[0].base_rank - pts[pts.length - 1].base_rank
+  const diff = pts[0].base_rank as number - (pts[pts.length - 1].base_rank as number)
   const momentum = Math.abs(diff) < 100 ? 'stable' : diff > 0 ? 'up' : 'down'
   const color = momentum === 'up' ? 'text-emerald-400' : momentum === 'down' ? 'text-rose-400' : 'text-slate-400'
   const Icon = momentum === 'up' ? TrendingUp : momentum === 'down' ? TrendingDown : Minus
