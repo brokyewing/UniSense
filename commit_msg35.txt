@@ -1,0 +1,8 @@
+feat: TypeScript migration - proper type annotations for Seo.tsx, Logo.tsx, MiniTrend.tsx, ThemeToggle.tsx
+
+- Seo: SeoProps interface with optional title, description, path, noindex, image
+- Logo: LogoProps interface with size, rounded, withGradient, className
+- MiniTrend: TrendPoint and MiniTrendProps interfaces
+- ThemeToggle: ThemeToggleProps interface with className
+- Build passes: 631 URLs prerendered
+- Tests pass: 14 tests
