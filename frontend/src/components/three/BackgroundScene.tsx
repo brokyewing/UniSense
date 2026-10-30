@@ -2,8 +2,8 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { Stars } from '@react-three/drei'
 import { useRef, useMemo, Suspense, useEffect, useState } from 'react'
 
-function useThemeWatcher() {
-  const [isLight, setIsLight] = useState(
+function useThemeWatcher(): boolean {
+  const [isLight, setIsLight] = useState<boolean>(
     () => typeof document !== 'undefined' && document.documentElement.classList.contains('light-theme')
   )
   useEffect(() => {
@@ -17,7 +17,7 @@ function useThemeWatcher() {
 }
 
 function FloatingShapes() {
-  const ref = useRef()
+  const ref = useRef<any>(null)
   const shapes = useMemo(() => {
     return [...Array(15)].map((_, i) => ({
       pos: [
@@ -41,7 +41,7 @@ function FloatingShapes() {
   return (
     <group ref={ref}>
       {shapes.map((s, i) => (
-        <mesh key={i} position={s.pos} scale={s.scale}>
+        <mesh key={i} position={s.pos as [number, number, number]} scale={s.scale}>
           {s.kind === 0 && <icosahedronGeometry args={[1, 0]} />}
           {s.kind === 1 && <octahedronGeometry args={[1, 0]} />}
           {s.kind === 2 && <tetrahedronGeometry args={[1, 0]} />}
