@@ -15,22 +15,22 @@ const SINAVLAR = [
   { key: 'LGS', label: 'LGS' },
 ]
 
-const LS_KEY = (sinav) => `unisense_konu_v1_${sinav}`
+const LS_KEY = (sinav: any) => `unisense_konu_v1_${sinav}`
 
-function loadChecked(sinav) {
+function loadChecked(sinav: any) {
   try { return JSON.parse(localStorage.getItem(LS_KEY(sinav)) || '{}') } catch { return {} }
 }
-function saveChecked(sinav, obj) {
+function saveChecked(sinav: any, obj: any) {
   try { localStorage.setItem(LS_KEY(sinav), JSON.stringify(obj)) } catch { /* noop */ }
 }
 
 // Veri şeklini düzleştir: YKS gruplu (TYT/AYT), diğerleri düz ders listesi
-function bloklar(data) {
+function bloklar(data: any) {
   if (!data) return []
   if (data.gruplar) {
     const out = []
     for (const [grup, dersler] of Object.entries(data.gruplar)) {
-      for (const [ders, konular] of Object.entries(dersler)) {
+      for (const [ders, konular] of Object.entries(dersler as any)) {
         out.push({ grup, ders, konular })
       }
     }
@@ -39,7 +39,7 @@ function bloklar(data) {
   return Object.entries(data.dersler || {}).map(([ders, konular]) => ({ grup: null, ders, konular }))
 }
 
-function ProgressBar({ done, total }) {
+function ProgressBar({ done, total }: { done: any; total: any }) {
   const pct = total ? Math.round((done / total) * 100) : 0
   return (
     <div className="flex items-center gap-2">
@@ -60,7 +60,7 @@ export default function Konular({ embedded = false }) {
   useEffect(() => {
     import('@/services/api').then(m => m.api.analyticsLog('page_view', '/konular', user?.uid).catch(() => {}))
   }, [])
-  const [data, setData] = useState(null)
+  const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [userPicked, setUserPicked] = useState(false)
@@ -72,7 +72,7 @@ export default function Konular({ embedded = false }) {
     if (!user) return
     import('@/services/firestore-core').then(m => m.getUserProfile(user.uid)).then((p) => {
       const track = p?.profile?.examTrack
-      const map = { YKS: 'YKS', KPSS: 'KPSS', DGS: 'DGS', LGS: 'LGS' }
+      const map: any = { YKS: 'YKS', KPSS: 'KPSS', DGS: 'DGS', LGS: 'LGS' }
       if (map[track]) setSinav(map[track])
     }).catch(() => {})
   }, [user])
@@ -90,9 +90,9 @@ export default function Konular({ embedded = false }) {
   const bl = useMemo(() => {
     if (!data) return []
     if (data.gruplar) {
-      const out = []
+      const out: any[] = []
       for (const [grup, dersler] of Object.entries(data.gruplar)) {
-        for (const [ders, konular] of Object.entries(dersler)) {
+        for (const [ders, konular] of Object.entries(dersler as any)) {
           out.push({ grup, ders, konular })
         }
       }
@@ -101,16 +101,16 @@ export default function Konular({ embedded = false }) {
     return Object.entries(data.dersler || {}).map(([ders, konular]) => ({ grup: null, ders, konular }))
   }, [data])
 
-  const toplam = useMemo(() => bl.reduce((s, b) => s + b.konular.length, 0), [bl])
+  const toplam = useMemo(() => bl.reduce((s: any, b: any) => s + b.konular.length, 0), [bl])
   const yapilan = useMemo(
-    () => bl.reduce((s, b) => s + b.konular.filter((k) => checked[`${b.grup || ''}|${b.ders}|${k}`]).length, 0),
+    () => bl.reduce((s: any, b: any) => s + b.konular.filter((k: any) => checked[`${b.grup || ''}|${b.ders}|${k}`]).length, 0),
     [bl, checked],
   )
 
-  function toggle(b, konu) {
+  function toggle(b: any, konu: any) {
     const key = `${b.grup || ''}|${b.ders}|${konu}`
     // UI anında güncelle
-    setChecked((prev) => {
+    setChecked((prev: any) => {
       const next = { ...prev }
       if (next[key]) delete next[key]
       else next[key] = true
@@ -199,7 +199,7 @@ export default function Konular({ embedded = false }) {
             {/* Ders kartları */}
             <div className="space-y-3">
               {bl.map((b, i) => {
-                const dersDone = b.konular.filter((k) => checked[`${b.grup || ''}|${b.ders}|${k}`]).length
+                const dersDone = b.konular.filter((k: any) => checked[`${b.grup || ''}|${b.ders}|${k}`]).length
                 return (
                   <div key={i} className="card">
                     <div className="flex items-center justify-between gap-3 mb-2.5">
@@ -210,7 +210,7 @@ export default function Konular({ embedded = false }) {
                       <div className="w-28"><ProgressBar done={dersDone} total={b.konular.length} /></div>
                     </div>
                     <div className="grid sm:grid-cols-2 gap-1.5">
-                      {b.konular.map((konu) => {
+                      {b.konular.map((konu: any) => {
                         const on = !!checked[`${b.grup || ''}|${b.ders}|${konu}`]
                         return (
                           <button key={konu} onClick={() => toggle(b, konu)}

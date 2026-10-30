@@ -20,37 +20,37 @@ const DENEME_SINAVLAR = ['YKS', 'DGS', 'KPSS', 'LGS']
 // Puan türü olan sınavlar (YKS 4 tür, DGS 3 tür); KPSS/LGS'de tür yok
 const YKS_TURLER = ['SAY', 'EA', 'SÖZ', 'DİL']
 const DGS_TURLER = ['SAY', 'EA', 'SÖZ']
-const turlerFor = (s) => (s === 'YKS' ? YKS_TURLER : s === 'DGS' ? DGS_TURLER : null)
+const turlerFor = (s: any) => (s === 'YKS' ? YKS_TURLER : s === 'DGS' ? DGS_TURLER : null)
 // Diploma/GPA girişi olan sınavlar (YKS: 100'lük diploma→OBP, DGS: 4'lük GPA→AÖBP)
-const hasDiploma = (s) => s === 'YKS' || s === 'DGS'
+const hasDiploma = (s: any) => s === 'YKS' || s === 'DGS'
 // Tüm sınavların ders etiketleri — geçmiş/zayıf ders gösterimi için
 const ALL_LABELS = Object.fromEntries(
   [...TYT_FIELDS, ...AYT_FIELDS.SAY, ...AYT_FIELDS.EA, ...AYT_FIELDS.SÖZ, ...AYT_FIELDS.DİL,
     ...KPSS_FIELDS, ...LGS_FIELDS, ...DGS_FIELDS].map((f) => [f.id, { label: f.label, max: f.max }]))
-const lsKey = (s) => 'unisense_deneme_' + s
-const loadLocal = (s) => { try { return JSON.parse(localStorage.getItem(lsKey(s)) || '[]') } catch { return [] } }
-const saveLocal = (s, a) => { try { localStorage.setItem(lsKey(s), JSON.stringify(a)) } catch { /* noop */ } }
+const lsKey = (s: any) => 'unisense_deneme_' + s
+const loadLocal = (s: any) => { try { return JSON.parse(localStorage.getItem(lsKey(s)) || '[]') } catch { return [] } }
+const saveLocal = (s: any, a: any) => { try { localStorage.setItem(lsKey(s), JSON.stringify(a)) } catch { /* noop */ } }
 // Çözülen soru kaydı — sınav başına ayrı
-const soruKey = (s) => 'unisense_soru_' + s
-const loadSoru = (s) => { try { return JSON.parse(localStorage.getItem(soruKey(s)) || '[]') } catch { return [] } }
-const saveSoru = (s, a) => { try { localStorage.setItem(soruKey(s), JSON.stringify(a)) } catch { /* noop */ } }
+const soruKey = (s: any) => 'unisense_soru_' + s
+const loadSoru = (s: any) => { try { return JSON.parse(localStorage.getItem(soruKey(s)) || '[]') } catch { return [] } }
+const saveSoru = (s: any, a: any) => { try { localStorage.setItem(soruKey(s), JSON.stringify(a)) } catch { /* noop */ } }
 // yerel tarih (UTC değil — gece 00-03 TR'de önceki güne kaymasın)
 const bugun = () => {
   const d = new Date()
-  const p = (n) => String(n).padStart(2, '0')
+  const p = (n: any) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
 }
 
-function Spark({ points }) {
-  const pts = points.filter((p) => p != null)
+function Spark({ points }: any) {
+  const pts = points.filter((p: any) => p != null)
   if (pts.length < 2) return null
   const W = 200, H = 44, P = 4
   const min = Math.min(...pts), range = Math.max(Math.max(...pts) - min, 0.01)
-  const co = pts.map((v, i) => ({
+  const co = pts.map((v: any, i: number) => ({
     x: P + (i / (pts.length - 1)) * (W - P * 2),
     y: H - P - ((v - min) / range) * (H - P * 2),
   }))
-  const d = co.map((c, i) => `${i ? 'L' : 'M'} ${c.x.toFixed(1)} ${c.y.toFixed(1)}`).join(' ')
+  const d = co.map((c: any, i: number) => `${i ? 'L' : 'M'} ${c.x.toFixed(1)} ${c.y.toFixed(1)}`).join(' ')
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} preserveAspectRatio="none">
       <path d={d} fill="none" stroke="url(#g)" strokeWidth="2" />
@@ -72,16 +72,16 @@ export default function Deneme({ embedded = false }) {
   const [diploma, setDiploma] = useState('85')
   const [tarih, setTarih] = useState(bugun())
   const [ad, setAd] = useState('')
-  const [girdi, setGirdi] = useState({}) // {fieldId: {d, y}}
+  const [girdi, setGirdi] = useState<any>({}) // {fieldId: {d, y}}
   const [showForm, setShowForm] = useState(false)
   const [showSoru, setShowSoru] = useState(false)
   const [soruF, setSoruF] = useState({ blokIdx: '', konu: '', cozulen: '', dogru: '' })
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState('')
-  const [profil, setProfil] = useState(null)
+  const [profil, setProfil] = useState<any>(null)
   const [koc, setKoc] = useState('')
   const [kocLoading, setKocLoading] = useState(false)
-  const [konuData, setKonuData] = useState(null)
+  const [konuData, setKonuData] = useState<any>(null)
 
   const { denemeler, loading: denemelerLoading, setDenemeler } = useDenemeler(sinav)
   const { kayitlar: soruKayit, loading: soruKayitLoading, setKayitlar: setSoruKayit } = useSoruKayit(sinav)
@@ -105,7 +105,7 @@ export default function Deneme({ embedded = false }) {
   }, [user])
 
   // Sınav değiştir — tür ve diploma/GPA yeni sınava uyarlanır, form kapanır
-  function switchSinav(s) {
+  function switchSinav(s: any) {
     setSinav(s)
     setShowForm(false); setShowSoru(false)
     setKoc('') // önceki sınavın tavsiyesi yeni sekmede kalmasın
@@ -130,10 +130,10 @@ export default function Deneme({ embedded = false }) {
   )
 
   // D/Y girişi — Hesap gibi: D+Y o dersin soru sayısını (max) AŞAMAZ
-  function setDY(field, k, v) {
-    if (v === '') { setGirdi((p) => ({ ...p, [field.id]: { ...p[field.id], [k]: '' } })); return }
+  function setDY(field: any, k: any, v: any) {
+    if (v === '') { setGirdi((p: any) => ({ ...p, [field.id]: { ...p[field.id], [k]: '' } })); return }
     const raw = Math.max(0, parseInt(v, 10) || 0)
-    setGirdi((p) => {
+    setGirdi((p: any) => {
       const cur = p[field.id] || {}
       const other = k === 'd' ? (parseInt(cur.y, 10) || 0) : (parseInt(cur.d, 10) || 0)
       const capped = Math.max(0, Math.min(raw, field.max - other)) // D+Y ≤ max
@@ -141,7 +141,7 @@ export default function Deneme({ embedded = false }) {
     })
   }
 
-  function flash(m) { setToast(m); setTimeout(() => setToast(''), 2500) }
+  function flash(m: any) { setToast(m); setTimeout(() => setToast(''), 2500) }
 
   async function kaydet() {
     const minPuan = sinav === 'KPSS' ? 40 : 100
@@ -166,14 +166,14 @@ export default function Deneme({ embedded = false }) {
     try {
       if (user) await import('@/services/firestore-study').then(m => m.addDeneme(user.uid, deneme))
       else { const a = [...denemeler, { ...deneme, id: 'l' + Date.now() }]; saveLocal(sinav, a); setDenemeler(a) }
-      recordActivity(user?.uid).catch(() => {})
+      recordActivity(user?.uid ?? null).catch(() => {})
       track('deneme_kaydedildi', { sinav })
       setGirdi({}); setAd(''); setShowForm(false)
       flash('✓ Deneme kaydedildi')
-    } catch (e) { flash(e.message) } finally { setSaving(false) }
+    } catch (e: any) { flash(e.message) } finally { setSaving(false) }
   }
 
-  async function sil(d) {
+  async function sil(d: any) {
     if (user && !String(d.id).startsWith('l')) { await import('@/services/firestore-study').then(m => m.removeDeneme(user.uid, d.id)).catch(() => {}) }
     else { const a = denemeler.filter((x) => x.id !== d.id); saveLocal(sinav, a); setDenemeler(a) }
   }
@@ -191,14 +191,14 @@ export default function Deneme({ embedded = false }) {
     try {
       if (user) await import('@/services/firestore-study').then(m => m.addSoruKayit(user.uid, kayit))
       else { const a = [{ ...kayit, id: 'l' + Date.now(), createdAt: Date.now() }, ...soruKayit]; saveSoru(sinav, a); setSoruKayit(a) }
-      recordActivity(user?.uid).catch(() => {})
+      recordActivity(user?.uid ?? null).catch(() => {})
       track('soru_kaydedildi', { sinav })
       setSoruF({ blokIdx: soruF.blokIdx, konu: '', cozulen: '', dogru: '' }); setShowSoru(false)
       flash('✓ Soru kaydı eklendi')
-    } catch (e) { flash(e.message) } finally { setSaving(false) }
+    } catch (e: any) { flash(e.message) } finally { setSaving(false) }
   }
 
-  async function soruSil(s) {
+  async function soruSil(s: any) {
     if (user && !String(s.id).startsWith('l')) { await import('@/services/firestore-study').then(m => m.removeSoruKayit(user.uid, s.id)).catch(() => {}) }
     else { const a = soruKayit.filter((x) => x.id !== s.id); saveSoru(sinav, a); setSoruKayit(a) }
   }
@@ -252,7 +252,7 @@ export default function Deneme({ embedded = false }) {
         body: { query: q, ...(Object.keys(uc).length ? { user_context: uc } : {}) },
       })
       setKoc(r?.text || 'Tavsiye üretilemedi.')
-    } catch (e) { setKoc('Tavsiye alınamadı: ' + e.message) } finally { setKocLoading(false) }
+    } catch (e: any) { setKoc('Tavsiye alınamadı: ' + e.message) } finally { setKocLoading(false) }
   }
 
   const konuDurum = useMemo(() => (konuData ? eksikKonular(konuData, konuChecked) : null), [konuData, konuChecked])
@@ -387,7 +387,7 @@ export default function Deneme({ embedded = false }) {
                 <div>
                   <label className="text-[11px] text-slate-400">Puan türü</label>
                   <div className="flex gap-1 mt-1">
-                    {turlerFor(sinav).map((t) => (
+                    {(turlerFor(sinav) || []).map((t: any) => (
                       <button key={t} onClick={() => setType(t)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${type === t ? 'bg-gradient-to-r from-brand-500 to-accent-500 text-white' : 'bg-white/5 text-slate-300'}`}>{t}</button>
                     ))}
@@ -461,7 +461,7 @@ export default function Deneme({ embedded = false }) {
                     <select value={soruF.konu} onChange={(e) => setSoruF({ ...soruF, konu: e.target.value })}
                       disabled={soruF.blokIdx === ''} className="input-glass block mt-1 text-sm w-full disabled:opacity-50">
                       <option value="">Seç…</option>
-                      {(bloklar[parseInt(soruF.blokIdx, 10)]?.konular || []).map((k) => <option key={k} value={k}>{k}</option>)}
+                      {(((bloklar as any)[parseInt(soruF.blokIdx, 10)]?.konular) || []).map((k: any) => <option key={k} value={k}>{k}</option>)}
                     </select>
                   </div>
                 </div>

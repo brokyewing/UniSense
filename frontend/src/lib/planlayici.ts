@@ -5,7 +5,7 @@
 import { eksikKonular } from './konu'
 
 // ---- Tarih yardımcıları (yerel gün — UTC kayması olmasın) ----
-export function isoGun(d = new Date()) {
+export function isoGun(d: any = new Date()) {
   const t = new Date(d)
   t.setHours(0, 0, 0, 0)
   const y = t.getFullYear()
@@ -29,7 +29,7 @@ export function isoHafta(d = new Date()) {
 }
 
 /** Verilen tarihin haftasının 7 günü (Pzt→Paz), ISO gün string dizisi. */
-export function haftaGunleri(d = new Date()) {
+export function haftaGunleri(d: any = new Date()) {
   const t = new Date(d)
   t.setHours(0, 0, 0, 0)
   t.setDate(t.getDate() - ((t.getDay() + 6) % 7)) // Pazartesi
@@ -41,19 +41,19 @@ export function haftaGunleri(d = new Date()) {
 }
 
 /** İki ISO gün arasındaki fark (b - a), tam gün. */
-export function gunFark(aIso, bIso) {
+export function gunFark(aIso: any, bIso: any) {
   const a = new Date(aIso + 'T00:00:00')
   const b = new Date(bIso + 'T00:00:00')
   return Math.round((b.getTime() - a.getTime()) / 86400000)
 }
 
 const HAFTA_SONU = new Set([0, 6]) // Paz, Cmt
-const haftaSonuMu = (iso) => HAFTA_SONU.has(new Date(iso + 'T00:00:00').getDay())
+const haftaSonuMu = (iso: any) => HAFTA_SONU.has(new Date(iso + 'T00:00:00').getDay())
 
 // ---- Konu havuzu (ağırlıklı, dersler arası round-robin) ----
 // tur: 'tekrar' (çözülmüş ama doğruluk düşük) > 'yeni' (hiç işaretlenmemiş)
-function havuz(konuData, checked, soruOzet = []) {
-  const aday = []
+function havuz(konuData: any, checked: any, soruOzet: any = []) {
+  const aday: any[] = []
   // Çok soru çözülmüş ama doğruluğu <%60 → öncelikli tekrar
   for (const o of soruOzet) {
     if ((o.cozulen || 0) >= 5 && (o.dogru || 0) / o.cozulen < 0.6) {
@@ -71,14 +71,14 @@ function havuz(konuData, checked, soruOzet = []) {
 }
 
 /** Aynı ders arka arkaya gelmesin: derslere böl, sırayla birer tane al. */
-function roundRobinDers(list) {
+function roundRobinDers(list: any) {
   const kova = new Map()
   for (const x of list) {
     if (!kova.has(x.ders)) kova.set(x.ders, [])
     kova.get(x.ders).push(x)
   }
   const gruplar = [...kova.values()]
-  const out = []
+  const out: any[] = []
   let kaldi = true
   while (kaldi) {
     kaldi = false
@@ -89,17 +89,17 @@ function roundRobinDers(list) {
   return out
 }
 
-const gorevBaslik = (c) => (c.tur === 'tekrar' ? `${c.konu} — tekrar & 15 soru` : `${c.konu} — 20 soru`)
+const gorevBaslik = (c: any) => (c.tur === 'tekrar' ? `${c.konu} — tekrar & 15 soru` : `${c.konu} — 20 soru`)
 
 /** "Bugün ne çalışayım?" — en öncelikli n öneri (deterministik). */
-export function oneriler(konuData, checked, soruOzet = [], n = 3) {
+export function oneriler(konuData: any, checked: any, soruOzet: any = [], n: any = 3) {
   return havuz(konuData, checked, soruOzet).slice(0, n).map((c) => ({
     ders: c.ders, konu: c.konu, tur: c.tur, title: gorevBaslik(c),
   }))
 }
 
 /** Görev nesnesi kur (deterministik id: hafta-gün-slot ya da çağıranın verdiği). */
-export function gorevYap({ id, ders, konu, title, tarih, durMin = 45, status = 'planned', source = 'auto', tur }) {
+export function gorevYap({ id, ders, konu, title, tarih, durMin = 45, status = 'planned', source = 'auto', tur }: any) {
   return { id, ders, konu, title, tarih, durMin, status, source, ...(tur ? { tur } : {}) }
 }
 
@@ -108,12 +108,12 @@ export function gorevYap({ id, ders, konu, title, tarih, durMin = 45, status = '
  * sayısına göre ağırlıklı konuları dağıtır. Mevcut görevleri EZMEZ — sadece
  * boş slotları doldurur (aynı gün+ders çakışması atlanır).
  */
-export function haftaPlanla({ konuData, checked, soruOzet = [], hafta, bugun = isoGun(), haftaIciBlok = 2, haftaSonuBlok = 4, oncelikKonu = [], mevcut = [] }) {
+export function haftaPlanla({ konuData, checked, soruOzet = [], hafta, bugun = isoGun(), haftaIciBlok = 2, haftaSonuBlok = 4, oncelikKonu = [], mevcut = [] as any }: any) {
   const gunler = haftaGunleri(new Date(bugun + 'T00:00:00')) // hafta = bugünün haftası
   const havuzListe = havuz(konuData, checked, soruOzet)
   // AI önceliği: verilen konuları havuzun önüne al
   if (oncelikKonu.length) {
-    const seto = new Set(oncelikKonu.map((s) => String(s).toLocaleLowerCase('tr')))
+    const seto = new Set(oncelikKonu.map((s: any) => String(s).toLocaleLowerCase('tr')))
     havuzListe.sort((a, b) => {
       const ao = seto.has(a.konu.toLocaleLowerCase('tr')) ? 0 : 1
       const bo = seto.has(b.konu.toLocaleLowerCase('tr')) ? 0 : 1
@@ -123,7 +123,7 @@ export function haftaPlanla({ konuData, checked, soruOzet = [], hafta, bugun = i
   if (!havuzListe.length) return mevcut
   // Çakışma anahtarı gün+KONU (gün+ders değil): aynı gün aynı konuyu tekrar koyma ama
   // farklı konularla blok sayısı dolabilsin (az dersli sınavda hedef tutmayı engellemesin).
-  const doluluk = new Set(mevcut.map((t) => `${t.tarih}|${t.konu}`))
+  const doluluk = new Set((mevcut as any[]).map((t: any) => `${t.tarih}|${t.konu}`))
   const yeni = [...mevcut]
   let hi = 0
   for (let gi = 0; gi < gunler.length; gi++) {
@@ -150,8 +150,8 @@ export function haftaPlanla({ konuData, checked, soruOzet = [], hafta, bugun = i
 }
 
 /** Geciken (planlanmış ama tarihi geçmiş) görevleri bugüne taşı. Yeni dizi döner. */
-export function carryForward(tasks = [], bugun = isoGun()) {
-  return tasks.map((t) =>
+export function carryForward(tasks: any = [], bugun: any = isoGun()) {
+  return tasks.map((t: any) =>
     t.status === 'planned' && gunFark(t.tarih, bugun) > 0
       ? { ...t, tarih: bugun, source: t.source === 'auto' ? 'moved' : t.source, moved: true }
       : t,
@@ -159,26 +159,26 @@ export function carryForward(tasks = [], bugun = isoGun()) {
 }
 
 /** Plana uyum: bugüne kadar planlanan görevlerin ne kadarı tamamlandı (0-100). */
-export function uyumYuzde(tasks = [], bugun = isoGun()) {
-  const gecmisVeBugun = tasks.filter((t) => gunFark(t.tarih, bugun) >= 0)
+export function uyumYuzde(tasks: any = [], bugun: any = isoGun()) {
+  const gecmisVeBugun = tasks.filter((t: any) => gunFark(t.tarih, bugun) >= 0)
   if (!gecmisVeBugun.length) return null
-  const bitti = gecmisVeBugun.filter((t) => t.status === 'done').length
+  const bitti = gecmisVeBugun.filter((t: any) => t.status === 'done').length
   return Math.round((bitti / gecmisVeBugun.length) * 100)
 }
 
 /** Gecikme: bugünkü görevlerin kaçı GEÇMİŞTEN taşındı (moved) ve hâlâ yapılmadı (0-100).
  * carryForward geciken planlı görevlerin tarih'ini bugüne çeker ve moved=true işaretler;
  * bu yüzden gecikmeyi tarih farkından DEĞİL moved bayrağından okuruz (tarih hep bugün olur). */
-export function gecikmeYuzde(tasks = [], bugun = isoGun()) {
-  const bugunler = tasks.filter((t) => t.tarih === bugun)
+export function gecikmeYuzde(tasks: any = [], bugun: any = isoGun()) {
+  const bugunler = tasks.filter((t: any) => t.tarih === bugun)
   if (!bugunler.length) return 0
-  const geciken = bugunler.filter((t) => t.moved && t.status === 'planned').length
+  const geciken = bugunler.filter((t: any) => t.moved && t.status === 'planned').length
   return Math.round((geciken / bugunler.length) * 100)
 }
 
 /** Aralıklı tekrar: tamamlanan konu için 1-3-7-14-30 gün sonrası tekrar tarihleri. */
 export const TEKRAR_ARALIK = [1, 3, 7, 14, 30]
-export function tekrarTarihleri(baseIso) {
+export function tekrarTarihleri(baseIso: any) {
   const b = new Date(baseIso + 'T00:00:00')
   return TEKRAR_ARALIK.map((d) => {
     const x = new Date(b)
@@ -188,7 +188,7 @@ export function tekrarTarihleri(baseIso) {
 }
 
 /** "Takvimim nasıl?" için kompakt AI özeti (≤~150 karakter — /ask 500 sınırı korunur). */
-export function kompaktOzet({ track = 'YKS', kalanGun, zayif = [], done = [], lag = 0, hedefSaat }) {
+export function kompaktOzet({ track = 'YKS', kalanGun, zayif = [], done = [], lag = 0, hedefSaat }: any) {
   const p = [`EXAM:${track}${kalanGun != null ? ` d-${kalanGun}` : ''}`]
   if (zayif.length) p.push(`ZAYIF:${zayif.slice(0, 3).join(',')}`)
   if (done.length) p.push(`BITEN:${done.slice(0, 3).join(',')}`)
@@ -198,7 +198,7 @@ export function kompaktOzet({ track = 'YKS', kalanGun, zayif = [], done = [], la
 }
 
 /** LLM cevabından JSON direktif ayıkla: {oncelik:[...], tavsiye:"..."} | null. */
-export function parseDirektif(text) {
+export function parseDirektif(text: any) {
   if (!text) return null
   try {
     const m = String(text).match(/\{[\s\S]*\}/)
@@ -212,7 +212,7 @@ export function parseDirektif(text) {
 }
 
 /** Hedef cümlesi LLM cevabından {gunSayisi, gunlukSoru, tavsiye} ayıkla | null. */
-export function parseHedef(text) {
+export function parseHedef(text: any) {
   if (!text) return null
   try {
     const m = String(text).match(/\{[\s\S]*\}/)
@@ -235,7 +235,7 @@ export function parseHedef(text) {
  * blok sayısı (~20 soru/görev) ve görev başına soru ondan türetilir. Konu havuzu
  * gün sayısını doldurmazsa döner (pekiştirme/tekrar) — böylece hedef tempo korunur.
  */
-export function ufukPlanla({ konuData, checked, soruOzet = [], gunSayisi = 30, gunlukSoru, gunlukBlok = 4, baslangic = isoGun() }) {
+export function ufukPlanla({ konuData, checked, soruOzet = [], gunSayisi = 30, gunlukSoru, gunlukBlok = 4, baslangic = isoGun() }: any) {
   const havuzListe = havuz(konuData, checked, soruOzet)
   if (!havuzListe.length || gunSayisi < 1) return []
   let blok = gunlukBlok
@@ -245,8 +245,8 @@ export function ufukPlanla({ konuData, checked, soruOzet = [], gunSayisi = 30, g
     soruPer = Math.max(5, Math.round(gunlukSoru / blok))
   }
   blok = Math.max(1, Math.min(12, Math.round(blok || 4)))
-  const baslik = (c) => (c.tur === 'tekrar' ? `${c.konu} — tekrar & ${soruPer} soru` : `${c.konu} — ${soruPer} soru`)
-  const tasks = []
+  const baslik = (c: any) => (c.tur === 'tekrar' ? `${c.konu} — tekrar & ${soruPer} soru` : `${c.konu} — ${soruPer} soru`)
+  const tasks: any[] = []
   const start = new Date(baslangic + 'T00:00:00')
   const gun = Math.min(365, Math.round(gunSayisi))
   let hi = 0

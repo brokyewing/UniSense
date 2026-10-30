@@ -41,28 +41,28 @@ const TREND_YONU = {
 }
 
 // Küçük yüzdelik trend sparkline (düşük yüzdelik = iyi = grafikte yukarı)
-function YuzdelikTrend({ trend }) {
-  const pts = (trend || []).filter((t) => t.yuzdelik != null).slice().reverse() // eski→yeni
+function YuzdelikTrend({ trend }: any) {
+  const pts = (trend || []).filter((t: any) => t.yuzdelik != null).slice().reverse() // eski→yeni
   if (pts.length < 2) return null
   const W = 74, H = 22, P = 3
-  const ys = pts.map((p) => p.yuzdelik)
+  const ys = pts.map((p: any) => p.yuzdelik)
   const min = Math.min(...ys), range = Math.max(Math.max(...ys) - min, 0.01)
-  const points = pts.map((p, i) => ({
+  const points = pts.map((p: any, i: number) => ({
     x: P + (i / (pts.length - 1)) * (W - P * 2),
     // düşük yüzdelik = iyi → yukarıda (küçük y)
     y: P + ((p.yuzdelik - min) / range) * (H - P * 2),
   }))
-  const path = points.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`).join(' ')
+  const path = points.map((pt: any, i: number) => `${i === 0 ? 'M' : 'L'} ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`).join(' ')
   return (
     <svg width={W} height={H} className="block" aria-label={`${pts[0].yil}→${pts[pts.length - 1].yil} yüzdelik trendi`}>
       <path d={path} stroke="currentColor" strokeWidth="1.5" fill="none" className="text-accent-400" />
-      {points.map((pt, i) => <circle key={i} cx={pt.x} cy={pt.y} r="1.6" className="fill-accent-300" />)}
+      {points.map((pt: any, i: number) => <circle key={i} cx={pt.x} cy={pt.y} r="1.6" className="fill-accent-300" />)}
     </svg>
   )
 }
 
-function LiseKart({ lise, inList, onToggle }) {
-  const s = TUR_STIL[lise.tur] || TUR_STIL.diger
+function LiseKart({ lise, inList, onToggle }: any) {
+  const s = (TUR_STIL as any)[lise.tur] || TUR_STIL.diger
   return (
     <div className="rounded-xl bg-white/[0.03] border border-white/5 p-3">
       <div className="flex items-start justify-between gap-2">
@@ -102,10 +102,10 @@ function LiseKart({ lise, inList, onToggle }) {
       <div className="flex items-center justify-between mt-1.5 gap-1.5">
         <span className="text-[10px] text-slate-500 truncate">{lise.dil}</span>
         <span className="flex items-center gap-1.5 shrink-0">
-          {TREND_YONU[lise.trend_yonu] && (
-            <span title={TREND_YONU[lise.trend_yonu].title}
-              className={`text-[9px] px-1.5 py-0.5 rounded-full border ${TREND_YONU[lise.trend_yonu].cls}`}>
-              {TREND_YONU[lise.trend_yonu].label}
+          {(TREND_YONU as any)[lise.trend_yonu] && (
+            <span title={(TREND_YONU as any)[lise.trend_yonu].title}
+              className={`text-[9px] px-1.5 py-0.5 rounded-full border ${(TREND_YONU as any)[lise.trend_yonu].cls}`}>
+              {(TREND_YONU as any)[lise.trend_yonu].label}
             </span>
           )}
           <YuzdelikTrend trend={lise.trend} />
@@ -118,13 +118,13 @@ function LiseKart({ lise, inList, onToggle }) {
 // Robot çekirdeği — hem /lgs sayfasında hem Öneriler sekmesinde kullanılır
 export function LgsRobot() {
   const [yuzdelik, setYuzdelik] = useState('')
-  const [secliIller, setSecliIller] = useState([])  // çoklu il ('__ALL__' = Tüm Türkiye)
+  const [secliIller, setSecliIller] = useState<any[]>([])  // çoklu il ('__ALL__' = Tüm Türkiye)
   const [ilce, setIlce] = useState('')
-  const [ilceler, setIlceler] = useState([])
-  const [turler, setTurler] = useState([])
-  const [iller, setIller] = useState([])
+  const [ilceler, setIlceler] = useState<any[]>([])
+  const [turler, setTurler] = useState<any[]>([])
+  const [iller, setIller] = useState<any[]>([])
   const [pansiyon, setPansiyon] = useState('')      // '' | 'var' (yatılı) | 'yok' (gündüz)
-  const [data, setData] = useState(null)
+  const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const { user } = useAuth()
@@ -167,17 +167,17 @@ export function LgsRobot() {
     return () => { cancelled = true }
   }, [tekIl])
 
-  function ilEkle(v) {
+  function ilEkle(v: any) {
     if (!v) return
-    setSecliIller((prev) => {
+    setSecliIller((prev: any) => {
       if (v === '__ALL__') return ['__ALL__']            // Tüm Türkiye tek başına
-      const temiz = prev.filter((x) => x !== '__ALL__')  // il seçilince ALL düşer
+      const temiz = prev.filter((x: any) => x !== '__ALL__')  // il seçilince ALL düşer
       return temiz.includes(v) ? temiz : [...temiz, v]
     })
   }
 
-  function ilCikar(v) {
-    setSecliIller((prev) => prev.filter((x) => x !== v))
+  function ilCikar(v: any) {
+    setSecliIller((prev: any) => prev.filter((x: any) => x !== v))
   }
 
   // Tercih listesini canlı izle → kartlardaki "Listede/+ Tercih" senkron
@@ -202,9 +202,9 @@ export function LgsRobot() {
     return () => { cancelled = true }
   }, [profile, profileLoading])
 
-  function flash(msg) { setToast(msg); setTimeout(() => setToast(''), 2500) }
+  function flash(msg: any) { setToast(msg); setTimeout(() => setToast(''), 2500) }
 
-  async function toggleTercih(lise) {
+  async function toggleTercih(lise: any) {
     if (!user) { flash('Tercihe eklemek için giriş yap'); return }
     const key = lgsTercihKey(lise)
     try {
@@ -216,14 +216,14 @@ export function LgsRobot() {
         await addToLgsTercih(user.uid, lise, Date.now())
         flash('✓ Tercih listene eklendi — Tercihlerim sayfasında')
       }
-    } catch (e) { flash(e.message) }
+    } catch (e: any) { flash(e.message) }
   }
 
-  function toggleTur(t) {
-    setTurler((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]))
+  function toggleTur(t: any) {
+    setTurler((prev: any) => (prev.includes(t) ? prev.filter((x: any) => x !== t) : [...prev, t]))
   }
 
-  async function bul(e) {
+  async function bul(e: any) {
     e?.preventDefault()
     const y = parseFloat(yuzdelik)
     if (isNaN(y) || y < 0 || y > 100) {
@@ -254,7 +254,7 @@ export function LgsRobot() {
       // Aramada KULLANILAN filtreleri de sakla — özet satırı bunlardan render edilir
       // (form sonradan değişirse özet ekrandaki sonuçlarla çelişmesin).
       setData({ ...res, _iller: tumTurkiye ? [] : secliIller, _tekIl: tekIl, _ilce: (tekIl && ilce) ? ilce : null })
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message)
     } finally {
       setLoading(false)
@@ -359,14 +359,14 @@ export function LgsRobot() {
           <div>
             <label className="text-xs text-slate-300 mb-1 block">Lise türü <span className="text-slate-500">(boş = hepsi)</span></label>
             <div className="flex flex-wrap gap-1.5">
-              {TUR_FILTRE.map((t) => {
+              {TUR_FILTRE.map((t: any) => {
                 const aktif = turler.includes(t)
                 return (
                   <button key={t} type="button" onClick={() => toggleTur(t)}
                     className={`text-xs px-2.5 py-1 rounded-lg border transition ${
-                      aktif ? `${TUR_STIL[t].cls} font-medium` : 'border-white/10 text-slate-400 hover:bg-white/5'
+                      aktif ? `${(TUR_STIL as any)[t].cls} font-medium` : 'border-white/10 text-slate-400 hover:bg-white/5'
                     }`}>
-                    {TUR_STIL[t].label}
+                    {(TUR_STIL as any)[t].label}
                   </button>
                 )
               })}
@@ -423,7 +423,7 @@ export function LgsRobot() {
                       </div>
                     </div>
                     <div className="grid sm:grid-cols-2 gap-2">
-                      {items.map((l, i) => (
+                      {items.map((l: any, i: number) => (
                         <LiseKart key={`${l.okul}-${i}`} lise={l}
                           inList={tercihIds.has(lgsTercihKey(l))} onToggle={toggleTercih} />
                       ))}

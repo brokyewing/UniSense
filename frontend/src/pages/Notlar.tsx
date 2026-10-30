@@ -10,7 +10,7 @@ import { tasimaGerekli, damgala } from '../lib/bulutTasima'
 
 const LS = 'unisense_notlar'
 const loadLocal = () => { try { return JSON.parse(localStorage.getItem(LS) || '[]') } catch { return [] } }
-const saveLocal = (a) => { try { localStorage.setItem(LS, JSON.stringify(a)) } catch { /* noop */ } }
+const saveLocal = (a: any) => { try { localStorage.setItem(LS, JSON.stringify(a)) } catch { /* noop */ } }
 
 // Yapacaklar / serbest not — girişli bulut (notlar), girişsiz localStorage.
 export default function Notlar({ embedded = false }) {
@@ -22,7 +22,7 @@ export default function Notlar({ embedded = false }) {
     import('@/services/api').then(m => m.api.analyticsLog('page_view', '/notlar', user?.uid).catch(() => {}))
   }, [])
   const { notlar: allNotlar, loading: notlarLoading } = useNotlar()
-  const [notlar, setNotlar] = useState([])
+  const [notlar, setNotlar] = useState<any[]>([])
   const [metin, setMetin] = useState('')
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState('')
@@ -43,13 +43,13 @@ export default function Notlar({ embedded = false }) {
     }
   }, [user, allNotlar, notlarLoading])
 
-  function flash(m) { setToast(m); setTimeout(() => setToast(''), 2000) }
+  function flash(m: any) { setToast(m); setTimeout(() => setToast(''), 2000) }
 
   const gosterilen = useMemo(
-    () => (filtre === 'yapilacak' ? notlar.filter((n) => !n.tamamlandi) : notlar),
+    () => (filtre === 'yapilacak' ? notlar.filter((n: any) => !n.tamamlandi) : notlar),
     [notlar, filtre],
   )
-  const kalan = useMemo(() => notlar.filter((n) => !n.tamamlandi).length, [notlar])
+  const kalan = useMemo(() => notlar.filter((n: any) => !n.tamamlandi).length, [notlar])
 
   async function ekle() {
     const t = metin.trim()
@@ -59,19 +59,19 @@ export default function Notlar({ embedded = false }) {
     try {
       if (user) await import('@/services/firestore-study').then(m => m.addNot(user.uid, n))
       else { const a = [{ ...n, id: 'l' + Date.now(), createdAt: Date.now() }, ...notlar]; saveLocal(a); setNotlar(a) }
-      recordActivity(user?.uid).catch(() => {})
+      recordActivity(user?.uid ?? null).catch(() => {})
       setMetin('')
       flash('✓ Not eklendi')
-    } catch (e) { flash(e.message) } finally { setSaving(false) }
+    } catch (e: any) { flash(e.message) } finally { setSaving(false) }
   }
 
-  async function toggle(n) {
+  async function toggle(n: any) {
     const yeni = !n.tamamlandi
     if (user && !String(n.id).startsWith('l')) { await import('@/services/firestore-study').then(m => m.updateNot(user.uid, n.id, { tamamlandi: yeni })).catch(() => {}) }
     else { const a = notlar.map((x) => (x.id === n.id ? { ...x, tamamlandi: yeni } : x)); saveLocal(a); setNotlar(a) }
   }
 
-  async function sil(n) {
+  async function sil(n: any) {
     if (user && !String(n.id).startsWith('l')) { await import('@/services/firestore-study').then(m => m.removeNot(user.uid, n.id)).catch(() => {}) }
     else { const a = notlar.filter((x) => x.id !== n.id); saveLocal(a); setNotlar(a) }
   }

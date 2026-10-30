@@ -9,7 +9,7 @@ import { apiFetch } from '../lib/api'
 // Prerender bu rotayı içerik gömülü statik HTML olarak da üretir (crawler için).
 export default function OzetDetay() {
   const { slug } = useParams()
-  const [kart, setKart] = useState(null)
+  const [kart, setKart] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
 
@@ -19,7 +19,7 @@ export default function OzetDetay() {
     apiFetch('/api/v1/ozet-kartlar')
       .then((d) => {
         if (!live) return
-        const k = (d.kartlar || []).find((x) => x.slug === slug)
+        const k = (d.kartlar || []).find((x: any) => x.slug === slug)
         if (k) setKart(k); else setNotFound(true)
       })
       .catch(() => { if (live) setNotFound(true) })
@@ -57,7 +57,7 @@ export default function OzetDetay() {
             </h1>
             <p className="text-slate-400 text-sm mt-1">{kart.ozet}</p>
             <ul className="mt-4 space-y-1.5">
-              {(kart.maddeler || []).map((m, i) => (
+              {(kart.maddeler || []).map((m: any, i: number) => (
                 <li key={i} className="text-[14px] font-mono text-slate-100 bg-white/[0.03] border border-white/8 rounded-lg px-3 py-2">{m}</li>
               ))}
             </ul>

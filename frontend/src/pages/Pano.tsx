@@ -10,12 +10,12 @@ import { sureEkle, recordActivity } from '@/services/firestore-plan'
 
 const ODAK = 25 * 60
 const MOLA = 5 * 60
-const mmss = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
+const mmss = (s: any) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 
-function guestSureEkle(dk, ders) {
+function guestSureEkle(dk: any, ders: any) {
   let s
   try { s = JSON.parse(localStorage.getItem('unisense_sure') || '{}') } catch { s = {} }
-  const p = (n) => String(n).padStart(2, '0')
+  const p = (n: any) => String(n).padStart(2, '0')
   const d = new Date()
   const today = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}` // yerel gün
   s.sureDk = (s.sureDk || 0) + dk
@@ -48,12 +48,12 @@ export default function Pano({ embedded = false }) {
   }, [user])
 
   // Sayaç — DUVAR SAATİNE göre
-  const bitisRef = useRef(null)
+  const bitisRef = useRef<any>(null)
   useEffect(() => {
     if (!calisiyor) { bitisRef.current = null; return }
     bitisRef.current = Date.now() + kalan * 1000
     const t = setInterval(() => {
-      setKalan(Math.max(0, Math.round((bitisRef.current - Date.now()) / 1000)))
+      setKalan(Math.max(0, Math.round(((bitisRef.current || 0) - Date.now()) / 1000)))
     }, 1000)
     return () => clearInterval(t)
   }, [calisiyor])
@@ -75,7 +75,7 @@ export default function Pano({ embedded = false }) {
       const dk = ODAK / 60
       if (user) sureEkle(user.uid, dk, ders.trim()).catch(() => {})
       else guestSureEkle(dk, ders.trim())
-      recordActivity(user?.uid).catch(() => {})
+      recordActivity(user?.uid ?? null).catch(() => {})
       track('pomodoro_tamamlandi', { ders: ders.trim() || null })
       setToast('🎉 25 dk odak tamam! Kısa mola.')
       setTimeout(() => setToast(''), 2500)
@@ -87,7 +87,7 @@ export default function Pano({ embedded = false }) {
   }, [kalan, calisiyor, mod, ders, user, yukle])
 
   function sifirla() { setCalisiyor(false); setKalan(mod === 'odak' ? ODAK : MOLA) }
-  function modDegis(m) { setCalisiyor(false); setMod(m); setKalan(m === 'odak' ? ODAK : MOLA) }
+  function modDegis(m: any) { setCalisiyor(false); setMod(m); setKalan(m === 'odak' ? ODAK : MOLA) }
 
   const xp = useMemo(() => (stats ? hesaplaXP(stats) : 0), [stats])
   const sv = useMemo(() => seviyeBilgi(xp), [xp])
@@ -98,7 +98,7 @@ export default function Pano({ embedded = false }) {
     for (const [d, m] of Object.entries(stats.sureHafta)) if (now - new Date(d).getTime() < 7 * 864e5) dk += (m as number)
     return dk
   }, [stats])
-  const saat = (dk) => (dk >= 60 ? `${(dk / 60).toFixed(1)} sa` : `${dk} dk`)
+  const saat = (dk: any) => (dk >= 60 ? `${(dk / 60).toFixed(1)} sa` : `${dk} dk`)
 
   const ozet = [
     { Icon: ListChecks, renk: 'text-emerald-300', ad: 'Konu', deger: stats?.konuDone ?? 0 },

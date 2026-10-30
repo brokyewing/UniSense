@@ -7,8 +7,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { getIstatistik, siralamaBenim, siralamaKaydet, siralamaCik, siralamaListe, siralamaSira } from '@/services/firestore-plan'
 import { hesaplaXP, seviyeBilgi } from '../lib/oyun'
 
-const nf = (n) => (n || 0).toLocaleString('tr-TR')
-const madalya = (sira) => (sira === 1 ? '🥇' : sira === 2 ? '🥈' : sira === 3 ? '🥉' : null)
+const nf = (n: any) => (n || 0).toLocaleString('tr-TR')
+const madalya = (sira: any) => (sira === 1 ? '🥇' : sira === 2 ? '🥈' : sira === 3 ? '🥉' : null)
 
 export default function Siralama() {
   const nav = useNavigate()
@@ -20,9 +20,9 @@ export default function Siralama() {
   }, [])
 
   const [yukleniyor, setYukleniyor] = useState(true)
-  const [liste, setListe] = useState([])
-  const [benimAd, setBenimAd] = useState(null) // katıldıysa takma ad, yoksa null
-  const [siram, setSiram] = useState(null)
+  const [liste, setListe] = useState<any[]>([])
+  const [benimAd, setBenimAd] = useState<any>(null) // katıldıysa takma ad, yoksa null
+  const [siram, setSiram] = useState<any>(null)
   const [xp, setXp] = useState(0)
   const [seviye, setSeviye] = useState(1)
   const [adInput, setAdInput] = useState('')
@@ -34,7 +34,7 @@ export default function Siralama() {
     if (!loading && !isAuthed) nav('/giris')
   }, [loading, isAuthed, nav])
 
-  const yenile = useCallback(async (myXp) => {
+  const yenile = useCallback(async (myXp: any) => {
     const [top, sira] = await Promise.all([siralamaListe(100), siralamaSira(myXp)])
     setListe(top)
     setSiram(sira)
@@ -72,11 +72,11 @@ export default function Siralama() {
     setHata('')
     setIslem(true)
     try {
-      const ad = await siralamaKaydet(user.uid, adInput, seviye, xp)
+      const ad = await siralamaKaydet(user!.uid, adInput, seviye, xp)
       setBenimAd(ad)
       setDuzenle(false)
       await yenile(xp)
-    } catch (e) {
+    } catch (e: any) {
       setHata(e.message || 'Kaydedilemedi')
     } finally {
       setIslem(false)
@@ -87,11 +87,11 @@ export default function Siralama() {
     if (!confirm('Sıralamadan ayrılmak istediğine emin misin? Takma adın ve skorun listeden kaldırılır.')) return
     setIslem(true)
     try {
-      await siralamaCik(user.uid)
+      await siralamaCik(user!.uid)
       setBenimAd(null)
       setDuzenle(false)
       await yenile(xp)
-    } catch (e) {
+    } catch (e: any) {
       setHata(e.message || 'İşlem başarısız')
     } finally {
       setIslem(false)

@@ -23,7 +23,7 @@ import { TERCIH_LIMITS, MAX_SESSIONS_PER_USER } from '@/services/constants'
 
 // --- UI Components ---
 
-function Avatar({ kind, photoURL }) {
+function Avatar({ kind, photoURL }: any) {
   if (kind === 'user') {
     return photoURL ? (
       <img src={photoURL} alt="" className="w-9 h-9 shrink-0 rounded-full ring-2 ring-white/10" />
@@ -40,13 +40,13 @@ function Avatar({ kind, photoURL }) {
   )
 }
 
-function SafetyBadge({ level }) {
+function SafetyBadge({ level }: any) {
   const config = {
     safe: { label: 'Güvenli', icon: ShieldCheck, color: 'from-emerald-500 to-emerald-700', bg: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' },
     target: { label: 'Hedef', icon: Target, color: 'from-amber-500 to-orange-600', bg: 'bg-amber-500/15 text-amber-300 border-amber-500/30' },
     reach: { label: 'Üst Seviye', icon: Mountain, color: 'from-rose-500 to-fuchsia-600', bg: 'bg-rose-500/15 text-rose-300 border-rose-500/30' },
   }
-  const c = config[level] || config.target
+  const c = (config as any)[level] || config.target
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${c.bg} border`}>
       <c.icon size={9} /> {c.label}
@@ -54,7 +54,7 @@ function SafetyBadge({ level }) {
   )
 }
 
-function Message({ msg, userPhoto, tercihIds, onAddToTercih, onAddToPusula, onBulkAddCodes, busyCode }) {
+function Message({ msg, userPhoto, tercihIds, onAddToTercih, onAddToPusula, onBulkAddCodes, busyCode }: any) {
   const isUser = msg.role === 'user'
   const [sourcesOpen, setSourcesOpen] = useState(false)
   const hasDocs = !isUser && msg.docs && msg.docs.length > 0
@@ -139,7 +139,7 @@ function Message({ msg, userPhoto, tercihIds, onAddToTercih, onAddToPusula, onBu
                   className="overflow-hidden"
                 >
                   <div className="grid sm:grid-cols-2 gap-2 mt-2 pt-2">
-                    {msg.docs.slice(0, 8).map((d, i) => (
+                    {msg.docs.slice(0, 8).map((d: any, i: number) => (
                       <DocCard
                         key={i}
                         doc={d}
@@ -167,7 +167,7 @@ function Message({ msg, userPhoto, tercihIds, onAddToTercih, onAddToPusula, onBu
   )
 }
 
-function DocCard({ doc, isInTercih, onAddToTercih, onAddToPusula, busyCode }) {
+function DocCard({ doc, isInTercih, onAddToTercih, onAddToPusula, busyCode }: any) {
   const isProgram = !!doc.department_code
   const code = String(doc.department_code || '')
   const busy = busyCode === code
@@ -289,14 +289,14 @@ function DocCard({ doc, isInTercih, onAddToTercih, onAddToPusula, busyCode }) {
 export default function Search() {
   const [params, setParams] = useSearchParams()
   const [input, setInput] = useState(params.get('q') || '')
-  const [messages, setMessages] = useState([])
+  const [messages, setMessages] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
-  const [activeSessionId, setActiveSessionId] = useState(null)
+  const [activeSessionId, setActiveSessionId] = useState<any>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [busyCode, setBusyCode] = useState(null)
-  const endRef = useRef(null)
+  const [busyCode, setBusyCode] = useState<any>(null)
+  const endRef = useRef<any>(null)
   const { user, isAuthed } = useAuth()
-  const [examCtx, setExamCtx] = useState(null)
+  const [examCtx, setExamCtx] = useState<any>(null)
 
   // Analytics: sayfa görüntüleme
   useEffect(() => {
@@ -387,7 +387,7 @@ export default function Search() {
     setSidebarOpen(false)
   }
 
-  async function ask(text) {
+  async function ask(text: any) {
     if (!text.trim() || loading) return
 
     let sid = activeSessionId
@@ -395,9 +395,9 @@ export default function Search() {
     // Kullanıcı login + session yok → yeni session oluştur
     if (isAuthed && !sid) {
       try {
-        sid = await createSession(user.uid, text)
+        sid = await createSession(user!.uid, text)
         setActiveSessionId(sid)
-      } catch (e) {
+      } catch (e: any) {
         console.warn('Session oluşturulamadı:', e)
       }
     }
@@ -420,9 +420,9 @@ export default function Search() {
 
     // Multi-turn history
     const recentHistory = messages
-      .filter((m) => !m._temp && !m.loading && m.text)
+      .filter((m: any) => !m._temp && !m.loading && m.text)
       .slice(-8)
-      .map((m) => ({ role: m.role === 'bot' ? 'bot' : 'user', text: m.text }))
+      .map((m: any) => ({ role: m.role === 'bot' ? 'bot' : 'user', text: m.text }))
 
     try {
       const data = await api.ask(text, {
@@ -457,7 +457,7 @@ export default function Search() {
           { role: 'bot', text: botMsg.text, docs: botMsg.docs, latency: botMsg.latency_ms },
         ])
       }
-    } catch (e) {
+    } catch (e: any) {
       const errorMsg = e.name === 'ApiError'
         ? `⚠️ ${e.message}`
         : `⚠️ Sunucuya ulaşılamadı: ${e.message}\n\nBackend ayakta mı? (port 8002)`
@@ -476,7 +476,7 @@ export default function Search() {
   }
 
   // Handlers using hooks
-  function handleAddToPusula(doc) {
+  function handleAddToPusula(doc: any) {
     const groupName = doc.department_group_name || doc.department_name
     if (!groupName) return
     let payload
@@ -495,7 +495,7 @@ export default function Search() {
     }
   }
 
-  async function handleBulkAddCodes(codes) {
+  async function handleBulkAddCodes(codes: any) {
     if (!user) { showToast('Giriş yapman gerek', { type: 'error' }); return }
     const remaining = TERCIH_LIMITS.YKS - tercihIds.size
     if (codes.length > remaining) {
@@ -504,7 +504,7 @@ export default function Search() {
     }
     try {
       const data = await api.programsLookup(codes)
-      const found = (data.programs || []).filter((p) => p.found)
+      const found = (data.programs || []).filter((p: any) => p.found)
       let nextOrder = tercihIds.size + 1
       let added = 0, skipped = 0
       for (const p of found) {
@@ -525,12 +525,12 @@ export default function Search() {
         } catch { skipped++ }
       }
       showToast(`✓ ${added} program tercih listene eklendi${skipped > 0 ? ` (${skipped} atlandı)` : ''}`, { type: 'success' })
-    } catch (e) {
+    } catch (e: any) {
       showToast(`Hata: ${e.message || 'eklenemedi'}`, { type: 'error' })
     }
   }
 
-  async function handleAddToTercih(doc) {
+  async function handleAddToTercih(doc: any) {
     if (!user) { showToast('Giriş yapman gerek', { type: 'error' }); return }
     if (tercihIds.size >= TERCIH_LIMITS.YKS) {
       showToast('Tercih listesi 24 dolu', { type: 'warning' })
@@ -551,14 +551,14 @@ export default function Search() {
         quota: doc.quota ?? null,
       }, tercihIds.size + 1))
       showToast(`✓ "${doc.department_name}" tercih listene eklendi`, { type: 'success' })
-    } catch (e) {
+    } catch (e: any) {
       showToast(`Hata: ${e.message || 'eklenemedi'}`, { type: 'error' })
     } finally {
       setHookBusyCode(null)
     }
   }
 
-  function onSubmit(e) {
+  function onSubmit(e: any) {
     e.preventDefault()
     ask(input)
   }

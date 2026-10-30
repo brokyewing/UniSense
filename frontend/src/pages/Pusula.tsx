@@ -58,9 +58,9 @@ const TABS = [
 ]
 
 // === Mod A: İlgi Etiketi Seçimi (bölüm adı YOK) ===
-function CardsMode({ onResult }) {
+function CardsMode({ onResult }: any) {
   const { user } = useAuth()
-  const [taxonomy, setTaxonomy] = useState(null)
+  const [taxonomy, setTaxonomy] = useState<any>(null)
   const [selected, setSelected] = useState(new Set())
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
@@ -118,7 +118,7 @@ function CardsMode({ onResult }) {
     return () => { cancelled = true }
   }, [user, profile, profileLoading])
 
-  function toggle(id) {
+  function toggle(id: any) {
     setSelected((prev) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
@@ -147,11 +147,11 @@ function CardsMode({ onResult }) {
         try {
           await import('@/services/firestore-core').then(m => m.updateUserProfile(user.uid, { preferredInterests: interests }))
           setSavedToProfile(true)
-        } catch (e) {
+        } catch (e: any) {
           console.warn('İlgiler profile kaydedilemedi:', e)
         }
       }
-    } catch (e) {
+    } catch (e: any) {
       setError(e.message)
     } finally {
       setSubmitting(false)
@@ -194,7 +194,7 @@ function CardsMode({ onResult }) {
   if (!taxonomy) return null
 
   // Aramayı kategori bazlı uygula
-  const matchSearch = (id) =>
+  const matchSearch = (id: any) =>
     !search || id.toLocaleLowerCase('tr').includes(search.toLocaleLowerCase('tr'))
 
   return (
@@ -294,10 +294,10 @@ function CardsMode({ onResult }) {
 
       {/* Kategoriler — yatay olarak hepsi açık, her biri kendi pill seti */}
       <div className="space-y-3">
-        {taxonomy.categories.map((cat) => {
-          const filteredInterests = cat.interests.filter((iv) => matchSearch(iv.id))
+        {taxonomy.categories.map((cat: any) => {
+          const filteredInterests = cat.interests.filter((iv: any) => matchSearch(iv.id))
           if (search && filteredInterests.length === 0) return null
-          const selectedInCat = cat.interests.filter((iv) => selected.has(iv.id)).length
+          const selectedInCat = cat.interests.filter((iv: any) => selected.has(iv.id)).length
           return (
             <div key={cat.id} className="card !p-4">
               <div className="flex items-center justify-between mb-2.5">
@@ -318,7 +318,7 @@ function CardsMode({ onResult }) {
               </div>
 
               <div className="flex flex-wrap gap-1.5">
-                {filteredInterests.map((iv) => {
+                {filteredInterests.map((iv: any) => {
                   const isSelected = selected.has(iv.id)
                   const disabled = !isSelected && selected.size >= MAX_SELECTIONS
                   return (
@@ -447,8 +447,8 @@ function TextMode() {
 }
 
 // === Mod C: 5 Soru ===
-function QuizMode({ onResult }) {
-  const [answers, setAnswers] = useState({
+function QuizMode({ onResult }: any) {
+  const [answers, setAnswers] = useState<any>({
     math: 3, human: 3, creative: 3, research: 3, field: 3,
   })
   const [loading, setLoading] = useState(false)
@@ -463,7 +463,7 @@ function QuizMode({ onResult }) {
         body: { ...answers, top_k: 15 },
       })
       onResult({ ...data, axes: answers })
-    } catch (e) {
+    } catch (e: any) {
       setError(e.message)
     } finally {
       setLoading(false)
@@ -501,7 +501,7 @@ function QuizMode({ onResult }) {
                 return (
                   <button
                     key={v}
-                    onClick={() => setAnswers((a) => ({ ...a, [q.key]: v }))}
+                    onClick={() => setAnswers((a: any) => ({ ...a, [q.key]: v }))}
                     className={`py-2.5 rounded-lg text-sm font-medium transition ${
                       isActive
                         ? 'bg-gradient-to-br from-brand-500 to-accent-500 text-white shadow-lg'
@@ -560,7 +560,7 @@ function QuizMode({ onResult }) {
 }
 
 // === Sonuç kartları ===
-function ResultMatch({ match, index, onRemove }) {
+function ResultMatch({ match, index, onRemove }: any) {
   const hasMatchedInterests = match.matched_interests?.length > 0
   return (
     <motion.div
@@ -596,7 +596,7 @@ function ResultMatch({ match, index, onRemove }) {
                 seçtiğin ilgilerle eşleşen ({match.matched_count})
               </div>
               <div className="flex flex-wrap gap-1">
-                {match.matched_interests.map((iv) => (
+                {match.matched_interests.map((iv: any) => (
                   <span
                     key={iv}
                     className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
@@ -608,7 +608,7 @@ function ResultMatch({ match, index, onRemove }) {
             </>
           ) : (
             <div className="flex flex-wrap gap-1 mt-2">
-              {match.tags?.slice(0, 3).map((tag) => (
+              {match.tags?.slice(0, 3).map((tag: any) => (
                 <span
                   key={tag}
                   className="text-[10px] px-1.5 py-0.5 rounded bg-accent-500/10 text-accent-300"
@@ -648,7 +648,7 @@ function ResultMatch({ match, index, onRemove }) {
   )
 }
 
-function ResultsSection({ result, onClear, onRemoveMatch }) {
+function ResultsSection({ result, onClear, onRemoveMatch }: any) {
   const navigate = useNavigate()
   if (!result) return null
   const { matches, mode } = result
@@ -656,13 +656,13 @@ function ResultsSection({ result, onClear, onRemoveMatch }) {
   function goToRecommend() {
     if (!matches?.length) return
     const payload = {
-      names: matches.map((m) => m.name),
+      names: matches.map((m: any) => m.name),
       mode,
       timestamp: Date.now(),
     }
     try {
       sessionStorage.setItem('pusula_depts', JSON.stringify(payload))
-    } catch (e) {
+    } catch (e: any) {
       console.warn('sessionStorage yazılamadı', e)
     }
     navigate('/oneriler')
@@ -717,7 +717,7 @@ function ResultsSection({ result, onClear, onRemoveMatch }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4 gap-3">
         <AnimatePresence>
-          {matches.map((m, i) => (
+          {matches.map((m: any, i: number) => (
             <ResultMatch
               key={m.name}
               match={m}
@@ -739,18 +739,18 @@ export default function Pusula() {
   useEffect(() => {
     import('@/services/api').then(m => m.api.analyticsLog('page_view', '/pusula', null).catch(() => {}))
   }, [])
-  const [result, setResult] = useState(null)
-  const resultRef = useRef(null)
+  const [result, setResult] = useState<any>(null)
+  const resultRef = useRef<any>(null)
 
-  function handleResult(data) {
+  function handleResult(data: any) {
     setResult(data)
     setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
   }
 
-  function handleRemoveMatch(name) {
-    setResult((prev) => {
+  function handleRemoveMatch(name: any) {
+    setResult((prev: any) => {
       if (!prev) return prev
-      const filtered = prev.matches.filter((m) => m.name !== name)
+      const filtered = prev.matches.filter((m: any) => m.name !== name)
       if (filtered.length === 0) return null
       return { ...prev, matches: filtered }
     })

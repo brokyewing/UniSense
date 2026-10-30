@@ -36,7 +36,7 @@ const CATEGORIES = [
   { key: 'reach', label: 'Üst Seviye', icon: Mountain, color: 'from-rose-500 to-fuchsia-600', desc: 'Hedef üstü, denemeye değer' },
 ]
 
-const ScoreTypePicker = ({ value, onChange }) => (
+const ScoreTypePicker = ({ value, onChange }: any) => (
   <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
     {SCORE_TYPES.map((s) => {
       const active = value === s.v
@@ -53,7 +53,7 @@ const ScoreTypePicker = ({ value, onChange }) => (
   </div>
 )
 
-const SafetyBadge = ({ level }) => {
+const SafetyBadge = ({ level }: any) => {
   const config = {
     safe: { label: 'Güvenli', icon: ShieldCheck, bg: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' },
     target: { label: 'Hedef', icon: Target, bg: 'bg-amber-500/15 text-amber-300 border-amber-500/30' },
@@ -63,7 +63,7 @@ const SafetyBadge = ({ level }) => {
   return <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${c.bg} border`}><c.icon size={9} /> {c.label}</span>
 }
 
-const ItemCard = ({ item, isInTercih, onAdd, onRemove, busyCode }) => {
+const ItemCard = ({ item, isInTercih, onAdd, onRemove, busyCode }: any) => {
   const code = String(item.department_code)
   const busy = busyCode === code
   const safety = item.safety_level || (item.placement_probability != null
@@ -92,7 +92,7 @@ const ItemCard = ({ item, isInTercih, onAdd, onRemove, busyCode }) => {
           {item.scholarship && /ücretli|paralı/i.test(item.scholarship) && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-slate-300 border border-white/10">{item.scholarship}</span>}
           {item.education_language && item.education_language !== 'Türkçe' && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/25">{item.education_language}</span>}
           {item.duration_years && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/10">{item.duration_years} yıl</span>}
-          {item.osym_conditions?.slice(0, 2).map((c, i) => (
+          {item.osym_conditions?.slice(0, 2).map((c: any, i: number) => (
             <span key={i} title={c} className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/25 inline-flex items-center gap-0.5"><AlertTriangle size={9} /> {c.length > 28 ? c.slice(0, 28) + '…' : c}</span>
           ))}
         </div>
@@ -129,7 +129,7 @@ const ItemCard = ({ item, isInTercih, onAdd, onRemove, busyCode }) => {
   )
 }
 
-const CategoryGroup = ({ cat, items, renderItem }) => {
+const CategoryGroup = ({ cat, items, renderItem }: any) => {
   if (!items || items.length === 0) return null
   return (
     <div className="card">
@@ -144,7 +144,7 @@ const CategoryGroup = ({ cat, items, renderItem }) => {
   )
 }
 
-const TercihToggleButton = ({ inList, busy, onToggle }) => inList ? (
+const TercihToggleButton = ({ inList, busy, onToggle }: any) => inList ? (
   <button onClick={onToggle} disabled={busy} title="Tercih listesinden çıkar" className="text-xs px-2.5 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-rose-500/20 text-emerald-300 hover:text-rose-200 border border-emerald-500/30 hover:border-rose-500/40 transition inline-flex items-center gap-1 disabled:opacity-40"><Check size={12} /> Listemde</button>
 ) : (
   <button onClick={onToggle} disabled={busy} className="text-xs px-2.5 py-1.5 rounded-lg bg-accent-500/20 hover:bg-accent-500/40 text-accent-200 hover:text-white border border-accent-500/30 transition inline-flex items-center gap-1 disabled:opacity-40"><Plus size={12} /> Tercihe Ekle</button>
@@ -172,25 +172,25 @@ const renderKpssCard = (k, { tercihIds, busyCode, toggleTercih, eslesmeBadge, MA
   return (
     <div key={code} className="card glass-hover p-4 animate-fade-in-up">
       <div className="flex items-start justify-between gap-2"><div className="flex-1 min-w-0"><h4 className="font-semibold text-white text-sm">{k.unvan}</h4><div className="text-xs text-slate-400 mt-1">{k.kurum}</div><div className="flex items-center gap-2 mt-1.5 text-[11px] text-slate-500 flex-wrap">{k.il && <span className="flex items-center gap-1"><MapPin size={10} /> {k.il}</span>}<span>{k.duzey}</span><span className="font-mono">{k.puan_turu}</span>{eslesmeBadge(k.eslesme)}</div></div></div>
-      {k.ozel_kosullar?.length > 0 && <div className="mt-2 space-y-1">{k.ozel_kosullar.map((o, i) => <div key={i} className="text-[10px] text-amber-300 flex items-start gap-1"><AlertTriangle size={10} className="shrink-0 mt-0.5" /> {o}</div>)}</div>}
+      {k.ozel_kosullar?.length > 0 && <div className="mt-2 space-y-1">{k.ozel_kosullar.map((o: any, i: number) => <div key={i} className="text-[10px] text-amber-300 flex items-start gap-1"><AlertTriangle size={10} className="shrink-0 mt-0.5" /> {o}</div>)}</div>}
       <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-4 text-xs flex-wrap"><div><div className="text-slate-500">Geçmiş taban</div><div className="font-mono text-accent-300">{k.gecmis_taban != null ? k.gecmis_taban.toFixed(2) : 'bilinmiyor'}</div></div><div><div className="text-slate-500">Kontenjan</div><div className="font-mono text-cyber-cyan">{k.kontenjan ?? '?'}</div></div><div className="ml-auto"><TercihToggleButton inList={tercihIds.has(code)} busy={busyCode === code} onToggle={() => toggleTercih(k)} /></div></div>
     </div>
   )
 }
 
 // ===== DGS Panel =====
-const DgsOneriPanel = ({ user, profile }) => {
+const DgsOneriPanel = ({ user, profile }: any) => {
   const [puan, setPuan] = useState('')
   const [pt, setPt] = useState('SAY')
   const [bolum, setBolum] = useState('')
   const [il, setIl] = useState('')
   const [uniType, setUniType] = useState('all')
-  const [res, setRes] = useState(null)
+  const [res, setRes] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [onlisans, setOnlisans] = useState('')
-  const [onlisansListe, setOnlisansListe] = useState([])
-  const [gecis, setGecis] = useState(null)
+  const [onlisansListe, setOnlisansListe] = useState<any[]>([])
+  const [gecis, setGecis] = useState<any>(null)
   const [gecisLoading, setGecisLoading] = useState(false)
   const { tercihIds, busyCode, setBusyCode } = useDgsTercih()
   const { show: showToast } = useToast()
@@ -202,7 +202,7 @@ const DgsOneriPanel = ({ user, profile }) => {
   async function gecisAra() {
     if (!onlisans.trim()) return
     setGecisLoading(true)
-    try { const d = await api.dgsGecis(onlisans); setGecis(d.gruplar || []) } catch (e) { setError(e.message) } finally { setGecisLoading(false) }
+    try { const d = await api.dgsGecis(onlisans); setGecis(d.gruplar || []) } catch (e: any) { setError(e.message) } finally { setGecisLoading(false) }
   }
 
   function lisansSec(ad) { setBolum(ad); setGecis(null); const p = parseFloat(puan); if (p >= 100 && p <= 600) setTimeout(() => ara(ad), 0) }
@@ -216,14 +216,14 @@ const DgsOneriPanel = ({ user, profile }) => {
     try {
       const d = await api.dgsPrograms({ puan_turu: pt, puan: p, bolum: bolumOverride ?? bolum, il: il.trim() || null, uni_turu: uniType === 'all' ? null : uniType, oneri: true, limit: 100 })
       setRes({ ...d, puan: p })
-    } catch (e) { setError(e.message) } finally { setLoading(false) }
+    } catch (e: any) { setError(e.message) } finally { setLoading(false) }
   }
 
   function onSubmit(e) { e.preventDefault(); ara() }
 
   useEffect(() => { if (res) ara() }, [uniType])
 
-  async function toggleTercih(item) {
+  async function toggleTercih(item: any) {
     if (!user) { showToast('Giriş yapman gerek', { type: 'error' }); return }
     const code = String(item.department_code)
     setBusyCode(code); setError('')
@@ -233,7 +233,7 @@ const DgsOneriPanel = ({ user, profile }) => {
         if (tercihIds.size >= MAX_DGS_TERCIH) { setError(`DGS tercih listesi dolu (max ${MAX_DGS_TERCIH})`); return }
         await import('@/services/firestore-prefs').then(m => m.addToDgsTercih(user.uid, { ...item, puan_turu: pt }, tercihIds.size + 1))
       }
-    } catch (e) { setError(e.message) } finally { setBusyCode(null) }
+    } catch (e: any) { setError(e.message) } finally { setBusyCode(null) }
   }
 
   const groups = { safe: [], target: [], reach: [], bos: [] }
@@ -257,7 +257,7 @@ const DgsOneriPanel = ({ user, profile }) => {
           <div className="text-xs text-slate-300 font-medium">Önlisans bölümünü yaz → geçebileceğin lisans bölümlerini gör</div>
           <div className="flex gap-2"><input value={onlisans} onChange={e => setOnlisans(e.target.value)} list="dgs-onlisans-programlar" placeholder="örn: Bilgisayar Programcılığı" className="input-glass text-sm flex-1 !py-2" /><datalist id="dgs-onlisans-programlar">{onlisansListe.map(a => <option key={a} value={a} />)}</datalist><button type="button" onClick={gecisAra} disabled={gecisLoading || !onlisans.trim()} className="btn-ghost text-xs disabled:opacity-50">{gecisLoading ? <Loader2 size={12} className="animate-spin" /> : 'Geçiş yolları'}</button></div>
           {gecis && gecis.length === 0 && <div className="text-[11px] text-slate-500">Eşleşen alan bulunamadı — farklı yazımla dene</div>}
-          {gecis && gecis.map((g, gi) => (
+          {gecis && gecis.map((g: any, gi: number) => (
             <div key={`${g.alan}-${gi}`} className="space-y-1.5">
               <div className="text-[10px] text-slate-500">{g.alan}</div>
               <div className="flex flex-wrap gap-1.5">
@@ -286,12 +286,12 @@ const DgsOneriPanel = ({ user, profile }) => {
 }
 
 // ===== KPSS Panel =====
-const KpssOneriPanel = ({ user, profile }) => {
+const KpssOneriPanel = ({ user, profile }: any) => {
   const [puan, setPuan] = useState('')
   const [duzey, setDuzey] = useState('lisans')
   const [bolum, setBolum] = useState('')
-  const [secliIller, setSecliIller] = useState([])
-  const [res, setRes] = useState(null)
+  const [secliIller, setSecliIller] = useState<any[]>([])
+  const [res, setRes] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const { tercihIds, busyCode, setBusyCode } = useKpssTercih()
@@ -309,7 +309,7 @@ const KpssOneriPanel = ({ user, profile }) => {
     try {
       const d = await api.kpssKadrolar({ bolum, duzey, iller: secliIller.length ? secliIller : null, puan: p, limit: 100 })
       setRes({ ...d, puan: p })
-    } catch (e) { setError(e.message) } finally { setLoading(false) }
+    } catch (e: any) { setError(e.message) } finally { setLoading(false) }
   }
 
   async function toggleTercih(k) {
@@ -322,7 +322,7 @@ const KpssOneriPanel = ({ user, profile }) => {
         if (tercihIds.size >= MAX_KPSS_TERCIH) { setError(`KPSS tercih listesi dolu (max ${MAX_KPSS_TERCIH})`); return }
         await import('@/services/firestore-prefs').then(m => m.addToKpssTercih(user.uid, k, tercihIds.size + 1))
       }
-    } catch (e) { setError(e.message) } finally { setBusyCode(null) }
+    } catch (e: any) { setError(e.message) } finally { setBusyCode(null) }
   }
 
   const groups = { safe: [], target: [], reach: [], bilinmez: [] }
@@ -372,24 +372,24 @@ export default function Recommend() {
   const [score, setScore] = useState('')
   const [rank, setRank] = useState('')
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState(null)
+  const [result, setResult] = useState<any>(null)
   const [error, setError] = useState('')
   const [profileLoaded, setProfileLoaded] = useState(false)
   const [autofilled, setAutofilled] = useState(false)
-  const [pusulaState, setPusulaState] = useState(null)
+  const [pusulaState, setPusulaState] = useState<any>(null)
   const [tercihIds, setTercihIds] = useState(new Set())
-  const [busyCode, setBusyCode] = useState(null)
+  const [busyCode, setBusyCode] = useState<any>(null)
   const [tercihError, setTercihError] = useState('')
   const [uniType, setUniType] = useState('all')
   const [mode, setMode] = useState('YKS')
-  const [profile, setProfile] = useState(null)
+  const [profile, setProfile] = useState<any>(null)
   const [bolumInput, setBolumInput] = useState('')
   const userPickedMode = useRef(false)
   const { show: showToast } = useToast()
 
   const { tercihIds: yksTercihIds, busyCode: yksBusyCode, setBusyCode: setYksBusyCode } = useTercihList()
 
-  useEffect(() => { try { const raw = sessionStorage.getItem('pusula_depts'); if (raw) { const parsed = JSON.parse(raw); if (parsed?.names?.length) setPusulaState(parsed) } } catch (e) { console.warn('Pusula state okunamadı:', e) } }, [])
+  useEffect(() => { try { const raw = sessionStorage.getItem('pusula_depts'); if (raw) { const parsed = JSON.parse(raw); if (parsed?.names?.length) setPusulaState(parsed) } } catch (e: any) { console.warn('Pusula state okunamadı:', e) } }, [])
 
   useEffect(() => { if (!user) { setTercihIds(new Set()); return } const unsub = import('@/services/firestore-prefs').then(m => m.watchTercihList(user.uid, items => setTercihIds(new Set(items.map(i => String(i.department_code || i.id)))))); return () => { unsub.then((u: any) => u?.()) } }, [user])
 
@@ -398,14 +398,14 @@ export default function Recommend() {
     if (yksTercihIds.size >= TERCIH_LIMITS.YKS) { setTercihError('Tercih listesi 24 dolu'); return }
     const code = String(item.department_code)
     setYksBusyCode(code); setTercihError('')
-    try { await import('@/services/firestore-prefs').then(m => m.addToTercih(user.uid, item, yksTercihIds.size + 1)) } catch (e) { setTercihError(e.message || 'Eklenemedi') } finally { setYksBusyCode(null) }
+    try { await import('@/services/firestore-prefs').then(m => m.addToTercih(user.uid, item, yksTercihIds.size + 1)) } catch (e: any) { setTercihError(e.message || 'Eklenemedi') } finally { setYksBusyCode(null) }
   }
 
   async function handleRemoveFromTercih(item) {
     if (!user) return
     const code = String(item.department_code)
     setYksBusyCode(code); setTercihError('')
-    try { await import('@/services/firestore-prefs').then(m => m.removeFromTercih(user.uid, code)) } catch (e) { setTercihError(e.message || 'Çıkarılamadı') } finally { setYksBusyCode(null) }
+    try { await import('@/services/firestore-prefs').then(m => m.removeFromTercih(user.uid, code)) } catch (e: any) { setTercihError(e.message || 'Çıkarılamadı') } finally { setYksBusyCode(null) }
   }
 
   useEffect(() => {
@@ -442,7 +442,7 @@ export default function Recommend() {
       const manuel = bolumInput.split(',').map(s => s.trim()).filter(Boolean)
       const data = await api.recommend({ score_type: scoreType, score: score ? parseFloat(score) : null, rank: rank ? parseInt(rank, 10) : null, preferred_departments: [...(pusulaState?.names || []), ...manuel], preferred_uni_types: uniType === 'all' ? [] : [uniType] })
       setResult(data)
-    } catch (e) { setError(e.message) } finally { setLoading(false) }
+    } catch (e: any) { setError(e.message) } finally { setLoading(false) }
   }
 
   function onSubmit(e) { e.preventDefault(); runRecommend() }
@@ -497,7 +497,7 @@ export default function Recommend() {
                   return <CategoryGroup key={cat.key} cat={cat} items={items} renderItem={item => (
                     <div key={String(item.department_code)} className="card glass-hover p-4 group animate-fade-in-up">
                       <div className="flex items-start justify-between gap-3"><div className="flex-1 min-w-0"><h4 className="font-semibold text-white text-base truncate">{item.department_name}</h4><div className="flex items-center gap-2 mt-1 text-xs text-slate-400 flex-wrap"><span className="flex items-center gap-1"><Building2 size={11} /> {item.university_name}</span>{item.city && <span className="flex items-center gap-1"><MapPin size={11} /> {item.city}</span>}</div></div><div className="text-right shrink-0"><div className="text-xs text-slate-500">Uygunluk</div><div className="font-display font-bold text-lg text-accent-300">%{item.fit_score?.toFixed(0) ?? 0}</div></div></div>
-                      {(item.scholarship || (item.education_language && item.education_language !== 'Türkçe') || item.duration_years || item.osym_conditions?.length > 0) && <div className="flex flex-wrap items-center gap-1.5 mt-2">{item.scholarship && /burslu|ücretsiz/i.test(item.scholarship) && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">🎓 {item.scholarship}</span>}{item.scholarship && /ücretli|paralı/i.test(item.scholarship) && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-slate-300 border border-white/10">{item.scholarship}</span>}{item.education_language && item.education_language !== 'Türkçe' && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/25">{item.education_language}</span>}{item.duration_years && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/10">{item.duration_years} yıl</span>}{item.osym_conditions?.slice(0, 2).map((c, i) => <span key={i} title={c} className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/25 inline-flex items-center gap-0.5"><AlertTriangle size={9} /> {c.length > 28 ? c.slice(0, 28) + '…' : c}</span>)}</div>}
+                      {(item.scholarship || (item.education_language && item.education_language !== 'Türkçe') || item.duration_years || item.osym_conditions?.length > 0) && <div className="flex flex-wrap items-center gap-1.5 mt-2">{item.scholarship && /burslu|ücretsiz/i.test(item.scholarship) && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">🎓 {item.scholarship}</span>}{item.scholarship && /ücretli|paralı/i.test(item.scholarship) && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-slate-300 border border-white/10">{item.scholarship}</span>}{item.education_language && item.education_language !== 'Türkçe' && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/25">{item.education_language}</span>}{item.duration_years && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/10">{item.duration_years} yıl</span>}{item.osym_conditions?.slice(0, 2).map((c: any, i: number) => <span key={i} title={c} className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/25 inline-flex items-center gap-0.5"><AlertTriangle size={9} /> {c.length > 28 ? c.slice(0, 28) + '…' : c}</span>)}</div>}
                       {(item.last_year_base_rank || item.last_year_base_score || item.placement_probability != null) && <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-4 text-xs flex-wrap">{item.last_year_base_rank && <div><div className="text-slate-500">Sıra</div><div className="font-mono text-cyber-cyan">{item.last_year_base_rank.toLocaleString('tr')}</div></div>}{item.last_year_base_score && <div><div className="text-slate-500">Taban</div><div className="font-mono text-accent-300">{item.last_year_base_score.toFixed(2)}</div></div>}{item.trend?.filter(t => t.base_rank != null).length >= 2 && <div><div className="text-slate-500">Trend</div><MiniTrend trend={item.trend} compact /></div>}{item.placement_probability != null && (() => { const pct = Math.round(item.placement_probability * 100); const color = pct >= 75 ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/30' : pct >= 40 ? 'text-amber-300 bg-amber-500/10 border-amber-500/30' : 'text-rose-300 bg-rose-500/10 border-rose-500/30'; return <div className="ml-auto"><div className="text-slate-500 text-[10px] text-right">Yerleşme olasılığı</div><div className={`inline-flex items-center px-2 py-0.5 rounded-lg border font-mono font-semibold ${color}`} title="Geçen yılki sıraya göre tahmini sigmoid olasılık">%{pct}</div></div> })()}</div>}
                       {item.reason && <p className="mt-2 text-xs text-slate-400 italic">{item.reason}</p>}
                       <div className="mt-3 pt-3 border-t border-white/5">

@@ -228,7 +228,7 @@ const TABS = [
 //          LGS = 1/3 (3 yanlış 1 doğru). Field bazlı `pen` ile geçilir.
 // Negatif net NEGATİF kalır (ÖSYM kuralı): 0'a kırpılırsa çok yanlışlı
 // derslerde toplam puan olduğundan yüksek çıkar.
-function netOf(dogru, yanlis, penalty = 0.25) {
+function netOf(dogru: any, yanlis: any, penalty: any = 0.25) {
   const d = parseFloat(dogru) || 0
   const y = parseFloat(yanlis) || 0
   return d - penalty * y
@@ -239,14 +239,14 @@ function netOf(dogru, yanlis, penalty = 0.25) {
 //     Örn: 85 → 425, 100 → 500
 //   DGS (önlisans GPA): 4'lük sistem (0-4), × 25 = 100'lük, × 0.5 sonra
 //     AOBP = GPA × 25 × 0.5 (DGS yerleştirmeye eklenen)
-function diploma100ToObp(diploma100) {
+function diploma100ToObp(diploma100: any) {
   const d = parseFloat(diploma100)
   // Diploma notu 50-100 aralığındadır (min OBP 250); 50 altı henüz geçerli
   // bir not değil → 0 (yazarken ara değerler puana karışmasın)
   if (!d || d < 50 || d > 100) return 0
   return d * 5  // 50→250, 100→500
 }
-function gpa4ToAobp(gpa4) {
+function gpa4ToAobp(gpa4: any) {
   const d = parseFloat(gpa4)
   if (!d || d < 0 || d > 4) return 0
   return d * 25 * 0.5  // 4 → 50 puan eklenir
@@ -268,12 +268,12 @@ function weightedSum(nets: any, coefMap: any) {
   return anyNet ? total : 0
 }
 
-function tytHam(nets) {
+function tytHam(nets: any) {
   const w = weightedSum(nets, TYT_COEF)
   return w > 0 ? w + TYT_BIAS : 0
 }
 
-function aytWeighted(nets, type) {
+function aytWeighted(nets: any, type: any) {
   const coefMap =
     type === 'SAY' ? AYT_SAY_COEF
     : type === 'EA' ? AYT_EA_COEF
@@ -285,7 +285,7 @@ function aytWeighted(nets, type) {
 }
 
 // === KPSS puanı (yaklaşık P3/P93/P94 — GY+GK, düzeye göre etiket değişir)
-function kpssScore(nets) {
+function kpssScore(nets: any) {
   const gy = parseFloat(nets.kpss_gy) || 0
   const gk = parseFloat(nets.kpss_gk) || 0
   if (gy <= 0 && gk <= 0) return 0
@@ -293,8 +293,8 @@ function kpssScore(nets) {
 }
 
 // === DGS puanları — üç tür birden (SAY/EA/SÖZ farklı ağırlıklarla)
-function dgsScores(nets, aobp) {
-  const out = {}
+function dgsScores(nets: any, aobp: any) {
+  const out: any = {}
   for (const [type, coef] of Object.entries(DGS_COEF_BY_TYPE)) {
     const w = weightedSum(nets, coef)
     out[type] = w > 0 ? 100 + w + aobp : 0
@@ -305,7 +305,7 @@ function dgsScores(nets, aobp) {
 // === SAY/EA/SÖZ/DİL yerleştirme puanı — ÖSYM tek formülü:
 //   100 + TYT netleri×küçük katsayı (max 160) + AYT netleri (max 240) + OBP×0.12
 //   Tam net + tam OBP = 100 + 400 + 60 = 560 ✓
-function placementScore(nets, type, obp) {
+function placementScore(nets: any, type: any, obp: any) {
   const aytW = aytWeighted(nets, type)
   if (aytW <= 0) return 0
   const tytW = weightedSum(nets, TYT_PLACEMENT_COEF)
@@ -315,10 +315,10 @@ function placementScore(nets, type, obp) {
 // === ALES ağırlıklı net (puan türü başına). ALES puanı standart-puandır → sabit
 // ham→puan yok; ağırlıklı net göreli bir göstergedir (0-50 bandı, resmi 0.75/0.25
 // ağırlıklarıyla). Kesin puan sınav sonrası ÖSYM'ce belirlenir.
-function alesWeightedNets(nets) {
+function alesWeightedNets(nets: any) {
   const say = nets.ales_say || 0
   const soz = nets.ales_soz || 0
-  const out = {}
+  const out: any = {}
   for (const [type, w] of Object.entries(ALES_WEIGHTS)) {
     out[type] = (say !== 0 || soz !== 0) ? w.ales_say * say + w.ales_soz * soz : 0
   }
@@ -327,7 +327,7 @@ function alesWeightedNets(nets) {
 
 // === LGS puanı (MSP, yaklaşık 100-500). Doğrusal: 100 + (ağırlıklı_net/270)×400.
 // Resmi yöntem her dersin netini ayrı standartlaştırır; bu birinci-derece yaklaşım.
-function lgsScore(nets) {
+function lgsScore(nets: any) {
   let wn = 0
   let any = false
   for (const f of LGS_FIELDS) {
@@ -340,12 +340,12 @@ function lgsScore(nets) {
 }
 
 // === AGS toplam net (kesin). Puan yok — standart-puan + ilk uygulama.
-function agsTotalNet(nets) {
+function agsTotalNet(nets: any) {
   return AGS_FIELDS.reduce((s, f) => s + (nets[f.id] || 0), 0)
 }
 
 
-function NetInput({ field, value, onChange }) {
+function NetInput({ field, value, onChange }: any) {
   const dKey = `${field.id}_d`
   const yKey = `${field.id}_y`
   const d = value[dKey] ?? ''
@@ -360,7 +360,7 @@ function NetInput({ field, value, onChange }) {
   const dMax = field.max - (yNum || 0)
   const yMax = field.max - (dNum || 0)
 
-  function handleD(val) {
+  function handleD(val: any) {
     const v = parseFloat(val)
     // Eğer D + mevcut Y > max ise D'yi sınırla
     if (val !== '' && !isNaN(v)) {
@@ -370,7 +370,7 @@ function NetInput({ field, value, onChange }) {
       onChange(dKey, val)
     }
   }
-  function handleY(val) {
+  function handleY(val: any) {
     const v = parseFloat(val)
     if (val !== '' && !isNaN(v)) {
       const cappedY = Math.min(v, field.max - (dNum || 0))
@@ -426,14 +426,14 @@ export default function Hesap() {
   const [tab, setTab] = useState('SAY')
   const [diploma100, setDiploma100] = useState('') // YKS: 100'lük, örn: 85
   const [gpa4, setGpa4] = useState('')             // DGS: 4'lük, örn: 3.2
-  const [data, setData] = useState({}) // {tyt_tr_d: 35, tyt_tr_y: 5, ...}
+  const [data, setData] = useState<any>({}) // {tyt_tr_d: 35, tyt_tr_y: 5, ...}
   const [saving, setSaving] = useState(false)
-  const [savedMsg, setSavedMsg] = useState(null)
-  const [simResults, setSimResults] = useState(null)
+  const [savedMsg, setSavedMsg] = useState<any>(null)
+  const [simResults, setSimResults] = useState<any>(null)
   const [simLoading, setSimLoading] = useState(false)
   const [simError, setSimError] = useState('')
   const [uniPref, setUniPref] = useState('all') // all | Devlet | Vakıf — profilden dolar
-  const [siralama, setSiralama] = useState(null) // YKS puanından tahmini başarı sırası
+  const [siralama, setSiralama] = useState<any>(null) // YKS puanından tahmini başarı sırası
 
   // YKS için OBP (250-500), DGS için AOBP (0-50 puan)
   const obp = diploma100ToObp(diploma100)   // YKS yerleştirmesinde × 0.12 ile eklenir
@@ -464,8 +464,8 @@ export default function Hesap() {
     return () => { cancelled = true }
   }, [profile, profileLoading])
 
-  function setField(key, val) {
-    setData((prev) => ({ ...prev, [key]: val }))
+  function setField(key: any, val: any) {
+    setData((prev: any) => ({ ...prev, [key]: val }))
   }
 
   // Tüm net'leri hesapla
@@ -590,7 +590,7 @@ export default function Hesap() {
         },
       })
       setSimResults(data)
-    } catch (e) {
+    } catch (e: any) {
       setSimError(e.message)
     } finally {
       setSimLoading(false)
@@ -637,7 +637,7 @@ export default function Hesap() {
         }
       } else if (tab === 'DGS' && result.finalScore > 100 && result.dgsScores) {
         // En yüksek çıkan türü profile yaz
-        const bestType = ['SAY', 'EA', 'SÖZ'].reduce((a, b) =>
+        const bestType = ['SAY', 'EA', 'SÖZ'].reduce((a: any, b: any) =>
           (result.dgsScores[a] >= result.dgsScores[b] ? a : b))
         profilePatch.dgs = {
           score: parseFloat(result.dgsScores[bestType].toFixed(2)),
@@ -659,7 +659,7 @@ export default function Hesap() {
         text: `✓ Hesap kaydedildi${profilePatch.score ? ` (${tab} puanı: ${profilePatch.score})` : ''}.${feedsTercih ? ' Tercih sayfasında otomatik dolar.' : ''}`,
       })
       setTimeout(() => setSavedMsg(null), 4500)
-    } catch (e) {
+    } catch (e: any) {
       setSavedMsg({ type: 'error', text: e.message || 'Kayıt hata' })
     } finally {
       setSaving(false)
@@ -886,7 +886,7 @@ export default function Hesap() {
                     <div key={t} className="rounded-xl bg-black/20 py-3">
                       <div className="text-[10px] text-slate-400">{t}</div>
                       <div className="text-2xl font-display font-bold bg-gradient-to-br from-amber-300 to-rose-400 bg-clip-text text-transparent">
-                        {result.dgsScores[t] > 100 ? result.dgsScores[t].toFixed(1) : '—'}
+                        {(result.dgsScores as any)[t] > 100 ? (result.dgsScores as any)[t].toFixed(1) : '—'}
                       </div>
                     </div>
                   ))}
@@ -897,7 +897,7 @@ export default function Hesap() {
                     <div key={t} className="rounded-xl bg-black/20 py-3">
                       <div className="text-[10px] text-slate-400">{t}</div>
                       <div className="text-2xl font-display font-bold bg-gradient-to-br from-amber-300 to-rose-400 bg-clip-text text-transparent">
-                        {result.alesNets[t] > 0 ? result.alesNets[t].toFixed(1) : '—'}
+                        {(result.alesNets as any)[t] > 0 ? (result.alesNets as any)[t].toFixed(1) : '—'}
                       </div>
                     </div>
                   ))}
@@ -923,11 +923,11 @@ export default function Hesap() {
                 {tab === 'ALES' && (result.sayNet > 0 || result.sozNet > 0) && (
                   <span>Sayısal net: {result.sayNet.toFixed(2)} · Sözel net: {result.sozNet.toFixed(2)}</span>
                 )}
-                {isYksPlacement && tab !== 'TYT' && result.tytHam > 0 && (
-                  <span>TYT ham: {result.tytHam.toFixed(1)}</span>
+                {isYksPlacement && tab !== 'TYT' && (result.tytHam || 0) > 0 && (
+                  <span>TYT ham: {(result.tytHam || 0).toFixed(1)}</span>
                 )}
-                {result.ham > 0 && (
-                  <span>{tab} ham: {result.ham.toFixed(1)}</span>
+                {(result.ham || 0) > 0 && (
+                  <span>{tab} ham: {(result.ham || 0).toFixed(1)}</span>
                 )}
                 {tab === 'DGS' && aobp > 0 && (
                   <span>AOBP: +{aobp.toFixed(1)}</span>
@@ -1114,7 +1114,7 @@ export default function Hesap() {
                       </div>
                     </div>
                     <div className="grid sm:grid-cols-2 gap-2">
-                      {items.map((it, i) => (
+                      {items.map((it: any, i: number) => (
                         <div key={i} className="text-xs p-2.5 rounded-lg bg-white/[0.03] border border-white/5">
                           <div className="font-medium text-white truncate">{it.department_name}</div>
                           <div className="flex items-center gap-2 mt-0.5 text-[10px] text-slate-400">

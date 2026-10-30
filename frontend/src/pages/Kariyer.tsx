@@ -35,13 +35,13 @@ const SIRA_SEC = [
 ]
 const BOYUT = 30
 
-function kalanGun(sonBasvuru) {
+function kalanGun(sonBasvuru: any) {
   if (!sonBasvuru) return null
   const gun = Math.ceil((new Date(sonBasvuru).getTime() - new Date().getTime()) / 86400000)
   return gun
 }
 
-function SinyalKart({ ilan, bolumAd }) {
+function SinyalKart({ ilan, bolumAd }: any) {
   const eslesme = Object.entries(ilan.detay?.eslesme || {}).filter(([, c]) => (c as number) > 0)
   const kalan = kalanGun(ilan.son_basvuru)
   const yer = [ilan.il || ilan.sehir, ilan.ilce].filter(Boolean).join(' / ')
@@ -62,7 +62,7 @@ function SinyalKart({ ilan, bolumAd }) {
             {yer && <span>{yer}</span>}
             {ilan.calisma_sekli && ilan.calisma_sekli !== 'bilinmiyor' && (
               <span className="px-1.5 py-0.5 rounded-full border bg-sky-500/15 text-sky-300 border-sky-500/30">
-                {CALISMA_AD[ilan.calisma_sekli] || ilan.calisma_sekli}
+                {(CALISMA_AD as any)[ilan.calisma_sekli] || ilan.calisma_sekli}
               </span>
             )}
             <span>{ilan.tarih}</span>
@@ -96,7 +96,7 @@ function SinyalKart({ ilan, bolumAd }) {
       )}
       {(ilan.bolumler?.length > 0) && (
         <div className="flex flex-wrap gap-1.5 mt-1.5">
-          {ilan.bolumler.map((b) => (
+          {ilan.bolumler.map((b: any) => (
             <span key={b} className="text-[10px] px-2 py-0.5 rounded-full border bg-teal-500/10 text-teal-200 border-teal-500/30">
               🎓 {bolumAd?.(b) || b}
             </span>
@@ -109,7 +109,7 @@ function SinyalKart({ ilan, bolumAd }) {
             {ilan.detay.pdfler.length} PDF listesi
           </summary>
           <ul className="mt-1.5 space-y-1 max-h-40 overflow-y-auto pr-2">
-            {ilan.detay.pdfler.map((pdf) => (
+            {ilan.detay.pdfler.map((pdf: any) => (
               <li key={pdf}>
                 <a href={pdf} target="_blank" rel="noreferrer" className="hover:text-accent-300 break-all">
                   {pdf.split('/').pop()}
@@ -123,9 +123,9 @@ function SinyalKart({ ilan, bolumAd }) {
   )
 }
 
-function KaynakKart({ kaynak }) {
-  const s = TIP_STIL[kaynak.tip] || TIP_STIL.portal
-  const Ikon = HAT_IKON[kaynak.hat] || Globe
+function KaynakKart({ kaynak }: any) {
+  const s = (TIP_STIL as any)[kaynak.tip] || (TIP_STIL as any).portal
+  const Ikon = (HAT_IKON as any)[kaynak.hat] || Globe
   return (
     <a
       href={kaynak.url} target="_blank" rel="noreferrer"
@@ -152,9 +152,9 @@ function KaynakKart({ kaynak }) {
 function useFiltreDurumu() {
   // Filtre durumu URL'de yaşar — paylaşılabilir link (F1.5)
   const [params, setParams] = useSearchParams()
-  const al = (k, varsayilan = '') => params.get(k) ?? varsayilan
-  const diziAl = (k) => params.getAll(k)
-  const yaz = (yeni) => {
+  const al = (k: any, varsayilan = '') => params.get(k) ?? varsayilan
+  const diziAl = (k: any) => params.getAll(k)
+  const yaz = (yeni: any) => {
     const p = new URLSearchParams()
     for (const [k, v] of Object.entries(yeni)) {
       if (Array.isArray(v)) v.forEach((x) => x && p.append(k, x))
@@ -175,16 +175,16 @@ export default function Kariyer() {
   const kpss = al('kpss'), sira = al('sira', 'tarih_desc')
   const sadeceYeni = al('yeni') === '1'
 
-  const [ilanlar, setIlanlar] = useState([])
+  const [ilanlar, setIlanlar] = useState<any[]>([])
   const [toplam, setToplam] = useState(0)
-  const [kaynaklar, setKaynaklar] = useState([])
-  const [bolumler, setBolumler] = useState([])
+  const [kaynaklar, setKaynaklar] = useState<any[]>([])
+  const [bolumler, setBolumler] = useState<any[]>([])
   const [facet, setFacet] = useState<any>({})
-  const [meta, setMeta] = useState(null)
+  const [meta, setMeta] = useState<any>(null)
   const [yukleniyor, setYukleniyor] = useState(true)
   const [hata, setHata] = useState('')
 
-  const bolumAd = (id) => (bolumler.find((b) => b.id === id)?.label || id)
+  const bolumAd = (id: any) => (bolumler.find((b: any) => b.id === id)?.label || id)
   const filtreAnahtari = JSON.stringify({ hat, bolum, q, bolge, il, ilce, calisma, istihdam, deneyim, kpss, sira, sadeceYeni })
 
   useEffect(() => {
@@ -224,7 +224,7 @@ export default function Kariyer() {
           setMeta(m)
           setBolumler(b.bolumler || [])
         }
-      } catch (e) {
+      } catch (e: any) {
         if (!iptal) setHata(e.message || 'Veri alınamadı')
       } finally {
         if (!iptal) setYukleniyor(false)
@@ -235,24 +235,24 @@ export default function Kariyer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtreAnahtari])
 
-  const guncelle = (yama) => {
+  const guncelle = (yama: any) => {
     const mevcut: any = { hat, bolum, q, bolge, il, ilce, calisma, istihdam, deneyim, kpss, sira }
     if (sadeceYeni) mevcut.yeni = '1'
     yaz({ ...mevcut, ...yama })
   }
-  const cokluDegistir = (alan, deger) => {
+  const cokluDegistir = (alan: any, deger: any) => {
     const liste = alan === 'calisma' ? calisma : []
-    const yeni = liste.includes(deger) ? liste.filter((x) => x !== deger) : [...liste, deger]
+    const yeni = liste.includes(deger) ? liste.filter((x: any) => x !== deger) : [...liste, deger]
     guncelle({ [alan]: yeni })
   }
 
   const ilSecenekleri = useMemo(() => {
-    const iller = facet.il || []
-    return bolge ? iller.filter((x) => x.bolge === bolge) : iller
+    const iller = (facet as any).il || []
+    return bolge ? iller.filter((x: any) => x.bolge === bolge) : iller
   }, [facet, bolge])
   const dahaVar = ilanlar.length < toplam
 
-  const secimStil = (aktif) => `px-3 py-1.5 rounded-lg text-xs font-medium transition border whitespace-nowrap ${
+  const secimStil = (aktif: any) => `px-3 py-1.5 rounded-lg text-xs font-medium transition border whitespace-nowrap ${
     aktif
       ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white border-transparent'
       : 'text-slate-300 border-white/10 hover:bg-white/5'
@@ -307,7 +307,7 @@ export default function Kariyer() {
               <button onClick={() => guncelle({ bolum: '' })} className={secimStil(!bolum)}>
                 Tümü
               </button>
-              {bolumler.map((b) => (
+              {bolumler.map((b: any) => (
                 <button key={b.id} onClick={() => guncelle({ bolum: bolum === b.id ? '' : b.id })} className={secimStil(bolum === b.id)}>
                   {b.label}{b.sayi > 0 ? ` · ${b.sayi}` : ''}
                 </button>
@@ -383,7 +383,7 @@ export default function Kariyer() {
                 className="input-glass !py-2 text-xs"
               >
                 <option value="">Bölge: Tümü</option>
-                {(facet.bolge || []).map((x) => (
+                {((facet as any).bolge || []).map((x: any) => (
                   <option key={x.id} value={x.id}>{x.id} ({x.sayi})</option>
                 ))}
               </select>
@@ -393,7 +393,7 @@ export default function Kariyer() {
                 className="input-glass !py-2 text-xs"
               >
                 <option value="">İl: Tümü{bolge ? ` (${bolge})` : ''}</option>
-                {ilSecenekleri.map((x) => (
+                {ilSecenekleri.map((x: any) => (
                   <option key={x.id} value={x.id}>{x.id} ({x.sayi})</option>
                 ))}
               </select>
@@ -417,7 +417,7 @@ export default function Kariyer() {
                 </button>
               ))}
               <span className="text-slate-600 mx-1">|</span>
-              {KPSS_SEC.map((k) => (
+              {KPSS_SEC.map((k: any) => (
                 <button
                   key={k.id}
                   onClick={() => guncelle({ kpss: k.id })}
@@ -477,7 +477,7 @@ export default function Kariyer() {
               <BookOpen size={12} /> {kaynaklar.length} kaynak — karta tıkla, resmî sitede ilana git
             </p>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4 gap-3">
-              {kaynaklar.map((k) => <KaynakKart key={k.id} kaynak={k} />)}
+              {kaynaklar.map((k: any) => <KaynakKart key={k.id} kaynak={k} />)}
             </div>
           </motion.div>
         )}
@@ -507,7 +507,7 @@ export default function Kariyer() {
     try {
       const i = await apiFetch(`/api/v1/kariyer/ilanlar?${params}`)
       setIlanlar((onceki) => [...onceki, ...(i.ilanlar || [])])
-    } catch (e) {
+    } catch (e: any) {
       setHata(e.message || 'Veri alınamadı')
     }
   }

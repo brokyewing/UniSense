@@ -25,8 +25,8 @@ const KART_SINAVLARI = {
   'mol-temel-kimya': ['YKS'],                                     // TYT kimya
 }
 // Haritada yoksa (ileride eklenen kart): JSON'daki sinavlar alanı, o da yoksa YKS.
-function kartSinavlari(k) {
-  return KART_SINAVLARI[k.slug] || (Array.isArray(k.sinavlar) && k.sinavlar.length ? k.sinavlar : ['YKS'])
+function kartSinavlari(k: any) {
+  return (KART_SINAVLARI as any)[k.slug] || (Array.isArray(k.sinavlar) && k.sinavlar.length ? k.sinavlar : ['YKS'])
 }
 
 // Formül / konu özeti kartları — sınav yoluna (examTrack) göre + aranabilir.
@@ -39,7 +39,7 @@ export default function Ozetler({ embedded = false }) {
   useEffect(() => {
     import('@/services/api').then(m => m.api.analyticsLog('page_view', '/ozetler', user?.uid).catch(() => {}))
   }, [])
-  const [kartlar, setKartlar] = useState([])
+  const [kartlar, setKartlar] = useState<any[]>([])
   const [notLine, setNotLine] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -56,7 +56,7 @@ export default function Ozetler({ embedded = false }) {
   // Varsayılan sınav = profildeki examTrack (kullanıcı seçiciden değiştirebilir)
   useEffect(() => {
     if (profileLoading || !profile) return
-    const t = profile.examTrack
+    const t = (profile as any).examTrack
     if (SINAVLAR.includes(t)) setSinav(t)
   }, [profile, profileLoading])
 
@@ -131,7 +131,7 @@ export default function Ozetler({ embedded = false }) {
                       className="shrink-0 text-slate-500 hover:text-amber-300"><ArrowUpRight size={16} /></Link>
                   </div>
                   <ul className="mt-2.5 space-y-1">
-                    {(k.maddeler || []).map((m, i) => (
+                    {(k.maddeler || []).map((m: any, i: number) => (
                       <li key={i} className="text-[13px] font-mono text-slate-200 bg-white/[0.03] border border-white/8 rounded-lg px-2.5 py-1.5">{m}</li>
                     ))}
                   </ul>

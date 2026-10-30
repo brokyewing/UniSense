@@ -12,20 +12,20 @@ import { apiFetch } from '../lib/api'
 import { api } from '@/services/api'
 
 
-function numberOrDash(v, fmt = (x) => x) {
+function numberOrDash(v: any, fmt = (x: any) => x) {
   if (v === null || v === undefined) return '—'
   try { return fmt(v) } catch { return '—' }
 }
 
-function fmtRank(v) {
+function fmtRank(v: any) {
   return v == null ? '—' : v.toLocaleString('tr-TR')
 }
 
-function fmtScore(v) {
+function fmtScore(v: any) {
   return v == null ? '—' : Number(v).toFixed(2)
 }
 
-function fmtFee(it) {
+function fmtFee(it: any) {
   const v = it?.fee_try
   if (v) return v.toLocaleString('tr-TR') + ' ₺/yıl'
   // Ücret boş: yalnız DEVLET üniversitesiyse ücretsiz; vakıf/özelde veri yok demektir
@@ -35,7 +35,7 @@ function fmtFee(it) {
 
 
 /** Mini SVG line chart for trend (year → rank). Y axis ters (küçük = yukarı). */
-function DiffMark({ field, code, diffs }) {
+function DiffMark({ field, code, diffs }: any) {
   const d = diffs?.[field]
   if (!d) return null
   if (d.best_code === code) {
@@ -69,7 +69,7 @@ function Row({ label, items, fmt, diffField, diffs, Icon }: { label: string; ite
 }
 
 
-function ProgramHeader({ item, onRemove }) {
+function ProgramHeader({ item, onRemove }: any) {
   if (!item.found) {
     return (
       <div className="card border-rose-500/30 bg-rose-500/5">
@@ -139,7 +139,7 @@ export default function Compare() {
     [searchParams],
   )
 
-  const [data, setData] = useState(null)
+  const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [aiSummary, setAiSummary] = useState('')
@@ -183,13 +183,13 @@ export default function Compare() {
 
   // AI comparison summary
   useEffect(() => {
-    if (!data || !data.items || data.items.filter((it) => it.found).length < 2) {
+    if (!data || !data.items || data.items.filter((it: any) => it.found).length < 2) {
       setAiSummary('')
       return
     }
-    const found = data.items.filter((it) => it.found)
-    const names = found.map((it) => `${it.department_name} (${it.university_name})`).join(', ')
-    const summary = found.map((it) => {
+    const found = data.items.filter((it: any) => it.found)
+    const names = found.map((it: any) => `${it.department_name} (${it.university_name})`).join(', ')
+    const summary = found.map((it: any) => {
       const parts = [it.department_name]
       if (it.base_rank != null) parts.push(`sıra: ${it.base_rank.toLocaleString('tr-TR')}`)
       if (it.base_score != null) parts.push(`puan: ${it.base_score.toFixed(2)}`)
@@ -207,36 +207,36 @@ export default function Compare() {
       .finally(() => setAiLoading(false))
   }, [data])
 
-  function removeCode(code) {
+  function removeCode(code: any) {
     const remaining = codesFromUrl.filter((c) => c !== code)
     setSearchParams({ d: remaining.join(',') })
   }
 
   const items = data?.items || []
   const diffs = data?.diffs || {}
-  const found = items.filter((it) => it.found)
+  const found = items.filter((it: any) => it.found)
 
   // Burs/Ücret ve İstihdam bilgilerini yükle
-  const [scholarshipData, setScholarshipData] = useState({})
-  const [employmentData, setEmploymentData] = useState({})
+  const [scholarshipData, setScholarshipData] = useState<any>({})
+  const [employmentData, setEmploymentData] = useState<any>({})
 
   useEffect(() => {
     if (found.length === 0) return
-    const codes = found.map((it) => it.code)
+    const codes = found.map((it: any) => it.code)
     // Burs bilgisi
-    Promise.all(codes.map((code) =>
+    Promise.all(codes.map((code: any) =>
       api.scholarshipByProgram(code).catch(() => null)
     )).then((results) => {
-      const map = {}
-      results.forEach((r, i) => { if (r) map[codes[i]] = r })
+      const map: any = {}
+      results.forEach((r: any, i: number) => { if (r) map[codes[i]] = r })
       setScholarshipData(map)
     })
     // İstihdam bilgisi
-    Promise.all(codes.map((code) =>
+    Promise.all(codes.map((code: any) =>
       api.employmentByProgram(code).catch(() => null)
     )).then((results) => {
-      const map = {}
-      results.forEach((r, i) => { if (r) map[codes[i]] = r })
+      const map: any = {}
+      results.forEach((r: any, i: number) => { if (r) map[codes[i]] = r })
       setEmploymentData(map)
     })
   }, [data])
@@ -311,7 +311,7 @@ export default function Compare() {
               className="grid gap-3"
               style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}
             >
-              {items.map((it) => (
+              {items.map((it: any) => (
                 <ProgramHeader key={it.code} item={it} onRemove={() => removeCode(it.code)} />
               ))}
             </motion.div>
@@ -370,7 +370,7 @@ export default function Compare() {
                 <Row label="Min başarı sırası" items={items} fmt={(it) => it.min_basari_sirasi_kosul || '—'} />
                 {/* DGS (dikey geçiş) — kod eşleşen programlarda; DGS'li kullanıcı
                     da aynı sekmeden karşılaştırabilsin */}
-                {items.some((it) => it.dgs_min_puan != null) && (<>
+                {items.some((it: any) => it.dgs_min_puan != null) && (<>
                   <Row label="DGS taban puanı" items={items}
                     fmt={(it) => it.dgs_min_puan != null
                       ? `${it.dgs_min_puan.toFixed(2)} (${it.dgs_puan_turu || '?'})` : '—'} />
@@ -419,7 +419,7 @@ export default function Compare() {
                   style={{ gridTemplateColumns: `120px repeat(${items.length}, minmax(0, 1fr))` }}
                 >
                   <div className="text-xs text-slate-400">3 yıllık trend</div>
-                  {items.map((it) => (
+                  {items.map((it: any) => (
                     <div key={it.code} className="text-accent-300">
                       <MiniTrend trend={it.trend} />
                     </div>
