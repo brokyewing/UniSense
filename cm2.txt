@@ -1,0 +1,1 @@
+chore: continue strict migration - konu, oyun, riskLevels, tekrar, adFiltre, bulutTasima, analytics, usage, TusDus, Home, Privacy, Calisma, Login, TercihList, StreakBadge, PushOptIn, ThemeContext, main typed (any) - 0 errors strict false

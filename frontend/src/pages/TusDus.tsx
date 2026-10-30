@@ -21,7 +21,7 @@ const KOVALAR = [
   { key: 'riskli',  label: 'Riskli',  icon: Rocket,      renk: 'from-rose-500 to-fuchsia-600', desc: 'Tabanın altında — taban düşerse şans' },
 ]
 
-function ProgramKart({ p, inList, onToggle }) {
+function ProgramKart({ p, inList, onToggle }: { p: any; inList: boolean; onToggle: any }) {
   return (
     <div className="rounded-xl bg-white/[0.03] border border-white/5 p-3">
       <div className="flex items-start justify-between gap-2">
@@ -75,8 +75,8 @@ export function TusRobot() {
   const [dal, setDal] = useState('')
   const [kurum, setKurum] = useState('')
   const [kontenjanTuru, setKontenjanTuru] = useState('Genel') // Genel | Yabancı Uyruklu
-  const [meta, setMeta] = useState(null)
-  const [data, setData] = useState(null)
+  const [meta, setMeta] = useState<any>(null)
+  const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const { user } = useAuth()
@@ -98,7 +98,7 @@ export function TusRobot() {
   // Profildeki TUS/DUS puanını otomatik doldur (diğer sınavlarla tutarlı)
   useEffect(() => {
     if (profileLoading || !profile) return
-    const score = sinav === 'DUS' ? profile?.dus?.score : profile?.tus?.score
+    const score = sinav === 'DUS' ? (profile as any)?.dus?.score : (profile as any)?.tus?.score
     setPuan((prev) => {
       if (prev && !autoDolduRef.current) return prev
       if (score == null) { autoDolduRef.current = false; setAutoNot(''); return '' }
@@ -114,9 +114,9 @@ export function TusRobot() {
     return watchUzmanlikTercih(user.uid, sinav, (items) => setTercihIds(new Set(items.map((i) => i.id))))
   }, [user, sinav])
 
-  function flash(msg) { setToast(msg); setTimeout(() => setToast(''), 2500) }
+  function flash(msg: any) { setToast(msg); setTimeout(() => setToast(''), 2500) }
 
-  async function toggleTercih(p) {
+  async function toggleTercih(p: any) {
     if (!user) { flash('Tercihe eklemek için giriş yap'); return }
     const code = String(p.kod)
     try {
@@ -129,7 +129,7 @@ export function TusRobot() {
         await addToUzmanlikTercih(user.uid, sinav, p, Date.now())
         flash(`✓ ${sinav} tercihine eklendi — Tercihlerim sayfasında`)
       }
-    } catch (e) { flash(e.message) }
+    } catch (e: any) { flash(e.message) }
   }
 
   // Sınav değişince dal listesini yükle + eski sonuç/filtreyi temizle.
@@ -143,7 +143,7 @@ export function TusRobot() {
     return () => { ignore = true }
   }, [sinav])
 
-  async function bul(e) {
+  async function bul(e: any) {
     e?.preventDefault()
     const p = parseFloat(puan)
     if (isNaN(p) || p < 0 || p > 100) {
@@ -164,7 +164,7 @@ export function TusRobot() {
       })
       if (sinavRef.current !== istekSinav) return // sınav değişti — eski yanıtı basma
       setData(res)
-    } catch (err) {
+    } catch (err: any) {
       if (sinavRef.current === istekSinav) setError(err.message)
     } finally {
       setLoading(false)
@@ -221,7 +221,7 @@ export function TusRobot() {
               </label>
               <select value={dal} onChange={(e) => setDal(e.target.value)} className="input-glass w-full" disabled={!meta}>
                 <option value="">Tüm dallar</option>
-                {meta?.dallar.map((d) => <option key={d} value={d}>{d}</option>)}
+                {meta?.dallar.map((d: any) => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
           </div>
@@ -297,7 +297,7 @@ export function TusRobot() {
                       </div>
                     </div>
                     <div className="grid sm:grid-cols-2 gap-2">
-                      {items.map((p, i) => (
+                      {items.map((p: any, i: number) => (
                         <ProgramKart key={`${p.kod}-${i}`} p={p}
                           inList={tercihIds.has(String(p.kod))} onToggle={toggleTercih} />
                       ))}

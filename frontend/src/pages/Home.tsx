@@ -37,7 +37,7 @@ function UpcomingExams() {
                 {e.devam ? 'Sürüyor' : e.kalan_gun === 0 ? 'Bugün' : `${e.kalan_gun} gün`}
               </span>
             </div>
-            <div className="text-[11px] text-slate-400">{TUR[e.tur] || e.tur}</div>
+            <div className="text-[11px] text-slate-400">{(TUR as any)[e.tur] || e.tur}</div>
           </div>
         ))}
       </div>
@@ -110,7 +110,7 @@ const SAMPLE_QUERIES = [
 ]
 
 
-function FeatureCard({ feat, index }) {
+function FeatureCard({ feat, index }: { feat: any; index: number }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}

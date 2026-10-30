@@ -27,22 +27,22 @@ export function seviyeBilgi(xp: any) {
 }
 
 export const ROZETLER = [
-  { id: 'ilk-adim', ad: 'İlk Adım', ikon: '👣', aciklama: 'İlk çalışmanı yaptın', kosul: (s) => (s.konuDone + s.denemeSayisi + s.soruCozulen + s.yanlisSayisi + (s.planGorev || 0)) > 0 },
-  { id: 'seri-7', ad: 'Azimli', ikon: '🔥', aciklama: '7 gün üst üste çalıştın', kosul: (s) => (s.streakLongest || 0) >= 7 },
-  { id: 'seri-30', ad: 'Demir İrade', ikon: '💎', aciklama: '30 gün seri', kosul: (s) => (s.streakLongest || 0) >= 30 },
-  { id: 'denemeci', ad: 'Denemeci', ikon: '📊', aciklama: '10 deneme girdin', kosul: (s) => (s.denemeSayisi || 0) >= 10 },
-  { id: 'planci', ad: 'Planlı', ikon: '🗓️', aciklama: '25 plan görevi bitirdin', kosul: (s) => (s.planGorev || 0) >= 25 },
-  { id: 'soru-500', ad: 'Soru Canavarı', ikon: '🧮', aciklama: '500 soru çözdün', kosul: (s) => (s.soruCozulen || 0) >= 500 },
-  { id: 'calis-50', ad: 'Çalışkan', ikon: '📚', aciklama: '50 konu işaretledin', kosul: (s) => (s.konuDone || 0) >= 50 },
-  { id: 'maraton', ad: 'Maratoncu', ikon: '⏱️', aciklama: '10 saat çalışma süresi', kosul: (s) => (s.sureDk || 0) >= 600 },
-  { id: 'hata-avcisi', ad: 'Hata Avcısı', ikon: '🎯', aciklama: '20 yanlış kaydettin', kosul: (s) => (s.yanlisSayisi || 0) >= 20 },
+  { id: 'ilk-adim', ad: 'İlk Adım', ikon: '👣', aciklama: 'İlk çalışmanı yaptın', kosul: (s: any) => (s.konuDone + s.denemeSayisi + s.soruCozulen + s.yanlisSayisi + (s.planGorev || 0)) > 0 },
+  { id: 'seri-7', ad: 'Azimli', ikon: '🔥', aciklama: '7 gün üst üste çalıştın', kosul: (s: any) => (s.streakLongest || 0) >= 7 },
+  { id: 'seri-30', ad: 'Demir İrade', ikon: '💎', aciklama: '30 gün seri', kosul: (s: any) => (s.streakLongest || 0) >= 30 },
+  { id: 'denemeci', ad: 'Denemeci', ikon: '📊', aciklama: '10 deneme girdin', kosul: (s: any) => (s.denemeSayisi || 0) >= 10 },
+  { id: 'planci', ad: 'Planlı', ikon: '🗓️', aciklama: '25 plan görevi bitirdin', kosul: (s: any) => (s.planGorev || 0) >= 25 },
+  { id: 'soru-500', ad: 'Soru Canavarı', ikon: '🧮', aciklama: '500 soru çözdün', kosul: (s: any) => (s.soruCozulen || 0) >= 500 },
+  { id: 'calis-50', ad: 'Çalışkan', ikon: '📚', aciklama: '50 konu işaretledin', kosul: (s: any) => (s.konuDone || 0) >= 50 },
+  { id: 'maraton', ad: 'Maratoncu', ikon: '⏱️', aciklama: '10 saat çalışma süresi', kosul: (s: any) => (s.sureDk || 0) >= 600 },
+  { id: 'hata-avcisi', ad: 'Hata Avcısı', ikon: '🎯', aciklama: '20 yanlış kaydettin', kosul: (s: any) => (s.yanlisSayisi || 0) >= 20 },
 ]
 
-export function kazanilanRozetler(s = {}) { return ROZETLER.filter((r) => r.kosul(s)) }
+export function kazanilanRozetler(s: any = {}) { return ROZETLER.filter((r: any) => r.kosul(s)) }
 
 /** Girişsiz (guest) istatistikleri localStorage'dan topla. */
 export function guestStats() {
-  const j = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || d) } catch { return JSON.parse(d) } }
+  const j = (k: any, d: any) => { try { return JSON.parse(localStorage.getItem(k) || d) } catch { return JSON.parse(d) } }
   let konuDone = 0, denemeSayisi = 0, soruCozulen = 0
   for (const s of ['YKS', 'DGS', 'KPSS', 'LGS']) {
     konuDone += Object.keys(j('unisense_konu_v1_' + s, '{}')).length

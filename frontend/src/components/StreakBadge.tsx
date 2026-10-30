@@ -18,7 +18,7 @@ export default function StreakBadge({ compact = false }: StreakBadgeProps) {
 
   useEffect(() => {
     let ok = true
-    getStreak(user?.uid ?? null).then((r: StreakData) => { if (ok) setS(r) }).catch(() => {})
+    getStreak(user?.uid || '').then((r: StreakData) => { if (ok) setS(r) }).catch(() => {})
     return () => { ok = false }
   }, [user])
 

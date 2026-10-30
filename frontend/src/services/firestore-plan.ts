@@ -148,7 +148,7 @@ export async function recordActivity(uid: string | null): Promise<number> {
   if (uid && db && next.changed) {
     setDoc(doc(db, 'users', uid, FIRESTORE_COLLECTIONS.AKTIVITE, 'gunluk'), { current: next.current, longest: next.longest, lastDate: next.lastDate, updatedAt: serverTimestamp() }, { merge: true }).catch(() => {})
   }
-  return next.current
+  return next.current || 0
 }
 
 // === Pomodoro / Sure ===

@@ -29,14 +29,14 @@ export default function PushOptIn() {
   async function ac() {
     setState('loading')
     try {
-      const r = await enablePush(user.uid)
+      const r = await enablePush(user!.uid)
       if (r.ok) { localStorage.setItem(LS_ON, '1'); setState('on'); track('push_acildi') }
       else if (r.reason === 'denied') setState('denied')
       else setState('idle')
     } catch { setState('idle') }
   }
   async function kapat() {
-    await disablePush(user.uid).catch(() => {})
+    await disablePush(user!.uid).catch(() => {})
     localStorage.removeItem(LS_ON)
     setState('idle')
   }

@@ -17,7 +17,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  async function onEmail(e) {
+  async function onEmail(e: any) {
     e.preventDefault()
     setLoading(true)
     setError('')
@@ -220,7 +220,7 @@ export default function Login() {
   )
 }
 
-function parseError(e) {
+function parseError(e: any) {
   const msg = e?.message || String(e)
   if (msg.includes('user-not-found')) return 'Kullanıcı bulunamadı'
   if (msg.includes('wrong-password')) return 'Şifre yanlış'

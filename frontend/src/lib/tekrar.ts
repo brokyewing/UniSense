@@ -4,7 +4,7 @@ export const TEKRAR_ARALIK = [1, 2, 4, 8, 16] // kutu → kaç gün sonra tekrar
 
 // YEREL tarih (toISOString UTC döndürür — TR'de gece 00:00-03:00 işlemleri
 // önceki güne yazılıp 1 günlük tekrar aralığını ~2.5 saate düşürüyordu)
-const pad2 = (n) => String(n).padStart(2, '0')
+const pad2 = (n: any) => String(n).padStart(2, '0')
 const tarihStr = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
 
 export function bugunStr() {
@@ -12,7 +12,7 @@ export function bugunStr() {
 }
 
 /** Tekrar sonucu: biliyorsa üst kutu (uzun aralık), bilmiyorsa kutu 1 (yarın). */
-export function sonrakiTekrar(box = 1, biliyor = true) {
+export function sonrakiTekrar(box: any = 1, biliyor: boolean = true) {
   const b = biliyor ? Math.min((box || 1) + 1, 5) : 1
   const gun = TEKRAR_ARALIK[b - 1]
   const next = tarihStr(new Date(Date.now() + gun * 86400000))
@@ -20,13 +20,13 @@ export function sonrakiTekrar(box = 1, biliyor = true) {
 }
 
 /** Bugün (veya geçmişte) tekrar edilmesi gereken mi? */
-export function tekrarZamani(y, today = bugunStr()) {
+export function tekrarZamani(y: any, today: string = bugunStr()) {
   return !y?.nextReview || y.nextReview <= today
 }
 
 // === SM-2 (SuperMemo-2) — bilgi kartları için aralıklı tekrar ===
 // kalite: 0-5 (Zor=2, Orta=3, Kolay=5). Döner: {ef, rep, interval, nextReview}.
-export function sm2(kart, kalite) {
+export function sm2(kart: any, kalite: any) {
   let ef = kart?.ef ?? 2.5
   let rep = kart?.rep ?? 0
   let interval = kart?.interval ?? 0

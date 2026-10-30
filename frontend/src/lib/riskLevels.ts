@@ -12,7 +12,7 @@
 
 // YKS — rank oranı: taban_sırası / kullanıcı_sırası (oran yüksekse daha güvenli)
 export const YKS_SAFE_RATIO = 1.5
-export function yksLevel(userRank, tabanRank) {
+export function yksLevel(userRank: any, tabanRank: any) {
   if (!userRank || !tabanRank) return null
   const ratio = tabanRank / userRank
   if (ratio >= YKS_SAFE_RATIO) return 'safe'
@@ -21,7 +21,7 @@ export function yksLevel(userRank, tabanRank) {
 }
 
 // DGS — fark: puan - taban
-export function dgsLevel(puan, taban) {
+export function dgsLevel(puan: any, taban: any) {
   if (taban == null) return 'bos'
   if (puan == null) return null
   const diff = puan - taban
@@ -31,7 +31,7 @@ export function dgsLevel(puan, taban) {
 }
 
 // KPSS — fark: puan - geçmiş dönem taban
-export function kpssLevel(puan, taban) {
+export function kpssLevel(puan: any, taban: any) {
   if (taban == null) return 'bilinmez'
   if (puan == null) return null
   const diff = puan - taban
