@@ -26,7 +26,7 @@
 ### 2. Component Migration'ları (16 sayfa + 3 component + 3 lib + 1 context)
 **Sayfalar:** Search, Recommend, Calisma, Deneme, Konular, Planim, TercihList, Hesap, Ozetler, Notlar, Pano, LGS, Siralama, Pusula, Profile, TusDus
 
-**Component'ler:** PushOptIn, StreakBadge, ChatSidebar
+**Component'ler:** PushOptIn, StreakBadge, ChatSidebar, ErrorBoundary, PWAInstallPrompt, LazyBackgroundScene
 
 **Lib'ler:** usage.js, api.js
 
@@ -41,18 +41,31 @@
 ### 4. Chunk Size Optimizasyonu
 - `three-vendor` (857 kB) → `three-core` (688 kB) + `three-fiber` (131 kB) + `three-drei` (36 kB)
 - `firebase-vendor` (520 kB) → `firebase-auth` (174 kB) + `firebase-firestore` (311 kB) + `firebase-storage` (34 kB) + `firebase-messaging` (44 kB) + `firebase-app` (1 kB)
+- `BackgroundScene` (1.91 kB) → lazy loaded ayrı chunk
 - Sadece `three-core` (688 kB) hala >500 kB (core three.js library)
 
-### 5. Build & Deploy
+### 5. Ekstra Özellikler (Sırayla Tamamlandı)
+- ✅ PWA / Offline Destek — manifest + SW + install prompt
+- ✅ Error Boundary — crash recovery UI
+- ✅ Bölüm Karşılaştırma — AI özeti + burs/istihdam bilgisi
+- ✅ Tercih Sırası Optimizasyonu — AI analiz butonu
+- ✅ Unit Test Coverage — Vitest + 14 test
+- ✅ Push Notification Backend — FCM + API endpoints + scheduler
+- ✅ Burs/Ücret Veritabanı — backend + API + frontend UI
+- ✅ Mezun İstihdam Verisi — backend + API + frontend UI
+- ✅ Analytics Dashboard — backend + API + frontend admin paneli
+
+### 6. Build & Deploy
 - ✅ Build başarılı - 631 URL prerender
 - ✅ Vite proxy `/api` → `localhost:8002` çalışıyor
 - ✅ ngrok tunnel aktif: `https://75ce-88-227-34-121.ngrok-free.app`
 - ✅ Firebase Emulators: Firestore (8085), Auth (9099), UI (4000)
 
 ## Kalan İşler
-1. **three-core chunk** (688 kB) — dynamic import ile code-split (lazy loading)
-2. **Test coverage** — Yeni service layer için unit test'ler
-3. **TypeScript migration** — uzun vadeli
+1. **TypeScript Migration** — uzun vadeli, gradual migration (sayfa sayfa)
+2. **Push notification setup** — Firebase Admin SDK service account key + scheduled jobs
+3. **Burs/Ücret ve İstihdam veri genişletme** — gerçek veri (YÖK Atlas, TÜİK/İŞKUR)
+4. **Analytics frontend entegrasyonu** — sayfa görüntüleme olaylarını loglama
 
 ## Bloker
 - Yok - tüm servisler sağlıklı

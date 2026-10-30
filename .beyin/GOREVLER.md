@@ -30,8 +30,8 @@
 - [x] `push_service.py` - FCM push notification service (firebase-admin)
 - [x] API endpoints: `/push/send`, `/push/exam-reminder`, `/push/streak-reminder`
 - [x] `firebase-admin` added to requirements.txt
+- [x] Scheduled jobs (daily 09:00 UTC push notification loop)
 - [ ] Service account key setup (Firebase Console)
-- [ ] Scheduled jobs (cron) for periodic notifications
 - [ ] Frontend integration (call backend endpoints)
 
 ### Unit Test Coverage
@@ -84,7 +84,7 @@
 - Tüm özellikler ücretsiz olacak (premium kaldırıldı)
 - Her özellik için build test + GitHub push yapıldı
 - PWA + Error Boundary + Compare AI + Tercih Optimization + Unit Tests + Push Backend + Burs + İstihdam + Analytics tamamlandı
-- Push notification: backend endpoint'ler hazır, Firebase Admin SDK + service account key gerekli
+- Push notification: backend endpoint'ler + scheduler hazır, Firebase Admin SDK + service account key gerekli
 - Burs/Ücret ve İstihdam: backend + API + frontend UI tamamlandı (Compare.jsx)
 - Analytics: backend + API + frontend admin paneli tamamlandı
 - Kalan: TypeScript Migration (uzun vadeli)
