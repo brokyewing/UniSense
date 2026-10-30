@@ -1,7 +1,0 @@
-feat: TercihList - Karşılaştır button + risk analysis UI (güvenli/hedef/riskli dağılımı)
-
-- Added GitCompare button that navigates to /karsilastir?d=code1,code2 with selected tercih codes
-- Added risk analysis section showing güvenli/hedef/riskli/bilinmez distribution bars
-- Risk computed from programs/lookup + user profile rank via yksLevel
-- Build passes: 631 URLs prerendered
-- tsc --noEmit: 0 errors (strict: true)

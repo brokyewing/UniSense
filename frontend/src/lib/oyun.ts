@@ -27,7 +27,7 @@ export function seviyeBilgi(xp: any) {
 }
 
 export const ROZETLER = [
-  { id: 'ilk-adim', ad: 'İlk Adım', ikon: '👣', aciklama: 'İlk çalışmanı yaptın', kosul: (s: any) => (s.konuDone + s.denemeSayisi + s.soruCozulen + s.yanlisSayisi + (s.planGorev || 0)) > 0 },
+  { id: 'ilk-adim', ad: 'İlk Adım', ikon: '👣', aciklama: 'İlk çalışmanı yaptın', kosul: (s: any) => ((s.konuDone || 0) + (s.denemeSayisi || 0) + (s.soruCozulen || 0) + (s.yanlisSayisi || 0) + (s.planGorev || 0)) > 0 },
   { id: 'seri-7', ad: 'Azimli', ikon: '🔥', aciklama: '7 gün üst üste çalıştın', kosul: (s: any) => (s.streakLongest || 0) >= 7 },
   { id: 'seri-30', ad: 'Demir İrade', ikon: '💎', aciklama: '30 gün seri', kosul: (s: any) => (s.streakLongest || 0) >= 30 },
   { id: 'denemeci', ad: 'Denemeci', ikon: '📊', aciklama: '10 deneme girdin', kosul: (s: any) => (s.denemeSayisi || 0) >= 10 },
