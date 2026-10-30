@@ -1,23 +1,19 @@
 import { useState } from 'react'
 import { GraduationCap } from 'lucide-react'
 
-/**
- * UniSense Logo
- *
- * Logoyu değiştirmek için: `frontend/public/logo.png` (veya logo.svg) ekle.
- * Dosya yoksa otomatik fallback: GraduationCap ikonu (gradient kare).
- *
- * Props:
- *   - size: ikon boyutu (px). Container kareyi belirler.
- *   - rounded: köşe yuvarlaklığı (varsayılan 'rounded-2xl').
- *   - withGradient: fallback gradient arka plan (img varsa şeffaf).
- */
+interface LogoProps {
+  size?: number
+  rounded?: string
+  withGradient?: boolean
+  className?: string
+}
+
 export default function Logo({
   size = 40,
-  rounded = 'rounded-none',  // Transparent PNG için varsayılan: yuvarlatma yok
-  withGradient = true,        // Sadece fallback (img yoksa) için
+  rounded = 'rounded-none',
+  withGradient = true,
   className = '',
-}) {
+}: LogoProps) {
   const [imgFailed, setImgFailed] = useState(false)
   const iconSize = Math.round(size * 0.5)
 
@@ -37,7 +33,6 @@ export default function Logo({
     )
   }
 
-  // Transparent PNG için: bg yok, shadow yok, sadece object-contain
   return (
     <img
       src="/logo.png"
