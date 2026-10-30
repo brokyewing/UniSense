@@ -1,0 +1,1 @@
+fix: add @testing-library/jest-dom types to tsconfig - 50 tests pass, 0 tsc errors
