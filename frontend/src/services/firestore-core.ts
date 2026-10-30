@@ -21,9 +21,15 @@ import {
   increment as _increment,
   deleteField as _deleteField,
   getCountFromServer as _getCountFromServer,
+  type Firestore,
+  type DocumentReference,
+  type QueryConstraint,
+  type Unsubscribe,
 } from 'firebase/firestore'
-import { app, db } from './firebase-init'
+import { app, db as _db } from './firebase-init'
 import { FIRESTORE_COLLECTIONS, MAX_SESSIONS_PER_USER } from './constants'
+
+const db: Firestore | null = _db
 
 // Re-export individual functions to avoid Vite dev server issues
 export const doc = _doc
@@ -48,7 +54,7 @@ export { db, app }
 
 // === User Profile ===
 
-export async function ensureUserDoc(user, examTrack) {
+export async function ensureUserDoc(user: any, examTrack?: string): Promise<void> {
   if (!db) return
   const ref = doc(db, 'users', user.uid)
   const snap = await getDoc(ref)
@@ -64,64 +70,64 @@ export async function ensureUserDoc(user, examTrack) {
   }
 }
 
-export async function getUserProfile(uid) {
+export async function getUserProfile(uid: string): Promise<any> {
   if (!db) return null
   const snap = await getDoc(doc(db, 'users', uid))
   return snap.exists() ? snap.data() : null
 }
 
-export async function updateUserProfile(uid, profile) {
+export async function updateUserProfile(uid: string, profile: any): Promise<void> {
   if (!db) throw new Error('Firestore yok')
   await setDoc(doc(db, 'users', uid), { profile, updatedAt: serverTimestamp() }, { merge: true })
 }
 
 // === Generic Subcollection Helpers ===
 
-export function watchSubcollection(uid, subcollection, callback, options = {}) {
+export function watchSubcollection(uid: string, subcollection: string, callback: (data: any) => void, options: any = {}): () => void {
   if (!db || !uid) { callback(options.where ? [] : {}); return () => {} }
-  const constraints = []
+  const constraints: any[] = []
   if (options.where) constraints.push(where(...options.where))
   if (options.orderBy) constraints.push(orderBy(options.orderBy, options.orderDir || 'asc'))
   if (options.limit) constraints.push(limit(options.limit))
   const q = query(collection(db, 'users', uid, subcollection), ...constraints)
-  return onSnapshot(q, (snap) => {
-    const items = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    callback(options.where ? items : items.reduce((acc, item) => { acc[item.id] = item; return acc }, {}))
+  return onSnapshot(q, (snap: any) => {
+    const items = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }))
+    callback(options.where ? items : items.reduce((acc: any, item: any) => { acc[item.id] = item; return acc }, {}))
   }, () => callback(null))
 }
 
-export async function getSubcollectionDoc(uid, subcollection, docId) {
+export async function getSubcollectionDoc(uid: string, subcollection: string, docId: string): Promise<any> {
   if (!db || !uid) return null
   try { const snap = await getDoc(doc(db, 'users', uid, subcollection, docId)); return snap.exists() ? { id: snap.id, ...snap.data() } : null } catch { return null }
 }
 
-export async function getSubcollectionAll(uid, subcollection, constraints = []) {
+export async function getSubcollectionAll(uid: string, subcollection: string, constraints: any[] = []): Promise<any[]> {
   if (!db || !uid) return []
-  try { const q = query(collection(db, 'users', uid, subcollection), ...constraints); const snap = await getDocs(q); return snap.docs.map(d => ({ id: d.id, ...d.data() })) } catch { return [] }
+  try { const q = query(collection(db, 'users', uid, subcollection), ...constraints); const snap = await getDocs(q); return snap.docs.map((d: any) => ({ id: d.id, ...d.data() })) } catch { return [] }
 }
 
-export async function addSubcollectionDoc(uid, subcollection, data) {
+export async function addSubcollectionDoc(uid: string, subcollection: string, data: any): Promise<string | null> {
   if (!db || !uid) return null
   const ref = await addDoc(collection(db, 'users', uid, subcollection), { ...data, createdAt: serverTimestamp() })
   return ref.id
 }
 
-export async function setSubcollectionDoc(uid, subcollection, docId, data, merge = false) {
+export async function setSubcollectionDoc(uid: string, subcollection: string, docId: string, data: any, merge: boolean = false): Promise<void> {
   if (!db || !uid) return
   await setDoc(doc(db, 'users', uid, subcollection, docId), { ...data, updatedAt: serverTimestamp() }, { merge })
 }
 
-export async function updateSubcollectionDoc(uid, subcollection, docId, patch) {
+export async function updateSubcollectionDoc(uid: string, subcollection: string, docId: string, patch: any): Promise<void> {
   if (!db || !uid) return
   await updateDoc(doc(db, 'users', uid, subcollection, docId), { ...patch, updatedAt: serverTimestamp() })
 }
 
-export async function deleteSubcollectionDoc(uid, subcollection, docId) {
+export async function deleteSubcollectionDoc(uid: string, subcollection: string, docId: string): Promise<void> {
   if (!db || !uid) return
   await deleteDoc(doc(db, 'users', uid, subcollection, docId))
 }
 
-export async function batchWrite(uid, operations) {
+export async function batchWrite(uid: string, operations: any[]): Promise<void> {
   if (!db || !uid || !operations.length) return
   const batch = writeBatch(db)
   for (const op of operations) {
