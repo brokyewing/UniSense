@@ -5,15 +5,30 @@ import { useAuth } from '../contexts/AuthContext'
 import { watchSessions, deleteSession } from '@/services/firestore-push'
 import { MAX_SESSIONS_PER_USER } from '@/services/constants'
 
+interface ChatSidebarProps {
+  activeSessionId: string | null
+  onSelectSession: (id: string | null) => void
+  onNewChat: () => void
+  open: boolean
+  onClose: () => void
+}
+
+interface Session {
+  id: string
+  title: string
+  messageCount: number
+  updatedAt: any
+}
+
 export default function ChatSidebar({
   activeSessionId,
   onSelectSession,
   onNewChat,
   open,
   onClose,
-}) {
+}: ChatSidebarProps) {
   const { user, isAuthed } = useAuth()
-  const [sessions, setSessions] = useState([])
+  const [sessions, setSessions] = useState<Session[]>([])
 
   useEffect(() => {
     if (!user) {
@@ -24,7 +39,7 @@ export default function ChatSidebar({
     return unsub
   }, [user])
 
-  async function handleDelete(e, sid) {
+  async function handleDelete(e: React.MouseEvent, sid: string) {
     e.stopPropagation()
     if (!user) return
     if (!confirm('Bu sohbeti silmek istiyor musun?')) return
@@ -32,11 +47,11 @@ export default function ChatSidebar({
     await deleteSession(user.uid, sid)
   }
 
-  function formatDate(ts) {
+  function formatDate(ts: any): string {
     if (!ts) return ''
     const d = ts.toDate ? ts.toDate() : new Date(ts)
     const now = new Date()
-    const diff = (now - d) / 1000
+    const diff = (now.getTime() - d.getTime()) / 1000
     if (diff < 60) return 'şimdi'
     if (diff < 3600) return `${Math.floor(diff / 60)} dk önce`
     if (diff < 86400) return `${Math.floor(diff / 3600)} saat önce`
@@ -57,10 +72,8 @@ export default function ChatSidebar({
     )
   }
 
-  // Mobile + desktop layout
   return (
     <>
-      {/* Backdrop (mobile) */}
       <AnimatePresence>
         {open && (
           <motion.div
