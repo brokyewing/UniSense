@@ -19,12 +19,12 @@
 - [x] Compare.tsx sayfası mevcut (25+ metrik karşılaştırma)
 - [x] AI destekli karşılaştırma özeti eklendi
 - [x] Burs/Ücret ve İstihdam bilgisi Compare.tsx'e eklendi
-- [ ] Tercih listesinden "Karşılaştır" butonu ekle
+- [x] Tercih listesinden "Karşılaştır" butonu ekle (Compare.tsx'e yönlendirme)
 
 ### Tercih Sırası Optimizasyonu
 - [x] AI destekli tercih sıralama önerisi (TercihList.tsx)
 - [x] "Analiz Et" butonu ve sonuç gösterimi
-- [ ] Risk analizi (güvenli/hedef/riskli dağılımı) UI
+- [x] Risk analizi (güvenli/hedef/riskli dağılımı) UI (TercihList.tsx)
 
 ### Push Notification Backend
 - [x] `push_service.py` - FCM push notification service (firebase-admin)
