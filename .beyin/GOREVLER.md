@@ -18,6 +18,7 @@
 ### Bölüm Karşılaştırma (Side-by-Side)
 - [x] Compare.jsx sayfası mevcut (25+ metrik karşılaştırma)
 - [x] AI destekli karşılaştırma özeti eklendi
+- [x] Burs/Ücret ve İstihdam bilgisi Compare.jsx'e eklendi
 - [ ] Tercih listesinden "Karşılaştır" butonu ekle
 
 ### Tercih Sırası Optimizasyonu
@@ -49,7 +50,7 @@
 - [x] `scholarship_data.json` (2026 data, sample vakıf/devlet programlar)
 - [x] API endpoints: `/scholarship/list`, `/scholarship/program/{code}`, `/scholarship/years`
 - [x] Frontend API: `api.scholarshipList`, `api.scholarshipByProgram`, `api.scholarshipYears`
-- [ ] Frontend UI (burs bilgisi gösterimi in Compare/Hesap)
+- [x] Frontend UI (burs bilgisi Compare.jsx'te gösteriliyor)
 
 ### Mezun İstihdam Verisi
 - [x] `employment.py` model (EmploymentInfo, EmploymentListResponse)
@@ -57,14 +58,14 @@
 - [x] `employment_data.json` (2026 data, sample CS programs)
 - [x] API endpoints: `/employment/list`, `/employment/program/{code}`, `/employment/years`
 - [x] Frontend API: `api.employmentList`, `api.employmentByProgram`, `api.employmentYears`
-- [ ] Frontend UI (istihdam bilgisi gösterimi in BolumDetay)
+- [x] Frontend UI (istihdam bilgisi Compare.jsx'te gösteriliyor)
 
 ### Analytics Dashboard
 - [x] `analytics.py` model (AnalyticsEvent, AnalyticsSummary)
 - [x] `analytics_service.py` (log_event, summary, clear - JSON-based)
 - [x] API endpoints: `/analytics/log`, `/analytics/summary`, `/analytics/clear`
 - [x] Frontend API: `api.analyticsLog`, `api.analyticsSummary`, `api.analyticsClear`
-- [ ] Frontend admin paneli (basit)
+- [x] Frontend admin paneli (Analytics.jsx)
 
 ### Service Layer Migration (Önceki)
 - [x] Tüm 16 sayfa + 3 component + 3 lib + 1 context migrate edildi
@@ -83,7 +84,7 @@
 - Tüm özellikler ücretsiz olacak (premium kaldırıldı)
 - Her özellik için build test + GitHub push yapıldı
 - PWA + Error Boundary + Compare AI + Tercih Optimization + Unit Tests + Push Backend + Burs + İstihdam + Analytics tamamlandı
-- Kalan: TypeScript Migration (uzun vadeli)
 - Push notification: backend endpoint'ler hazır, Firebase Admin SDK + service account key gerekli
-- Burs/Ücret ve İstihdam: backend + API hazır, frontend UI eklenebilir
-- Analytics: backend + API hazır, frontend admin paneli eklenebilir
+- Burs/Ücret ve İstihdam: backend + API + frontend UI tamamlandı (Compare.jsx)
+- Analytics: backend + API + frontend admin paneli tamamlandı
+- Kalan: TypeScript Migration (uzun vadeli)

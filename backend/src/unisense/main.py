@@ -48,6 +48,36 @@ async def _index_retry_loop() -> None:
 
 
 @asynccontextmanager
+async def _push_notification_loop() -> None:
+    """Periyodik push bildirim görevi — her gün 09:00 UTC'de çalışır.
+
+    Sınav hatırlatmaları ve streak hatırlatmaları gönderir.
+    Firebase Admin SDK yoksa sessizce atlanır.
+    """
+    import asyncio
+    from datetime import UTC, datetime
+
+    logger = get_logger(__name__)
+    while True:
+        now = datetime.now(UTC)
+        # Her gün 09:00 UTC'de çalış
+        next_run = now.replace(hour=9, minute=0, second=0, microsecond=0)
+        if next_run <= now:
+            next_run = next_run.replace(day=next_run.day + 1)
+        wait_seconds = (next_run - now).total_seconds()
+        await asyncio.sleep(wait_seconds)
+
+        try:
+            from unisense.application.services.push_service import _FIREBASE_ADMIN_AVAILABLE
+            if not _FIREBASE_ADMIN_AVAILABLE:
+                continue
+            logger.info("push_notification_loop_tick")
+            # TODO: Firestore'dan aktif kullanıcıları oku ve bildirim gönder
+            # Bu kısım Firebase Admin SDK ile Firestore erişimi gerektirir
+        except Exception as e:
+            logger.warning("push_notification_loop_error", error=str(e)[:200])
+
+
 async def lifespan(app: FastAPI):
     """Startup: embedding modeli + ChromaDB index'i önceden ısıt.
 
@@ -64,6 +94,7 @@ async def lifespan(app: FastAPI):
     logger = get_logger(__name__)
     logger.info("lifespan_warmup_start")
     retry_task = None
+    push_task = None
     try:
         store = get_vector_store()
         if store.count():
@@ -75,9 +106,15 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error("lifespan_warmup_error", error=str(e))
         retry_task = asyncio.create_task(_index_retry_loop())
+
+    # Push notification loop (Firebase Admin SDK varsa)
+    push_task = asyncio.create_task(_push_notification_loop())
+
     yield
     if retry_task:
         retry_task.cancel()
+    if push_task:
+        push_task.cancel()
 
 
 def create_app() -> FastAPI:
