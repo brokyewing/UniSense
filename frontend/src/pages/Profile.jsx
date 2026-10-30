@@ -24,6 +24,11 @@ export default function Profile() {
   const nav = useNavigate()
   const { user, isAuthed, loading } = useAuth()
 
+  // Analytics: sayfa görüntüleme
+  useEffect(() => {
+    import('@/services/api').then(m => m.api.analyticsLog('page_view', '/profil', user?.uid).catch(() => {}))
+  }, [])
+
   // Tab
   const [tab, setTab] = useState('account') // account | password | yks
 

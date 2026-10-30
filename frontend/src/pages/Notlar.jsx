@@ -15,6 +15,11 @@ const saveLocal = (a) => { try { localStorage.setItem(LS, JSON.stringify(a)) } c
 export default function Notlar({ embedded = false }) {
   const { user } = useAuth()
   const nav = useNavigate()
+
+  // Analytics: sayfa görüntüleme
+  useEffect(() => {
+    import('@/services/api').then(m => m.api.analyticsLog('page_view', '/notlar', user?.uid).catch(() => {}))
+  }, [])
   const { notlar: allNotlar, loading: notlarLoading } = useNotlar()
   const [notlar, setNotlar] = useState([])
   const [metin, setMetin] = useState('')

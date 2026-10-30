@@ -61,6 +61,11 @@ function Spark({ points }) {
 export default function Deneme({ embedded = false }) {
   const { user } = useAuth()
   const [sinav, setSinav] = useState('YKS')
+
+  // Analytics: sayfa görüntüleme
+  useEffect(() => {
+    import('@/services/api').then(m => m.api.analyticsLog('page_view', '/deneme', user?.uid).catch(() => {}))
+  }, [])
   const [type, setType] = useState('SAY')
   const [diploma, setDiploma] = useState('85')
   const [tarih, setTarih] = useState(bugun())

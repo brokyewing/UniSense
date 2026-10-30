@@ -150,6 +150,9 @@ function FeatureCard({ feat, index }) {
 }
 
 export default function Home() {
+  useEffect(() => {
+    import('@/services/api').then(m => m.api.analyticsLog('page_view', '/anasayfa').catch(() => {}))
+  }, [])
   return (
     <>
       <BackgroundScene />

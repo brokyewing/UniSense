@@ -132,6 +132,11 @@ export function LgsRobot() {
   const [toast, setToast] = useState('')
   const { profile, loading: profileLoading } = useUserProfile()
 
+  // Analytics: sayfa görüntüleme
+  useEffect(() => {
+    import('@/services/api').then(m => m.api.analyticsLog('page_view', '/lgs', user?.uid).catch(() => {}))
+  }, [])
+
   useEffect(() => {
     apiFetch('/api/v1/lgs/iller').then((d) => setIller(d.iller || [])).catch(() => {})
   }, [])
