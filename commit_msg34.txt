@@ -1,0 +1,7 @@
+feat: TypeScript migration - firebase-init.js to firebase-init.ts
+
+- Migrated firebase-init.js to firebase-init.ts with proper types
+- Added FirebaseApp, Auth, Firestore, FirebaseStorage type annotations
+- Deleted firebase-init.js
+- Build passes: 631 URLs prerendered
+- Tests pass: 14 tests

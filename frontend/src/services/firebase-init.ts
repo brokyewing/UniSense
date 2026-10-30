@@ -2,11 +2,11 @@
  * Firebase Initialization — tek kaynak, tek yerde.
  * .env.local içindeki VITE_FIREBASE_* değişkenleri ile init.
  */
-import { initializeApp } from 'firebase/app'
+import { initializeApp, type FirebaseApp } from 'firebase/app'
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
-import { getAuth, GoogleAuthProvider } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
-import { getStorage } from 'firebase/storage'
+import { getAuth, GoogleAuthProvider, type Auth } from 'firebase/auth'
+import { getFirestore, type Firestore } from 'firebase/firestore'
+import { getStorage, type FirebaseStorage } from 'firebase/storage'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -19,12 +19,12 @@ const firebaseConfig = {
 }
 
 // Firebase init — .env.local yoksa hata verme, sadece warning
-let app = null
-let auth = null
-let db = null
-let storage = null
-let googleProvider = null
-let appCheck = null
+let app: FirebaseApp | null = null
+let auth: Auth | null = null
+let db: Firestore | null = null
+let storage: FirebaseStorage | null = null
+let googleProvider: GoogleAuthProvider | null = null
+let appCheck: any = null
 
 if (firebaseConfig.apiKey) {
   app = initializeApp(firebaseConfig)
@@ -38,7 +38,7 @@ if (firebaseConfig.apiKey) {
         isTokenAutoRefreshEnabled: true,
       })
     } catch (e) {
-      console.warn('App Check başlatılamadı:', e?.message || e)
+      console.warn('App Check başlatılamadı:', (e as Error)?.message || e)
     }
   }
 
