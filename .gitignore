@@ -19,6 +19,10 @@ env/
 # Env / Secrets
 .env
 .env.local
+# Firebase service account keys (NEVER commit)
+firebase-service-account*.json
+*-firebase-adminsdk-*.json
+unisense-*-firebase-adminsdk-*.json
 .env.*.local
 .env.bak
 .env.*.bak
