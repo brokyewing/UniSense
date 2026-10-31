@@ -32,6 +32,7 @@
 - [x] `firebase-admin` added to requirements.txt
 - [x] Scheduled jobs (daily 09:00 UTC push notification loop)
 - [x] Service account key setup (Firebase Console) — completed, firebase-admin initialized successfully
+- [x] Push notification service implemented (send_push_notification, send_exam_reminder, send_streak_reminder)
 - [x] Frontend integration (call backend endpoints) - pushSend, pushExamReminder, pushStreakReminder added to api.ts
 
 ### Unit Test Coverage
