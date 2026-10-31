@@ -66,7 +66,7 @@ def _dept_matrix() -> tuple[np.ndarray, list[str]]:
         tag_str = ", ".join(d["tags"])
         texts.append(f"{d['name']} ({cat_label}). {tag_str}.")
     logger.info("compass_embedding_dept_matrix", count=len(texts))
-    embs = embed_texts(texts, task_type="SEMANTIC_SIMILARITY")
+    embs = embed_texts(texts)
 
     try:
         cache_path.parent.mkdir(parents=True, exist_ok=True)
@@ -93,7 +93,7 @@ def _axes_matrix() -> tuple[np.ndarray, list[str]]:
 def _normalize_query(text: str) -> np.ndarray:
     from unisense.infrastructure.embeddings_local import embed_texts_local as embed_texts
 
-    return embed_texts([text], task_type="SEMANTIC_SIMILARITY")[0]
+    return embed_texts([text])[0]
 
 
 def _format_dept(name: str, score: float) -> dict:

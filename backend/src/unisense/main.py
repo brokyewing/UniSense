@@ -5,8 +5,6 @@ Kullanım:
 """
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -47,7 +45,6 @@ async def _index_retry_loop() -> None:
             logger.warning("index_retry_failed", error=str(e)[:200])
 
 
-@asynccontextmanager
 async def _push_notification_loop() -> None:
     """Periyodik push bildirim görevi — her gün 09:00 UTC'de çalışır.
 

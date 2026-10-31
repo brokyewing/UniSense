@@ -119,7 +119,7 @@ def main() -> None:
                     md[k] = str(v)
             metadatas.append(md)
 
-        embeddings = embed_texts(documents, task_type="RETRIEVAL_DOCUMENT", max_retries=8).tolist()
+        embeddings = embed_texts(documents).tolist()
 
         collection.upsert(
             ids=ids,
@@ -151,7 +151,7 @@ def main() -> None:
 
     # Kısa test
     print("\n🔍 Test sorgu: 'Bilgisayar Mühendisliği taban puanı'")
-    q_emb = embed_texts(["Bilgisayar Mühendisliği taban puanı"], task_type="RETRIEVAL_QUERY").tolist()
+    q_emb = embed_texts(["Bilgisayar Mühendisliği taban puanı"]).tolist()
     results = collection.query(
         query_embeddings=q_emb,
         n_results=3,
