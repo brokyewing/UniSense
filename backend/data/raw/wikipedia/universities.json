@@ -2008,7 +2008,7 @@
     "name": "AKDENİZ ÜNİVERSİTESİ (ANTALYA)",
     "wikipedia_title": "Akdeniz Üniversitesi",
     "wikipedia_url": "https://tr.wikipedia.org/wiki/Akdeniz_Üniversitesi",
-    "extract_length": 19406,
+    "extract_length": 19434,
     "section_count": 30,
     "sections": [
       {
@@ -4336,8 +4336,8 @@
     "name": "DİCLE ÜNİVERSİTESİ (DİYARBAKIR)",
     "wikipedia_title": "Dicle Üniversitesi",
     "wikipedia_url": "https://tr.wikipedia.org/wiki/Dicle_Üniversitesi",
-    "extract_length": 6767,
-    "section_count": 17,
+    "extract_length": 8720,
+    "section_count": 18,
     "sections": [
       {
         "heading": "Tarihçe",
@@ -4374,6 +4374,10 @@
       {
         "heading": "Sezai Karakoç Edebiyat Fakültesi",
         "content": "Felsefe\nSosyoloji\nPsikoloji\nTarih\nDoğu Dilleri ve Arap Dili\nArkeoloji\nTürk Dili ve Edebiyatı\nÇağdaş Türk Lehçeleri ve Edebiyatları\nKürt Dili ve Edebiyatı\nİngiliz Dili ve Edebiyatı"
+      },
+      {
+        "heading": "Hukuk Fakültesi",
+        "content": "1982 yılında Diyarbakır'da açılan Dicle Üniversitesi'ne bağlı Türkiye'de kurulan [[Türkiye'deki hukuk fakülteleri listesi\n|dördüncü]] ve Güneydoğu Anadolu Bölgesi'nde kurulan ilk hukuk fakültesidir.\nDicle Üniversitesi Hukuk Fakültesi, 1982 yılında (20 Temmuz 1982 tarihli ve 17760 sayılı Resmî Gazete) kurulmuş ve 1982-1983 Eğitim-Öğretim yılında öğrenci kabul ederek eğitim faaliyetlerine başlamıştır. Kuruluşundan itibaren hukuk eğitimi; Kamu Hukuku ve Özel Hukuk olmak üzere iki temel akademik bölüm altında yürütülmektedir.\nFakültenin kuruluşu, Dicle Üniversitesi’nin yeniden yapılanma süreciyle yakından ilişkilidir. Üniversitenin temeli, 1966 yılında açılan Diyarbakır Tıp Fakültesine dayanmaktadır. 1973 yılında Diyarbakır Üniversitesi kurulmuş, 1982 yılında ise yükseköğretim sisteminde gerçekleştirilen düzenlemeler sonucunda üniversitenin adı Dicle Üniversitesi olarak değiştirilmiştir. Aynı dönemde Hukuk Fakültesi de üniversite bünyesinde eğitim-öğretim faaliyetlerine başlamıştır.\nFakülte, akademik yayıncılık alanında da köklü bir geçmişe sahiptir. 1983 yılından itibaren yayımlanan Dicle Üniversitesi Hukuk Fakültesi Dergisi, hukuk alanındaki bilimsel çalışmalara katkı sunmaya devam etmektedir. Günümüzde Dicle Üniversitesi Hukuk Fakültesi; lisans, yüksek lisans ve doktora eğitimlerinin yanı sıra bilimsel araştırma, sempozyum, konferans ve akademik projelerle hukuk biliminin gelişimine katkı sağlayan köklü bir kurum olarak faaliyetlerini sürdürmektedir.\nHukuk Fakültesi, akademik faaliyetlerini hâlen 2 bölüm ve bu bölümlere bağlı 18 anabilim dalında sürdürmektedir. Bölümler ve anabilim dalları şöyledir:\n\nAnayasa Hukuku\nCeza ve Ceza Muhakemesi Hukuku\nGenel Kamu Hukuku\nHukuk Felsefesi ve Sosyolojsi\nHukuk Tarihi\nİdare Hukuku\nMali Hukuk\nMilletlerarası Hukuk\nAvrupa Birliği Hukuku\nDeniz Hukuku\nFikri Mülkiyet Hukuku\nİslam Hukuku\nİş ve Sosyal Güvenlik Hukuku\nMedeni Hukuk\nMedeni Usul ve İcra İflas Hukuk\nMilletlerarası Özel Hukuk\nRoma Hukuku\nTicaret Hukuku"
       },
       {
         "heading": "İlahiyat Fakültesi",
@@ -4630,8 +4634,8 @@
     "name": "TRABZON ÜNİVERSİTESİ",
     "wikipedia_title": "Trabzon Üniversitesi",
     "wikipedia_url": "https://tr.wikipedia.org/wiki/Trabzon_Üniversitesi",
-    "extract_length": 1468,
-    "section_count": 3,
+    "extract_length": 3459,
+    "section_count": 4,
     "sections": [
       {
         "heading": "Giriş",
@@ -4639,7 +4643,11 @@
       },
       {
         "heading": "Fakülteler",
-        "content": "Fatih Eğitim Fakültesi\nGüzel Sanatlar ve Tasarım Fakültesi\nHukuk Fakültesi\nİlahiyat Fakültesi\nİletişim Fakültesi\nSpor Bilimleri Fakültesi\nTıp Fakültesi\nBilgisayar ve Bilişim Bilimleri Fakültesi\nİnsan ve Toplum Bilimleri Fakültesi\nSiyasal Bilgiler Fakültesi\nYabancı Diller ve Turizm Fakültesi"
+        "content": "Güzel Sanatlar ve Tasarım Fakültesi\nHukuk Fakültesi\nİlahiyat Fakültesi\nİletişim Fakültesi\nSpor Bilimleri Fakültesi\nTıp Fakültesi\nBilgisayar ve Bilişim Bilimleri Fakültesi\nİnsan ve Toplum Bilimleri Fakültesi\nSiyasal Bilgiler Fakültesi\nYabancı Diller ve Turizm Fakültesi"
+      },
+      {
+        "heading": "Fatih Eğitim Fakültesi",
+        "content": "Trabzon ilinin Akçaabat ilçesinin Söğütlü mahallesinde bulunan Fatih Kampüsü içerisinde yer alan fakülte. Trabzon Üniversitesine bağlıdır.\nFatih Eğitim Fakültesinin çekirdeğini 1963-1964 eğitim-öğretim yılında açılan iki yıllık Fatih Eğitim Enstitüsü oluşturur. 1963-1964 eğitim-öğretim yılında iki yıllık Fatih Eğitim Enstitüsü adıyla açılmıştır. 1968 yılında öğretim süresi üç yıla çıkarılmıştır. 1978 yılında eğitim süresi dört yıla çıkarılarak Fatih Yüksek Öğretmen Okulu adını almıştır.\nTürkiye'de yükseköğretim, 1981'de çıkarılan 2547 sayılı Yükseköğretim Kanunu ile akademik, kurumsal ve idari yönden yeniden yapılanma sürecine girmiştir. Bu kanunla ülkemizdeki tüm yükseköğretim kurumları Yükseköğretim Kurulu (YÖK) çatısı altında toplanmış, akademiler üniversitelere, eğitim enstitüleri eğitim fakültelerine dönüştürülmüş ve konservatuvarlar ile meslek yüksekokulları üniversitelere bağlanmıştır. Bu bağlamda 1982 yılında Fatih Yüksek Öğretmen Okulu, Fakülte'ye dönüştürülerek, Karadeniz Teknik Üniversitesi'ne bağlanmıştır. Daha sonra 10.05.2018 tarihli ve 30425 sayılı Resmi Gazetede yayımlanan 7141 sayılı kanun ile kurulan Trabzon Üniversitesi'ne bağlanmıştır.\nFakülte Akçaabat Söğütlü beldesindeki Fatih Kampüsüne 1984 yılında taşınmıştır. Fatih kampüsü Karadeniz kıyısında, bir tepenin eteğine kuruludur. Fakültenin dershane ve öğretim elemanlarının odalarının bulunduğu A, B, C, D, E ve F olarak adlandırılan altı blok binası dışında dekanlık binası, kütüphane, oditoryum, kapalı spor salonu, erkek ve kız öğrenci yurtları, öğrenci kantinleri, öğrenci yemekhanesi, öğrenci sosyal tesisleri ve öğretim elemanlarına tahsis edilen lojmanlar mevcuttur.\nFakülte bünyesinde aşağıdaki bölümler mevcuttur.\n\nBEDEN EĞİTİMİ Ve SPOR EĞİTİMİ\nBİLGİSAYAR Ve ÖĞRETİM TEKNOLOJİLERİ EĞİTİMİ\nEĞİTİM BİLİMLERİ\nGÜZEL SANATLAR EĞİTİMİ\nİLKÖĞRETİM\nORTA ÖĞRETİM FEN-MATEMATİK ALANLARI EĞİTİMİ\nORTA ÖĞRETİM SOSYAL ALANLAR EĞİTİMİ\nÖZEL EĞİTİM\nTÜRKÇE EĞİTİMİ\nYABANCI DİLLER\nİLETİŞİM FAKÜLTESİ"
       },
       {
         "heading": "Meslek Yüksekokulları",
@@ -4994,7 +5002,7 @@
     "name": "AFYONKARAHİSAR SAĞLIK BİLİMLERİ ÜNİVERSİTESİ",
     "wikipedia_title": "Afyonkarahisar Sağlık Bilimleri Üniversitesi",
     "wikipedia_url": "https://tr.wikipedia.org/wiki/Afyonkarahisar_Sağlık_Bilimleri_Üniversitesi",
-    "extract_length": 5008,
+    "extract_length": 4991,
     "section_count": 4,
     "sections": [
       {
@@ -6881,7 +6889,7 @@
     "name": "KADİR HAS ÜNİVERSİTESİ (İSTANBUL)",
     "wikipedia_title": "Kadir Has Üniversitesi",
     "wikipedia_url": "https://tr.wikipedia.org/wiki/Kadir_Has_Üniversitesi",
-    "extract_length": 8391,
+    "extract_length": 8192,
     "section_count": 9,
     "sections": [
       {
@@ -6890,7 +6898,7 @@
       },
       {
         "heading": "Tarihçe",
-        "content": "Üniversitenin kuruluş çalışmaları iş  insanı Kadir Has tarafından1992 yılında başlatıldı ve resmî kuruluşu 28 Mayıs 1997 tarih ve 4263 sayılı yasayla gerçekleşti. Ergür Tütüncüoğlu, üniversitenin ilk rektörüdür.\nÜniversitenin ana kampüsü olan Tarihî Cibali Tütün Fabrikası, 15 Aralık 1997 yılında Maliye Bakanlığı'nın 75044 sayılı oluru ile Kadir Has Üniversitesi'ne eğitim yapısı olarak kullanmak şartıyla devredilmiş ve restorasyon çalışmaları 2000 yılında Fatih Belediyesi izniyle başlamıştır. Üniversiteye ait Selimpaşa Kampüsü'nün inşaatı ise 1998'de başlamıştır.\nÜniversite 2000-2001 döneminde Bahçelievler Kampüsü'nü kullandı. Cibali'deki kampüste mimar-restoratör Mehmet Alper'in yürüttüğü restorasyon çalışmaları dört ay sürdü. Üniversite, 2001-2002 öğretim yılından itibaren faaliyetlerini Cibali, Selimpaşa ve Bahçelievler kampüslerinde devam etti. Cibali'deki ana kampüsün resmî açılışı 13 Şubat 2002'de yapıldı.\n2007 yılı sonunda Cibali Kampüsü modern D Blok'un eklenmesi ile büyütüldü. \"Cibali Kampüsü\" adı 28 Mart 2007'de \"Kadir Has Kampüsü\" olarak değişti.\nErgür Tütüncüoğlu görevini 2002'de Yücel Yılmaz'a; o da Şubat 2010'da Mustafa Aydın'a devretti. 2018 yılı Mart ayında Sondan Durukanoğlu Feyiz, 2025 yılı Kasım ayında Ayşe Başar üniversitenin yeni rektörü oldu.\nTürkiye'deki film, TV, animasyon, belgesel, reklam ve oyun sektörleri için  bir üretim ve eğitim merkezi olması hedefiyle 2024'te Sanayi ve Teknoloji Bakanlığı iş birliğiyle ve Avrupa Birliği'nden sağlanan fon desteğiyle Kadir Has Üniversitesi bünyesinde Fabrikhas adlı merkez açıldı.\nÜniversite, Times Higher Education (THE) adlı İngiliz yükseköğretim derecelendirme kuruluşu tarafından açıklanan Dünya Üniversite sıralamasında 2026 yılında ilk 601-800'e yer almıştır. Türkiye genelinde 6. Sırada yer alan üniversite, vakıf üniversiteleri arasında ise 4. sıradadır. University Ranking by Academic Performance (URAP) Araştırma Laboratuvarı, 2025 yılı Türkiye Üniversiteleri sıralamasına göre Kadir Has Üniversitesi, vakıf üniversiteleri arasında 7'nci, tıp fakültesi bulunmayan vakıf üniversiteleri arasında 3'üncü sırada yer almaktadır."
+        "content": "Üniversitenin kuruluş çalışmaları iş insanı Kadir Has tarafından 1992'de başlatıldı ve resmî kuruluşu 28 Mayıs 1997'de ve 4263 sayılı yasayla gerçekleşti. Ergür Tütüncüoğlu, üniversitenin ilk rektörüdür.\nÜniversitenin ana kampüsü olan Tarihî Cibali Tütün Fabrikası, 15 Aralık 1997'de Maliye Bakanlığı'nın 75044 sayılı oluru ile Kadir Has Üniversitesi'ne eğitim yapısı olarak kullanmak şartıyla devredilmiş ve restorasyon çalışmaları 2000'de Fatih Belediyesi izniyle başlamıştır. Üniversiteye ait Selimpaşa Kampüsü'nün inşaatı ise 1998'de başlamıştır.\nÜniversite 2000-2001 döneminde Bahçelievler Kampüsü'nü kullandı. Cibali'deki kampüste mimar-restoratör Mehmet Alper'in yürüttüğü restorasyon çalışmaları dört ay sürdü. Üniversite, 2001-2002 öğretim yılından itibaren faaliyetlerini Cibali, Selimpaşa ve Bahçelievler kampüslerinde devam etti. Cibali'deki ana kampüsün resmî açılışı 13 Şubat 2002'de yapıldı.\n2007 yılı sonunda Cibali Kampüsü modern D Blok'un eklenmesi ile büyütüldü. \"Cibali Kampüsü\" adı 28 Mart 2007'de \"Kadir Has Kampüsü\" olarak değişti.\nErgür Tütüncüoğlu görevini 2002'de Yücel Yılmaz'a; o da Şubat 2010'da Mustafa Aydın'a devretti. 2018 Mart'ında Sondan Durukanoğlu Feyiz, 2025 Kasım'ında Ayşe Başar üniversitenin yeni rektörü oldu.\nTürkiye'deki film, TV, animasyon, belgesel, reklam ve oyun sektörleri için  bir üretim ve eğitim merkezi olması hedefiyle 2024'te Sanayi ve Teknoloji Bakanlığı iş birliğiyle ve Avrupa Birliği'nden sağlanan fon desteğiyle Kadir Has Üniversitesi bünyesinde Fabrikhas adlı merkez açıldı.\nÜniversite, Times Higher Education (THE) adlı İngiliz yükseköğretim derecelendirme kuruluşu tarafından açıklanan Dünya Üniversite sıralamasında 2026'da ilk 601-800'e yer almıştır. Türkiye genelinde 6. Sırada yer alan üniversite, vakıf üniversiteleri arasında ise 4. sıradadır. University Ranking by Academic Performance (URAP) Araştırma Laboratuvarı, 2025 yılı Türkiye Üniversiteleri sıralamasına göre Kadir Has Üniversitesi, vakıf üniversiteleri arasında 7'nci, tıp fakültesi bulunmayan vakıf üniversiteleri arasında 3'üncü sırada yer almaktadır."
       },
       {
         "heading": "Akademik yapı",
@@ -6898,7 +6906,7 @@
       },
       {
         "heading": "Hukuk Fakültesi",
-        "content": "İstanbul'da 2003-2004 akademik yılında eğitime başlamış olan özel bir hukuk fakültesidir. \"dünyadaki gelişme ve yeniliklerden haberdar, bilgi çağının gereklerinin bilincinde, Türk hukukuna katkı sağlayacak genç hukukçuları yetiştirmeyi\" hedefler. Eğitim dili kısmen (%30) İngilizcedir. Mayıs 2020 tarihinden itibaren dekan olan Başak Baysal'ın yerini Ekim 2023'te Ozan Erözden almıştır. Kadir Has Üniversitesinin diğer programları gibi çekirdek programa tabiidir. Ayrıca 2023 yılında vaka tabanlı eğitim uygulanmaya başlanmıştır.\n\nTabloda belirtilen lisans eğitimi kapsayan bu sayıların dışında, Fakültenin kadrosunda veya misafir olarak lisans veya lisansüstü derslere giren çeşitli öğretim üyeleri ile beraber; Cemal Bali Akal, Orkun Akseli, Mehmet Bahtiyar, Ayşe Işıl Karakaş|Hasan Ünsal Erman, Emre Esen, Ali Güzel, Emrehan İnal, Tuğrul Bayazıt Katoğlu, Ergun Özsunay, Jakub Urbanik, Harun İzer, Ahmet Ayar  gibi isimler de bulunur.\nAraştırma merkezleri ve laboratuvarlar:\n\nİnsan Hakları Uygulama ve Araştırma Merkezi\nSorumluluk Hukuku Uygulama ve Araştırma Merkezi\nSpor Çalışmaları Uygulama ve Araştırma Merkezi\nHukuk ve Bilgi Teknolojileri Laboratuvarı (LITLAB)\nİklim Değişikliği ve Hukuk Laboratuvarı (CCLLAB)"
+        "content": "İstanbul'da 2003-2004 akademik yılında eğitime başlamış olan özel bir hukuk fakültesidir. Eğitim dili kısmen (%30) İngilizcedir. Mayıs 2020 tarihinden itibaren dekan olan Başak Baysal'ın yerini Ekim 2023'te Ozan Erözden almıştır. Kadir Has Üniversitesinin diğer programları gibi çekirdek programa tabiidir. Ayrıca 2023'te vaka tabanlı eğitim uygulanmaya başlanmıştır.\n\nTabloda belirtilen lisans eğitimi kapsayan bu sayıların dışında, Fakültenin kadrosunda veya misafir olarak lisans veya lisansüstü derslere giren çeşitli öğretim üyeleri ile beraber; Cemal Bali Akal, Orkun Akseli, Mehmet Bahtiyar, Ayşe Işıl Karakaş|Hasan Ünsal Erman, Emre Esen, Ali Güzel, Emrehan İnal, Tuğrul Bayazıt Katoğlu, Ergun Özsunay, Jakub Urbanik, Harun İzer, Ahmet Ayar  gibi isimler de bulunur.\nAraştırma merkezleri ve laboratuvarlar:\n\nİnsan Hakları Uygulama ve Araştırma Merkezi\nSorumluluk Hukuku Uygulama ve Araştırma Merkezi\nSpor Çalışmaları Uygulama ve Araştırma Merkezi\nHukuk ve Bilgi Teknolojileri Laboratuvarı (LITLAB)\nİklim Değişikliği ve Hukuk Laboratuvarı (CCLLAB)"
       },
       {
         "heading": "Eğitim modeli",
