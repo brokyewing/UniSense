@@ -1,1 +1,0 @@
-fix: render.yaml indentation error (FIREBASE_SERVICE_ACCOUNT_JSON env var) - Blueprint sync failed due to wrong YAML indentation
