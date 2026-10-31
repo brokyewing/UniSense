@@ -1,0 +1,9 @@
+feat: implement push notification service (send_push_notification, send_exam_reminder, send_streak_reminder) + Firebase Admin SDK integration
+
+- push_service.py: added send_push_notification, send_exam_reminder, send_streak_reminder functions using firebase_admin.messaging
+- .env.example: added FIREBASE_SERVICE_ACCOUNT_PATH and FIREBASE_SERVICE_ACCOUNT_JSON
+- render.yaml: added FIREBASE_SERVICE_ACCOUNT_JSON env var (sync: false)
+- .gitignore: added service account key patterns (NEVER commit)
+- GOREVLER.md: marked service account key setup as complete
+- Backend tests: 209/209 passed
+- Firebase Admin SDK initialized successfully with user's service account key

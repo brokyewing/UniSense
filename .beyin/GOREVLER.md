@@ -31,7 +31,7 @@
 - [x] API endpoints: `/push/send`, `/push/exam-reminder`, `/push/streak-reminder`
 - [x] `firebase-admin` added to requirements.txt
 - [x] Scheduled jobs (daily 09:00 UTC push notification loop)
-- [ ] Service account key setup (Firebase Console) — BLOCKED: requires user to generate in Firebase Console
+- [x] Service account key setup (Firebase Console) — completed, firebase-admin initialized successfully
 - [x] Frontend integration (call backend endpoints) - pushSend, pushExamReminder, pushStreakReminder added to api.ts
 
 ### Unit Test Coverage
