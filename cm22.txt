@@ -1,7 +1,0 @@
-fix: deploy crash - remove @asynccontextmanager from _push_notification_loop, fix embed_texts calls (task_type not supported by local embedder)
-
-- _push_notification_loop was decorated with @asynccontextmanager making it an async context manager instead of coroutine → create_task failed → app startup crash (deploy status 3)
-- Removed unused asynccontextmanager import
-- Fixed embed.py and compass_service.py to not pass unsupported task_type/max_retries args to local embedder
-- Backend tests: 209/209 passed
-- Docker build + container startup verified (health endpoint returns degraded status, app starts)
