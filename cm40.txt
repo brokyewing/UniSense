@@ -1,0 +1,6 @@
+fix: tailwind content glob include .ts/.tsx files - design was broken (6.7KB -> 56KB CSS)
+
+- Root cause of broken design: tailwind.config.js content was ./src/**/*.{js,jsx}
+- After TypeScript migration all files are .ts/.tsx -> Tailwind detected NO utility classes
+- Fixed: content now includes .ts and .tsx
+- CSS output: 6.7KB -> 56.38KB (all utility classes now generated)
