@@ -1,6 +1,0 @@
-fix: pin grpc/protobuf versions compatible with chromadb + firebase-admin
-
-- firebase-admin install brought grpcio 1.85.1 which broke chromadb (cygrpc DLL error on Windows, Application Control policy)
-- Pinned grpcio==1.66.2, grpcio-status==1.66.2, protobuf==5.29.5
-- Backend tests: 209/209 passed
-- Firebase Admin SDK still initializes successfully
