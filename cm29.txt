@@ -1,0 +1,1 @@
+fix: firebase-init authDomain use env var (VITE_FIREBASE_AUTH_DOMAIN) + add .firebaserc for Firebase project unisense-13634
