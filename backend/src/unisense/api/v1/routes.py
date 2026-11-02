@@ -84,6 +84,7 @@ from unisense.application.services.scholarship_service import ScholarshipService
 from unisense.core.di import get_vector_store
 from unisense.core.logging import get_logger
 from unisense.domain.models import Query, StudentProfile
+from unisense.domain.models.analytics import AnalyticsEvent
 from unisense.security.audit_log import audit
 from unisense.security.auth import require_api_key
 from unisense.security.firebase_auth import require_user
@@ -149,14 +150,10 @@ def employment_years():
 # === Analytics Endpoints ===
 
 @router.post("/analytics/log")
-def log_analytics_event(
-    event_type: str,
-    page: str | None = None,
-    user_id: str | None = None,
-):
+def log_analytics_event(event: AnalyticsEvent):
     """Kullanıcı davranış olayı kaydet."""
     svc = AnalyticsService()
-    return svc.log_event(event_type=event_type, page=page, user_id=user_id)
+    return svc.log_event(event_type=event.event_type, page=event.page, user_id=event.user_id)
 
 
 @router.get("/analytics/summary")
