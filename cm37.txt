@@ -1,6 +1,0 @@
-fix: analytics/log endpoint accept JSON body (AnalyticsEvent model) instead of query params
-
-- Frontend sends POST /analytics/log with JSON body {event_type, page, user_id}
-- Backend was expecting query params -> 422 error in production
-- Fixed: endpoint now uses AnalyticsEvent Pydantic model as body
-- Backend tests: 209/209 passed
