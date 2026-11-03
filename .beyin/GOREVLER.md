@@ -100,6 +100,14 @@
 - [x] `strict: true` yapma — 0 tsc error
 - [x] Tip tanımları (interfaces, types) — types/index.ts + component interfaces
 
+### ✅ Kariyer Data Sync her gün düşüyor (sahibi: opencode — kullanıcı onayıyla Claude Code düzeltti, 2026-11-03, commit bekliyor)
+- [x] **Çözüm (uygulandı):** `kariyer_scraper.py`, `test_kariyer.py`, `test_kariyer_tarih_budama.py` son sağlam sürüme (`ecd4569^`) geri alındı. Yeniden yazım ayrıca koşu raporunu bozuyordu (`_gecmis_guncelle` `kariyer_kosu.json`'a `[]` yazıyor, workflow özet adımı `k['tarih']`'te çökecekti) ve `write_json_guarded`'ı zorunlu `label` olmadan çağırıyordu. Testteki 4 tarih-bombası (`_merge` `date.today()` kullanıyor) sabit tarih fixture'ıyla çözüldü; ruff 0.17 bulguları temizlendi. Sonuç: ruff temiz, 284 passed; kamuilan 403 simülasyonlu uçtan uca koşu exit 0. `kariyer_merge.py`/`jooble_scraper.py`/`careerjet_scraper.py`/`rg_scraper.py` artık scraper tarafından kullanılmıyor (yalnız `test_kariyer_tarih_budama` öncesinde import ediyordu) — silinip silinmeyeceği opencode'un kararı.
+- **Açık kalan:** `kamuilan.sbb.gov.tr` GitHub runner IP'lerine 403 veriyor; CI'da bu kaynak 0 ilan getirecek (koşu yine yeşil, 🚨 alarm satırı basılır).
+- **Dosya:** `backend/src/unisense/infrastructure/scrapers/kariyer_scraper.py:526` (`main()` içindeki kaynak çağrıları, ~520-553)
+- **Sorun:** 2026-10-25'ten beri 9 koşunun 9'u `failure`. `kamuilan.sbb.gov.tr` GitHub runner'larına `403 Forbidden` dönüyor (lokalden 200 — runner IP'si engelleniyor). `_scrape_kamuilan` satır 87'deki `r.raise_for_status()` istisnayı yukarı fırlatıyor ve `main()` bunu yakalamadığı için kalan 9 kaynak hiç çalışmıyor, `kariyer` verisi 9 gündür güncellenmiyor.
+- **Neden başladı:** `ecd4569` (2026-10-24, başlığı "test: fix embed_query import" ama scraper'ı yeniden yazıyor) eski `scrape_tumu()` içindeki kaynak başına `try/except` korumasını ("kısmi başarı normal (§5)") kaldırdı.
+- **Önerilen çözüm:** `main()`'deki her `yeni.extend(_scrape_x(...))` çağrısını eski desendeki gibi `try/except Exception` ile sar; hatayı `print(f"  ⚠️ {ad} düştü: ...")` ile logla, kaynağı boş liste say. Hiçbir kaynak veri üretmezse exit 1 (eski guard) korunsun. Not: aynı yeniden yazımda `hatlar` (kamu/ozel) bölmesi ve kamuilan PDF `detayli` önbelleği de kayboldu — ayrıca değerlendir.
+
 ## 📋 Notlar
 - Tüm özellikler ücretsiz olacak (premium kaldırıldı)
 - Her özellik için build test + GitHub push yapıldı
