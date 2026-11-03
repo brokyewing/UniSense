@@ -25,6 +25,8 @@
     { "source": "/compare", "destination": "/karsilastir", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/__/auth/:path*", "destination": "https://unisense-13634.firebaseapp.com/__/auth/:path*" },
+    { "source": "/__/firebase/:path*", "destination": "https://unisense-13634.firebaseapp.com/__/firebase/:path*" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "headers": [
