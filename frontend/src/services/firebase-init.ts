@@ -12,12 +12,17 @@ const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  // authDomain Firebase'in kendi alanı OLMALI: site Vercel'de, unisense.com.tr
-  // /__/auth/handler'ı sunmuyor (SPA index.html döner) ve Google OAuth
-  // istemcisinde o redirect_uri kayıtlı değil → Google girişi
-  // redirect_uri_mismatch / boş sayfa. Env'e bağlanmadı: Vercel'deki eski
-  // VITE_FIREBASE_AUTH_DOMAIN değeri bu hatayı geri getirmesin.
-  authDomain: `${projectId}.firebaseapp.com`,
+  // Google ekranında "unisense.com.tr'ye devam edin" görünsün diye özel alan.
+  // Üç parçaya bağlı — biri eksikse Google girişi boş sayfa /
+  // redirect_uri_mismatch verir:
+  //  1. vercel.json: /__/auth/* → unisense-13634.firebaseapp.com proxy'si
+  //     (SPA catch-all'dan ÖNCE)
+  //  2. Google OAuth istemcisi: https://www.unisense.com.tr/__/auth/handler
+  //  3. Firebase authorized domains: www.unisense.com.tr
+  // www (çıplak alan değil): unisense.com.tr Vercel'de www'ya 308 yapar.
+  // Env'e bağlanmadı: Vercel'deki eski VITE_FIREBASE_AUTH_DOMAIN değeri
+  // (unisense.com.tr) bu ayarı ezmesin.
+  authDomain: 'www.unisense.com.tr',
   projectId,
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
