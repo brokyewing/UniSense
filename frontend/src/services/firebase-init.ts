@@ -8,10 +8,17 @@ import { getAuth, GoogleAuthProvider, type Auth } from 'firebase/auth'
 import { getFirestore, type Firestore } from 'firebase/firestore'
 import { getStorage, type FirebaseStorage } from 'firebase/storage'
 
+const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID
+
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'unisense.com.tr',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  // authDomain Firebase'in kendi alanı OLMALI: site Vercel'de, unisense.com.tr
+  // /__/auth/handler'ı sunmuyor (SPA index.html döner) ve Google OAuth
+  // istemcisinde o redirect_uri kayıtlı değil → Google girişi
+  // redirect_uri_mismatch / boş sayfa. Env'e bağlanmadı: Vercel'deki eski
+  // VITE_FIREBASE_AUTH_DOMAIN değeri bu hatayı geri getirmesin.
+  authDomain: `${projectId}.firebaseapp.com`,
+  projectId,
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
