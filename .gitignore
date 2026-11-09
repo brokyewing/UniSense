@@ -70,3 +70,14 @@ _e2e*.txt
 
 # Scraper ara kayıtları — döngü sırasında yazılır, başarıyla bitince silinir
 backend/data/raw/**/*.partial.json
+
+# AI ajan dosyalari (git disi)
+.claude/
+.beyin/
+founder/
+/AGENTS.md
+/CLAUDE.md
+/CODEX.md
+/GEMINI.md
+/OPENCODE.md
+/CONTINUE.md
