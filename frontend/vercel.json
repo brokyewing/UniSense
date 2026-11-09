@@ -6,7 +6,7 @@
   "redirects": [
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "uni-sense.vercel.app" }],
+      "has": [{ "type": "host", "value": "uni-sense-h61jqnocu-broky-ewing.vercel.app" }],
       "destination": "https://www.unisense.com.tr/:path*",
       "permanent": true
     },
