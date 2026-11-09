@@ -5,6 +5,12 @@
   "framework": "vite",
   "redirects": [
     {
+      "source": "/",
+      "has": [{ "type": "host", "value": { "suf": "-broky-ewing.vercel.app" } }],
+      "destination": "https://www.unisense.com.tr/",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [{ "type": "host", "value": { "suf": "-broky-ewing.vercel.app" } }],
       "destination": "https://www.unisense.com.tr/:path*",
