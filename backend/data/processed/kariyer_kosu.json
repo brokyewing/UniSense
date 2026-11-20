@@ -1,24 +1,24 @@
 {
- "tarih": "2026-11-19",
+ "tarih": "2026-11-20",
  "kaynaklar": {
   "akademiktr": {
-   "cekilen": 40,
-   "yeni": 4,
+   "cekilen": 38,
+   "yeni": 10,
    "hata": ""
   },
   "ats": {
-   "cekilen": 33,
+   "cekilen": 35,
    "yeni": 20,
    "hata": ""
   },
   "careerjet": {
-   "cekilen": 701,
-   "yeni": 701,
+   "cekilen": 704,
+   "yeni": 704,
    "hata": ""
   },
   "jooble": {
-   "cekilen": 883,
-   "yeni": 396,
+   "cekilen": 884,
+   "yeni": 391,
    "hata": ""
   },
   "kamuilan": {
@@ -28,7 +28,7 @@
   },
   "kariyerkapisi": {
    "cekilen": 24,
-   "yeni": 1,
+   "yeni": 3,
    "hata": ""
   },
   "rg": {
@@ -37,26 +37,18 @@
    "hata": ""
   },
   "savunmakariyer": {
-   "cekilen": 15,
-   "yeni": 0,
+   "cekilen": 16,
+   "yeni": 1,
    "hata": ""
+  },
+  "turksat": {
+   "cekilen": 0,
+   "yeni": 0,
+   "hata": "HTTPError: 403 Client Error: Forbidden for url: https://kariyer.turksat.com.tr/jobs"
   }
  },
- "toplam_kayit": 7314,
+ "toplam_kayit": 7111,
  "gecmis": [
-  {
-   "tarih": "2026-11-10",
-   "cekilen": {
-    "akademiktr": 38,
-    "ats": 31,
-    "careerjet": 686,
-    "jooble": 871,
-    "kamuilan": 0,
-    "kariyerkapisi": 23,
-    "rg": 1,
-    "savunmakariyer": 15
-   }
-  },
   {
    "tarih": "2026-11-11",
    "cekilen": {
@@ -173,9 +165,24 @@
     "rg": 1,
     "savunmakariyer": 15
    }
+  },
+  {
+   "tarih": "2026-11-20",
+   "cekilen": {
+    "akademiktr": 38,
+    "ats": 35,
+    "careerjet": 704,
+    "jooble": 884,
+    "kamuilan": 0,
+    "kariyerkapisi": 24,
+    "rg": 1,
+    "savunmakariyer": 16,
+    "turksat": 0
+   }
   }
  ],
  "alarm": [
-  "kamuilan"
+  "kamuilan",
+  "turksat"
  ]
 }
