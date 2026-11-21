@@ -1,24 +1,24 @@
 {
- "tarih": "2026-11-20",
+ "tarih": "2026-11-21",
  "kaynaklar": {
   "akademiktr": {
    "cekilen": 38,
-   "yeni": 10,
+   "yeni": 3,
    "hata": ""
   },
   "ats": {
    "cekilen": 35,
-   "yeni": 20,
+   "yeni": 18,
    "hata": ""
   },
   "careerjet": {
-   "cekilen": 704,
-   "yeni": 704,
+   "cekilen": 853,
+   "yeni": 853,
    "hata": ""
   },
   "jooble": {
-   "cekilen": 884,
-   "yeni": 391,
+   "cekilen": 893,
+   "yeni": 416,
    "hata": ""
   },
   "kamuilan": {
@@ -27,8 +27,8 @@
    "hata": "HTTPError: 403 Client Error: Forbidden for url: https://kamuilan.sbb.gov.tr/"
   },
   "kariyerkapisi": {
-   "cekilen": 24,
-   "yeni": 3,
+   "cekilen": 23,
+   "yeni": 1,
    "hata": ""
   },
   "rg": {
@@ -38,30 +38,12 @@
   },
   "savunmakariyer": {
    "cekilen": 16,
-   "yeni": 1,
-   "hata": ""
-  },
-  "turksat": {
-   "cekilen": 0,
    "yeni": 0,
-   "hata": "HTTPError: 403 Client Error: Forbidden for url: https://kariyer.turksat.com.tr/jobs"
+   "hata": ""
   }
  },
- "toplam_kayit": 7111,
+ "toplam_kayit": 7280,
  "gecmis": [
-  {
-   "tarih": "2026-11-11",
-   "cekilen": {
-    "akademiktr": 41,
-    "ats": 31,
-    "careerjet": 698,
-    "jooble": 876,
-    "kamuilan": 0,
-    "kariyerkapisi": 23,
-    "rg": 1,
-    "savunmakariyer": 15
-   }
-  },
   {
    "tarih": "2026-11-12",
    "cekilen": {
@@ -178,6 +160,19 @@
     "rg": 1,
     "savunmakariyer": 16,
     "turksat": 0
+   }
+  },
+  {
+   "tarih": "2026-11-21",
+   "cekilen": {
+    "akademiktr": 38,
+    "ats": 35,
+    "careerjet": 853,
+    "jooble": 893,
+    "kamuilan": 0,
+    "kariyerkapisi": 23,
+    "rg": 1,
+    "savunmakariyer": 16
    }
   }
  ],
