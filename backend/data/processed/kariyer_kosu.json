@@ -1,9 +1,9 @@
 {
- "tarih": "2026-11-21",
+ "tarih": "2026-11-22",
  "kaynaklar": {
   "akademiktr": {
    "cekilen": 38,
-   "yeni": 3,
+   "yeni": 2,
    "hata": ""
   },
   "ats": {
@@ -12,13 +12,13 @@
    "hata": ""
   },
   "careerjet": {
-   "cekilen": 853,
-   "yeni": 853,
+   "cekilen": 706,
+   "yeni": 706,
    "hata": ""
   },
   "jooble": {
-   "cekilen": 893,
-   "yeni": 416,
+   "cekilen": 897,
+   "yeni": 367,
    "hata": ""
   },
   "kamuilan": {
@@ -42,21 +42,8 @@
    "hata": ""
   }
  },
- "toplam_kayit": 7280,
+ "toplam_kayit": 7108,
  "gecmis": [
-  {
-   "tarih": "2026-11-12",
-   "cekilen": {
-    "akademiktr": 39,
-    "ats": 30,
-    "careerjet": 708,
-    "jooble": 880,
-    "kamuilan": 0,
-    "kariyerkapisi": 24,
-    "rg": 1,
-    "savunmakariyer": 15
-   }
-  },
   {
    "tarih": "2026-11-13",
    "cekilen": {
@@ -169,6 +156,19 @@
     "ats": 35,
     "careerjet": 853,
     "jooble": 893,
+    "kamuilan": 0,
+    "kariyerkapisi": 23,
+    "rg": 1,
+    "savunmakariyer": 16
+   }
+  },
+  {
+   "tarih": "2026-11-22",
+   "cekilen": {
+    "akademiktr": 38,
+    "ats": 35,
+    "careerjet": 706,
+    "jooble": 897,
     "kamuilan": 0,
     "kariyerkapisi": 23,
     "rg": 1,
