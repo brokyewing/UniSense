@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     app_host: str = "0.0.0.0"
     app_port: int = 8002
     app_log_level: str = Field(default="INFO", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$")
+    glitchtip_dsn: str = ""
 
     # === LLM ===
     gemini_api_keys: str = ""

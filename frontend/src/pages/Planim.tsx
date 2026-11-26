@@ -51,10 +51,6 @@ export default function Planim({ embedded = false }) {
   const { user } = useAuth()
   const loc = useLocation()
 
-  // Analytics: sayfa görüntüleme
-  useEffect(() => {
-    import('@/services/api').then(m => m.api.analyticsLog('page_view', '/planim', user?.uid).catch(() => {}))
-  }, [])
   const bugun = useMemo(() => isoGun(), [])
   const hafta = useMemo(() => isoHafta(new Date()), [])
 

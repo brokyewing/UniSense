@@ -14,11 +14,24 @@ import {
   updatePassword,
   EmailAuthProvider,
   reauthenticateWithCredential,
+  reauthenticateWithPopup,
+  deleteUser,
   type Auth,
   type User,
   type UserCredential,
 } from 'firebase/auth'
+import type { DocumentReference } from 'firebase/firestore'
 import { app } from './firebase-init'
+import {
+  db,
+  doc,
+  setDoc,
+  getDocs,
+  collection,
+  deleteDoc,
+  writeBatch,
+  serverTimestamp,
+} from './firestore-core'
 import { ensureUserDoc } from './firestore-user'
 
 let auth: Auth | null = null
@@ -76,13 +89,110 @@ export async function updateUserBasicInfo(
   { displayName, photoURL }: { displayName?: string; photoURL?: string },
 ): Promise<void> {
   if (!auth) throw new Error('Firebase Auth yok')
-  const updates: Record<string, string> = {}
-  if (displayName !== undefined) updates.displayName = displayName
-  if (photoURL !== undefined) updates.photoURL = photoURL
-  if (Object.keys(updates).length > 0) {
-    await updateProfile(user, updates)
+  const updates: { displayName?: string; photoURL?: string } = {}
+  if (displayName !== undefined) updates.displayName = displayName.slice(0, 100)
+  if (photoURL !== undefined) updates.photoURL = photoURL.slice(0, 1000)
+  if (Object.keys(updates).length === 0) return
+  await updateProfile(user, updates)
+  if (db) {
+    await setDoc(
+      doc(db, 'users', user.uid),
+      { ...updates, updatedAt: serverTimestamp() },
+      { merge: true },
+    )
   }
-  // Firestore güncellemesi ensureUserDoc/zaten ayrı yapılıyor
+}
+
+const USER_SUBCOLLECTIONS = [
+  'tercih',
+  'dgs_tercih',
+  'kpss_tercih',
+  'tus_tercih',
+  'dus_tercih',
+  'lgs_tercih',
+  'konu_ilerleme',
+  'aktivite',
+  'pushTokens',
+  'yanlislar',
+  'notlar',
+  'kartlar',
+  'istatistik',
+  'denemeler',
+  'soru_kayit',
+  'plan_config',
+  'plan_gorev',
+  'queries',
+  'sessions',
+] as const
+
+async function deleteRefsInBatches(refs: DocumentReference[]): Promise<void> {
+  if (!db || refs.length === 0) return
+  const BATCH_SIZE = 400
+  for (let i = 0; i < refs.length; i += BATCH_SIZE) {
+    const batch = writeBatch(db)
+    for (const ref of refs.slice(i, i + BATCH_SIZE)) {
+      batch.delete(ref)
+    }
+    await batch.commit()
+  }
+}
+
+export async function deleteAccountAndData(
+  user: User,
+  currentPassword?: string,
+): Promise<void> {
+  if (!auth) throw new Error('Firebase Auth yok')
+
+  const provider = getAuthProvider(user)
+  if (provider === 'google') {
+    if (!googleProvider) throw new Error('Google sağlayıcısı hazır değil')
+    await reauthenticateWithPopup(user, googleProvider)
+  } else {
+    if (!currentPassword) {
+      throw new Error('Hesabı silmek için mevcut şifreni girmelisin')
+    }
+    if (!user.email) {
+      throw new Error('E-posta bilgisi bulunamadı')
+    }
+    const cred = EmailAuthProvider.credential(user.email, currentPassword)
+    await reauthenticateWithCredential(user, cred)
+  }
+
+  if (db) {
+    for (const sub of USER_SUBCOLLECTIONS) {
+      if (sub === 'sessions') {
+        const sessionsSnap = await getDocs(collection(db, 'users', user.uid, 'sessions'))
+        for (const sessionDoc of sessionsSnap.docs) {
+          const msgsSnap = await getDocs(
+            collection(db, 'users', user.uid, 'sessions', sessionDoc.id, 'messages'),
+          )
+          await deleteRefsInBatches(msgsSnap.docs.map((d) => d.ref))
+        }
+        await deleteRefsInBatches(sessionsSnap.docs.map((d) => d.ref))
+      } else {
+        const snap = await getDocs(collection(db, 'users', user.uid, sub))
+        await deleteRefsInBatches(snap.docs.map((d) => d.ref))
+      }
+    }
+
+    await deleteDoc(doc(db, 'siralama', user.uid))
+    await deleteDoc(doc(db, 'users', user.uid))
+  }
+
+  await deleteUser(user)
+
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const keysToRemove: string[] = []
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const k = window.localStorage.key(i)
+      if (k && k.startsWith('unisense_')) {
+        keysToRemove.push(k)
+      }
+    }
+    for (const k of keysToRemove) {
+      window.localStorage.removeItem(k)
+    }
+  }
 }
 
 export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {

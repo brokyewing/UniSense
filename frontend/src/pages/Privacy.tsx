@@ -6,7 +6,7 @@ import {
 } from 'lucide-react'
 import BackgroundScene from '../components/three/LazyBackgroundScene'
 
-const LAST_UPDATED = '17 Mayıs 2026'
+const LAST_UPDATED = '26 Kasım 2026'
 
 const COLLECTED_DATA = [
   {
@@ -15,40 +15,59 @@ const COLLECTED_DATA = [
     source: 'Firebase Authentication',
     items: [
       'E-posta adresi',
-      'Ad/soyad (Google ile girişte)',
-      'Profil fotoğrafı (Google ile girişte, opsiyonel)',
+      'Ad/soyad (Google ile girişte veya profil düzenlemede)',
+      'Profil fotoğrafı (Google veya hazır avatar, opsiyonel)',
       'Şifre (yalnızca Email/Password yöntemi — Firebase tarafından hash\'lenir)',
     ],
   },
   {
     icon: FileText,
-    title: 'YKS Profili',
+    title: 'Sınav Profilleri (YKS, DGS, KPSS, TUS/DUS, LGS)',
     source: 'Firestore — users/{uid}/profile',
     items: [
-      'TYT/AYT puanı, başarı sıralaması',
+      'YKS, DGS, KPSS, TUS, DUS, LGS ve AGS puan/sıralama/net bilgileri',
       'Tercih ettiğin şehirler ve bölgeler',
       'İlgi alanları (Pusula sonuçları)',
-      'Tercih ettiğin üniversite türü (Devlet/Vakıf/KKTC)',
+      'Tercih ettiğin üniversite türü (Devlet/Vakıf)',
     ],
   },
   {
     icon: Database,
-    title: 'Tercih Listesi',
-    source: 'Firestore — users/{uid}/tercih',
+    title: 'Tercih Listeleri',
+    source: 'Firestore — users/{uid}/*_tercih',
     items: [
-      '24 sıralık ÖSYM tercih kodları',
-      'Sıralama / öncelik bilgisi',
+      'YKS, DGS, KPSS, TUS, DUS ve LGS tercih kodları',
+      'Sıralama / öncelik bilgisi ve kişisel notlar',
       'Eklenme zamanı',
     ],
   },
   {
+    icon: FileText,
+    title: 'Çalışma ve İlerleme Verileri',
+    source: 'Firestore — users/{uid}/* & siralama/{uid}',
+    items: [
+      'Konu ilerlemesi (konular), deneme sonuçları (denemeler) ve soru kayıtları',
+      'Yanlış defteri, notlar, bilgi kartları ve çalışma planlayıcısı görevleri',
+      'Günlük aktivite serisi, çalışma istatistikleri ve isteğe bağlı liderlik tablosu',
+    ],
+  },
+  {
     icon: Cloud,
-    title: 'Sohbet Geçmişi',
-    source: 'Firestore — users/{uid}/sessions (son 5 oturum, FIFO)',
+    title: 'Sohbet ve Sorgu Geçmişi',
+    source: 'Firestore — users/{uid}/sessions (son 5 oturum, FIFO) & queries',
     items: [
       'Sorduğun sorular ve Gemini\'nin cevapları',
       'Kullanılan kaynak chunk referansları',
       'Oturum başlangıç/bitiş zamanı',
+    ],
+  },
+  {
+    icon: Mail,
+    title: 'Bildirim Tercihleri',
+    source: 'Firestore — users/{uid}/pushTokens & emailReminders',
+    items: [
+      'Web Push (FCM) cihaz token\'ları ve tarayıcı bilgisi',
+      'E-posta çalışma hatırlatma tercihi (emailReminders)',
     ],
   },
 ]
@@ -56,7 +75,7 @@ const COLLECTED_DATA = [
 const THIRD_PARTIES = [
   {
     name: 'Google Firebase',
-    purpose: 'Kimlik doğrulama (Authentication), veri saklama (Firestore), dosya saklama (Storage)',
+    purpose: 'Kimlik doğrulama (Authentication), veri saklama (Firestore), bildirimler (FCM)',
     region: 'Google Cloud — EU/US sunucuları',
     link: 'https://firebase.google.com/support/privacy',
   },
@@ -67,8 +86,14 @@ const THIRD_PARTIES = [
     link: 'https://ai.google.dev/gemini-api/terms',
   },
   {
+    name: 'Render (Backend API)',
+    purpose: 'RAG sorgu işleme, YÖK Atlas/ÖSYM veri API\'leri, oran sınırlama (rate limiting) ve geçici teknik loglar',
+    region: 'Render Cloud — EU/US sunucuları',
+    link: 'https://render.com/privacy',
+  },
+  {
     name: 'Vercel (Frontend hosting)',
-    purpose: 'Statik dosya teslimatı + CDN log\'ları (IP, user-agent)',
+    purpose: 'Statik dosya teslimatı, CDN log\'ları ve çerezsiz Vercel Web Analytics',
     region: 'Global edge network',
     link: 'https://vercel.com/legal/privacy-policy',
   },
@@ -260,7 +285,9 @@ export default function Privacy() {
             </li>
           </ul>
           <p className="text-xs text-slate-400 italic mt-3">
-            Reklam çerezleri, analytics tracking, üçüncü taraf takipçi kullanılmaz.
+            Reklam çerezleri ve pazarlama takibi yapılmaz; yalnızca çerezsiz anonim sayfa ve performans ölçümü için{' '}
+            <strong className="text-slate-200 not-italic">Vercel Web Analytics</strong> ve (yapılandırılırsa){' '}
+            <strong className="text-slate-200 not-italic">PostHog</strong> kullanılır.
           </p>
         </Section>
 

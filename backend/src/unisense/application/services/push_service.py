@@ -53,6 +53,26 @@ def _init_firebase():
         return None
 
 
+def _get_user_tokens(uid: str) -> list[str]:
+    """Kullanıcının FCM token'larını Firestore'dan oku.
+
+    `users/{uid}/pushTokens` alt koleksiyonundaki doküman ID'leri token'dır.
+    Firebase yoksa veya okuma başarısız olursa boş liste döner (bildirim atlanır).
+    """
+    app = _init_firebase()
+    if app is None:
+        return []
+    try:
+        from firebase_admin import firestore
+
+        db = firestore.client()
+        docs = db.collection("users").document(uid).collection("pushTokens").stream()
+        return [doc.id for doc in docs]
+    except Exception as e:
+        logger.error("get_user_tokens_error", error=str(e)[:200])
+        return []
+
+
 def send_push_notification(tokens: list[str], title: str, body: str, data: dict | None = None) -> dict:
     """FCM push bildirim gönder."""
     app = _init_firebase()
@@ -83,7 +103,7 @@ def send_push_notification(tokens: list[str], title: str, body: str, data: dict 
 def send_exam_reminder(uid: str, exam_type: str = "YKS", days_left: int = 30) -> dict:
     """Sınav hatırlatma bildirimi gönder."""
     return send_push_notification(
-        tokens=[],
+        tokens=_get_user_tokens(uid),
         title=f"{exam_type} Sınavı Hatırlatması",
         body=f"{exam_type} sınavına {days_left} gün kaldı. Çalışmaya devam et!",
         data={"type": "exam_reminder", "exam_type": exam_type, "days_left": str(days_left)},
@@ -93,7 +113,7 @@ def send_exam_reminder(uid: str, exam_type: str = "YKS", days_left: int = 30) ->
 def send_streak_reminder(uid: str, streak: int = 0) -> dict:
     """Seri hatırlatma bildirimi gönder."""
     return send_push_notification(
-        tokens=[],
+        tokens=_get_user_tokens(uid),
         title="Çalışma Serin 🔥",
         body=f"{streak} günlük serin var. Bugün de çalışarak serini koru!",
         data={"type": "streak_reminder", "streak": str(streak)},

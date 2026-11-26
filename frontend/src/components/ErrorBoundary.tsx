@@ -1,5 +1,15 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
+import * as Sentry from '@sentry/react'
+
+const glitchtipDsn = import.meta.env.VITE_GLITCHTIP_DSN
+if (glitchtipDsn && !import.meta.env.VITEST) {
+  Sentry.init({
+    dsn: glitchtipDsn,
+    environment: import.meta.env.MODE,
+    tracesSampleRate: 0,
+  })
+}
 
 interface ErrorBoundaryProps {
   children: ReactNode
@@ -23,6 +33,9 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     this.setState({ errorInfo })
+    if (glitchtipDsn && !import.meta.env.VITEST) {
+      Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } })
+    }
     console.error('ErrorBoundary caught:', error, errorInfo)
   }
 

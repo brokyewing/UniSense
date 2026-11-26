@@ -25,6 +25,7 @@ tenacity>=9.0.0
 cachetools>=5.3.0
 pyyaml>=6.0.0
 firebase-admin
+sentry-sdk>=2.0.0
 # grpc/protobuf pinli sürümler — firebase-admin'in yüklediği grpcio 1.85.1
 # Windows'ta cygrpc DLL hatası veriyor; chromadb ile uyumlu sürümler:
 grpcio==1.66.2

@@ -3,9 +3,10 @@ import { useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   User, Lock, GraduationCap, Camera, Check, Loader2,
-  Save, AlertCircle, Eye, EyeOff,
+  Save, AlertCircle, Eye, EyeOff, Trash2,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { getAuthProvider, deleteAccountAndData } from '@/services/auth'
 import { PRESET_AVATARS } from '@/services/constants'
 import { useUserProfile, useIstatistik } from '@/services/hooks'
 import { getIstatistik } from '@/services/firestore-plan'
@@ -23,17 +24,13 @@ const SCORE_TYPES = [
 export default function Profile() {
   const nav = useNavigate()
   const { user, isAuthed, loading } = useAuth()
-
-  // Analytics: sayfa görüntüleme
-  useEffect(() => {
-    import('@/services/api').then(m => m.api.analyticsLog('page_view', '/profil', user?.uid).catch(() => {}))
-  }, [])
+  const deletingAccountRef = useRef(false)
 
   // Tab
   const [tab, setTab] = useState('account') // account | password | yks
 
   useEffect(() => {
-    if (!loading && !isAuthed) nav('/giris')
+    if (!loading && !isAuthed && !deletingAccountRef.current) nav('/giris')
   }, [loading, isAuthed, nav])
 
   if (!isAuthed || !user) return null
@@ -75,7 +72,16 @@ export default function Profile() {
         </div>
 
         <AnimatePresence mode="wait">
-          {tab === 'account' && <AccountTab key="account" user={user} />}
+          {tab === 'account' && (
+            <AccountTab
+              key="account"
+              user={user}
+              onDeletingChange={(active: boolean) => {
+                deletingAccountRef.current = active
+              }}
+              onAccountDeleted={() => nav('/anasayfa', { replace: true })}
+            />
+          )}
           {tab === 'password' && <PasswordTab key="password" user={user} />}
           {tab === 'yks' && <YksTab key="yks" user={user} />}
         </AnimatePresence>
@@ -162,12 +168,28 @@ function ProfileAvatar({ user, size = 56 }: any) {
 
 
 /* === ACCOUNT TAB === */
-function AccountTab({ user }: any) {
+function AccountTab({
+  user,
+  onDeletingChange,
+  onAccountDeleted,
+}: {
+  user: any
+  onDeletingChange: (active: boolean) => void
+  onAccountDeleted: () => void
+}) {
   const [name, setName] = useState(user.displayName || '')
   const [photoURL, setPhotoURL] = useState(user.photoURL || '')
   const [showAvatars, setShowAvatars] = useState(false)
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState<any>(null)
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deletePassword, setDeletePassword] = useState('')
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [deleteMsg, setDeleteMsg] = useState<any>(null)
+
+  const isGoogle = getAuthProvider(user) === 'google'
 
   async function handleSelectPreset(url: any) {
     setPhotoURL(url)
@@ -324,6 +346,118 @@ function AccountTab({ user }: any) {
         {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
         Kaydet
       </button>
+
+      {/* Tehlike Bölgesi — Hesap Silme */}
+      <div className="card border-rose-500/30 bg-rose-500/5 space-y-3">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h3 className="font-semibold text-rose-300 flex items-center gap-2">
+              <Trash2 size={16} /> Hesabı ve Verileri Kalıcı Sil
+            </h3>
+            <p className="text-xs text-slate-400 mt-1">
+              Firebase hesabın, tüm sınav profillerin, tercih listelerin, çalışma kayıtların, notların,
+              sohbet geçmişin ve yerel verilerin kalıcı olarak silinir. Bu işlem geri alınamaz.
+            </p>
+          </div>
+          {!showDeleteConfirm && (
+            <button
+              type="button"
+              onClick={() => {
+                setDeleteMsg(null)
+                setShowDeleteConfirm(true)
+              }}
+              className="px-3 py-2 rounded-xl text-xs font-semibold bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 transition shrink-0"
+            >
+              Hesabımı Sil
+            </button>
+          )}
+        </div>
+
+        {showDeleteConfirm && (
+          <div className="pt-3 border-t border-rose-500/20 space-y-3">
+            {isGoogle ? (
+              <div>
+                <label htmlFor="delete-account-confirm" className="text-xs text-slate-300 mb-1 block">
+                  Onaylamak için aşağıya <strong className="text-rose-300">SİL</strong> yaz
+                  (sonraki adımda Google ile yeniden doğrulama penceresi açılır)
+                </label>
+                <input
+                  id="delete-account-confirm"
+                  type="text"
+                  autoComplete="off"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="SİL"
+                  className="input-glass border-rose-500/30 focus:border-rose-400"
+                />
+              </div>
+            ) : (
+              <div>
+                <label htmlFor="delete-account-password" className="text-xs text-slate-300 mb-1 block">
+                  Güvenlik için mevcut şifreni gir
+                </label>
+                <input
+                  id="delete-account-password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  placeholder="Mevcut şifren"
+                  className="input-glass border-rose-500/30 focus:border-rose-400"
+                />
+              </div>
+            )}
+
+            {deleteMsg && <Banner msg={deleteMsg} />}
+
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={async () => {
+                  setDeleteMsg(null)
+                  if (isGoogle && deleteConfirmText.trim().toLocaleUpperCase('tr-TR') !== 'SİL') {
+                    setDeleteMsg({ type: 'error', text: 'Onaylamak için SİL yazmalısın' })
+                    return
+                  }
+                  if (!isGoogle && !deletePassword) {
+                    setDeleteMsg({ type: 'error', text: 'Mevcut şifreni girmelisin' })
+                    return
+                  }
+                  setDeleting(true)
+                  onDeletingChange(true)
+                  try {
+                    await deleteAccountAndData(user, isGoogle ? undefined : deletePassword)
+                    onAccountDeleted()
+                  } catch (e: any) {
+                    onDeletingChange(false)
+                    setDeleteMsg({ type: 'error', text: parseAuthErr(e) })
+                  } finally {
+                    setDeleting(false)
+                  }
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-600 hover:bg-rose-500 text-white inline-flex items-center gap-2 transition disabled:opacity-50"
+              >
+                {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                Kalıcı Olarak Sil
+              </button>
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={() => {
+                  setShowDeleteConfirm(false)
+                  setDeletePassword('')
+                  setDeleteConfirmText('')
+                  setDeleteMsg(null)
+                }}
+                className="btn-ghost text-xs px-4 py-2 disabled:opacity-50"
+              >
+                Vazgeç
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </motion.div>
   )
 }
@@ -339,8 +473,7 @@ function PasswordTab({ user }: any) {
   const [msg, setMsg] = useState<any>(null)
   const { profile, loading: profileLoading } = useUserProfile()
 
-  // Provider'ı profilden al (fallback: getAuthProvider)
-  const provider = profile?.authProvider || 'email'
+  const provider = getAuthProvider(user) || profile?.authProvider || 'email'
 
   if (provider === 'google') {
     return (
@@ -953,8 +1086,11 @@ function Banner({ msg }: any) {
 
 function parseAuthErr(e: any) {
   const m = e?.message || String(e)
-  if (m.includes('wrong-password')) return 'Mevcut şifren yanlış'
+  if (m.includes('wrong-password') || m.includes('invalid-credential')) return 'Mevcut şifren yanlış'
   if (m.includes('weak-password')) return 'Yeni şifre çok zayıf'
   if (m.includes('requires-recent-login')) return 'Yeniden giriş yapman gerek (güvenlik)'
+  if (m.includes('popup-closed-by-user') || m.includes('cancelled-popup-request')) {
+    return 'Google doğrulama penceresi kapatıldı'
+  }
   return m.slice(0, 200)
 }

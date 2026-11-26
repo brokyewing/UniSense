@@ -1,7 +1,7 @@
 """University domain modeli — bir üniversite kurumu."""
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from unisense.domain.enums import UniversityType
 
@@ -28,5 +28,4 @@ class University(BaseModel):
     # İlgili faculty/department ID'leri
     faculty_codes: list[str] = Field(default_factory=list)
 
-    class Config:
-        frozen = False  # ranking'ler güncellenebilir
+    model_config = ConfigDict(frozen=False)  # ranking'ler güncellenebilir

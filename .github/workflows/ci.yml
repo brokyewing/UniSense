@@ -80,6 +80,14 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      - name: Typecheck (tsc)
+        working-directory: frontend
+        run: npx tsc --noEmit
+
+      - name: Unit tests (vitest)
+        working-directory: frontend
+        run: npm test
+
       - name: Build
         working-directory: frontend
         env:

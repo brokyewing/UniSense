@@ -84,10 +84,6 @@ export function TusRobot() {
   const [toast, setToast] = useState('')
   const [autoNot, setAutoNot] = useState('')
 
-  // Analytics: sayfa görüntüleme
-  useEffect(() => {
-    import('@/services/api').then(m => m.api.analyticsLog('page_view', '/tus', user?.uid).catch(() => {}))
-  }, [])
   // Stale-response koruması: bul() beklerken sınav değişirse eski yanıt basılmasın
   const sinavRef = useRef(sinav)
   const autoDolduRef = useRef(false) // puan otomatik mi dolduruldu (elle yazımı ayırt et)

@@ -298,10 +298,6 @@ export default function Search() {
   const { user, isAuthed } = useAuth()
   const [examCtx, setExamCtx] = useState<any>(null)
 
-  // Analytics: sayfa görüntüleme
-  useEffect(() => {
-    import('@/services/api').then(m => m.api.analyticsLog('page_view', '/arama', user?.uid).catch(() => {}))
-  }, [])
 
   // Hooks
   const { tercihIds, busyCode: hookBusyCode, setBusyCode: setHookBusyCode } = useTercihList()

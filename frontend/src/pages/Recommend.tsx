@@ -364,10 +364,6 @@ export default function Recommend() {
   const navigate = useNavigate()
   const { user } = useAuth()
 
-  // Analytics: sayfa görüntüleme
-  useEffect(() => {
-    import('@/services/api').then(m => m.api.analyticsLog('page_view', '/oneriler', user?.uid).catch(() => {}))
-  }, [])
   const [scoreType, setScoreType] = useState('SAY')
   const [score, setScore] = useState('')
   const [rank, setRank] = useState('')

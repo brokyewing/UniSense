@@ -1,0 +1,33 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "denemeler",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "sinav",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tarih",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "soru_kayit",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "sinav",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "tarih",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

@@ -31,7 +31,11 @@ async function _reorderTercih(uid: string, sub: string, orderedItems: any[]): Pr
   if (!Array.isArray(orderedItems) || orderedItems.length === 0) return
   const batch = writeBatch(db)
   orderedItems.forEach((item: any, idx: number) => {
-    const ref = doc(db!, 'users', uid, sub, String(item.id || item.kod || item.code || item.kadro_kodu))
+    const docId =
+      typeof item === 'string' || typeof item === 'number'
+        ? String(item)
+        : String(item.id || item.department_code || item.kod || item.code || item.kadro_kodu)
+    const ref = doc(db!, 'users', uid, sub, docId)
     batch.update(ref, { order: idx + 1 })
   })
   await batch.commit()
@@ -181,15 +185,20 @@ export function watchLgsTercih(uid: string, callback: (items: any[]) => void): (
 }
 
 export async function addToLgsTercih(uid: string, lise: any, order: number): Promise<void> {
-  return _addToTercih(uid, 'lgs_tercih', lise, order, 'okul', (l: any) => ({
-    il: l.il || '',
-    ilce: l.ilce || '',
-    tur: l.tur || '',
-    dil: l.dil || '',
-    yuzdelik: l.yuzdelik ?? null,
-    taban_puan: l.taban_puan ?? null,
-    kontenjan: l.kontenjan ?? null,
-  }))
+  if (!db) throw new Error('Firestore yok')
+  const key = lgsTercihKey(lise)
+  await setDoc(doc(db, 'users', uid, 'lgs_tercih', key), {
+    okul: lise.okul || '',
+    il: lise.il || '',
+    ilce: lise.ilce || '',
+    tur: lise.tur || '',
+    dil: lise.dil || '',
+    yuzdelik: lise.yuzdelik ?? null,
+    taban_puan: lise.taban_puan ?? null,
+    kontenjan: lise.kontenjan ?? null,
+    order,
+    addedAt: serverTimestamp(),
+  })
 }
 
 export const removeFromLgsTercih = (uid: string, key: string | number) => _removeFromTercih(uid, 'lgs_tercih', key)

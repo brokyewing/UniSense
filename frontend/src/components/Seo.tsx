@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 
 const SITE = 'https://www.unisense.com.tr'
 const DEFAULT_IMAGE = `${SITE}/logo.png`
+const GOOGLE_VERIFICATION = import.meta.env.VITE_GOOGLE_SITE_VERIFICATION
 
 interface SeoProps {
   title?: string
@@ -48,6 +49,7 @@ export default function Seo({ title, description, path = '', noindex = false, im
     upsertMeta('property', 'og:url', url)
     upsertMeta('property', 'og:image', image || DEFAULT_IMAGE)
     upsertMeta('name', 'robots', noindex ? 'noindex, nofollow' : 'index, follow')
+    if (GOOGLE_VERIFICATION) upsertMeta('name', 'google-site-verification', GOOGLE_VERIFICATION)
   }, [title, description, path, noindex, image])
 
   return null

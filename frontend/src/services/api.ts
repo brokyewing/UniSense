@@ -61,14 +61,10 @@ export const api = {
     method: 'POST', body: { query, top_k: 12, ...options },
   }),
   recommend: (payload: unknown) => apiFetch('/api/v1/recommend', { method: 'POST', body: payload }),
-  programsSearch: (params: unknown) => apiFetch('/api/v1/programs/search', { method: 'POST', body: params }),
   programsLookup: (codes: string[]) => apiFetch('/api/v1/programs/lookup', { method: 'POST', body: { codes } }),
-  programsDetail: (code: string) => apiFetch(`/api/v1/programs/${code}`),
   dgsPrograms: (params: unknown) => apiFetch('/api/v1/dgs/programlar', { method: 'POST', body: params }),
   dgsGecis: (onlisans: unknown) => apiFetch('/api/v1/dgs/gecis', { method: 'POST', body: { onlisans } }),
   kpssKadrolar: (params: unknown) => apiFetch('/api/v1/kpss/kadrolar', { method: 'POST', body: params }),
-  tusPrograms: (params: unknown) => apiFetch('/api/v1/tus/programlar', { method: 'POST', body: params }),
-  lgsLiseler: (params: unknown) => apiFetch('/api/v1/lgs/liseler', { method: 'POST', body: params }),
   konular: (sinav: string) => apiFetch(`/api/v1/konular?sinav=${sinav}`),
   takvim: () => apiFetch('/api/v1/takvim'),
   scholarshipList: (params: Record<string, unknown> = {}) => {
@@ -89,19 +85,10 @@ export const api = {
   },
   employmentByProgram: (code: string) => apiFetch(`/api/v1/employment/program/${code}`),
   employmentYears: () => apiFetch('/api/v1/employment/years'),
-  analyticsLog: (event_type: string, page?: string, user_id?: string | null) => apiFetch('/api/v1/analytics/log', {
-    method: 'POST', body: { event_type, page, user_id },
-  }),
-  analyticsSummary: () => apiFetch('/api/v1/analytics/summary'),
-  analyticsClear: () => apiFetch('/api/v1/analytics/clear', { method: 'DELETE' }),
   // Push notifications (backend endpoints - require Firebase Admin SDK)
   pushSend: () => apiFetch('/api/v1/push/send', { method: 'POST' }),
   pushExamReminder: () => apiFetch('/api/v1/push/exam-reminder', { method: 'POST' }),
   pushStreakReminder: () => apiFetch('/api/v1/push/streak-reminder', { method: 'POST' }),
-  checkout: (payload: unknown) => apiFetch('/api/v1/billing/checkout', { method: 'POST', body: payload }),
-  webhook: (payload: unknown) => apiFetch('/api/v1/billing/webhook', { method: 'POST', body: payload }),
-  userProfile: () => apiFetch('/api/v1/user/profile'),
-  userUpdate: (data: unknown) => apiFetch('/api/v1/user/profile', { method: 'POST', body: data }),
 }
 
 export default api

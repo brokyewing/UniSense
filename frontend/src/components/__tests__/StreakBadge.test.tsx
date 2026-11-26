@@ -22,6 +22,8 @@ describe('StreakBadge', () => {
 
   it('renders full card', async () => {
     render(<StreakBadge />)
-    expect(screen.getByText(/günlük seri/)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(/günlük seri/)).toBeInTheDocument()
+    })
   })
 })

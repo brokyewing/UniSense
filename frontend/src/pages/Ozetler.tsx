@@ -35,10 +35,6 @@ export default function Ozetler({ embedded = false }) {
   const { user } = useAuth()
   const { profile, loading: profileLoading } = useUserProfile()
 
-  // Analytics: sayfa görüntüleme
-  useEffect(() => {
-    import('@/services/api').then(m => m.api.analyticsLog('page_view', '/ozetler', user?.uid).catch(() => {}))
-  }, [])
   const [kartlar, setKartlar] = useState<any[]>([])
   const [notLine, setNotLine] = useState('')
   const [loading, setLoading] = useState(true)

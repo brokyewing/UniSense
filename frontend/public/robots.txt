@@ -5,5 +5,9 @@ Disallow: /tercih
 Disallow: /giris
 Disallow: /profile
 Disallow: /login
+Disallow: /planim
+Disallow: /notlar
+Disallow: /pano
+Disallow: /siralama
 
 Sitemap: https://www.unisense.com.tr/sitemap.xml

@@ -78,13 +78,11 @@ from unisense.application.services import (
     CompassService,
     RecommendationService,
 )
-from unisense.application.services.analytics_service import AnalyticsService
 from unisense.application.services.employment_service import EmploymentService
 from unisense.application.services.scholarship_service import ScholarshipService
 from unisense.core.di import get_vector_store
 from unisense.core.logging import get_logger
 from unisense.domain.models import Query, StudentProfile
-from unisense.domain.models.analytics import AnalyticsEvent
 from unisense.security.audit_log import audit
 from unisense.security.auth import require_api_key
 from unisense.security.firebase_auth import require_user
@@ -147,63 +145,65 @@ def employment_years():
     svc = EmploymentService()
     return {"years": svc.years()}
 
-# === Analytics Endpoints ===
-
-@router.post("/analytics/log")
-def log_analytics_event(event: AnalyticsEvent):
-    """Kullanıcı davranış olayı kaydet."""
-    svc = AnalyticsService()
-    return svc.log_event(event_type=event.event_type, page=event.page, user_id=event.user_id)
-
-
-@router.get("/analytics/summary")
-def analytics_summary():
-    """Analytics özeti döndür."""
-    svc = AnalyticsService()
-    return svc.summary()
-
-
-@router.delete("/analytics/clear")
-def analytics_clear():
-    """Analytics verisini temizle."""
-    svc = AnalyticsService()
-    return svc.clear()
-
 # === Push Notification Endpoints ===
 
-@router.post("/push/send")
-async def send_push(request: Request, uid: str = Depends(require_user)):
+@router.post(
+    "/push/send",
+    dependencies=[Depends(require_api_key), Depends(require_user)],
+)
+@limiter.limit(DEFAULT_LIMIT)
+async def send_push(request: Request, uid: str | None = Depends(require_user)):
     """Kullanıcıya push bildirim gönder (test amaçlı)."""
+    if not uid:
+        raise HTTPException(status_code=400, detail="Bildirim için giriş yapmalısın")
     try:
-        from unisense.application.services.push_service import send_push_notification
+        from unisense.application.services.push_service import (
+            _get_user_tokens,
+            send_push_notification,
+        )
         result = send_push_notification(
-            tokens=[],
+            tokens=_get_user_tokens(uid),
             title="Test Bildirim",
             body="UniSense push notification testi",
         )
         return result
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("push_send_endpoint_error", error=str(e)[:200])
+        raise HTTPException(status_code=500, detail="Bildirim gönderilemedi")
 
-@router.post("/push/exam-reminder")
-async def exam_reminder(request: Request, uid: str = Depends(require_user)):
+@router.post(
+    "/push/exam-reminder",
+    dependencies=[Depends(require_api_key), Depends(require_user)],
+)
+@limiter.limit(DEFAULT_LIMIT)
+async def exam_reminder(request: Request, uid: str | None = Depends(require_user)):
     """Sınav hatırlatma bildirimi gönder."""
+    if not uid:
+        raise HTTPException(status_code=400, detail="Bildirim için giriş yapmalısın")
     try:
         from unisense.application.services.push_service import send_exam_reminder
         send_exam_reminder(uid, "YKS", 30)
         return {"status": "ok", "message": "Exam reminder sent"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("exam_reminder_endpoint_error", error=str(e)[:200])
+        raise HTTPException(status_code=500, detail="Bildirim gönderilemedi")
 
-@router.post("/push/streak-reminder")
-async def streak_reminder(request: Request, uid: str = Depends(require_user)):
+@router.post(
+    "/push/streak-reminder",
+    dependencies=[Depends(require_api_key), Depends(require_user)],
+)
+@limiter.limit(DEFAULT_LIMIT)
+async def streak_reminder(request: Request, uid: str | None = Depends(require_user)):
     """Seri hatırlatma bildirimi gönder."""
+    if not uid:
+        raise HTTPException(status_code=400, detail="Bildirim için giriş yapmalısın")
     try:
         from unisense.application.services.push_service import send_streak_reminder
         send_streak_reminder(uid, 5)
         return {"status": "ok", "message": "Streak reminder sent"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("streak_reminder_endpoint_error", error=str(e)[:200])
+        raise HTTPException(status_code=500, detail="Bildirim gönderilemedi")
 logger = get_logger(__name__)
 
 # LLM cevabındaki ÖSYM program kodları (9 hane) — doğrulama için

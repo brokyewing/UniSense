@@ -17,10 +17,6 @@ export default function Notlar({ embedded = false }) {
   const { user } = useAuth()
   const nav = useNavigate()
 
-  // Analytics: sayfa görüntüleme
-  useEffect(() => {
-    import('@/services/api').then(m => m.api.analyticsLog('page_view', '/notlar', user?.uid).catch(() => {}))
-  }, [])
   const { notlar: allNotlar, loading: notlarLoading } = useNotlar()
   const [notlar, setNotlar] = useState<any[]>([])
   const [metin, setMetin] = useState('')

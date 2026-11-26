@@ -18,6 +18,7 @@ import {
   watchSessions, watchSessionMessages,
   setEmailReminders,
 } from './firestore-push'
+import { track } from '../lib/analytics'
 import { getIstatistik, sureEkle as sureEklePlan, recordActivity as recordActivityPlan, guestStats, recordActivity } from './firestore-plan'
 import { watchSubcollection } from './firestore-core'
 import { FIRESTORE_COLLECTIONS, TERCIH_LIMITS } from './constants'
@@ -513,10 +514,9 @@ export function useEmailReminders() {
 // === Analytics Hook ===
 
 export function useAnalytics() {
-  const { user } = useAuth()
   const logEvent = useCallback((eventType: any, page: any, metadata: any = {}) => {
-    import('@/services/api').then(m => m.api.analyticsLog(eventType, page, user?.uid || null).catch(() => {}))
-  }, [user])
+    track(eventType, { page, ...metadata })
+  }, [])
   return { logEvent }
 }
 
