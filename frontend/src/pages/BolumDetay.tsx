@@ -51,11 +51,13 @@ export default function BolumDetay() {
   const [tur, setTur] = useState('all')
 
   useEffect(() => {
+    let cancelled = false
     setLoading(true); setError('')
     apiFetch(`/api/v1/bolum/${slug}`)
-      .then(setData)
-      .catch((e) => setError(e.status === 404 ? 'Bu bölüm için henüz rehber yok.' : e.message))
-      .finally(() => setLoading(false))
+      .then((d) => { if (!cancelled) setData(d) })
+      .catch((e) => { if (!cancelled) setError(e.status === 404 ? 'Bu bölüm için henüz rehber yok.' : e.message) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
   }, [slug])
 
   const programs = useMemo(() => {

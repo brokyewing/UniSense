@@ -12,8 +12,8 @@ import { FIRESTORE_COLLECTIONS } from './constants'
 
 export function watchKonuIlerleme(uid: string, sinav: string, callback: (data: any) => void): () => void {
   return watchSubcollection(uid, FIRESTORE_COLLECTIONS.KONU_ILERLEME, (data: any) => {
-    const item = (data && data[sinav]) || {}
-    callback(item.checked || {})
+    const item = Array.isArray(data) ? data.find((d: any) => d.id === sinav) : data?.[sinav]
+    callback(item?.checked || {})
   }, { where: ['__name__', '==', sinav] })
 }
 

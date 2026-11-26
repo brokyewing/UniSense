@@ -110,7 +110,16 @@ export function useKonuIlerleme(sinav: any) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!user || !sinav) { setChecked({}); setLoading(false); return }
+    if (!user) {
+      if (sinav) {
+        try { setChecked(JSON.parse(localStorage.getItem('unisense_konu_v1_' + sinav) || '{}')) } catch { setChecked({}) }
+      } else {
+        setChecked({})
+      }
+      setLoading(false)
+      return
+    }
+    if (!sinav) { setChecked({}); setLoading(false); return }
     setLoading(true)
     return watchKonuIlerleme(user.uid, sinav, (data) => {
       setChecked(data || {})
@@ -127,7 +136,16 @@ export function useDenemeler(sinav: any) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!user || !sinav) { setDenemeler([]); setLoading(false); return }
+    if (!user) {
+      if (sinav) {
+        try { setDenemeler(JSON.parse(localStorage.getItem('unisense_deneme_' + sinav) || '[]')) } catch { setDenemeler([]) }
+      } else {
+        setDenemeler([])
+      }
+      setLoading(false)
+      return
+    }
+    if (!sinav) { setDenemeler([]); setLoading(false); return }
     setLoading(true)
     return watchDenemeler(user.uid, sinav, (data) => {
       setDenemeler(data || [])
@@ -144,7 +162,16 @@ export function useSoruKayit(sinav: any) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!user || !sinav) { setKayitlar([]); setLoading(false); return }
+    if (!user) {
+      if (sinav) {
+        try { setKayitlar(JSON.parse(localStorage.getItem('unisense_soru_' + sinav) || '[]')) } catch { setKayitlar([]) }
+      } else {
+        setKayitlar([])
+      }
+      setLoading(false)
+      return
+    }
+    if (!sinav) { setKayitlar([]); setLoading(false); return }
     setLoading(true)
     return watchSoruKayit(user.uid, sinav, (data) => {
       setKayitlar(data || [])
@@ -214,7 +241,16 @@ export function usePlanGorevler(hafta: any) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!user || !hafta) { setGorevler([]); setLoading(false); return }
+    if (!user) {
+      if (hafta) {
+        try { setGorevler(JSON.parse(localStorage.getItem('unisense_plan_' + hafta) || '[]')) } catch { setGorevler([]) }
+      } else {
+        setGorevler([])
+      }
+      setLoading(false)
+      return
+    }
+    if (!hafta) { setGorevler([]); setLoading(false); return }
     setLoading(true)
     return watchPlanGorevler(user.uid, hafta, (data) => {
       setGorevler(data || [])
@@ -405,16 +441,30 @@ export function usePlanConfig() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!user) { setConfig(null); setLoading(false); return }
+    if (!user) {
+      try {
+        const raw = localStorage.getItem('unisense_plan_cfg')
+        setConfig(raw ? JSON.parse(raw) : null)
+      } catch {
+        setConfig(null)
+      }
+      setLoading(false)
+      return
+    }
     setLoading(true)
     getPlanConfig(user.uid).then((c) => { setConfig(c); setLoading(false) }).catch(() => { setConfig(null); setLoading(false) })
   }, [user])
 
   const updateConfig = useCallback(async (cfg: any) => {
-    if (!user) return
+    if (!user) {
+      const next = { ...(config || {}), ...cfg }
+      try { localStorage.setItem('unisense_plan_cfg', JSON.stringify(next)) } catch {}
+      setConfig(next)
+      return
+    }
     await setPlanConfig(user.uid, cfg)
     setConfig((prev: any) => ({ ...prev, ...cfg }))
-  }, [user])
+  }, [user, config])
 
   return { config, loading, updateConfig }
 }
@@ -427,8 +477,13 @@ export function useIstatistik() {
   const [loading, setLoading] = useState(true)
 
   const yukle = useCallback(async () => {
-    if (!user) { setStats(await import('@/services/firestore-plan').then(m => m.guestStats())); return }
-    setStats(await getIstatistik(user.uid))
+    setLoading(true)
+    try {
+      if (!user) { setStats(await import('@/services/firestore-plan').then(m => m.guestStats())); return }
+      setStats(await getIstatistik(user.uid))
+    } finally {
+      setLoading(false)
+    }
   }, [user])
 
   useEffect(() => { yukle() }, [yukle])

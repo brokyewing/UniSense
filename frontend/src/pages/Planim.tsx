@@ -123,14 +123,26 @@ export default function Planim({ embedded = false }) {
     const revDate = tekrarTarihleri(bugun)[idx]
     const wk = isoHafta(new Date(revDate + 'T00:00:00'))
     const rev = { ...gorevYap({ id: `rev-${t.konu}-${idx}`, ders: t.ders, konu: t.konu, title: `${t.konu} — tekrar`, tarih: revDate, source: 'tekrar', tur: 'tekrar' }), tekrarNo: idx, hafta: wk }
-    import('@/services/firestore-plan').then(m => m.addPlanGorev(user!.uid, { ...rev, hafta })).catch(() => {})
+    if (user) {
+      import('@/services/firestore-plan').then(m => m.addPlanGorev(user.uid, rev)).catch(() => {})
+    } else {
+      const nextWk = [...(loadJSON(WK_LS(wk), '[]') as any[]), rev]
+      saveJSON(WK_LS(wk), nextWk)
+      if (wk === hafta) setTasks(nextWk)
+    }
   }
 
   function toggle(t: any) {
     const done = t.status !== 'done'
     const ilkTamam = done && !t.sayildi
     const patch = { status: done ? 'done' : 'planned', ...(ilkTamam ? { sayildi: true } : {}) }
-    // usePlanGorevler hook'u güncellemeyi Firestore'a otomatik yapar
+    const nextTasks = tasks.map((x: any) => (x.id === t.id ? { ...x, ...patch } : x))
+    setTasks((prev: any[]) => prev.map((x: any) => (x.id === t.id ? { ...x, ...patch } : x)))
+    if (user) {
+      import('@/services/firestore-plan').then(m => m.updatePlanGorev(user.uid, t.id, patch)).catch(() => flash('Görev güncellenemedi'))
+    } else {
+      saveJSON(WK_LS(hafta), nextTasks)
+    }
     if (done) {
       import('@/services/firestore-plan').then(m => m.recordActivity(user?.uid ?? null)).catch(() => {}) // streak (günde 1 yazar)
       // XP: planGorev getIstatistik/guestStats'ta done sayımından TÜRETİLİR (uncheck'te de tutarlı — Rev-3)
@@ -138,14 +150,25 @@ export default function Planim({ embedded = false }) {
     }
   }
 
-  function ekleGorev(title: any, tarih: any = bugun, extra: any = {}) {
+  async function ekleGorev(title: any, tarih: any = bugun, extra: any = {}) {
     const t = String(title || '').trim()
     if (!t) return
-    const task = gorevYap({ id: `m-${Date.now()}`, title: t.slice(0, 120), tarih, source: 'manual', ders: '', konu: '', tur: 'yeni', ...extra } as any)
-    import('@/services/firestore-plan').then(m => m.addPlanGorev(user!.uid, { ...task, hafta })).catch(() => {})
+    const task = { ...gorevYap({ id: `m-${Date.now()}`, title: t.slice(0, 120), tarih, source: 'manual', ders: '', konu: '', tur: 'yeni', ...extra } as any), hafta }
+    if (user) {
+      try {
+        const m = await import('@/services/firestore-plan')
+        await m.addPlanGorev(user.uid, task)
+      } catch {
+        flash('Kaydedilemedi')
+      }
+    } else {
+      const nextTasks = [...tasks, task]
+      setTasks(nextTasks)
+      saveJSON(WK_LS(hafta), nextTasks)
+    }
   }
 
-  function planla() {
+  async function planla() {
     if (!konuData) { flash('Konu listesi yükleniyor…'); return }
     const next = haftaPlanla({
       konuData, checked, soruOzet: soruKayit || [], hafta, bugun,
@@ -153,8 +176,21 @@ export default function Planim({ embedded = false }) {
     })
     const yeniler = next.slice(tasks.length) // haftaPlanla mevcut'u başa koyar → yeni olanlar sonda
     if (!yeniler.length) { flash('Uygun boş slot yok'); return }
-    import('@/services/firestore-plan').then(m => m.addPlanGorevler(user!.uid, yeniler.map((t: any) => ({ ...t, hafta })))).catch(() => {})
-    flash(`✓ ${yeniler.length} görev planlandı`)
+    const eklenecek = yeniler.map((t: any) => ({ ...t, hafta }))
+    if (user) {
+      try {
+        const m = await import('@/services/firestore-plan')
+        await m.addPlanGorevler(user.uid, eklenecek)
+        flash(`✓ ${yeniler.length} görev planlandı`)
+      } catch {
+        flash('Kaydedilemedi')
+      }
+    } else {
+      const nextTasks = [...tasks, ...eklenecek]
+      setTasks(nextTasks)
+      saveJSON(WK_LS(hafta), nextTasks)
+      flash(`✓ ${yeniler.length} görev planlandı`)
+    }
   }
 
   async function takvimimNasil() {
@@ -176,14 +212,30 @@ export default function Planim({ embedded = false }) {
     }
   }
 
-  function aiUygula() {
+  async function aiUygula() {
     const next = haftaPlanla({
       konuData, checked, soruOzet: soruKayit || [], hafta, bugun,
       haftaIciBlok: config?.haftaIciBlok || VARSAYILAN.haftaIciBlok, haftaSonuBlok: config?.haftaSonuBlok || VARSAYILAN.haftaSonuBlok, oncelikKonu: ai.oncelik || [], mevcut: tasks,
     })
-    const yeniler = next.slice(tasks.length)
-    import('@/services/firestore-plan').then(m => m.addPlanGorevler(user!.uid, yeniler.map((t: any) => ({ ...t, hafta })))).catch(() => {})
-    setAi({ loading: false, text: '', oncelik: null }); flash('✓ Plan güncellendi')
+    const yeniler = next.slice(tasks.length).map((t: any) => ({ ...t, hafta }))
+    if (user) {
+      try {
+        if (yeniler.length) {
+          const m = await import('@/services/firestore-plan')
+          await m.addPlanGorevler(user.uid, yeniler)
+        }
+        setAi({ loading: false, text: '', oncelik: null })
+        flash('✓ Plan güncellendi')
+      } catch {
+        flash('Kaydedilemedi')
+      }
+    } else {
+      const nextTasks = [...tasks, ...yeniler]
+      setTasks(nextTasks)
+      saveJSON(WK_LS(hafta), nextTasks)
+      setAi({ loading: false, text: '', oncelik: null })
+      flash('✓ Plan güncellendi')
+    }
   }
 
   // Serbest hedef → AI yorumlar {gunSayisi, gunlukSoru} → ufuk planı tüm konuları N güne dağıtır
@@ -229,12 +281,35 @@ export default function Planim({ embedded = false }) {
     flash('✓ Plan oluşturuldu')
   }
 
-  function sil(t: any) {
-    import('@/services/firestore-plan').then(m => m.removePlanGorev(user!.uid, t.id)).catch(() => {})
+  async function sil(t: any) {
+    if (user) {
+      try {
+        const m = await import('@/services/firestore-plan')
+        await m.removePlanGorev(user.uid, t.id)
+      } catch {
+        flash('Görev silinemedi')
+      }
+    } else {
+      const nextTasks = tasks.filter((x: any) => x.id !== t.id)
+      setTasks(nextTasks)
+      saveJSON(WK_LS(hafta), nextTasks)
+    }
   }
-  function otomatikTemizle() {
+  async function otomatikTemizle() {
     if (!confirm('Bu haftanın otomatik (tamamlanmamış) görevlerini temizle?')) return
-    for (const t of tasks.filter((t: any) => t.status !== 'done' && t.source !== 'manual')) import('@/services/firestore-plan').then(m => m.removePlanGorev(user!.uid, t.id)).catch(() => {})
+    const silinecekler = tasks.filter((t: any) => t.status !== 'done' && t.source !== 'manual')
+    if (user) {
+      try {
+        const m = await import('@/services/firestore-plan')
+        await Promise.all(silinecekler.map((t: any) => m.removePlanGorev(user.uid, t.id)))
+      } catch {
+        flash('Görevler temizlenemedi')
+      }
+    } else {
+      const nextTasks = tasks.filter((t: any) => t.status === 'done' || t.source === 'manual')
+      setTasks(nextTasks)
+      saveJSON(WK_LS(hafta), nextTasks)
+    }
   }
 
   // --- Türetilen ---

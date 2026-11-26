@@ -52,7 +52,7 @@ export default function Ozetler({ embedded = false }) {
   // Varsayılan sınav = profildeki examTrack (kullanıcı seçiciden değiştirebilir)
   useEffect(() => {
     if (profileLoading || !profile) return
-    const t = (profile as any).examTrack
+    const t = (profile as any)?.profile?.examTrack || (profile as any)?.examTrack
     if (SINAVLAR.includes(t)) setSinav(t)
   }, [profile, profileLoading])
 

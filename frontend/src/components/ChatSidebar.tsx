@@ -43,8 +43,12 @@ export default function ChatSidebar({
     e.stopPropagation()
     if (!user) return
     if (!confirm('Bu sohbeti silmek istiyor musun?')) return
-    if (activeSessionId === sid) onSelectSession(null)
-    await deleteSession(user.uid, sid)
+    try {
+      await deleteSession(user.uid, sid)
+      if (activeSessionId === sid) onNewChat()
+    } catch (err) {
+      console.warn('Sohbet silinemedi:', err)
+    }
   }
 
   function formatDate(ts: any): string {
@@ -135,15 +139,23 @@ export default function ChatSidebar({
               sessions.map((s) => {
                 const active = s.id === activeSessionId
                 return (
-                  <motion.button
+                  <motion.div
                     key={s.id}
+                    role="button"
+                    tabIndex={0}
                     layout
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0, x: -10 }}
                     onClick={() => onSelectSession(s.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        onSelectSession(s.id)
+                      }
+                    }}
                     className={`
-                      w-full text-left p-3 rounded-xl transition-all group relative
+                      w-full text-left p-3 rounded-xl transition-all group relative cursor-pointer
                       ${active
                         ? 'bg-gradient-to-r from-brand-500/20 to-accent-500/20 border border-accent-500/30'
                         : 'hover:bg-white/5 border border-transparent'
@@ -159,13 +171,14 @@ export default function ChatSidebar({
                       {s.messageCount > 0 && <span>· {s.messageCount} mesaj</span>}
                     </div>
                     <button
+                      type="button"
                       onClick={(e) => handleDelete(e, s.id)}
                       className="absolute top-2 right-2 p-1 text-slate-500 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition"
                       title="Sohbeti sil"
                     >
                       <Trash2 size={12} />
                     </button>
-                  </motion.button>
+                  </motion.div>
                 )
               })
             )}

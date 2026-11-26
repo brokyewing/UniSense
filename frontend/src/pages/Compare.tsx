@@ -149,6 +149,9 @@ export default function Compare() {
     if (codesFromUrl.length < 2) {
       setData(null)
       setError(null)
+      setLoading(false)
+      setAiLoading(false)
+      setAiSummary('')
       return
     }
 
@@ -185,6 +188,7 @@ export default function Compare() {
   useEffect(() => {
     if (!data || !data.items || data.items.filter((it: any) => it.found).length < 2) {
       setAiSummary('')
+      setAiLoading(false)
       return
     }
     const found = data.items.filter((it: any) => it.found)
@@ -198,13 +202,18 @@ export default function Compare() {
       return parts.join(' · ')
     }).join('\\n')
     const q = `Şu programları karşılaştır: ${names}. Veriler:\\n${summary}\\n\\nBu programlar arasında en iyi seçim hangisi ve neden? Kısa (3-4 cümle) Türkçe tavsiye ver.`
-    if (q.length > 490) return
+    if (q.length > 490) {
+      setAiLoading(false)
+      return
+    }
 
+    let cancelled = false
     setAiLoading(true)
     apiFetch('/api/v1/ask', { method: 'POST', body: { query: q } })
-      .then((r) => setAiSummary(r?.text || ''))
-      .catch(() => setAiSummary(''))
-      .finally(() => setAiLoading(false))
+      .then((r) => { if (!cancelled) setAiSummary(r?.text || '') })
+      .catch(() => { if (!cancelled) setAiSummary('') })
+      .finally(() => { if (!cancelled) setAiLoading(false) })
+    return () => { cancelled = true }
   }, [data])
 
   function removeCode(code: any) {
@@ -221,12 +230,18 @@ export default function Compare() {
   const [employmentData, setEmploymentData] = useState<any>({})
 
   useEffect(() => {
-    if (found.length === 0) return
+    if (found.length === 0) {
+      setScholarshipData({})
+      setEmploymentData({})
+      return
+    }
+    let cancelled = false
     const codes = found.map((it: any) => it.code)
     // Burs bilgisi
     Promise.all(codes.map((code: any) =>
       api.scholarshipByProgram(code).catch(() => null)
     )).then((results) => {
+      if (cancelled) return
       const map: any = {}
       results.forEach((r: any, i: number) => { if (r) map[codes[i]] = r })
       setScholarshipData(map)
@@ -235,10 +250,12 @@ export default function Compare() {
     Promise.all(codes.map((code: any) =>
       api.employmentByProgram(code).catch(() => null)
     )).then((results) => {
+      if (cancelled) return
       const map: any = {}
       results.forEach((r: any, i: number) => { if (r) map[codes[i]] = r })
       setEmploymentData(map)
     })
+    return () => { cancelled = true }
   }, [data])
 
   return (

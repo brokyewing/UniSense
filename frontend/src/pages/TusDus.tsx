@@ -84,10 +84,9 @@ export function TusRobot() {
   const [toast, setToast] = useState('')
   const [autoNot, setAutoNot] = useState('')
 
-  // Stale-response koruması: bul() beklerken sınav değişirse eski yanıt basılmasın
-  const sinavRef = useRef(sinav)
+  // Stale-response koruması: bul() beklerken sınav değişirse veya yeni istek atılırsa eski yanıt basılmasın
+  const reqIdRef = useRef(0)
   const autoDolduRef = useRef(false) // puan otomatik mi dolduruldu (elle yazımı ayırt et)
-  sinavRef.current = sinav
 
   const { profile, loading: profileLoading } = useUserProfile()
 
@@ -132,7 +131,8 @@ export function TusRobot() {
   // ignore guard: hızlı TUS↔DUS toggle'da geç gelen eski yanıt yenisini ezmesin.
   useEffect(() => {
     let ignore = false
-    setMeta(null); setDal(''); setData(null)
+    reqIdRef.current++
+    setMeta(null); setDal(''); setData(null); setLoading(false); setError('')
     apiFetch(`/api/v1/tus/meta?sinav=${sinav}`)
       .then((m) => { if (!ignore) setMeta(m) })
       .catch(() => {})
@@ -147,9 +147,9 @@ export function TusRobot() {
       setTimeout(() => setError(''), 2500)
       return
     }
+    const reqId = ++reqIdRef.current
     setLoading(true)
     setError('')
-    const istekSinav = sinav
     try {
       const res = await apiFetch('/api/v1/tus/oneri', {
         method: 'POST',
@@ -158,12 +158,12 @@ export function TusRobot() {
           kontenjan_turu: kontenjanTuru,
         },
       })
-      if (sinavRef.current !== istekSinav) return // sınav değişti — eski yanıtı basma
+      if (reqId !== reqIdRef.current) return // yeni istek veya sınav değişti — eski yanıtı basma
       setData(res)
     } catch (err: any) {
-      if (sinavRef.current === istekSinav) setError(err.message)
+      if (reqId === reqIdRef.current) setError(err.message)
     } finally {
-      setLoading(false)
+      if (reqId === reqIdRef.current) setLoading(false)
     }
   }
 
@@ -174,7 +174,7 @@ export function TusRobot() {
         <div className="flex justify-center">
           <div className="inline-flex rounded-xl bg-white/5 border border-white/10 p-1 gap-1">
             {SINAVLAR.map((sv) => (
-              <button key={sv.key} onClick={() => setSinav(sv.key)}
+              <button key={sv.key} type="button" onClick={() => setSinav(sv.key)}
                 className={`px-4 py-1.5 rounded-lg text-sm transition ${
                   sinav === sv.key ? 'bg-gradient-to-br from-sky-500 to-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'
                 }`}>

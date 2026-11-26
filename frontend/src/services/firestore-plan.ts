@@ -75,7 +75,7 @@ export async function getIstatistik(uid: string): Promise<any> {
       getDoc(doc(db, 'users', uid, FIRESTORE_COLLECTIONS.ISTATISTIK, 'genel')),
       getDocs(collection(db, 'users', uid, FIRESTORE_COLLECTIONS.PLAN_GOREV)),
     ])
-    konu.forEach((d: any) => { s.konuDone += Object.keys(d.data().checked || {}).length })
+    konu.forEach((d: any) => { s.konuDone += Object.values(d.data().checked || {}).filter(Boolean).length })
     s.denemeSayisi = den.size
     soru.forEach((d: any) => { s.soruCozulen += d.data().cozulen || 0 })
     s.yanlisSayisi = yan.size
@@ -156,9 +156,16 @@ export async function recordActivity(uid: string | null): Promise<number> {
 export async function sureEkle(uid: string, dk: number, ders: string): Promise<void> {
   if (!db || !uid || !dk) return
   const today = bugunStr()
-  const patch: any = { sureDk: increment(dk), sureHafta: { [today]: increment(dk) }, updatedAt: serverTimestamp() }
-  if (ders) patch.dersSure = { [ders]: increment(dk) }
-  await setDoc(doc(db, 'users', uid, FIRESTORE_COLLECTIONS.ISTATISTIK, 'genel'), patch, { merge: true }).catch(() => {})
+  const ref = doc(db, 'users', uid, FIRESTORE_COLLECTIONS.ISTATISTIK, 'genel')
+  const temizDers = String(ders || '').trim().slice(0, 60)
+  const basePatch: any = { sureDk: increment(dk), sureHafta: { [today]: increment(dk) }, updatedAt: serverTimestamp() }
+  if (temizDers) {
+    await setDoc(ref, { ...basePatch, dersSure: { [temizDers]: increment(dk) } }, { merge: true }).catch(() =>
+      setDoc(ref, basePatch, { merge: true }).catch(() => {}),
+    )
+  } else {
+    await setDoc(ref, basePatch, { merge: true }).catch(() => {})
+  }
 }
 
 export function guestStats(): any {

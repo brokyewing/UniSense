@@ -91,7 +91,7 @@ function LiseKart({ lise, inList, onToggle }: any) {
         <div>
           <div className="text-[10px] text-slate-500">Taban yüzdelik{lise.trend?.[0]?.yil ? ` (${lise.trend[0].yil})` : ''}</div>
           <div className="text-lg font-display font-bold text-accent-300 leading-none">
-            %{lise.yuzdelik?.toLocaleString('tr-TR')}
+            {lise.yuzdelik != null ? `%${lise.yuzdelik.toLocaleString('tr-TR')}` : '—'}
           </div>
         </div>
         <div className="text-right text-[10px] text-slate-400 space-y-0.5">
@@ -128,7 +128,9 @@ export function LgsRobot() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const { user } = useAuth()
-  const [tercihIds, setTercihIds] = useState(new Set())
+  const [tercihIds, setTercihIds] = useState<Set<string>>(new Set())
+  const [tercihDocMap, setTercihDocMap] = useState<Map<string, string>>(new Map())
+  const [tercihCount, setTercihCount] = useState(0)
   const [toast, setToast] = useState('')
   const { profile, loading: profileLoading } = useUserProfile()
 
@@ -178,8 +180,27 @@ export function LgsRobot() {
 
   // Tercih listesini canlı izle → kartlardaki "Listede/+ Tercih" senkron
   useEffect(() => {
-    if (!user) { setTercihIds(new Set()); return }
-    return watchLgsTercih(user.uid, (items) => setTercihIds(new Set(items.map((i) => i.id))))
+    if (!user) {
+      setTercihIds(new Set())
+      setTercihDocMap(new Map())
+      setTercihCount(0)
+      return
+    }
+    return watchLgsTercih(user.uid, (items) => {
+      const keys = new Set<string>()
+      const docMap = new Map<string, string>()
+      for (const item of items) {
+        const docId = String(item.id)
+        const key = lgsTercihKey(item)
+        keys.add(docId)
+        keys.add(key)
+        docMap.set(docId, docId)
+        docMap.set(key, docId)
+      }
+      setTercihIds(keys)
+      setTercihDocMap(docMap)
+      setTercihCount(items.length)
+    })
   }, [user])
 
   const [autoNot, setAutoNot] = useState('')
@@ -205,9 +226,9 @@ export function LgsRobot() {
     const key = lgsTercihKey(lise)
     try {
       if (tercihIds.has(key)) {
-        await removeFromLgsTercih(user.uid, key)
+        await removeFromLgsTercih(user.uid, tercihDocMap.get(key) || key)
       } else {
-        if (tercihIds.size >= MAX_LGS_TERCIH) { flash(`Liste dolu (en fazla ${MAX_LGS_TERCIH} lise)`); return }
+        if (tercihCount >= MAX_LGS_TERCIH) { flash(`Liste dolu (en fazla ${MAX_LGS_TERCIH} lise)`); return }
         // order = Date.now(): size+1 silme sonrası çakışıyor; reorder 1..n normalleştirir
         await addToLgsTercih(user.uid, lise, Date.now())
         flash('✓ Tercih listene eklendi — Tercihlerim sayfasında')

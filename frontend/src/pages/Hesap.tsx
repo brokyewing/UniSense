@@ -364,7 +364,8 @@ function NetInput({ field, value, onChange }: any) {
     const v = parseFloat(val)
     // Eğer D + mevcut Y > max ise D'yi sınırla
     if (val !== '' && !isNaN(v)) {
-      const cappedD = Math.min(v, field.max - (yNum || 0))
+      const intD = Math.floor(v)
+      const cappedD = Math.min(intD, field.max - (yNum || 0))
       onChange(dKey, String(Math.max(0, cappedD)))
     } else {
       onChange(dKey, val)
@@ -373,7 +374,8 @@ function NetInput({ field, value, onChange }: any) {
   function handleY(val: any) {
     const v = parseFloat(val)
     if (val !== '' && !isNaN(v)) {
-      const cappedY = Math.min(v, field.max - (dNum || 0))
+      const intY = Math.floor(v)
+      const cappedY = Math.min(intY, field.max - (dNum || 0))
       onChange(yKey, String(Math.max(0, cappedY)))
     } else {
       onChange(yKey, val)

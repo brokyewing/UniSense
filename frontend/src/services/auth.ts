@@ -175,22 +175,25 @@ export async function deleteAccountAndData(
       }
     }
 
-    await deleteDoc(doc(db, 'siralama', user.uid))
+    await deleteDoc(doc(db, 'siralama', user.uid)).catch(() => {})
     await deleteDoc(doc(db, 'users', user.uid))
   }
 
   await deleteUser(user)
 
-  if (typeof window !== 'undefined' && window.localStorage) {
-    const keysToRemove: string[] = []
-    for (let i = 0; i < window.localStorage.length; i++) {
-      const k = window.localStorage.key(i)
-      if (k && k.startsWith('unisense_')) {
-        keysToRemove.push(k)
+  if (typeof window !== 'undefined') {
+    for (const storage of [window.localStorage, window.sessionStorage]) {
+      if (!storage) continue
+      const keysToRemove: string[] = []
+      for (let i = 0; i < storage.length; i++) {
+        const k = storage.key(i)
+        if (k && (k.startsWith('unisense_') || (storage === window.sessionStorage && (k === 'pusula_depts' || k === 'compass_interests')))) {
+          keysToRemove.push(k)
+        }
       }
-    }
-    for (const k of keysToRemove) {
-      window.localStorage.removeItem(k)
+      for (const k of keysToRemove) {
+        storage.removeItem(k)
+      }
     }
   }
 }

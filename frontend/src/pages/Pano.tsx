@@ -37,12 +37,6 @@ export default function Pano({ embedded = false }) {
   const [ders, setDers] = useState('')
   const [toast, setToast] = useState('')
 
-  // E-posta hatırlatma tercihini yükle (girişli)
-  useEffect(() => {
-    if (!user) return
-    emailToggle()
-  }, [user])
-
   // Sayaç — DUVAR SAATİNE göre
   const bitisRef = useRef<any>(null)
   useEffect(() => {
@@ -112,7 +106,7 @@ export default function Pano({ embedded = false }) {
         <Seo title="Çalışma Panom — İlerleme, Süre ve Rozetler | UniSense"
           description="Pomodoro ile çalış, XP kazan, rozet topla; konu, deneme ve çalışma saatini tek panoda gör." path="/pano" noindex />
       )}
-      {toast && <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl glass text-sm">{toast}</div>}
+      {toast && <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl glass text-sm pointer-events-none">{toast}</div>}
       <div className="space-y-5">
         {!embedded && (
           <div className="text-center">
@@ -130,7 +124,7 @@ export default function Pano({ embedded = false }) {
             <button onClick={() => modDegis('mola')} className={`px-3 py-1 rounded-lg text-xs font-semibold ${mod === 'mola' ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white' : 'text-slate-300'}`}>Mola 5'</button>
           </div>
           <div className="text-5xl md:text-6xl font-display font-bold gradient-text tabular-nums">{mmss(kalan)}</div>
-          <input value={ders} onChange={(e) => setDers(e.target.value)} placeholder="Hangi ders? (ops.)"
+          <input value={ders} onChange={(e) => setDers(e.target.value)} maxLength={50} placeholder="Hangi ders? (ops.)"
             className="input-glass text-sm text-center mt-3 mx-auto block w-48" />
           <div className="flex items-center justify-center gap-2 mt-3">
             <button onClick={() => setCalisiyor((c) => !c)} className="btn-primary text-sm inline-flex items-center gap-1.5 px-5">

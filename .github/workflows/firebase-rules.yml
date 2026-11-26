@@ -21,6 +21,7 @@ on:
     branches: [main]
     paths:
       - 'firestore.rules'
+      - 'firestore.indexes.json'
       - 'storage.rules'
       - 'firebase.json'
   workflow_dispatch:
@@ -40,7 +41,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Write service account credentials
         env:
@@ -52,7 +53,7 @@ jobs:
           fi
           echo "$FIREBASE_SERVICE_ACCOUNT" > /tmp/firebase-sa.json
 
-      - name: Deploy Firestore rules
+      - name: Deploy Firestore rules and indexes
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-sa.json
         # firebase-tools TAM sürüm pin'li: pin'siz `npx firebase-tools` çalışma
@@ -62,7 +63,7 @@ jobs:
         # Sürüm yükseltmesi bilinçli olsun (Dependabot/elle) diye sabitlendi.
         run: |
           npx --yes firebase-tools@15.24.0 deploy \
-            --only firestore:rules \
+            --only firestore:rules,firestore:indexes \
             --project "${{ secrets.FIREBASE_PROJECT_ID }}" \
             --non-interactive
 

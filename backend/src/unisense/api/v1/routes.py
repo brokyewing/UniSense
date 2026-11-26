@@ -182,8 +182,7 @@ async def exam_reminder(request: Request, uid: str | None = Depends(require_user
         raise HTTPException(status_code=400, detail="Bildirim için giriş yapmalısın")
     try:
         from unisense.application.services.push_service import send_exam_reminder
-        send_exam_reminder(uid, "YKS", 30)
-        return {"status": "ok", "message": "Exam reminder sent"}
+        return send_exam_reminder(uid, "YKS", 30)
     except Exception as e:
         logger.error("exam_reminder_endpoint_error", error=str(e)[:200])
         raise HTTPException(status_code=500, detail="Bildirim gönderilemedi")
@@ -199,8 +198,7 @@ async def streak_reminder(request: Request, uid: str | None = Depends(require_us
         raise HTTPException(status_code=400, detail="Bildirim için giriş yapmalısın")
     try:
         from unisense.application.services.push_service import send_streak_reminder
-        send_streak_reminder(uid, 5)
-        return {"status": "ok", "message": "Streak reminder sent"}
+        return send_streak_reminder(uid, 5)
     except Exception as e:
         logger.error("streak_reminder_endpoint_error", error=str(e)[:200])
         raise HTTPException(status_code=500, detail="Bildirim gönderilemedi")

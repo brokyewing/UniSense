@@ -65,13 +65,13 @@ export default function Konular({ embedded = false }) {
 
   // Profildeki sınav yoluna göre varsayılan sınav (kullanıcı seçmediyse)
   useEffect(() => {
-    if (!user) return
+    if (!user || userPicked) return
     import('@/services/firestore-core').then(m => m.getUserProfile(user.uid)).then((p) => {
       const track = p?.profile?.examTrack
       const map: any = { YKS: 'YKS', KPSS: 'KPSS', DGS: 'DGS', LGS: 'LGS' }
       if (map[track]) setSinav(map[track])
     }).catch(() => {})
-  }, [user])
+  }, [user, userPicked])
 
   // Seçili sınavın konularını yükle
   useEffect(() => {
@@ -105,18 +105,11 @@ export default function Konular({ embedded = false }) {
 
   function toggle(b: any, konu: any) {
     const key = `${b.grup || ''}|${b.ders}|${konu}`
-    // UI anında güncelle
-    setChecked((prev: any) => {
-      const next = { ...prev }
-      if (next[key]) delete next[key]
-      else next[key] = true
-      return next
-    })
-    // localStorage hemen güncelle
-    const lsKey = `unisense_konu_v1_${sinav}`
-    const nextChecked = { ...checked, [`${b.grup || ''}|${b.ders}|${konu}`]: !checked[`${b.grup || ''}|${b.ders}|${konu}`] }
-    try { localStorage.setItem(`unisense_konu_v1_${sinav}`, JSON.stringify(nextChecked)) } catch { /* noop */ }
-    // Bulut senkronu
+    const nextChecked = { ...checked }
+    if (nextChecked[key]) delete nextChecked[key]
+    else nextChecked[key] = true
+    setChecked(nextChecked)
+    saveChecked(sinav, nextChecked)
     if (user) {
       import('@/services/firestore-study').then(m => m.setKonuIlerleme(user.uid, sinav, nextChecked)).catch(() => {})
     }

@@ -295,6 +295,7 @@ export default function Search() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [busyCode, setBusyCode] = useState<any>(null)
   const endRef = useRef<any>(null)
+  const lastUrlQueryRef = useRef<string | null>(null)
   const { user, isAuthed } = useAuth()
   const [examCtx, setExamCtx] = useState<any>(null)
 
@@ -352,10 +353,10 @@ export default function Search() {
 
   // Sync session messages to local state
   useEffect(() => {
-    if (sessionMessages.length > 0 || sessionLoading) {
+    if (activeSessionId && !sessionLoading) {
       setMessages(sessionMessages)
     }
-  }, [sessionMessages, sessionLoading])
+  }, [activeSessionId, sessionMessages, sessionLoading])
 
   // Scroll to bottom only on user message
   useEffect(() => {
@@ -369,13 +370,21 @@ export default function Search() {
   // Auto-ask from URL param
   useEffect(() => {
     const q = params.get('q')
-    if (q && messages.length === 0 && !activeSessionId && !loading) {
+    if (!q) {
+      lastUrlQueryRef.current = null
+      return
+    }
+    const queryChanged = q !== lastUrlQueryRef.current
+    if (!loading && ((messages.length === 0 && !activeSessionId) || queryChanged)) {
+      lastUrlQueryRef.current = q
       setInput(q)
       ask(q)
     }
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params])
 
   async function newChat() {
+    lastUrlQueryRef.current = null
     setActiveSessionId(null)
     setMessages([])
     setInput('')
@@ -406,6 +415,7 @@ export default function Search() {
       setMessages((m) => [...m, { role: 'user', text }, { role: 'bot', loading: true }])
     }
 
+    lastUrlQueryRef.current = text
     setLoading(true)
     setInput('')
     setParams({ q: text })
@@ -458,8 +468,15 @@ export default function Search() {
         ? `⚠️ ${e.message}`
         : `⚠️ Sunucuya ulaşılamadı: ${e.message}\n\nBackend ayakta mı? (port 8002)`
       if (sid && user) {
-        await addSessionMessage(user.uid, sid, { role: 'bot', text: errorMsg, docs: [] })
-        setMessages((m) => m.filter((x) => !x._temp))
+        try {
+          await addSessionMessage(user.uid, sid, { role: 'bot', text: errorMsg, docs: [] })
+          setMessages((m) => m.filter((x) => !x._temp))
+        } catch {
+          setMessages((m) => [
+            ...m.filter((x) => !x._temp),
+            { role: 'bot', text: errorMsg, docs: [] },
+          ])
+        }
       } else {
         setMessages((m) => [
           ...m.slice(0, -1),

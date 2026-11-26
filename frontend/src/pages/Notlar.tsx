@@ -63,12 +63,24 @@ export default function Notlar({ embedded = false }) {
 
   async function toggle(n: any) {
     const yeni = !n.tamamlandi
-    if (user && !String(n.id).startsWith('l')) { await import('@/services/firestore-study').then(m => m.updateNot(user.uid, n.id, { tamamlandi: yeni })).catch(() => {}) }
+    if (user && !String(n.id).startsWith('l')) {
+      try {
+        await import('@/services/firestore-study').then(m => m.updateNot(user.uid, n.id, { tamamlandi: yeni }))
+      } catch (e: any) {
+        flash(e?.message || 'İşlem başarısız')
+      }
+    }
     else { const a = notlar.map((x) => (x.id === n.id ? { ...x, tamamlandi: yeni } : x)); saveLocal(a); setNotlar(a) }
   }
 
   async function sil(n: any) {
-    if (user && !String(n.id).startsWith('l')) { await import('@/services/firestore-study').then(m => m.removeNot(user.uid, n.id)).catch(() => {}) }
+    if (user && !String(n.id).startsWith('l')) {
+      try {
+        await import('@/services/firestore-study').then(m => m.removeNot(user.uid, n.id))
+      } catch (e: any) {
+        flash(e?.message || 'İşlem başarısız')
+      }
+    }
     else { const a = notlar.filter((x) => x.id !== n.id); saveLocal(a); setNotlar(a) }
   }
 
@@ -79,7 +91,7 @@ export default function Notlar({ embedded = false }) {
         <Seo title="Notlarım — Yapacaklar & Çalışma Notları | UniSense"
           description="Yapacaklarını ve aklındakileri not et, tamamladıkça işaretle. Ücretsiz çalışma not defteri." path="/notlar" noindex />
       )}
-      {toast && <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl glass text-sm">{toast}</div>}
+      {toast && <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl glass text-sm pointer-events-none">{toast}</div>}
       <div className="space-y-5">
         {!embedded && (
           <div className="text-center">

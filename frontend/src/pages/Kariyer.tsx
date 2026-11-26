@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
@@ -182,10 +182,13 @@ export default function Kariyer() {
   const [facet, setFacet] = useState<any>({})
   const [meta, setMeta] = useState<any>(null)
   const [yukleniyor, setYukleniyor] = useState(true)
+  const [dahaYukleniyor, setDahaYukleniyor] = useState(false)
   const [hata, setHata] = useState('')
 
   const bolumAd = (id: any) => (bolumler.find((b: any) => b.id === id)?.label || id)
   const filtreAnahtari = JSON.stringify({ hat, bolum, q, bolge, il, ilce, calisma, istihdam, deneyim, kpss, sira, sadeceYeni })
+  const filtreRef = useRef(filtreAnahtari)
+  filtreRef.current = filtreAnahtari
 
   useEffect(() => {
     let iptal = false
@@ -324,7 +327,7 @@ export default function Kariyer() {
           >
             <SlidersHorizontal size={15} />
             Filtreler
-            {(bolge || il || calisma.length > 0 || kpss) && (
+            {(bolge || il || calisma.length > 0 || istihdam || deneyim || kpss) && (
               <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-teal-500/20 text-teal-200">aktif</span>
             )}
             <ChevronDown size={14} className={`ml-auto transition ${panelAcik ? 'rotate-180' : ''}`} />
@@ -405,6 +408,30 @@ export default function Kariyer() {
               />
             </div>
 
+            {/* İstihdam türü + deneyim */}
+            <div className="grid grid-cols-2 gap-2">
+              <select
+                value={istihdam}
+                onChange={(e) => guncelle({ istihdam: e.target.value })}
+                className="input-glass !py-2 text-xs"
+              >
+                <option value="">İstihdam: Tümü</option>
+                {((facet as any).istihdam_turu || []).map((x: any) => (
+                  <option key={x.id} value={x.id}>{x.id} ({x.sayi})</option>
+                ))}
+              </select>
+              <select
+                value={deneyim}
+                onChange={(e) => guncelle({ deneyim: e.target.value })}
+                className="input-glass !py-2 text-xs"
+              >
+                <option value="">Deneyim: Tümü</option>
+                {((facet as any).deneyim || []).map((x: any) => (
+                  <option key={x.id} value={x.id}>{x.id} ({x.sayi})</option>
+                ))}
+              </select>
+            </div>
+
             {/* Çalışma şekli (çoklu) + KPSS */}
             <div className="flex flex-wrap items-center gap-1.5">
               {['online', 'hibrit', 'yuzyuze'].map((c) => (
@@ -463,7 +490,12 @@ export default function Kariyer() {
                 </div>
                 {dahaVar && (
                   <div className="text-center pt-2">
-                    <button onClick={() => yukleDahaFazla()} className="btn-ghost text-sm">
+                    <button
+                      onClick={() => yukleDahaFazla()}
+                      disabled={dahaYukleniyor}
+                      className="btn-ghost text-sm inline-flex items-center gap-2 disabled:opacity-50"
+                    >
+                      {dahaYukleniyor && <Loader2 size={14} className="animate-spin" />}
                       Daha fazla göster ({toplam - ilanlar.length} kaldı)
                     </button>
                   </div>
@@ -487,6 +519,9 @@ export default function Kariyer() {
 
   // Sayfalama: mevcut filtrelerle bir sonraki sayfayı ekler
   async function yukleDahaFazla() {
+    if (dahaYukleniyor) return
+    const baslangicFiltre = filtreAnahtari
+    setDahaYukleniyor(true)
     const params = new URLSearchParams()
     if (hat) params.set('hat', hat)
     if (bolum) params.set('bolum', bolum)
@@ -506,9 +541,16 @@ export default function Kariyer() {
     params.set('sayfa', String(Math.floor(ilanlar.length / BOYUT) + 1))
     try {
       const i = await apiFetch(`/api/v1/kariyer/ilanlar?${params}`)
-      setIlanlar((onceki) => [...onceki, ...(i.ilanlar || [])])
+      if (filtreRef.current !== baslangicFiltre) return
+      setIlanlar((onceki) => {
+        const mevcutIdler = new Set(onceki.map((x) => x.id))
+        const yeniler = (i.ilanlar || []).filter((x: any) => !mevcutIdler.has(x.id))
+        return [...onceki, ...yeniler]
+      })
     } catch (e: any) {
-      setHata(e.message || 'Veri alınamadı')
+      if (filtreRef.current === baslangicFiltre) setHata(e.message || 'Veri alınamadı')
+    } finally {
+      setDahaYukleniyor(false)
     }
   }
 }

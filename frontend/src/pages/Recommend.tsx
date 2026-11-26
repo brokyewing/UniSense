@@ -194,6 +194,7 @@ const DgsOneriPanel = ({ user, profile }: any) => {
   const [gecisLoading, setGecisLoading] = useState(false)
   const { tercihIds, busyCode, setBusyCode } = useDgsTercih()
   const { show: showToast } = useToast()
+  const reqIdRef = useRef(0)
 
   useEffect(() => {
     api.dgsGecis('').then(d => setOnlisansListe([...new Set(d.programlar || [])])).catch(() => {})
@@ -202,7 +203,9 @@ const DgsOneriPanel = ({ user, profile }: any) => {
   async function gecisAra() {
     if (!onlisans.trim()) return
     setGecisLoading(true)
-    try { const d = await api.dgsGecis(onlisans); setGecis(d.gruplar || []) } catch (e: any) { setError(e.message) } finally { setGecisLoading(false) }
+    setError('')
+    setGecis(null)
+    try { const d = await api.dgsGecis(onlisans); setGecis(d.gruplar || []) } catch (e: any) { setGecis(null); setError(e.message) } finally { setGecisLoading(false) }
   }
 
   function lisansSec(ad: any) { setBolum(ad); setGecis(null); const p = parseFloat(puan); if (p >= 100 && p <= 600) setTimeout(() => ara(ad), 0) }
@@ -212,11 +215,17 @@ const DgsOneriPanel = ({ user, profile }: any) => {
   async function ara(bolumOverride?: string) {
     const p = parseFloat(puan)
     if (!p || p < 100 || p > 600) { setError('Geçerli bir DGS puanı gir (100–600)'); return }
+    const reqId = ++reqIdRef.current
     setLoading(true); setError('')
     try {
       const d = await api.dgsPrograms({ puan_turu: pt, puan: p, bolum: bolumOverride ?? bolum, il: il.trim() || null, uni_turu: uniType === 'all' ? null : uniType, oneri: true, limit: 100 })
+      if (reqId !== reqIdRef.current) return
       setRes({ ...d, puan: p })
-    } catch (e: any) { setError(e.message) } finally { setLoading(false) }
+    } catch (e: any) {
+      if (reqId === reqIdRef.current) setError(e.message)
+    } finally {
+      if (reqId === reqIdRef.current) setLoading(false)
+    }
   }
 
   function onSubmit(e: any) { e.preventDefault(); ara() }

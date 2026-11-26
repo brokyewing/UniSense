@@ -6,6 +6,7 @@ import { track } from '../lib/analytics'
 
 const LS_ON = 'unisense_push_on'
 const LS_DISMISS = 'unisense_push_dismiss'
+const lsOnKey = (uid: string) => `${LS_ON}_${uid}`
 
 export default function PushOptIn() {
   const { user } = useAuth()
@@ -17,11 +18,14 @@ export default function PushOptIn() {
     let live = true
     pushAvailable().then((a) => { if (live) setAvail(a) })
     if (typeof Notification !== 'undefined') {
-      if (Notification.permission === 'granted' && localStorage.getItem(LS_ON)) setState('on')
+      if (user?.uid && Notification.permission === 'granted' && localStorage.getItem(lsOnKey(user.uid))) setState('on')
       else if (Notification.permission === 'denied') setState('denied')
+      else setState('idle')
+    } else {
+      setState('idle')
     }
     return () => { live = false }
-  }, [])
+  }, [user?.uid])
 
   if (!user || !avail) return null
   if (state !== 'on' && dismissed) return null
@@ -30,14 +34,14 @@ export default function PushOptIn() {
     setState('loading')
     try {
       const r = await enablePush(user!.uid)
-      if (r.ok) { localStorage.setItem(LS_ON, '1'); setState('on'); track('push_acildi') }
+      if (r.ok) { localStorage.setItem(lsOnKey(user!.uid), '1'); setState('on'); track('push_acildi') }
       else if (r.reason === 'denied') setState('denied')
       else setState('idle')
     } catch { setState('idle') }
   }
   async function kapat() {
     await disablePush(user!.uid).catch(() => {})
-    localStorage.removeItem(LS_ON)
+    localStorage.removeItem(lsOnKey(user!.uid))
     setState('idle')
   }
   function dismiss() { localStorage.setItem(LS_DISMISS, '1'); setDismissed(true) }

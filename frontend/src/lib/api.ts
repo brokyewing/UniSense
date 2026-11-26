@@ -60,7 +60,18 @@ export async function apiFetch(path: string, { method = 'GET', body, signal }: {
     throw new ApiError('Çok fazla istek gönderildi — biraz bekleyip tekrar dene.', 429)
   }
   if (!res.ok) {
-    throw new ApiError(`API ${res.status} — backend çalışıyor mu? (${API_BASE || 'localhost:8002'})`, res.status)
+    const body = await res.json().catch(() => null)
+    let msg = `API ${res.status} — backend çalışıyor mu? (${API_BASE || 'localhost:8002'})`
+    if (body && typeof body.detail === 'string' && body.detail.trim()) {
+      msg = body.detail
+    } else if (body && Array.isArray(body.detail) && body.detail.length > 0) {
+      const joined = body.detail
+        .map((d: any) => (d && typeof d.msg === 'string' ? d.msg : ''))
+        .filter(Boolean)
+        .join('; ')
+      if (joined) msg = joined
+    }
+    throw new ApiError(msg, res.status)
   }
   return res.json()
 }

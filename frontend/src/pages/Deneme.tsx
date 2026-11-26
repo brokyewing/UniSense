@@ -170,7 +170,13 @@ export default function Deneme({ embedded = false }) {
   }
 
   async function sil(d: any) {
-    if (user && !String(d.id).startsWith('l')) { await import('@/services/firestore-study').then(m => m.removeDeneme(user.uid, d.id)).catch(() => {}) }
+    if (user && !String(d.id).startsWith('l')) {
+      try {
+        await import('@/services/firestore-study').then(m => m.removeDeneme(user.uid, d.id))
+      } catch (e: any) {
+        flash(e?.message || 'Silinemedi')
+      }
+    }
     else { const a = denemeler.filter((x) => x.id !== d.id); saveLocal(sinav, a); setDenemeler(a) }
   }
 
@@ -178,7 +184,7 @@ export default function Deneme({ embedded = false }) {
   async function soruEkle() {
     const blok = bloklar[parseInt(soruF.blokIdx, 10)]
     const cozulen = parseInt(soruF.cozulen, 10) || 0
-    const dogru = Math.min(parseInt(soruF.dogru, 10) || 0, cozulen)
+    const dogru = Math.max(0, Math.min(parseInt(soruF.dogru, 10) || 0, cozulen))
     if (!blok || !soruF.konu) { flash('Ders ve konu seç'); return }
     if (cozulen <= 0) { flash('Çözülen soru sayısını gir'); return }
     const ders = blok.grup ? `${blok.grup} ${blok.ders}` : blok.ders
@@ -195,7 +201,13 @@ export default function Deneme({ embedded = false }) {
   }
 
   async function soruSil(s: any) {
-    if (user && !String(s.id).startsWith('l')) { await import('@/services/firestore-study').then(m => m.removeSoruKayit(user.uid, s.id)).catch(() => {}) }
+    if (user && !String(s.id).startsWith('l')) {
+      try {
+        await import('@/services/firestore-study').then(m => m.removeSoruKayit(user.uid, s.id))
+      } catch (e: any) {
+        flash(e?.message || 'Silinemedi')
+      }
+    }
     else { const a = soruKayit.filter((x) => x.id !== s.id); saveSoru(sinav, a); setSoruKayit(a) }
   }
 
@@ -273,7 +285,7 @@ export default function Deneme({ embedded = false }) {
           description="Denemelerini ve konu konu çözdüğün soruları tek yerde kaydet; AI Koç netlerine ve soru çözümüne göre hangi konuya odaklanman gerektiğini söyler — ücretsiz."
           path="/deneme" />
       )}
-      {toast && <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl glass text-sm">{toast}</div>}
+      {toast && <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl glass text-sm pointer-events-none">{toast}</div>}
       <div className="space-y-5">
         {!embedded && (
           <div className="text-center">

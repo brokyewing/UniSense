@@ -89,7 +89,7 @@ const STATIC_ROUTES = {
   '/anasayfa': { title: `UniSense — ${TERCIH_YILI} Tercih Robotu | YKS, DGS, KPSS`, description: 'Güncel taban puanlar, sıralamalar ve yapay zekâ destekli tercih önerileriyle YKS, DGS ve KPSS tercihine hazırlan.' },
   '/arama': { title: 'Tercih Sorgu — Taban Puan & Sıralama Sorgula | UniSense', description: 'Doğal dilde sor: bölüm taban puanları, başarı sıralamaları, kontenjanlar ve KPSS kadroları — kaynak gösterimli yapay zekâ sohbeti.' },
   '/oneriler': { title: 'Tercih Önerileri — YKS · DGS · KPSS | UniSense', description: 'Puanına uygun güvenli, hedef ve üst seviye tercihleri yapay zekâyla al. YKS, DGS ve KPSS için ayrı öneriler.' },
-  '/hesap': { title: 'Puan Hesaplama — YKS · DGS · KPSS Net Hesap | UniSense', description: 'Netlerini gir, yaklaşık YKS, DGS veya KPSS yerleştirme puanını anında hesapla.' },
+  '/hesap': { title: 'Puan Hesaplama — YKS · DGS · KPSS Net Hesap | UniSense', description: 'Netlerini gir, yaklaşık YKS, DGS veya KPSS yerleştirme puanını anında hesapla; bu puanla hangi programları yazabileceğini gör.' },
   '/pusula': { title: 'İlgi Pusulası — Sana Uygun Bölümü Bul | UniSense', description: 'İlgi alanlarından yapay zekâ ile sana uygun üniversite bölümlerini keşfet.' },
   '/karsilastir': { title: 'Program Karşılaştırma — Taban, Trend, Kadro | UniSense', description: 'Üniversite programlarını yan yana karşılaştır: taban puan, 3 yıllık sıralama trendi, akademik kadro, ücret ve akreditasyon.' },
   '/bolum': { title: 'Bölüm Rehberi — Üniversite Bölümleri Tanıtımı | UniSense', description: 'Üniversite bölümleri ne iş yapar, hangi dersleri okur, mezunları nerede çalışır? Tanıtımlar + güncel taban puanları.' },
@@ -109,6 +109,21 @@ const now = new Date().toISOString().slice(0, 10)
 for (const [path, meta] of Object.entries(STATIC_ROUTES)) {
   writePage(path, pageHtml({ ...meta, path }))
   sitemapUrls.push({ loc: SITE + path, priority: path === '/' ? '1.0' : '0.8', changefreq: 'weekly' })
+}
+
+// --- Kişisel noindex rotaları (sitemap'e eklenmez; doğrudan HTML'de noindex döner) ---
+const NOINDEX_ROUTES = {
+  '/planim': { title: 'Planım — AI Çalışma Planlayıcısı | UniSense', description: 'Haftalık çalışma planını kur, günlük görevlerini takip et.' },
+  '/notlar': { title: 'Notlarım | UniSense', description: 'Kişisel çalışma notların ve yapılacaklar listen.' },
+  '/pano': { title: 'Çalışma Panom | UniSense', description: 'Pomodoro sayacı, çalışma istatistiklerin ve rozetlerin.' },
+  '/tercih': { title: 'Tercih Listem | UniSense', description: 'Kişisel tercih listen.' },
+  '/profil': { title: 'Sınav Profilim | UniSense', description: 'Kişisel sınav profili ve hedeflerin.' },
+  '/siralama': { title: 'Sıralama | UniSense', description: 'Çalışma sıralaması.' },
+  '/giris': { title: 'Giriş | UniSense', description: 'UniSense hesabına giriş yap.' },
+}
+
+for (const [path, meta] of Object.entries(NOINDEX_ROUTES)) {
+  writePage(path, pageHtml({ ...meta, path, noindex: true }))
 }
 
 // --- Bölüm içerik sayfaları (yalnız dept_guides.json — küçük, garanti erişilebilir) ---

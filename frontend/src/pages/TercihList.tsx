@@ -369,7 +369,7 @@ function SortableRow({
 
   const code = String(item.department_code || item.id)
   const hasNote = !!(item.note && item.note.trim())
-  const [noteOpen, setNoteOpen] = useState(false)
+  const [noteOpen, setNoteOpen] = useState(hasNote)
   const [noteValue, setNoteValue] = useState(item.note || '')
   const [savingNote, setSavingNote] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -378,6 +378,11 @@ function SortableRow({
   useEffect(() => {
     setNoteValue(item.note || '')
   }, [item.note, item.id])
+
+  useEffect(() => {
+    setNoteOpen(!!(item.note && item.note.trim()))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item.id])
 
   function handleNoteChange(e: ChangeEvent<HTMLTextAreaElement>) {
     const next = e.target.value.slice(0, 500)
@@ -538,7 +543,7 @@ function SortableRow({
 
       {/* Kişisel not — expandable */}
       <AnimatePresence initial={false}>
-        {(noteOpen || hasNote) && (
+        {noteOpen && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
@@ -747,7 +752,7 @@ function KpssTercihPanel({ user, profile }: { user: User; profile: UserProfileDa
   }
 
   function copyAll() {
-    navigator.clipboard?.writeText(items.map((i) => i.kadro_kodu).join('\n'))
+    void navigator.clipboard?.writeText(items.map((i) => i.kadro_kodu).join('\n')).catch(() => {})
   }
 
   function exportText() {
@@ -877,7 +882,7 @@ function DgsTercihPanel({ user, profile }: { user: User; profile: UserProfileDat
   }, [user])
 
   function copyAll() {
-    navigator.clipboard?.writeText(items.map((i) => i.department_code).join('\n'))
+    void navigator.clipboard?.writeText(items.map((i) => i.department_code).join('\n')).catch(() => {})
   }
 
   function exportText() {
@@ -961,7 +966,7 @@ function DgsTercihPanel({ user, profile }: { user: User; profile: UserProfileDat
                           <span>Kontenjan: {p.kontenjan ?? '?'}</span>
                         </div>
                       </div>
-                      <button onClick={() => removeFromDgsTercih(user.uid, p.department_code)}
+                      <button onClick={() => void removeFromDgsTercih(user.uid, p.department_code).catch(() => {})}
                         className="text-slate-500 hover:text-rose-400 text-xs shrink-0">
                         Kaldır
                       </button>
@@ -988,7 +993,7 @@ function UzmanlikTercihPanel({ user, sinav }: { user: User; sinav: 'TUS' | 'DUS'
   }, [user, sinav])
 
   function copyAll() {
-    navigator.clipboard?.writeText(items.map((i) => i.kod).join('\n'))
+    void navigator.clipboard?.writeText(items.map((i) => i.kod).join('\n')).catch(() => {})
   }
 
   function exportText() {
@@ -1061,7 +1066,7 @@ function UzmanlikTercihPanel({ user, sinav }: { user: User; sinav: 'TUS' | 'DUS'
                           {p.kontenjan_turu && p.kontenjan_turu !== 'Genel' && <span className="text-fuchsia-300">{p.kontenjan_turu}</span>}
                         </div>
                       </div>
-                      <button onClick={() => removeFromUzmanlikTercih(user.uid, sinav, p.kod)}
+                      <button onClick={() => void removeFromUzmanlikTercih(user.uid, sinav, p.kod).catch(() => {})}
                         className="text-slate-500 hover:text-rose-400 text-xs shrink-0">
                         Kaldır
                       </button>
@@ -1149,7 +1154,7 @@ function LgsTercihPanel({ user }: { user: User }) {
                           <span>{l.dil}</span>
                         </div>
                       </div>
-                      <button onClick={() => removeFromLgsTercih(user.uid, l.id)}
+                      <button onClick={() => void removeFromLgsTercih(user.uid, l.id).catch(() => {})}
                         className="text-slate-500 hover:text-rose-400 text-xs shrink-0">
                         Kaldır
                       </button>
@@ -1651,7 +1656,7 @@ export default function TercihList() {
                       <AnimatePresence>
                         {items.map((it, idx) => {
                           const code = String(it.department_code || it.id)
-                          const effectiveLvl = it.safety_level || yksLevel(userRank, it.last_year_base_rank)
+                          const effectiveLvl = yksLevel(userRank, it.last_year_base_rank) || it.safety_level
                           return (
                             <motion.div
                               key={it.id}

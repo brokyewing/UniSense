@@ -96,8 +96,8 @@ def send_push_notification(tokens: list[str], title: str, body: str, data: dict 
             "failure": response.failure_count,
         }
     except Exception as e:
-        logger.error("push_send_error", error=str(e))
-        return {"status": "error", "message": str(e)}
+        logger.error("push_send_error", error=str(e)[:200])
+        return {"status": "error", "message": "Bildirim gönderilemedi"}
 
 
 def send_exam_reminder(uid: str, exam_type: str = "YKS", days_left: int = 30) -> dict:

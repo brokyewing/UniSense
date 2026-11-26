@@ -1,7 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom'
 import { inject } from '@vercel/analytics'
+import Seo from './components/Seo.tsx'
 import App from './App.jsx'
 import Splash from './pages/Splash.jsx'
 import Home from './pages/Home.jsx'
@@ -48,6 +49,25 @@ function LegacyRedirect({ to }: { to: string }) {
   return <Navigate to={{ pathname: to, search: loc.search, hash: loc.hash }} replace />
 }
 
+function NotFound() {
+  const loc = useLocation()
+  return (
+    <>
+      <Seo title="Sayfa Bulunamadı | UniSense" description="Aradığın sayfa bulunamadı." path={loc.pathname} noindex />
+      <div className="card max-w-md mx-auto my-12 text-center space-y-4">
+        <div className="text-4xl font-display font-bold gradient-text">404</div>
+        <h1 className="text-xl font-display font-semibold text-white">Sayfa bulunamadı</h1>
+        <p className="text-sm text-slate-400">
+          Aradığın adres taşınmış veya mevcut değil.
+        </p>
+        <Link to="/anasayfa" className="btn-primary inline-flex items-center justify-center text-sm">
+          Ana sayfaya dön
+        </Link>
+      </div>
+    </>
+  )
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ErrorBoundary>
@@ -84,6 +104,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               {LEGACY_ROUTES.map(([from, to]) => (
                 <Route key={from} path={from} element={<LegacyRedirect to={to} />} />
               ))}
+              <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
           <PWAInstallPrompt />
