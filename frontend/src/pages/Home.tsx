@@ -99,14 +99,14 @@ const ADIMLAR = [
 ]
 
 const SAMPLE_QUERIES = [
-  'Bilgisayar Mühendisliği taban puanları',
-  'İskenderun Teknik Üniversitesi bölümleri',
-  'Denizcilik fakültesi olan üniversiteler',
-  '300.000 sıralamayla hangi üniversiteler',
-  'Boğaziçi Üniversitesi tüm bölümler',
-  'İngilizce hazırlık olan EA bölümleri',
-  'Vakıf üniversitelerinde tıp bursları',
-  'KKTC üniversiteleri lisans programları',
+  'Bilgisayar Mühendisliği taban puanları ve sıralamaları',
+  '50.000 sayısal sıralamayla hangi üniversiteye girebilirim?',
+  'Vakıf üniversitelerinde burslu tıp taban puanları',
+  '2 yıllık önlisans bölümlerinden DGS geçiş bölümleri',
+  'Boğaziçi ve ODTÜ mühendislik taban sıralamaları',
+  'İngilizce eğitim veren eşit ağırlık (EA) bölümleri',
+  'KPSS lisans merkezi atama taban puanları ve kadrolar',
+  'Devlet üniversiteleri hemşirelik ve hukuk kontenjanları',
 ]
 
 

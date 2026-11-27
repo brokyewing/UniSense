@@ -129,8 +129,8 @@ export default function Konular({ embedded = false }) {
       {!embedded && <BackgroundScene />}
       {!embedded && (
         <Seo
-          title={`Konu Takibi — YKS, KPSS, DGS, LGS Konuları | UniSense`}
-          description="Sınavında çıkan tüm konuları ders ders takip et, çalıştıkça işaretle. YKS, KPSS, DGS ve LGS için ücretsiz konu kontrol listesi."
+          title="TYT AYT Konu Dağılımı & YKS Konu Takip Çizelgesi | UniSense"
+          description="2027 TYT, AYT, KPSS, DGS ve LGS güncel müfredat konu listesi. Ders ders konuları işaretle, eksiklerini gör ve online konu takip çizelgesiyle hazırlan."
           path="/konular"
         />
       )}

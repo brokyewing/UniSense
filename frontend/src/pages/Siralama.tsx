@@ -103,6 +103,7 @@ export default function Siralama() {
         title="Sıralama | UniSense"
         description="UniSense çalışma sıralaması — en çok XP toplayan öğrenciler. Takma adınla katıl, sıranı gör."
         path="/siralama"
+        noindex
       />
       <div className="space-y-5">
         <div className="text-center">

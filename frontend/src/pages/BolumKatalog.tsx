@@ -35,8 +35,8 @@ export default function BolumKatalog() {
     <>
       <BackgroundScene />
       <Seo
-        title="Bölüm Rehberi — Üniversite Bölümleri Tanıtımı | UniSense"
-        description="Üniversite bölümleri ne iş yapar, hangi dersleri okur, mezunları nerede çalışır? Bölüm tanıtımları + o bölümü veren üniversitelerin güncel taban puanları."
+        title="Üniversite Bölümleri ve Taban Puanları Rehberi | UniSense"
+        description="600+ lisans ve önlisans üniversite bölümü ne iş yapar, hangi dersleri okur, mezunları nerede çalışır? Bölüm tanıtımları ve güncel taban puanları."
         path="/bolum"
       />
       <div className="space-y-6">
@@ -67,12 +67,12 @@ export default function BolumKatalog() {
         ) : (
           <>
             <div className="text-xs text-slate-500 text-center">{filtered.length} bölüm</div>
-            <div className="grid sm:grid-cols-2 gap-3">
+            <div className="grid sm:grid-cols-2 gap-3 min-w-0">
               {filtered.map((it, i) => (
-                <motion.div key={it.slug} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                <motion.div key={it.slug} className="min-w-0" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: Math.min(i * 0.01, 0.3) }}>
                   <Link to={`/bolum/${it.slug}`}
-                    className="card glass-hover p-4 flex items-start gap-3 group h-full">
+                    className="card glass-hover p-4 flex items-start gap-3 group h-full min-w-0 overflow-hidden">
                     <div className="w-9 h-9 rounded-xl bg-accent-500/15 text-accent-300 flex items-center justify-center shrink-0">
                       <BookOpen size={16} />
                     </div>

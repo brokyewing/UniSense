@@ -281,8 +281,8 @@ export default function Deneme({ embedded = false }) {
     <>
       {!embedded && <BackgroundScene />}
       {!embedded && (
-        <Seo title="Çalışmalarım — Deneme & Çözülen Soru Takibi | UniSense"
-          description="Denemelerini ve konu konu çözdüğün soruları tek yerde kaydet; AI Koç netlerine ve soru çözümüne göre hangi konuya odaklanman gerektiğini söyler — ücretsiz."
+        <Seo title="YKS Deneme Takip, TYT AYT Net Analizi ve Grafik | UniSense"
+          description="TYT, AYT, KPSS, DGS ve LGS deneme netlerini ve çözdüğün soruları kaydet; net gelişim grafiği ve AI Koç analiziyle eksik konularını ücretsiz takip et."
           path="/deneme" />
       )}
       {toast && <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl glass text-sm pointer-events-none">{toast}</div>}

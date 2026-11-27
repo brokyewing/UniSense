@@ -635,9 +635,9 @@ export default function Search() {
                 <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-brand-500 to-accent-600 flex items-center justify-center shadow-2xl shadow-accent-500/40 mb-4 animate-pulse-glow">
                   <Sparkles size={28} className="text-white" />
                 </div>
-                <h2 className="text-3xl font-display font-bold text-white mb-2">
+                <h1 className="text-3xl font-display font-bold text-white mb-2">
                   Ne öğrenmek istersin?
-                </h2>
+                </h1>
                 <p className="text-slate-400 max-w-lg mx-auto mb-2 pretty">
                   Bölüm, üniversite, taban puan, sıralama veya karşılaştırma —
                   doğal Türkçe ile sor.

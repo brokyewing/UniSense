@@ -30,11 +30,13 @@ export default function OzetDetay() {
   return (
     <>
       <BackgroundScene />
-      {kart && (
-        <Seo title={`${kart.baslik} — Formül Özeti | UniSense`}
-          description={`${kart.ozet} ${kart.ders} ${kart.konu} formülleri.`}
-          path={`/ozet/${slug}`} />
-      )}
+      {kart && (() => {
+        const rawT = `${kart.baslik} — ${kart.ders} Formül Özeti | UniSense`
+        const seoT = rawT.length <= 60 ? rawT : `${kart.baslik} — Formül Özeti | UniSense`.slice(0, 60)
+        const rawD = `${kart.ozet} ${kart.ders} (${kart.konu}) temel formülleri, kuralları ve sınav ipuçları — YKS, LGS ve KPSS için ücretsiz konu özeti.`
+        const seoD = rawD.length <= 158 ? rawD : rawD.slice(0, 155).replace(/\s+\S*$/, '') + '…'
+        return <Seo title={seoT} description={seoD} path={`/ozet/${slug}`} />
+      })()}
       <div className="space-y-4">
         <Link to="/ozetler" className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-amber-300">
           <ArrowLeft size={15} /> Tüm formül özetleri

@@ -469,8 +469,8 @@ export default function LGS() {
     <>
       <BackgroundScene />
       <Seo
-        title={`LGS Tercih Robotu ${TERCIH_YILI} — Yüzdelik Dilimine Göre Lise Bul | UniSense`}
-        description="LGS yüzdelik dilimini gir, geçen yıl taban puanlarına göre girebileceğin Fen, Anadolu, Sosyal Bilimler ve İmam Hatip liselerini güvenli/tutar/riskli olarak gör. Ücretsiz, tahminî."
+        title={`LGS Tercih Robotu ${TERCIH_YILI} — Lise Taban Puanları & Yüzdelik`}
+        description="LGS yüzdelik dilimini gir; 81 il ve ilçedeki Fen, Anadolu, Sosyal Bilimler ve İmam Hatip liselerinin taban puanlarını ve yüzdelik dilimlerini listele."
         path="/lgs"
       />
       <div className="space-y-5">

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Calendar, Loader2, ArrowRight } from 'lucide-react'
 import BackgroundScene from '../components/three/LazyBackgroundScene'
-import Seo from '../components/Seo'
 import { apiFetch } from '../lib/api'
 
 interface TakvimEvent {
@@ -35,7 +34,6 @@ export default function Takvim() {
   return (
     <>
       <BackgroundScene />
-      <Seo title="Takvim | UniSense" description="Sınav takvimi" path="/takvim" />
       <div className="space-y-5">
         <h1 className="text-3xl font-display font-bold text-white flex items-center gap-2">
           <Calendar className="text-accent-400" size={26} /> Sınav Takvimi

@@ -322,8 +322,8 @@ export default function TusDus() {
     <>
       <BackgroundScene />
       <Seo
-        title={`TUS / DUS Tercih Robotu ${TERCIH_YILI} — Puanına Göre Uzmanlık Programı Bul | UniSense`}
-        description="TUS veya DUS puanını gir, geçen dönem ÖSYM en küçük yerleşme puanlarına göre yerleşebileceğin uzmanlık dallarını ve kurumları güvenli/tutar/riskli olarak gör — ücretsiz, tahminî."
+        title={`TUS ve DUS Tercih Robotu ${TERCIH_YILI} — Uzmanlık Taban Puanları`}
+        description="TUS ve DUS puanına göre tıp ve diş hekimliği uzmanlık dallarının ÖSYM en küçük taban puanlarını, kontenjanlarını ve kurumlarını güvenli/hedef olarak gör."
         path="/tus"
       />
       <div className="space-y-5">

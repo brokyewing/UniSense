@@ -73,8 +73,8 @@ export default function Ozetler({ embedded = false }) {
     <>
       {!embedded && <BackgroundScene />}
       {!embedded && (
-        <Seo title="Formül ve Konu Özetleri — YKS Cheat Sheet | UniSense"
-          description="TYT-AYT matematik, geometri, fizik ve kimya formülleri tek yerde. Aranabilir, çevrimdışı erişilebilir konu özetleri — ücretsiz."
+        <Seo title="TYT AYT Matematik, Fizik, Kimya Formül Özetleri | UniSense"
+          description="YKS (TYT-AYT), LGS ve KPSS matematik, geometri, fizik ve kimya formülleri ile pratik konu özetleri tek yerde. Aranabilir ve ücretsiz ders notları."
           path="/ozetler" />
       )}
       <div className="space-y-5">

@@ -15,32 +15,32 @@ import Logo from './components/Logo'
 import Seo from './components/Seo'
 import { TERCIH_YILI } from './lib/donem'
 
-// Rota → SEO meta (rota-bazlı benzersiz title + self-canonical). Kişisel/geçici
-// sayfalar noindex (robots.txt de bunları engelliyor — çift güvence).
+// Rota → SEO meta (50-60 krk title + 125-158 krk description + self-canonical).
+// Kişisel sayfalar noindex (prerender.mjs ile birebir eşleşir).
 const ROUTE_SEO = {
-  '/': { title: `UniSense — ${TERCIH_YILI} Tercih Robotu | YKS, DGS, KPSS Taban Puanlar`, description: 'YKS, DGS ve KPSS tercihine yapay zekâ destekli hazırlan: güncel taban puanlar, başarı sıralamaları, net hesaplama ve kişisel tercih önerileri — ücretsiz.' },
-  '/anasayfa': { title: `UniSense — ${TERCIH_YILI} Tercih Robotu | YKS, DGS, KPSS`, description: 'Güncel taban puanlar, sıralamalar ve yapay zekâ destekli tercih önerileriyle YKS, DGS ve KPSS tercihine hazırlan.' },
-  '/arama': { title: 'Tercih Sorgu — Taban Puan & Sıralama Sorgula | UniSense', description: 'Doğal dilde sor: bölüm taban puanları, başarı sıralamaları, kontenjanlar ve KPSS kadroları — kaynak gösterimli yapay zekâ sohbeti.' },
-  '/oneriler': { title: 'Tercih Önerileri — YKS · DGS · KPSS | UniSense', description: 'Puanına uygun güvenli, hedef ve üst seviye tercihleri yapay zekâyla al. YKS, DGS ve KPSS için ayrı öneriler.' },
-  '/hesap': { title: 'Puan Hesaplama — YKS · DGS · KPSS Net Hesap | UniSense', description: 'Netlerini gir, yaklaşık YKS, DGS veya KPSS yerleştirme puanını anında hesapla; bu puanla hangi programları yazabileceğini gör.' },
-  '/pusula': { title: 'İlgi Pusulası — Sana Uygun Bölümü Bul | UniSense', description: 'Ne okuyacağına karar veremiyor musun? İlgi alanlarından yapay zekâ ile sana uygun üniversite bölümlerini keşfet.' },
-  '/karsilastir': { title: 'Program Karşılaştırma — Taban, Trend, Kadro | UniSense', description: 'Üniversite programlarını yan yana karşılaştır: taban puan, 3 yıllık sıralama trendi, akademik kadro, ücret ve akreditasyon.' },
-  '/konular': { title: 'Konu Takibi — YKS, KPSS, DGS, LGS Konuları | UniSense', description: 'Sınavının tüm konularını ders ders takip et, çalıştıkça işaretle. YKS, KPSS, DGS ve LGS için ücretsiz konu kontrol listesi.' },
-  '/deneme': { title: 'Çalışmalarım — Deneme & Çözülen Soru Takibi | UniSense', description: 'Denemelerini ve konu konu çözdüğün soruları tek yerde kaydet; AI Koç netlerine ve soru çözümüne göre hangi konuya odaklanman gerektiğini söyler — ücretsiz.' },
-  '/ozetler': { title: 'Formül ve Konu Özetleri — YKS Cheat Sheet | UniSense', description: 'TYT-AYT matematik, geometri, fizik ve kimya formülleri tek yerde. Aranabilir, çevrimdışı erişilebilir konu özetleri — ücretsiz.' },
-  '/planim': { title: 'Planım — AI Çalışma Planlayıcısı | UniSense', noindex: true },
-  '/notlar': { title: 'Notlarım | UniSense', noindex: true },
-  '/pano': { title: 'Çalışma Panom | UniSense', noindex: true },
-  '/bolum': { title: 'Bölüm Rehberi — Üniversite Bölümleri Tanıtımı | UniSense', description: 'Üniversite bölümleri ne iş yapar, hangi dersleri okur, mezunları nerede çalışır? Tanıtımlar + güncel taban puanları.' },
-  '/takvim': { title: `${TERCIH_YILI} Sınav Takvimi — YKS, LGS, DGS, KPSS, ALES, TUS | UniSense`, description: `${TERCIH_YILI} YKS, LGS, DGS, KPSS, ALES, TUS, DUS ve AGS sınav, sonuç ve tercih tarihleri — kaç gün kaldığıyla tek sayfada.` },
-  '/lgs': { title: `LGS Tercih Robotu ${TERCIH_YILI} — Yüzdelik Dilimine Göre Lise Bul | UniSense`, description: 'LGS yüzdelik dilimini gir, girebileceğin Fen, Anadolu, Sosyal Bilimler ve İmam Hatip liselerini güvenli/tutar/riskli olarak gör — ücretsiz, tahminî.' },
-  '/tus': { title: `TUS / DUS Tercih Robotu ${TERCIH_YILI} — Puanına Göre Uzmanlık Bul | UniSense`, description: 'TUS veya DUS puanını gir, geçen dönem ÖSYM taban puanlarına göre yerleşebileceğin uzmanlık dallarını ve kurumları güvenli/tutar/riskli olarak gör — ücretsiz, tahminî.' },
-  '/kariyer': { title: `Kariyer Sinyalleri ${TERCIH_YILI} — Kamu ve Özel Sektör İş İlanları | UniSense`, description: 'Her sabah güncellenen kamu ilan sinyalleri (Resmî Gazete taraması) + Kariyer Kapısı, Vizyoner Genç, TÜBİTAK ve özel sektör kaynak rehberi — ücretsiz.' },
-  '/gizlilik': { title: 'Gizlilik ve KVKK | UniSense', description: 'UniSense gizlilik politikası ve KVKK aydınlatma metni.' },
-  '/tercih': { title: 'Tercih Listem | UniSense', noindex: true },
-  '/profil': { title: 'Sınav Profilim | UniSense', noindex: true },
-  '/siralama': { title: 'Sıralama | UniSense', noindex: true },
-  '/giris': { title: 'Giriş | UniSense', noindex: true },
+  '/': { title: `YKS, LGS, DGS, KPSS Tercih Robotu ${TERCIH_YILI} & Puanlar | UniSense`, description: 'Üniversite ve lise taban puanları, başarı sıralamaları, TYT-AYT net ve OBP hesaplama, KPSS, DGS, TUS tercih robotu — YÖK Atlas/ÖSYM verisiyle ücretsiz.' },
+  '/anasayfa': { title: `Üniversite Taban Puanları ${TERCIH_YILI} & Tercih Robotu | UniSense`, description: `${TERCIH_YILI} YKS, LGS, DGS, KPSS ve TUS tercih robotu: 4 ve 2 yıllık üniversite taban puanları, başarı sıralamaları, net hesaplama ve AI tercih önerileri.` },
+  '/arama': { title: 'YÖK Atlas Taban Puan & Sıralama Sorgula (AI) | UniSense', description: 'Üniversite taban puanları, başarı sıralamaları, kontenjanlar ve KPSS nitelik kodlarını doğal dilde sor; ÖSYM kodlu ve kaynaklı yanıtı anında al.' },
+  '/oneriler': { title: `YKS, DGS ve KPSS Tercih Robotu ${TERCIH_YILI} — Sıralama | UniSense`, description: 'Sıralamana ve puanına göre güvenli, hedef ve riskli üniversite bölümlerini, DGS geçiş programlarını ve KPSS atama kadrolarını ücretsiz listele.' },
+  '/hesap': { title: 'TYT AYT Puan, Net, OBP ve Sıralama Hesaplama | UniSense', description: 'TYT, AYT, YDT net ve OBP (diploma notu) hesaplama ile YKS başarı sıralamanı gör; DGS, KPSS, LGS, ALES ve AGS puanlarını tek ekranda ücretsiz hesapla.' },
+  '/pusula': { title: 'Meslek Seçimi Testi & Hangi Bölümü Seçmeliyim | UniSense', description: 'Ne okuyacağına karar veremiyor musun? İlgi alanlarına göre yapay zekâ destekli üniversite bölümü ve meslek seçimi testiyle sana en uygun alanları bul.' },
+  '/karsilastir': { title: 'Üniversite ve Bölüm Karşılaştırma — Taban Puan | UniSense', description: '2 ila 5 üniversite programını yan yana karşılaştır: taban puanı, 3 yıllık başarı sıralaması trendi, kontenjan, burs/ücret, akreditasyon ve istihdam.' },
+  '/konular': { title: 'TYT AYT Konu Dağılımı & YKS Konu Takip Çizelgesi | UniSense', description: `${TERCIH_YILI} TYT, AYT, KPSS, DGS ve LGS güncel müfredat konu listesi. Ders ders konuları işaretle, eksiklerini gör ve online konu takip çizelgesiyle hazırlan.` },
+  '/deneme': { title: 'YKS Deneme Takip, TYT AYT Net Analizi ve Grafik | UniSense', description: 'TYT, AYT, KPSS, DGS ve LGS deneme netlerini ve çözdüğün soruları kaydet; net gelişim grafiği ve AI Koç analiziyle eksik konularını ücretsiz takip et.' },
+  '/ozetler': { title: 'TYT AYT Matematik, Fizik, Kimya Formül Özetleri | UniSense', description: 'YKS (TYT-AYT), LGS ve KPSS matematik, geometri, fizik ve kimya formülleri ile pratik konu özetleri tek yerde. Aranabilir ve ücretsiz ders notları.' },
+  '/planim': { title: 'Planım — AI Çalışma Planlayıcısı | UniSense', description: 'Haftalık çalışma planını kur, günlük görevlerini takip et.', noindex: true },
+  '/notlar': { title: 'Notlarım | UniSense', description: 'Kişisel çalışma notların ve yapılacaklar listen.', noindex: true },
+  '/pano': { title: 'Çalışma Panom | UniSense', description: 'Pomodoro sayacı, çalışma istatistiklerin ve rozetlerin.', noindex: true },
+  '/bolum': { title: 'Üniversite Bölümleri ve Taban Puanları Rehberi | UniSense', description: '600+ lisans ve önlisans üniversite bölümü ne iş yapar, hangi dersleri okur, mezunları nerede çalışır? Bölüm tanıtımları ve güncel taban puanları.' },
+  '/takvim': { title: `${TERCIH_YILI} ÖSYM Sınav Takvimi & YKS Geri Sayım Sayacı | UniSense`, description: `${TERCIH_YILI} YKS, LGS, DGS, KPSS, ALES, TUS, DUS ve AGS başvuru, sınav, sonuç ve tercih tarihleri. Sınava kaç gün kaldığını canlı geri sayım sayacıyla takip et.` },
+  '/lgs': { title: `LGS Tercih Robotu ${TERCIH_YILI} — Lise Taban Puanları & Yüzdelik`, description: 'LGS yüzdelik dilimini gir; 81 il ve ilçedeki Fen, Anadolu, Sosyal Bilimler ve İmam Hatip liselerinin taban puanlarını ve yüzdelik dilimlerini listele.' },
+  '/tus': { title: `TUS ve DUS Tercih Robotu ${TERCIH_YILI} — Uzmanlık Taban Puanları`, description: 'TUS ve DUS puanına göre tıp ve diş hekimliği uzmanlık dallarının ÖSYM en küçük taban puanlarını, kontenjanlarını ve kurumlarını güvenli/hedef olarak gör.' },
+  '/kariyer': { title: 'Kamu Personel Alımı, Kariyer Kapısı & İş İlanları | UniSense', description: 'Günlük güncellenen Resmî Gazete kamu personel alımı, Kariyer Kapısı, BİK, savunma sanayii, KPSS şartlı/şartsız memur ve özel sektör iş/staj ilanları.' },
+  '/gizlilik': { title: 'Gizlilik Politikası ve KVKK Aydınlatma Metni | UniSense', description: 'UniSense kullanıcı verilerinin korunması, çerez/yerel depolama kullanımı, hesap silme hakları ve 6698 sayılı KVKK kapsamındaki aydınlatma metni.' },
+  '/tercih': { title: 'Tercih Listem | UniSense', description: 'Kişisel tercih listen.', noindex: true },
+  '/profil': { title: 'Sınav Profilim | UniSense', description: 'Kişisel sınav profili ve hedeflerin.', noindex: true },
+  '/siralama': { title: 'Sıralama | UniSense', description: 'Çalışma sıralaması.', noindex: true },
+  '/giris': { title: 'Giriş | UniSense', description: 'UniSense hesabına giriş yap.', noindex: true },
 }
 
 export default function App() {
@@ -69,12 +69,68 @@ export default function App() {
   // yoksa parent effect child'ı ezip yanlış başlık kalır.
   const ownsSeo = loc.pathname.startsWith('/bolum') || loc.pathname.startsWith('/ozet/')
   const seo = (ROUTE_SEO as any)[loc.pathname] || ROUTE_SEO['/anasayfa']
+  const routePath = loc.pathname === '/' ? '/' : loc.pathname
+  const routeJsonLd = seo.noindex || routePath === '/gizlilik'
+    ? null
+    : (routePath === '/' || routePath === '/anasayfa')
+      ? {
+          '@context': 'https://schema.org',
+          '@graph': [
+            {
+              '@type': 'Organization',
+              name: 'UniSense',
+              url: 'https://www.unisense.com.tr',
+              logo: 'https://www.unisense.com.tr/logo.png',
+              sameAs: ['https://github.com/brokyewing/UniSense'],
+              contactPoint: [{
+                '@type': 'ContactPoint',
+                contactType: 'customer support',
+                url: 'https://www.unisense.com.tr/gizlilik',
+                availableLanguage: ['Turkish'],
+              }],
+            },
+            {
+              '@type': 'WebSite',
+              name: 'UniSense',
+              url: 'https://www.unisense.com.tr',
+              inLanguage: 'tr-TR',
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: 'https://www.unisense.com.tr/arama?q={search_term_string}',
+                'query-input': 'required name=search_term_string',
+              },
+            },
+          ],
+        }
+      : {
+          '@context': 'https://schema.org',
+          '@graph': [
+            {
+              '@type': 'WebApplication',
+              name: seo.title,
+              description: seo.description,
+              url: `https://www.unisense.com.tr${routePath}`,
+              inLanguage: 'tr-TR',
+              applicationCategory: 'EducationalApplication',
+              operatingSystem: 'Web',
+              offers: { '@type': 'Offer', price: '0', priceCurrency: 'TRY' },
+            },
+            {
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://www.unisense.com.tr/' },
+                { '@type': 'ListItem', position: 2, name: seo.title.split('—')[0].split('|')[0].trim(), item: `https://www.unisense.com.tr${routePath}` },
+              ],
+            },
+          ],
+        }
   const seoEl = ownsSeo ? null : (
     <Seo
       title={seo.title}
       description={seo.description}
-      path={loc.pathname === '/' ? '/' : loc.pathname}
+      path={routePath}
       noindex={seo.noindex}
+      jsonLd={routeJsonLd}
     />
   )
 
@@ -127,7 +183,7 @@ export default function App() {
           <Link to="/anasayfa" className="flex items-center gap-3 group shrink-0">
             <Logo size={40} rounded="rounded-none" />
             <div className="hidden sm:block">
-              <h1 className="font-display font-bold text-lg text-white leading-none">UniSense</h1>
+              <span className="block font-display font-bold text-lg text-white leading-none">UniSense</span>
               <p className="text-[10px] text-slate-400 leading-none mt-1">Tercih Asistanı · {TERCIH_YILI}</p>
             </div>
           </Link>
@@ -235,18 +291,30 @@ export default function App() {
         <div className="w-full px-4 md:px-6 xl:px-8 3xl:px-12 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
           <span>UniSense</span>
           <span className="text-slate-700">•</span>
-          <span className="text-slate-400">YÖK Atlas + Wikipedia</span>
+          <Link to="/oneriler" className="text-slate-400 hover:text-accent-300 transition">YKS Tercih Robotu</Link>
           <span className="text-slate-700">•</span>
-          <span>
-            Resmi tercih için{' '}
-            <a className="text-accent-400 hover:underline" href="https://yokatlas.yok.gov.tr">
-              yokatlas.yok.gov.tr
-            </a>
-          </span>
+          <Link to="/hesap" className="text-slate-400 hover:text-accent-300 transition">TYT-AYT &amp; OBP Hesaplama</Link>
+          <span className="text-slate-700">•</span>
+          <Link to="/bolum" className="text-slate-400 hover:text-accent-300 transition">Bölüm Taban Puanları</Link>
           <span className="text-slate-700">•</span>
           <Link to="/lgs" className="text-slate-400 hover:text-accent-300 transition">LGS Robotu</Link>
           <span className="text-slate-700">•</span>
           <Link to="/tus" className="text-slate-400 hover:text-accent-300 transition">TUS/DUS Robotu</Link>
+          <span className="text-slate-700">•</span>
+          <Link to="/takvim" className="text-slate-400 hover:text-accent-300 transition">Sınav Takvimi</Link>
+          <span className="text-slate-700">•</span>
+          <Link to="/kariyer" className="text-slate-400 hover:text-accent-300 transition">Kamu İş İlanları</Link>
+          <span className="text-slate-700">•</span>
+          <span>
+            Resmi kaynak:{' '}
+            <a className="text-accent-400 hover:underline" href="https://yokatlas.yok.gov.tr" target="_blank" rel="noreferrer">
+              YÖK Atlas
+            </a>
+            {' · '}
+            <a className="text-accent-400 hover:underline" href="https://www.osym.gov.tr" target="_blank" rel="noreferrer">
+              ÖSYM
+            </a>
+          </span>
           <span className="text-slate-700">•</span>
           <Link to="/gizlilik" className="text-slate-400 hover:text-accent-300 transition">
             KVKK / Gizlilik

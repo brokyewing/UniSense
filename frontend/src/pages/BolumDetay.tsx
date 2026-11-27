@@ -79,14 +79,62 @@ export default function BolumDetay() {
   )
 
   const tabanlilar = programs.filter((p: any) => p.base_score != null)
+  const yil = data.data_yili ? Number(data.data_yili) + 1 : 2027
+  const seoTitle = (() => {
+    const c1 = `${data.name} Taban Puanları ve Sıralaması ${yil} | UniSense`
+    if (c1.length <= 60) return c1
+    const c2 = `${data.name} Taban Puanları ${yil} | UniSense`
+    if (c2.length <= 60) return c2
+    const c3 = `${data.name} Taban Puanları | UniSense`
+    if (c3.length <= 60) return c3
+    return `${data.name.slice(0, 42).trim()} Taban Puanları`
+  })()
+  const rawDesc = `${data.name} ${yil} taban puanları, başarı sıralamaları ve kontenjanları (${data.program_count} program). Bölüm dersleri, ne iş yapar ve mezun çalışma alanları.`
+  const seoDesc = rawDesc.length <= 158 ? rawDesc : rawDesc.slice(0, 155).replace(/\s+\S*$/, '') + '…'
+  const cleanSummary = String(data.content || '').replace(/\*\*([^*]+)\*\*/g, '$1').replace(/^[*-]\s*/gm, '').replace(/\s+/g, ' ').trim().slice(0, 320) || seoDesc
+  const bolumLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: 'https://www.unisense.com.tr/' },
+          { '@type': 'ListItem', position: 2, name: 'Bölüm Rehberi', item: 'https://www.unisense.com.tr/bolum' },
+          { '@type': 'ListItem', position: 3, name: data.name, item: `https://www.unisense.com.tr/bolum/${slug}` },
+        ],
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: `${data.name} taban puanları ve başarı sıralaması ${yil} nedir?`,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: `Türkiye genelinde ${data.name} eğitimi veren ${data.program_count} üniversite programının güncel YÖK Atlas ve ÖSYM taban puanlarını, başarı sıralamalarını ve kontenjanlarını UniSense üzerinde karşılaştırabilirsiniz.`,
+            },
+          },
+          {
+            '@type': 'Question',
+            name: `${data.name} mezunları ne iş yapar ve nerede çalışır?`,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: cleanSummary,
+            },
+          },
+        ],
+      },
+    ],
+  }
 
   return (
     <>
       <BackgroundScene />
       <Seo
-        title={`${data.name} — Ne İş Yapar, Taban Puanları | UniSense`}
-        description={`${data.name} bölümü ne iş yapar, hangi dersleri okur, mezunları nerede çalışır? ${data.name} veren ${data.program_count} programın güncel taban puanı ve başarı sıralaması.`}
+        title={seoTitle}
+        description={seoDesc}
         path={`/bolum/${slug}`}
+        jsonLd={bolumLd}
       />
       <div className="space-y-5">
         <Link to="/bolum" className="text-xs text-slate-400 hover:text-accent-300 inline-flex items-center gap-1">
