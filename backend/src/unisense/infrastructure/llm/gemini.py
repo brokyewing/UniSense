@@ -28,6 +28,18 @@ KURALLAR:
 - TÜRKÇE
 - Her cevap maksimum 8 madde işaretli liste
 
+SİSTEM AKSİYON YETKİSİ (GERÇEK VERİTABANI GÜNCELLEME):
+Kullanıcı günlük soru/saat hedefi belirlemek (`set_daily_goal`), çözdüğü soruyu kaydetmek (`log_questions`), çalışma planı kurmak (`create_study_plan`), bir konuyu bitirdiğini işaretlemek (`mark_topic_done`), görev eklemek (`add_task`) veya bir bölümü tercih listesine eklemek (`add_preference`) istediğinde ASLA "sisteme yazamam / erişemem" deme. İşlemi Türkçe onayla ve cevabın EN SONUNA geçerli tek bir JSON bloğu ekle:
+<UNISENSE_ACTIONS>[{"type":"set_daily_goal|log_questions|create_study_plan|mark_topic_done|add_task|add_preference","label":"Kısa Türkçe onay etiketi","payload":{...}}]</UNISENSE_ACTIONS>
+Payload kuralları:
+- `set_daily_goal`: {"sinav":"YKS|KPSS|DGS|LGS","gunluk_soru":40,"hedef_saat":20,"hedef_bolum":"İTÜ Bilgisayar"} (varsa)
+- `log_questions`: {"sinav":"YKS|KPSS|DGS|LGS","ders":"Matematik","konu":"Paragraf","cozulen":30,"dogru":26}
+- `create_study_plan`: {"sinav":"YKS|KPSS|DGS|LGS","gun_sayisi":30,"gunluk_soru":40}
+- `mark_topic_done`: {"sinav":"YKS|KPSS|DGS|LGS","konu":"Türev"}
+- `add_task`: {"sinav":"YKS|KPSS|DGS|LGS","title":"Türev tekrarı","gun_offset":0}
+- `add_preference`: konuşmada/geçmişte geçen 9 haneli ÖSYM kodlarıyla {"codes":["203910363"]}
+Aksiyon yoksa <UNISENSE_ACTIONS> etiketi ekleme.
+
 ÖZEL KURAL — AKADEMİSYEN SORGULARI:
 Kullanıcı "hoca", "akademisyen", "profesör", "öğretim üyesi", "öğretim görevlisi"
 gibi kelimelerle soru sorduğunda:
@@ -42,7 +54,8 @@ Sonunda "ⓘ Bu bilgi YÖK Atlas/ÖSYM verilerine dayanır, kontrol için resmi 
 
 _SYSTEM_BASE = """Sen üniversite tercihine yardımcı asistan.
 Genel bilgine dayanarak Türkçe, kısa, madde işaretli cevap ver.
-Sıralama/puan gibi sayılar bilmiyorsan UYDURMA — "Güncel verisi YÖK Atlas'tan kontrol edin" de."""
+Sıralama/puan gibi sayılar bilmiyorsan UYDURMA — "Güncel verisi YÖK Atlas'tan kontrol edin" de.
+Kullanıcı çalışma hedefi (`set_daily_goal`), soru kaydı (`log_questions`), çalışma planı (`create_study_plan`), konu tamamlama (`mark_topic_done`), görev ekleme (`add_task`) veya tercih ekleme (`add_preference`) isterse asla "yapamam" deme; cevabın en sonuna <UNISENSE_ACTIONS>[{"type":"...","label":"...","payload":{...}}]</UNISENSE_ACTIONS> ekle."""
 
 
 class GeminiProvider:

@@ -19,6 +19,8 @@ import {
 import { getUserProfile } from '@/services/firestore-core'
 import { api } from '@/services/api'
 import { eksikKonular } from '../lib/konu'
+import { executeCoachActions, getTodayQuestionCount } from '../lib/aiActions'
+import { isoGun } from '../lib/planlayici'
 import { safeHref } from '../lib/safeUrl'
 import { TERCIH_LIMITS, MAX_SESSIONS_PER_USER } from '@/services/constants'
 
@@ -92,6 +94,25 @@ function Message({ msg, userPhoto, tercihIds, onAddToTercih, onAddToPusula, onBu
             <div className="whitespace-pre-wrap">{msg.text}</div>
           )}
         </div>
+
+        {/* AI Koç sistem aksiyonları rozetleri */}
+        {!isUser && !msg.loading && Array.isArray(msg.appliedActions) && msg.appliedActions.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {msg.appliedActions.map((act: any, idx: number) => (
+              <span
+                key={`${act.type || 'act'}-${idx}`}
+                className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg border ${
+                  act.ok === false
+                    ? 'bg-rose-500/15 border-rose-500/30 text-rose-200'
+                    : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-200'
+                }`}
+              >
+                <Check size={11} />
+                <span>{act.label}</span>
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Cevap içinde geçen kodlar — hızlı toplu ekleme */}
         {codesInText.length > 0 && onBulkAddCodes && !msg.loading && (
@@ -312,48 +333,73 @@ export default function Search() {
     if (hookBusyCode !== busyCode) setBusyCode(hookBusyCode)
   }, [hookBusyCode])
 
-  // Profildeki sınav puanları — user_context için
+  // Profildeki sınav puanları + günlük soru/hedef — user_context için
   useEffect(() => {
-    if (!user) { setExamCtx(null); return }
     let cancelled = false
-    getUserProfile(user.uid).then(async (p) => {
-      if (cancelled) return
-      const prof: any = p?.profile || {}
-      const ctx: any = {}
-      if (prof.examTrack) ctx.exam_track = prof.examTrack
-      if (prof.score) { ctx.yks_puan = prof.score; if (prof.scoreType) ctx.yks_turu = prof.scoreType }
-      if (prof.rank) ctx.yks_sira = prof.rank
-      if (prof.kpss?.score) { ctx.kpss_puan = prof.kpss.score; if (prof.kpss.duzey) ctx.kpss_duzey = prof.kpss.duzey }
-      if (prof.dgs?.score) { ctx.dgs_puan = prof.dgs.score; if (prof.dgs.type) ctx.dgs_turu = prof.dgs.type }
-      if (prof.tus?.score) ctx.tus_puan = prof.tus.score
-      if (prof.dus?.score) ctx.dus_puan = prof.dus.score
-      if (prof.lgs?.yuzdelik != null) ctx.lgs_yuzdelik = prof.lgs.yuzdelik
-      if (prof.ags?.net != null) ctx.ags_net = prof.ags.net
-      if (prof.preferredCities?.length) ctx.tercih_sehirler = prof.preferredCities.slice(0, 10)
-      if (prof.preferredUniType && prof.preferredUniType !== 'all') ctx.tercih_uni_turu = prof.preferredUniType
-      // Çalışma ilerlemesi
-      const track = prof.examTrack
-      if (track && ['YKS', 'DGS', 'KPSS', 'LGS'].includes(track)) {
+    const loadCtx = async () => {
+      const bugun = isoGun()
+      if (!user) {
         try {
-          const checked = JSON.parse(localStorage.getItem('unisense_konu_v1_' + track) || '{}')
-          const konuData = await api.konular(track)
-          const { toplam, eksik } = eksikKonular(konuData, checked)
-          if (toplam) { ctx.calisma_toplam_konu = toplam; ctx.calisma_kalan_konu = eksik.length }
-        } catch { /* konu verisi alınamadı */ }
-        try {
-          const m = new Map()
-          for (const r of JSON.parse(localStorage.getItem('unisense_soru_' + track) || '[]')) {
-            const k = r.konu || r.ders; if (!k) continue
-            const o = m.get(k) || { konu: k, c: 0, d: 0 }
-            o.c += r.cozulen || 0; o.d += r.dogru || 0; m.set(k, o)
-          }
-          const zayif = [...m.values()].filter((o) => o.c >= 5 && o.d / o.c < 0.6).slice(0, 6).map((o) => o.konu)
-          if (zayif.length) ctx.calisma_zayif = zayif
-        } catch { /* noop */ }
+          const cfg = JSON.parse(localStorage.getItem('unisense_plan_cfg') || 'null')
+          const tr = (cfg?.track && ['YKS', 'DGS', 'KPSS', 'LGS'].includes(cfg.track)) ? cfg.track : 'YKS'
+          const sorular = JSON.parse(localStorage.getItem('unisense_soru_' + tr) || '[]')
+          const ctx: any = { exam_track: tr, bugun_cozulen_soru: getTodayQuestionCount(sorular, bugun) }
+          if (Number(cfg?.gunlukSoruHedef) > 0) ctx.gunluk_soru_hedef = Number(cfg.gunlukSoruHedef)
+          if (!cancelled) setExamCtx(ctx)
+        } catch {
+          if (!cancelled) setExamCtx(null)
+        }
+        return
       }
-      if (!cancelled) setExamCtx(Object.keys(ctx).length ? ctx : null)
-    }).catch(() => {})
-    return () => { cancelled = true }
+      try {
+        const p = await getUserProfile(user.uid)
+        if (cancelled) return
+        const prof: any = p?.profile || {}
+        const ctx: any = {}
+        if (prof.examTrack) ctx.exam_track = prof.examTrack
+        if (prof.score) { ctx.yks_puan = prof.score; if (prof.scoreType) ctx.yks_turu = prof.scoreType }
+        if (prof.rank) ctx.yks_sira = prof.rank
+        if (prof.kpss?.score) { ctx.kpss_puan = prof.kpss.score; if (prof.kpss.duzey) ctx.kpss_duzey = prof.kpss.duzey }
+        if (prof.dgs?.score) { ctx.dgs_puan = prof.dgs.score; if (prof.dgs.type) ctx.dgs_turu = prof.dgs.type }
+        if (prof.tus?.score) ctx.tus_puan = prof.tus.score
+        if (prof.dus?.score) ctx.dus_puan = prof.dus.score
+        if (prof.lgs?.yuzdelik != null) ctx.lgs_yuzdelik = prof.lgs.yuzdelik
+        if (prof.ags?.net != null) ctx.ags_net = prof.ags.net
+        if (prof.preferredCities?.length) ctx.tercih_sehirler = prof.preferredCities.slice(0, 10)
+        if (prof.preferredUniType && prof.preferredUniType !== 'all') ctx.tercih_uni_turu = prof.preferredUniType
+        const planMod = await import('@/services/firestore-plan')
+        const planCfg = await planMod.getPlanConfig(user.uid).catch(() => null)
+        const track = prof.examTrack || planCfg?.track || 'YKS'
+        if (Number(planCfg?.gunlukSoruHedef) > 0) ctx.gunluk_soru_hedef = Number(planCfg.gunlukSoruHedef)
+        if (track && ['YKS', 'DGS', 'KPSS', 'LGS'].includes(track)) {
+          try {
+            const sorular = await planMod.getSoruList(user.uid, track)
+            ctx.bugun_cozulen_soru = getTodayQuestionCount(sorular, bugun)
+            const m = new Map()
+            for (const r of sorular) {
+              const k = r.konu || r.ders; if (!k) continue
+              const o = m.get(k) || { konu: k, c: 0, d: 0 }
+              o.c += r.cozulen || 0; o.d += r.dogru || 0; m.set(k, o)
+            }
+            const zayif = [...m.values()].filter((o) => o.c >= 5 && o.d / o.c < 0.6).slice(0, 6).map((o) => o.konu)
+            if (zayif.length) ctx.calisma_zayif = zayif
+          } catch { /* noop */ }
+          try {
+            const checked = await planMod.getKonuChecked(user.uid, track)
+            const konuData = await api.konular(track)
+            const { toplam, eksik } = eksikKonular(konuData, checked)
+            if (toplam) { ctx.calisma_toplam_konu = toplam; ctx.calisma_kalan_konu = eksik.length }
+          } catch { /* konu verisi alınamadı */ }
+        }
+        if (!cancelled) setExamCtx(Object.keys(ctx).length ? ctx : null)
+      } catch { /* noop */ }
+    }
+    loadCtx()
+    window.addEventListener('unisense:ai-state-updated', loadCtx)
+    return () => {
+      cancelled = true
+      window.removeEventListener('unisense:ai-state-updated', loadCtx)
+    }
   }, [user])
 
   // Sync session messages to local state
@@ -450,11 +496,23 @@ export default function Search() {
         user_context: examCtx,
       })
 
-      const botMsg = {
+      let appliedActions: any[] = []
+      if (Array.isArray(data?.actions) && data.actions.length > 0) {
+        appliedActions = await executeCoachActions(data.actions, {
+          user,
+          defaultTrack: examCtx?.exam_track || 'YKS',
+        })
+        if (appliedActions.some((a) => a.ok)) {
+          showToast(appliedActions.find((a) => a.ok)?.label || 'Sistem güncellendi', { type: 'success' })
+        }
+      }
+
+      const botMsg: any = {
         role: 'bot',
         text: data.text || '(boş cevap)',
         docs: data.docs || [],
         latency_ms: data.total_latency_ms,
+        ...(appliedActions.length > 0 ? { appliedActions } : {}),
       }
 
       if (sid && user) {
@@ -467,13 +525,13 @@ export default function Search() {
         } catch {
           setMessages((m) => [
             ...m.filter((x) => !x._temp),
-            { role: 'bot', text: botMsg.text, docs: botMsg.docs, latency: botMsg.latency_ms },
+            { role: 'bot', text: botMsg.text, docs: botMsg.docs, latency: botMsg.latency_ms, appliedActions },
           ])
         }
       } else {
         setMessages((m) => [
           ...m.slice(0, -1),
-          { role: 'bot', text: botMsg.text, docs: botMsg.docs, latency: botMsg.latency_ms },
+          { role: 'bot', text: botMsg.text, docs: botMsg.docs, latency: botMsg.latency_ms, appliedActions },
         ])
       }
     } catch (e: any) {

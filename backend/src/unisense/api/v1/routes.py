@@ -32,6 +32,7 @@ from unisense.api.v1.dependencies import (
 from unisense.api.v1.schemas import (
     AskRequest,
     AskResponse,
+    CoachActionSchema,
     CompareRequest,
     CompareResponse,
     CompassAxesRequest,
@@ -78,11 +79,12 @@ from unisense.application.services import (
     CompassService,
     RecommendationService,
 )
+from unisense.application.services.coach_action_service import detect_preference_add_intent
 from unisense.application.services.employment_service import EmploymentService
 from unisense.application.services.scholarship_service import ScholarshipService
 from unisense.core.di import get_vector_store
 from unisense.core.logging import get_logger
-from unisense.domain.models import Query, StudentProfile
+from unisense.domain.models import CoachAction, Query, StudentProfile
 from unisense.security.audit_log import audit
 from unisense.security.auth import require_api_key
 from unisense.security.firebase_auth import require_user
@@ -311,9 +313,18 @@ def ask(
     # (halüsinasyon ya da RAG kaynağına sızmış injection) cevaptan temizlenir.
     from unisense.core.di import get_recommendation_service
     rec_svc = get_recommendation_service()
+    pref_intent = detect_preference_add_intent(safe_query)
     doc_codes = [d.department_code for d in answer.docs if d.department_code]
     text_codes = _OSYM_CODE_RE.findall(answer.text or "")
-    program_codes = list(dict.fromkeys(doc_codes + text_codes))
+    action_pref_codes: list[str] = []
+    for act in getattr(answer, "actions", None) or []:
+        if getattr(act, "type", "") == "add_preference":
+            action_pref_codes.extend(str(c) for c in (act.payload or {}).get("codes", []) if c)
+    history_codes: list[str] = []
+    if pref_intent and body.history:
+        for turn in body.history[-4:]:
+            history_codes.extend(_OSYM_CODE_RE.findall(turn.text or ""))
+    program_codes = list(dict.fromkeys(doc_codes + text_codes + action_pref_codes + history_codes))
     lookup_map: dict[str, dict] = {}
     lookup_ok = False
     if program_codes:
@@ -331,6 +342,21 @@ def ask(
             answer_text = re.sub(rf"\[{c}\]\s*|\b{c}\b", "", answer_text)
         if invalid_codes:
             logger.warning("ask_invalid_codes_stripped", codes=invalid_codes[:10])
+
+    raw_actions = list(getattr(answer, "actions", None) or [])
+    actions = [a for a in raw_actions if getattr(a, "type", "") != "add_preference"]
+    if pref_intent or any(getattr(a, "type", "") == "add_preference" for a in raw_actions):
+        pref_candidates = list(dict.fromkeys(action_pref_codes + history_codes + text_codes + doc_codes))
+        valid_codes = [c for c in pref_candidates if c in lookup_map][:5]
+        if valid_codes:
+            actions.append(
+                CoachAction(
+                    type="add_preference",
+                    label=f"{len(valid_codes)} programı tercih listene ekle",
+                    auto_apply=True,
+                    payload={"codes": valid_codes},
+                )
+            )
 
     docs_resp = []
     for d in answer.docs:
@@ -358,6 +384,7 @@ def ask(
         text=answer_text,
         docs=docs_resp,
         total_latency_ms=answer.total_latency_ms,
+        actions=[CoachActionSchema(**a.model_dump()) for a in actions],
     )
 
 

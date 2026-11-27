@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
@@ -6,6 +6,7 @@ import {
   BookOpen, Compass, Calculator, CalendarDays, ArrowRight, ShieldCheck,
 } from 'lucide-react'
 import BackgroundScene from '../components/three/LazyBackgroundScene'
+import PersonalAICoach, { type PersonalCoachMeta } from '../components/PersonalAICoach'
 import StreakBadge from '../components/StreakBadge'
 import { useAuth } from '../contexts/AuthContext'
 import { apiFetch } from '../lib/api'
@@ -159,6 +160,17 @@ export default function Home() {
   const { user } = useAuth()
   const [quickType, setQuickType] = useState('SAY')
   const [quickRank, setQuickRank] = useState('')
+  const [showShowcase, setShowShowcase] = useState(false)
+  const [personalMeta, setPersonalMeta] = useState<PersonalCoachMeta>({
+    ready: false,
+    isPersonalized: false,
+    firstName: '',
+    track: 'YKS',
+    hedefBolum: '',
+  })
+  const handlePersonalChange = useCallback((meta: PersonalCoachMeta) => {
+    setPersonalMeta(meta)
+  }, [])
   const hasLocalStreak = (() => {
     try { return Boolean(localStorage.getItem('unisense_streak')) } catch { return false }
   })()
@@ -173,100 +185,186 @@ export default function Home() {
     navigate(`/oneriler?tur=${encodeURIComponent(quickType)}&sira=${encodeURIComponent(cleanRank)}`)
   }
 
+  const showPersonalizedHero = personalMeta.isPersonalized && !showShowcase
+
   return (
     <>
       <BackgroundScene />
 
       <div className="space-y-12">
-        {/* Hero */}
-        <section className="text-center pt-6">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-500/10 border border-accent-500/30 text-accent-300 text-xs font-medium mb-6 backdrop-blur-xl"
-          >
-            <span className="w-2 h-2 rounded-full bg-accent-500 animate-pulse" />
-            🎓 {TERCIH_YILI} Tercih Dönemi · YKS · DGS · KPSS · LGS · TUS
-          </motion.div>
+        {showPersonalizedHero ? (
+          <>
+            {/* Kişiye özel AI giriş başlığı */}
+            <section className="pt-4 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent-500/10 border border-accent-500/30 text-accent-300 text-xs font-medium mb-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    ✨ Kişisel AI Çalışma &amp; Tercih Ekranın · {personalMeta.track}
+                    {personalMeta.hedefBolum && <> · Hedef: {personalMeta.hedefBolum}</>}
+                  </div>
+                  <h1 className="text-3xl md:text-5xl font-display font-bold tracking-tight text-white text-balance">
+                    {personalMeta.firstName ? `${personalMeta.firstName}, ` : ''}Bugünkü{' '}
+                    <span className="gradient-text">{personalMeta.track}</span>{' '}
+                    AI Alanın
+                  </h1>
+                </div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.05 }}
-            className="text-5xl md:text-7xl font-display font-bold mb-4 tracking-tight text-white text-balance"
-          >
-            Doğru tercihi{' '}
-            <span className="gradient-text">veri</span>{' '}
-            ile yap
-          </motion.h1>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Link to="/arama" className="btn-primary text-xs px-3.5 py-2 inline-flex items-center gap-1.5">
+                    <Sparkles size={14} /> AI Sohbet
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setShowShowcase(true)}
+                    className="btn-ghost text-xs px-3 py-2"
+                  >
+                    Genel Vitrin
+                  </button>
+                </div>
+              </div>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-6 leading-relaxed pretty"
-          >
-            Puanını veya sıralamanı gir, yerleşebileceğin yerleri gör. Lise, üniversite, memurluk ve
-            uzmanlık tercihlerinin tamamı — <strong className="text-accent-300">tamamen ücretsiz</strong>.
-          </motion.p>
+              <PersonalAICoach onPersonalStateChange={handlePersonalChange} hideHeaderTitle />
+            </section>
 
-          {/* Hero hızlı sıralama aracı — 10 sn içinde değer */}
-          <motion.form
-            onSubmit={onQuickSearch}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.15 }}
-            className="max-w-xl mx-auto mb-5 p-2 rounded-2xl card border-accent-500/25 flex flex-col sm:flex-row gap-2"
-          >
-            <select
-              aria-label="YKS puan türü"
-              value={quickType}
-              onChange={(e) => setQuickType(e.target.value)}
-              className="input-glass sm:w-28 text-sm font-semibold"
-            >
-              {['SAY', 'EA', 'SÖZ', 'DİL', 'TYT'].map((t) => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
-            <input
-              type="number"
-              min={1}
-              aria-label="Başarı sıralaman"
-              value={quickRank}
-              onChange={(e) => setQuickRank(e.target.value)}
-              placeholder="Başarı sıralaman (ör: 50000)"
-              className="input-glass flex-1 text-sm"
-            />
-            <button type="submit" className="btn-primary text-sm px-5 py-2.5 shrink-0 inline-flex items-center justify-center gap-1.5">
-              Bölümleri Gör <ArrowRight size={15} />
-            </button>
-          </motion.form>
+            {/* Hızlı Sıralama Çubuğu */}
+            <section className="card !p-4">
+              <form onSubmit={onQuickSearch} className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+                <span className="text-xs font-semibold text-slate-300 px-1 shrink-0">Hızlı Tercih Robotu:</span>
+                <select
+                  aria-label="YKS puan türü"
+                  value={quickType}
+                  onChange={(e) => setQuickType(e.target.value)}
+                  className="input-glass sm:w-24 text-xs font-semibold"
+                >
+                  {['SAY', 'EA', 'SÖZ', 'DİL', 'TYT'].map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+                <input
+                  type="number"
+                  min={1}
+                  aria-label="Başarı sıralaman"
+                  value={quickRank}
+                  onChange={(e) => setQuickRank(e.target.value)}
+                  placeholder="Başarı sıralaman (ör: 50000)"
+                  className="input-glass flex-1 text-xs"
+                />
+                <button type="submit" className="btn-primary text-xs px-4 py-2 shrink-0 inline-flex items-center justify-center gap-1.5">
+                  Bölümleri Gör <ArrowRight size={14} />
+                </button>
+              </form>
+            </section>
+          </>
+        ) : (
+          <>
+            {/* Genel SEO Hero (ilk ziyaretçi ve prerender için) */}
+            <section className="text-center pt-6">
+              <div className="flex justify-center items-center gap-2 flex-wrap mb-6">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-500/10 border border-accent-500/30 text-accent-300 text-xs font-medium backdrop-blur-xl"
+                >
+                  <span className="w-2 h-2 rounded-full bg-accent-500 animate-pulse" />
+                  🎓 {TERCIH_YILI} Tercih Dönemi · YKS · DGS · KPSS · LGS · TUS
+                </motion.div>
+                {personalMeta.isPersonalized && (
+                  <button
+                    type="button"
+                    onClick={() => setShowShowcase(false)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold hover:bg-emerald-500/25 transition"
+                  >
+                    <Sparkles size={12} /> Kişisel AI Ekranıma Dön
+                  </button>
+                )}
+              </div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex justify-center gap-3 flex-wrap mb-4"
-          >
-            <Link to="/oneriler" className="btn-primary inline-flex items-center gap-2">
-              <ListChecks size={18} />
-              Tercih Önerisi Al
-            </Link>
-            <Link to="/hesap" className="btn-ghost inline-flex items-center gap-2">
-              <Calculator size={18} />
-              Puan Hesapla
-            </Link>
-          </motion.div>
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.05 }}
+                className="text-5xl md:text-7xl font-display font-bold mb-4 tracking-tight text-white text-balance"
+              >
+                Doğru tercihi{' '}
+                <span className="gradient-text">veri</span>{' '}
+                ile yap
+              </motion.h1>
 
-          {/* Above-the-fold güven şeridi */}
-          <div className="inline-flex items-center justify-center gap-2 flex-wrap text-xs text-slate-400">
-            <ShieldCheck size={14} className="text-emerald-400 shrink-0" />
-            <span className="text-emerald-300 font-medium">%100 Ücretsiz · Üyelik Zorunlu Değil</span>
-            <span className="text-slate-700">·</span>
-            <span>600+ Bölüm · Resmi YÖK Atlas, ÖSYM &amp; MEB Verisi ({TERCIH_YILI})</span>
-          </div>
-        </section>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-6 leading-relaxed pretty"
+              >
+                Puanını veya sıralamanı gir, yerleşebileceğin yerleri gör. Lise, üniversite, memurluk ve
+                uzmanlık tercihlerinin tamamı — <strong className="text-accent-300">tamamen ücretsiz</strong>.
+              </motion.p>
+
+              {/* Hero hızlı sıralama aracı — 10 sn içinde değer */}
+              <motion.form
+                onSubmit={onQuickSearch}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.15 }}
+                className="max-w-xl mx-auto mb-5 p-2 rounded-2xl card border-accent-500/25 flex flex-col sm:flex-row gap-2"
+              >
+                <select
+                  aria-label="YKS puan türü"
+                  value={quickType}
+                  onChange={(e) => setQuickType(e.target.value)}
+                  className="input-glass sm:w-28 text-sm font-semibold"
+                >
+                  {['SAY', 'EA', 'SÖZ', 'DİL', 'TYT'].map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+                <input
+                  type="number"
+                  min={1}
+                  aria-label="Başarı sıralaman"
+                  value={quickRank}
+                  onChange={(e) => setQuickRank(e.target.value)}
+                  placeholder="Başarı sıralaman (ör: 50000)"
+                  className="input-glass flex-1 text-sm"
+                />
+                <button type="submit" className="btn-primary text-sm px-5 py-2.5 shrink-0 inline-flex items-center justify-center gap-1.5">
+                  Bölümleri Gör <ArrowRight size={15} />
+                </button>
+              </motion.form>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="flex justify-center gap-3 flex-wrap mb-4"
+              >
+                <Link to="/oneriler" className="btn-primary inline-flex items-center gap-2">
+                  <ListChecks size={18} />
+                  Tercih Önerisi Al
+                </Link>
+                <Link to="/hesap" className="btn-ghost inline-flex items-center gap-2">
+                  <Calculator size={18} />
+                  Puan Hesapla
+                </Link>
+              </motion.div>
+
+              {/* Above-the-fold güven şeridi */}
+              <div className="inline-flex items-center justify-center gap-2 flex-wrap text-xs text-slate-400">
+                <ShieldCheck size={14} className="text-emerald-400 shrink-0" />
+                <span className="text-emerald-300 font-medium">%100 Ücretsiz · Üyelik Zorunlu Değil</span>
+                <span className="text-slate-700">·</span>
+                <span>600+ Bölüm · Resmi YÖK Atlas, ÖSYM &amp; MEB Verisi ({TERCIH_YILI})</span>
+              </div>
+            </section>
+
+            {/* Kişiye özel AI Çalışma & Hedef Panosu */}
+            <section>
+              <PersonalAICoach onPersonalStateChange={handlePersonalChange} />
+            </section>
+          </>
+        )}
 
         {/* Günlük çalışma serisi — yalnızca girişli veya geçmişi olan kullanıcıda göster */}
         {(user || hasLocalStreak) && (

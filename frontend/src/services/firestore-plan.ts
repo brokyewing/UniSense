@@ -32,12 +32,15 @@ export async function addPlanGorev(uid: string, task: any): Promise<string | nul
 
 export async function addPlanGorevler(uid: string, tasks: any[]): Promise<void> {
   if (!db || !uid || !tasks.length) return
-  const batch = writeBatch(db)
-  for (const t of tasks) {
-    const { id, ...rest } = t
-    batch.set(doc(collection(db, 'users', uid, FIRESTORE_COLLECTIONS.PLAN_GOREV)), { ...rest, createdAt: serverTimestamp() })
+  const CHUNK_SIZE = 400
+  for (let i = 0; i < tasks.length; i += CHUNK_SIZE) {
+    const batch = writeBatch(db)
+    for (const t of tasks.slice(i, i + CHUNK_SIZE)) {
+      const { id, ...rest } = t
+      batch.set(doc(collection(db, 'users', uid, FIRESTORE_COLLECTIONS.PLAN_GOREV)), { ...rest, createdAt: serverTimestamp() })
+    }
+    await batch.commit()
   }
-  await batch.commit()
 }
 
 export async function updatePlanGorev(uid: string, id: string, patch: any): Promise<void> {

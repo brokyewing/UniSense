@@ -35,6 +35,8 @@ class UserExamContext(BaseModel):
     calisma_kalan_konu: int | None = Field(None, ge=0, le=5000)
     calisma_toplam_konu: int | None = Field(None, ge=0, le=5000)
     calisma_zayif: list[str] | None = Field(None, max_length=6)
+    gunluk_soru_hedef: int | None = Field(None, ge=0, le=2000)
+    bugun_cozulen_soru: int | None = Field(None, ge=0, le=5000)
 
     @field_validator("tercih_sehirler", mode="before")
     @classmethod
@@ -95,11 +97,26 @@ class DocResponse(BaseModel):
     quota: int | None = None
 
 
+class CoachActionSchema(BaseModel):
+    type: Literal[
+        "set_daily_goal",
+        "create_study_plan",
+        "log_questions",
+        "add_task",
+        "mark_topic_done",
+        "add_preference",
+    ]
+    label: str = Field(..., max_length=160)
+    auto_apply: bool = True
+    payload: dict = Field(default_factory=dict)
+
+
 class AskResponse(BaseModel):
     query: str
     text: str
     docs: list[DocResponse]
     total_latency_ms: int | None = None
+    actions: list[CoachActionSchema] = Field(default_factory=list)
 
 
 class HealthResponse(BaseModel):

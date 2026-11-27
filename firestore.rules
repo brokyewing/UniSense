@@ -224,8 +224,9 @@ service cloud.firestore {
         allow read, delete: if isOwner(uid);
         allow create, update: if isOwner(uid)
           && doc == 'genel'
-          && fieldCountMax(8)
-          && strMax('track', 8);
+          && fieldCountMax(12)
+          && strMax('track', 8)
+          && strMax('hedefBolum', 120);
       }
       // plan_gorev/{id} — GÖREV BAŞINA doküman (hafta alanıyla filtrelenir). Dizi-içi
       // string uzunluğu kuralla sınırlanamadığı için (soru_kayit/notlar gibi) her görev

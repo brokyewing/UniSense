@@ -12,6 +12,15 @@ from typing import TYPE_CHECKING
 from cachetools import TTLCache
 
 from unisense.application.interfaces.llm_provider import LLMProvider
+from unisense.application.services.coach_action_service import (
+    build_coach_action_context,
+    detect_preference_add_intent,
+    extract_coach_actions,
+    fallback_coach_reply,
+    has_user_action_intent,
+    merge_coach_actions,
+    parse_llm_actions_and_strip,
+)
 from unisense.application.services.intent_router import (
     DGS_RE,
     GENERIC_PLACEMENT_RE,
@@ -110,11 +119,25 @@ class AskService:
 
     def execute(self, query: Query, user_context: dict | None = None) -> Answer:
         start = time.perf_counter()
+        uc = user_context or {}
+        actions = extract_coach_actions(query.text, uc)
+        pref_intent = detect_preference_add_intent(query.text)
+        history_codes: list[str] = []
+        if pref_intent and query.history:
+            for turn in query.history[-4:]:
+                history_codes.extend(re.findall(r"\b(\d{9})\b", turn.text or ""))
+            history_codes = list(dict.fromkeys(history_codes))
+        coach_context = build_coach_action_context(
+            actions,
+            uc,
+            pref_intent=pref_intent,
+            history_codes=history_codes,
+        )
 
-        # 0. Cache check — aynı sorgu+history+model son 1 saat içinde cevaplanmış mı?
+        # 0. Cache check — aksiyon veya tercih ekleme içeren istekler her seferinde taze çalışır
         model_pref = getattr(query, "model_preference", None) or "gemini"
         cache_key = _make_cache_key(query, model_pref, user_context)
-        cached_text = _response_cache.get(cache_key)
+        cached_text = None if (actions or pref_intent) else _response_cache.get(cache_key)
         if cached_text is not None:
             # Cache'de cevap var — retrieval yine yap (frontend kaynak chunk'larını bekliyor),
             # ama LLM çağırma. Toplam latency ~50-300ms.
@@ -228,6 +251,8 @@ class AskService:
         profile_context = build_profile_context(uc)
         if profile_context:
             parts.append(profile_context)
+        if coach_context:
+            parts.append(coach_context)
         if sinav_context:
             parts.append(sinav_context)
         if rec_context:
@@ -239,7 +264,7 @@ class AskService:
         context = "\n\n".join(parts) if parts else rag_context
 
         # 4. Boş retrieval koruması + PII maskelemesi sonrası LLM cevabı
-        if not sinav_context and not rec_context and not rag_context:
+        if not sinav_context and not rec_context and not rag_context and not coach_context:
             total_ms = int((time.perf_counter() - start) * 1000)
             logger.info("ask_empty_context", query_len=len(query.text), total_ms=total_ms)
             return Answer(
@@ -258,19 +283,25 @@ class AskService:
         text = ""
         llm_ok = False
         try:
-            text = self._llm.generate(
+            raw_text = self._llm.generate(
                 scrubbed_query,
                 context=context,
                 history=history_dicts if history_dicts else None,
             )
+            default_sinav = str(uc.get("exam_track") or "YKS").upper()
+            text, llm_actions = parse_llm_actions_and_strip(raw_text, default_sinav=default_sinav)
+            if actions or pref_intent or has_user_action_intent(query.text):
+                actions = merge_coach_actions(actions, llm_actions)
+            elif llm_actions:
+                logger.warning("unsolicited_llm_actions_dropped", count=len(llm_actions))
             llm_ok = True
         except Exception as e:
             # Ham exception (model adı/kota/kaynak yolu vb.) kullanıcı balonuna SIZMASIN
             logger.warning("llm_failed", error=str(e)[:200])
-            text = "⚠️ Şu an cevap üretemedim, lütfen birazdan tekrar dene."
+            text = fallback_coach_reply(actions) if actions else "⚠️ Şu an cevap üretemedim, lütfen birazdan tekrar dene."
 
-        # Cevabı önbelleğe yaz (sadece başarılı LLM cevabı için, hata mesajını cache'leme)
-        if llm_ok and text:
+        # Cevabı önbelleğe yaz (aksiyon veya tercih ekleme niyeti yoksa ve başarılı LLM cevabıysa)
+        if llm_ok and text and not actions and not pref_intent:
             _response_cache[cache_key] = text
 
         total_ms = int((time.perf_counter() - start) * 1000)
@@ -279,6 +310,7 @@ class AskService:
             query_len=len(query.text),
             docs=len(docs),
             has_recommendation=bool(rec_context),
+            actions=len(actions),
             total_ms=total_ms,
             cache_size=len(_response_cache),
         )
@@ -288,4 +320,5 @@ class AskService:
             text=text,
             docs=docs,
             total_latency_ms=total_ms,
+            actions=actions,
         )

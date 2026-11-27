@@ -759,6 +759,12 @@ def _build_profile_context(uc: dict | None) -> str:
     zayif = uc.get("calisma_zayif")
     if zayif:
         rows.append("Zayıf/eksik konular: " + ", ".join(str(z)[:40] for z in zayif[:6]))
+    gunluk_hedef = uc.get("gunluk_soru_hedef")
+    bugun_soru = uc.get("bugun_cozulen_soru")
+    if gunluk_hedef is not None:
+        rows.append(f"Günlük soru hedefi: {gunluk_hedef} soru (bugün çözülen: {bugun_soru or 0})")
+    elif bugun_soru:
+        rows.append(f"Bugün çözülen soru sayısı: {bugun_soru}")
     if not rows:
         return ""
     return (

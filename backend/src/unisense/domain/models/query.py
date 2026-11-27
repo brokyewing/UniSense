@@ -1,11 +1,29 @@
 """Sorgu ve cevap modelleri."""
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 from unisense.domain.enums import QueryIntent, ScoreType
 from unisense.domain.models.chunk import Chunk
 from unisense.domain.models.ranking import RankingRange
+
+
+class CoachAction(BaseModel):
+    """Gemini / AI koç tarafından üretilen doğrulanmış sistem aksiyonu."""
+
+    type: Literal[
+        "set_daily_goal",
+        "create_study_plan",
+        "log_questions",
+        "add_task",
+        "mark_topic_done",
+        "add_preference",
+    ]
+    label: str = Field(..., max_length=160)
+    auto_apply: bool = True
+    payload: dict = Field(default_factory=dict)
 
 
 class ChatTurn(BaseModel):
@@ -35,3 +53,4 @@ class Answer(BaseModel):
     rankings: list[RankingRange] = Field(default_factory=list)  # ilgili sıralamalar
     intent: QueryIntent = QueryIntent.GENERAL
     total_latency_ms: int | None = None
+    actions: list[CoachAction] = Field(default_factory=list)
