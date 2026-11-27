@@ -433229,7 +433229,7 @@
   },
   {
     "chunk_id": "uni_417386",
-    "content": "🏛 ARKIN YARATICI SANATLAR VE TASARIM ÜNİVERSİTESİ (KKTC-GİRNE) | Kısa ad: AYS | Türü: KKTC | Kuruluş: 2017 | Şehir: KIBRIS | Bölüm sayısı: 22 | Fakülte/birim sayısı: 3 | Mevcut puan türleri: EA, SAY, SÖZ | Web: arucad.edu.tr | Rektör: Prof. Dr. Asım Vehbi | Adres: Girne , Kuzey Kıbrıs Türk Cumhuriyeti",
+    "content": "🏛 ARKIN YARATICI SANATLAR VE TASARIM ÜNİVERSİTESİ (KKTC-GİRNE) | Kısa ad: AYS | Türü: KKTC | Kuruluş: 2017 | Şehir: KIBRIS | Bölüm sayısı: 22 | Fakülte/birim sayısı: 3 | Mevcut puan türleri: EA, SAY, SÖZ | Web: https://arucad.edu.tr | Rektör: Prof. Dr. Asım Vehbi | Adres: Girne , Kuzey Kıbrıs Türk Cumhuriyeti",
     "chunk_type": "university",
     "university_code": "417386",
     "department_code": "",
@@ -433237,7 +433237,7 @@
     "region": "Bilinmiyor",
     "heading": "ARKIN YARATICI SANATLAR VE TASARIM ÜNİVERSİTESİ (KKTC-GİRNE)",
     "source": "YÖK Atlas 2026 + Wikipedia",
-    "source_url": "arucad.edu.tr",
+    "source_url": "https://arucad.edu.tr",
     "language": "tr",
     "founded_year": 2017,
     "logo_url": "",
