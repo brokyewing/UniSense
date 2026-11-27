@@ -13,4 +13,5 @@ class LLMProvider(Protocol):
         query: str,
         context: str | None = None,
         history: list[dict] | None = None,
+        mode: str = "rag",
     ) -> str: ...

@@ -21,8 +21,8 @@ const SINAVLAR = ['YKS', 'KPSS', 'DGS', 'LGS'] as const
 const QUICK_PROMPTS = [
   'Bana günlük 40 soru hedefi koy',
   'Bugün Matematikten 30 soru 26 doğru çözdüm kaydet',
+  'KPSS deneme ekle 50 doğru 5 yanlış genel yetenek genel kültür ise 40 doğru 10 yanlış ismi Pozitif Bilgi',
   '30 günde konuları bitir, günde 40 soru',
-  "Boğaziçi Bilgisayar'ı tercihime ekle",
 ]
 
 export interface PersonalCoachMeta {
@@ -61,6 +61,7 @@ export default function PersonalAICoach({
   const [soruKayit, setSoruKayit] = useState<any[]>([])
   const [checked, setChecked] = useState<Record<string, boolean>>({})
   const [tercihItems, setTercihItems] = useState<any[]>([])
+  const [denemeler, setDenemeler] = useState<any[]>([])
   const [konuData, setKonuData] = useState<any>(null)
   const [ready, setReady] = useState(false)
 
@@ -83,6 +84,7 @@ export default function PersonalAICoach({
         setSoruKayit(loadJSON<any[]>(`unisense_soru_${activeTrack}`, []))
         setChecked(konuLocal(activeTrack))
         setTercihItems(getGuestTercih())
+        setDenemeler(loadJSON<any[]>(`unisense_deneme_${activeTrack}`, []))
         setReady(true)
         return
       }
@@ -117,12 +119,13 @@ export default function PersonalAICoach({
     refreshState(track)
   }, [refreshState, track])
 
-  // Girişli kullanıcıda haftalık plan görevlerini ve tercih listesini canlı dinle
+  // Girişli kullanıcıda haftalık plan görevlerini, tercih listesini ve denemeleri canlı dinle
   useEffect(() => {
     if (!user) return
     let active = true
     let unsubPlan: (() => void) | null = null
     let unsubPrefs: (() => void) | null = null
+    let unsubDeneme: (() => void) | null = null
     import('@/services/firestore-plan').then((m) => {
       if (!active) return
       unsubPlan = m.watchPlanGorevler(user.uid, hafta, (list: any[]) => {
@@ -135,12 +138,19 @@ export default function PersonalAICoach({
         if (active) setTercihItems(items || [])
       })
     }).catch(() => {})
+    import('@/services/firestore-study').then((m) => {
+      if (!active) return
+      unsubDeneme = m.watchDenemeler(user.uid, track, (items: any[]) => {
+        if (active) setDenemeler(items || [])
+      })
+    }).catch(() => {})
     return () => {
       active = false
       if (unsubPlan) unsubPlan()
       if (unsubPrefs) unsubPrefs()
+      if (unsubDeneme) unsubDeneme()
     }
-  }, [user, hafta])
+  }, [user, hafta, track])
 
   // Diğer sayfalardan veya AI komutlarından gelen sistem güncellemelerini yakala
   useEffect(() => {
@@ -200,6 +210,7 @@ export default function PersonalAICoach({
     return { zayifPerformans: zayif, oncelikliKonular: oncelik }
   }, [konuData, checked, soruKayit])
 
+  const sonDeneme = denemeler.length ? denemeler[denemeler.length - 1] : null
   const firstName = user?.displayName ? user.displayName.split(' ')[0] : ''
   const isPersonalized = ready && (
     Boolean(user) ||
@@ -208,6 +219,7 @@ export default function PersonalAICoach({
     Boolean(hedefBolum) ||
     tasks.length > 0 ||
     soruKayit.length > 0 ||
+    denemeler.length > 0 ||
     tercihItems.length > 0
   )
 
@@ -354,8 +366,8 @@ export default function PersonalAICoach({
         </div>
       </div>
 
-      {/* 1. Hedef Bölüm & Tercih Listesi Özeti Şeridi */}
-      {(hedefBolum || tercihItems.length > 0) && (
+      {/* 1. Hedef Bölüm, Son Deneme & Tercih Listesi Özeti Şeridi */}
+      {(hedefBolum || tercihItems.length > 0 || sonDeneme) && (
         <div className="rounded-xl bg-white/[0.04] border border-white/10 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 flex-wrap">
             <ListChecks size={14} className="text-accent-300 shrink-0" />
@@ -363,6 +375,15 @@ export default function PersonalAICoach({
               <span className="px-2 py-0.5 rounded-full bg-accent-500/20 text-accent-200 border border-accent-500/30 font-medium">
                 Hedef: {hedefBolum}
               </span>
+            )}
+            {sonDeneme && (
+              <Link
+                to="/deneme"
+                className="px-2 py-0.5 rounded-full bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200 border border-emerald-500/30 font-medium transition"
+              >
+                Son Deneme: {sonDeneme.ad || sonDeneme.sinav} · {sonDeneme.toplamNet} net
+                {sonDeneme.puan > 0 ? ` (${sonDeneme.puan} p)` : ''}
+              </Link>
             )}
             {tercihItems.length > 0 && (
               <span className="text-slate-300">
@@ -376,6 +397,11 @@ export default function PersonalAICoach({
             )}
           </div>
           <div className="flex items-center gap-3">
+            {sonDeneme && (
+              <Link to="/deneme" className="text-emerald-300 hover:underline font-medium">
+                Denemeler
+              </Link>
+            )}
             <Link to="/tercih" className="text-accent-300 hover:underline font-medium">
               Listeye Git →
             </Link>

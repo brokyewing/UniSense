@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     # Default: Flash Lite ailesi (yüksek free tier — 500 RPD / 250K TPM / 15 RPM)
     # .env içinde GEMINI_MODEL_QUALITY ile override edilebilir
     gemini_model_fast: str = "gemini-2.5-flash-lite"
-    gemini_model_quality: str = "gemini-flash-lite-latest"
+    gemini_model_quality: str = "gemini-2.5-flash"
     # Quota dolunca otomatik fallback için fallback model (opsiyonel)
     gemini_model_fallback: str = "gemini-2.5-flash-lite"
 

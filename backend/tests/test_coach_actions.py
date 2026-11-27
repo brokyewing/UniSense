@@ -5,6 +5,7 @@ from unisense.application.services import ask_service as ask_mod
 from unisense.application.services.coach_action_service import (
     detect_preference_add_intent,
     extract_coach_actions,
+    is_pure_coach_command,
     parse_llm_actions_and_strip,
 )
 from unisense.domain.models import ChatTurn, Query
@@ -134,3 +135,101 @@ def test_rag_prompt_injection_cannot_emit_unsolicited_actions():
     assert "<UNISENSE_ACTIONS>" not in ans.text
     assert "kampüsü merkezdedir" in ans.text
     assert ans.actions == []
+
+
+def test_kpss_deneme_exact_user_prompt_and_order_variants():
+    prompt = (
+        "kpss deneme ekle deneme sonucum 50doğru 5yanlış genel yetenek "
+        "genel kültür ise 40 doğru 10yanlış ismi pozitif bilgi sınavı bugün olduk"
+    )
+    actions = extract_coach_actions(prompt, {"exam_track": "YKS"})
+    assert len(actions) == 1
+    act = actions[0]
+    assert act.type == "add_deneme"
+    assert act.payload["sinav"] == "KPSS"
+    assert "type" not in act.payload
+    assert act.payload["ad"] == "Pozitif Bilgi Sınavı"
+    assert act.payload["gun_offset"] == 0
+    assert act.payload["girdi"] == {
+        "kpss_gy": {"d": 50, "y": 5},
+        "kpss_gk": {"d": 40, "y": 10},
+    }
+    assert act.payload["toplam_net_preview"] == 86.25
+    assert act.payload["puan_preview"] == 83.13
+    assert is_pure_coach_command(prompt, actions) is True
+
+    # İleri ve ters sıra varyantları + TYT deneme
+    tyt_fwd = extract_coach_actions("TYT denemesi ekle: Türkçe 32 doğru 4 yanlış, Matematik 28 doğru 2 yanlış")
+    assert len(tyt_fwd) == 1 and tyt_fwd[0].type == "add_deneme"
+    assert tyt_fwd[0].payload["type"] == "TYT"
+    assert tyt_fwd[0].payload["girdi"]["tyt_tr"] == {"d": 32, "y": 4}
+    assert tyt_fwd[0].payload["girdi"]["tyt_mat"] == {"d": 28, "y": 2}
+
+
+def test_ask_service_kpss_deneme_isolates_rag_and_job_quotas():
+    ask_mod._response_cache.clear()
+
+    class CountingRetrieval:
+        def __init__(self):
+            self.calls = 0
+
+        def retrieve(self, query):
+            self.calls += 1
+            return []
+
+        def build_context(self, docs, max_chars=4000):
+            return ""
+
+    class ModeCapturingLLM:
+        def __init__(self):
+            self.last_context = ""
+            self.last_mode = ""
+
+        def generate(self, query, context=None, history=None, mode="rag"):
+            self.last_context = context or ""
+            self.last_mode = mode
+            return "• Pozitif Bilgi Sınavı KPSS denemen (86.25 net, ~83.13 puan) kaydedildi!"
+
+    ret = CountingRetrieval()
+    llm = ModeCapturingLLM()
+    svc = ask_mod.AskService(retrieval=ret, llm=llm, recommendation=None)
+
+    prompt = (
+        "kpss deneme ekle deneme sonucum 50doğru 5yanlış genel yetenek "
+        "genel kültür ise 40 doğru 10yanlış ismi pozitif bilgi sınavı bugün olduk"
+    )
+    ans = svc.execute(Query(text=prompt), user_context={"exam_track": "KPSS"})
+    assert ret.calls == 0
+    assert ans.docs == []
+    assert llm.last_mode == "coach"
+    assert "Pozitif Bilgi Sınavı" in llm.last_context
+    assert "86.25" in llm.last_context
+    assert "kadro" not in llm.last_context.lower()
+    assert len(ans.actions) == 1 and ans.actions[0].type == "add_deneme"
+
+
+def test_new_coach_actions_extract_and_llm_parse():
+    note_actions = extract_coach_actions("Türkçe notu ekle: Paragrafta önce soru kökünü oku")
+    assert any(a.type == "add_note" and a.payload["ders"] == "Türkçe" for a in note_actions)
+
+    time_actions = extract_coach_actions("Bugün Matematikten 90 dakika çalıştım", {"exam_track": "YKS"})
+    assert any(a.type == "log_study_time" and a.payload["dakika"] == 90 for a in time_actions)
+
+    prof_actions = extract_coach_actions("Hedef sıralamam 25000 ve OBP 92", {"exam_track": "YKS"})
+    assert any(
+        a.type == "update_profile"
+        and a.payload.get("hedef_siralama") == 25000
+        and a.payload.get("obp") == 460.0
+        for a in prof_actions
+    )
+
+    # LLM alias normalizasyonu (tyt_tur -> tyt_tr) ve eksik tip tamamlama
+    raw = (
+        "Denemen eklendi.\n"
+        '<UNISENSE_ACTIONS>[{"type":"add_deneme","label":"TYT Deneme","payload":{"sinav":"YKS","girdi":{"tyt_tur":{"d":35,"y":5}}}}]</UNISENSE_ACTIONS>'
+    )
+    cleaned, parsed = parse_llm_actions_and_strip(raw, default_sinav="YKS")
+    assert "<UNISENSE_ACTIONS>" not in cleaned
+    assert len(parsed) == 1
+    assert parsed[0].payload["girdi"] == {"tyt_tr": {"d": 35, "y": 5}}
+    assert parsed[0].payload["type"] == "TYT"

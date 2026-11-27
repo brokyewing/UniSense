@@ -49,6 +49,10 @@ services:
         value: local
       - key: GEMINI_MODEL_FAST
         value: gemini-2.5-flash-lite
+      - key: GEMINI_MODEL_QUALITY
+        value: gemini-2.5-flash
+      - key: GEMINI_MODEL_FALLBACK
+        value: gemini-2.5-flash-lite
       # Kimlik doğrulama: Firebase ID token (SPA'ya gizli key gömülemez;
       # frontend Authorization: Bearer <idToken> gönderir)
       - key: SECURITY_REQUIRE_AUTH

@@ -105,4 +105,77 @@ describe('aiActions (misafir modu)', () => {
     const checked = JSON.parse(localStorage.getItem('unisense_konu_v1_YKS') || '{}')
     expect(checked['|Matematik|Türev']).toBe(true)
   })
+
+  it('add_deneme persists KPSS trial without type field and exact net/puan', async () => {
+    const res = await executeCoachActions(
+      [
+        {
+          type: 'add_deneme',
+          label: 'KPSS · Pozitif Bilgi Sınavı',
+          auto_apply: true,
+          payload: {
+            sinav: 'KPSS',
+            ad: 'Pozitif Bilgi Sınavı',
+            gun_offset: 0,
+            girdi: {
+              kpss_gy: { d: 50, y: 5 },
+              kpss_gk: { d: 40, y: 10 },
+            },
+          },
+        },
+      ],
+      { user: null, defaultTrack: 'YKS' }
+    )
+    expect(res[0].ok).toBe(true)
+    const list = JSON.parse(localStorage.getItem('unisense_deneme_KPSS') || '[]')
+    expect(list).toHaveLength(1)
+    expect(list[0].ad).toBe('Pozitif Bilgi Sınavı')
+    expect(list[0].toplamNet).toBe(86.25)
+    expect(list[0].puan).toBe(83.13)
+    expect('type' in list[0]).toBe(false)
+  })
+
+  it('add_note, log_study_time and complete_task update guest stores', async () => {
+    const hafta = isoHafta(new Date())
+    const res = await executeCoachActions(
+      [
+        {
+          type: 'add_task',
+          label: 'Görev',
+          auto_apply: true,
+          payload: { sinav: 'YKS', title: 'Paragraf tekrarı', gun_offset: 0 },
+        },
+        {
+          type: 'complete_task',
+          label: 'Tamamlandı',
+          auto_apply: true,
+          payload: { sinav: 'YKS', title: 'Paragraf tekrarı' },
+        },
+        {
+          type: 'add_note',
+          label: 'Not',
+          auto_apply: true,
+          payload: { sinav: 'KPSS', ders: 'Türkçe', metin: 'Önce soru kökünü oku' },
+        },
+        {
+          type: 'log_study_time',
+          label: 'Süre',
+          auto_apply: true,
+          payload: { sinav: 'YKS', ders: 'Matematik', dakika: 90 },
+        },
+      ],
+      { user: null, defaultTrack: 'YKS' }
+    )
+    expect(res.every((r) => r.ok)).toBe(true)
+
+    const tasks = JSON.parse(localStorage.getItem(`unisense_plan_${hafta}`) || '[]')
+    expect(tasks.some((t: any) => t.title === 'Paragraf tekrarı' && t.status === 'done')).toBe(true)
+
+    const notlar = JSON.parse(localStorage.getItem('unisense_notlar') || '[]')
+    expect(notlar[0].metin).toBe('[Türkçe] Önce soru kökünü oku')
+
+    const sure = JSON.parse(localStorage.getItem('unisense_sure') || '{}')
+    expect(sure.sureDk).toBe(90)
+    expect(sure.dersSure.Matematik).toBe(90)
+  })
 })

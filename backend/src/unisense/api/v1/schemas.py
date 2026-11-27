@@ -105,6 +105,11 @@ class CoachActionSchema(BaseModel):
         "add_task",
         "mark_topic_done",
         "add_preference",
+        "add_deneme",
+        "complete_task",
+        "add_note",
+        "log_study_time",
+        "update_profile",
     ]
     label: str = Field(..., max_length=160)
     auto_apply: bool = True

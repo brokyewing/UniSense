@@ -8,9 +8,21 @@ import { api } from '@/services/api'
 import { addGuestTercih, markEngaged } from './guestTercih'
 import { konuAnahtar, konuBloklari, konuLocal } from './konu'
 import { gorevYap, isoGun, isoHafta, ufukPlanla } from './planlayici'
+import { denemeHesaplaSinav } from './yksHesap'
 
 export interface CoachAction {
-  type: 'set_daily_goal' | 'create_study_plan' | 'log_questions' | 'add_task' | 'mark_topic_done' | 'add_preference'
+  type:
+    | 'set_daily_goal'
+    | 'create_study_plan'
+    | 'log_questions'
+    | 'add_task'
+    | 'mark_topic_done'
+    | 'add_preference'
+    | 'add_deneme'
+    | 'complete_task'
+    | 'add_note'
+    | 'log_study_time'
+    | 'update_profile'
   label: string
   auto_apply?: boolean
   payload?: Record<string, any>
@@ -316,6 +328,222 @@ async function applyAddPreference(payload: Record<string, any>, user: any): Prom
   return `${count} program tercih listene eklendi`
 }
 
+async function applyAddDeneme(payload: Record<string, any>, user: any, defaultTrack: string): Promise<string> {
+  const sinav = normSinav(payload.sinav, defaultTrack)
+  const rawGirdi = (payload.girdi && typeof payload.girdi === 'object') ? payload.girdi : {}
+  const hasAyt = Object.keys(rawGirdi).some((k) => k.startsWith('ayt_'))
+  let type: string | undefined
+  if (sinav === 'YKS') {
+    const reqType = String(payload.type || '').toUpperCase()
+    const normT = reqType === 'SOZ' ? 'SÖZ' : reqType === 'DIL' ? 'DİL' : reqType
+    type = ['TYT', 'SAY', 'EA', 'SÖZ', 'DİL'].includes(normT) ? normT : (hasAyt ? 'SAY' : 'TYT')
+  } else if (sinav === 'DGS') {
+    const reqType = String(payload.type || '').toUpperCase()
+    const normT = reqType === 'SOZ' ? 'SÖZ' : reqType
+    type = ['SAY', 'EA', 'SÖZ'].includes(normT) ? normT : 'SAY'
+  }
+
+  let obp = 0
+  if (user?.uid && (sinav === 'YKS' || sinav === 'DGS')) {
+    try {
+      const coreMod = await import('@/services/firestore-core')
+      const prof = await coreMod.getUserProfile(user.uid)
+      const pVal = Number(prof?.profile?.obp)
+      if (pVal > 0) obp = pVal
+    } catch { /* opsiyonel */ }
+  }
+
+  const canli = denemeHesaplaSinav(sinav, type || 'TYT', rawGirdi, obp)
+  const offset = Number(payload.gun_offset) === -1 ? -1 : 0
+  const tarih = offset === 0 ? isoGun() : addDaysIso(isoGun(), offset)
+  const ad = String(payload.ad || `${canli.puanTuru || sinav} Deneme`).trim().slice(0, 120)
+
+  let sira: number | null = null
+  if (sinav === 'YKS' && type && canli.puanTuru === type && type !== 'TYT' && canli.puan > 100) {
+    try {
+      const { apiFetch } = await import('./api')
+      const r = await apiFetch(`/api/v1/hesap/siralama?puan=${canli.puan.toFixed(2)}&tur=${encodeURIComponent(type)}`)
+      sira = r?.tahmini_sira ?? null
+    } catch { /* sıra opsiyonel */ }
+  }
+
+  // firestore.rules strMax('type', 8) nedeniyle KPSS/LGS'de type alanını hiç ekleme
+  const deneme: Record<string, any> = {
+    sinav,
+    tarih,
+    ad,
+    ...(sinav === 'YKS' || sinav === 'DGS' ? { type } : {}),
+    dersNet: canli.dersNet,
+    toplamNet: canli.toplamNet,
+    puan: canli.puan,
+    ...(sira != null ? { sira } : {}),
+  }
+
+  if (user?.uid) {
+    const studyMod = await import('@/services/firestore-study')
+    await studyMod.addDeneme(user.uid, deneme)
+  } else {
+    const lsKey = `unisense_deneme_${sinav}`
+    const cur = loadJSON<any[]>(lsKey, [])
+    saveJSON(lsKey, [...cur, { ...deneme, id: `l${Date.now()}` }])
+  }
+  const planMod = await import('@/services/firestore-plan')
+  await planMod.recordActivity(user?.uid ?? null).catch(() => {})
+  const puanSuffix = canli.puan > 0 ? ` · ~${canli.puan} puan` : ''
+  return `${sinav} · ${ad}: ${canli.toplamNet} net${puanSuffix} kaydedildi`
+}
+
+async function applyCompleteTask(payload: Record<string, any>, user: any, defaultTrack: string): Promise<string> {
+  const sinav = normSinav(payload.sinav, defaultTrack)
+  const titleNeedle = String(payload.title || '').trim()
+  if (!titleNeedle) throw new Error('Tamamlanacak görev adı belirtilmedi')
+  const needleLow = titleNeedle.toLocaleLowerCase(TR_LOCALE)
+  const hafta = isoHafta(new Date())
+
+  if (user?.uid) {
+    const planMod = await import('@/services/firestore-plan')
+    const list = await new Promise<any[]>((resolve) => {
+      let unsub: (() => void) | null = null
+      const timer = setTimeout(() => { if (unsub) unsub(); resolve([]) }, 1500)
+      unsub = planMod.watchPlanGorevler(user.uid, hafta, (rows: any[]) => {
+        clearTimeout(timer)
+        if (unsub) unsub()
+        resolve(rows || [])
+      })
+    })
+    const pending = list.filter((t) => t && t.status !== 'done')
+    const match = pending.find((t) => {
+      const tStr = String(t.title || t.konu || '').toLocaleLowerCase(TR_LOCALE)
+      return tStr.includes(needleLow) || needleLow.includes(tStr)
+    })
+    if (match?.id) {
+      await planMod.updatePlanGorev(user.uid, match.id, { status: 'done' })
+      await planMod.recordActivity(user.uid).catch(() => {})
+      return `${sinav} · '${match.title || titleNeedle}' görevi tamamlandı`
+    }
+    return `${sinav} · '${titleNeedle}' için bekleyen görev bulunamadı`
+  }
+
+  const key = `unisense_plan_${hafta}`
+  const cur = loadJSON<any[]>(key, [])
+  let hitTitle = ''
+  const next = cur.map((t) => {
+    if (hitTitle || !t || t.status === 'done') return t
+    const tStr = String(t.title || t.konu || '').toLocaleLowerCase(TR_LOCALE)
+    if (tStr.includes(needleLow) || needleLow.includes(tStr)) {
+      hitTitle = String(t.title || titleNeedle)
+      return { ...t, status: 'done' }
+    }
+    return t
+  })
+  if (hitTitle) {
+    saveJSON(key, next)
+    const planMod = await import('@/services/firestore-plan')
+    await planMod.recordActivity(null).catch(() => {})
+    return `${sinav} · '${hitTitle}' görevi tamamlandı`
+  }
+  return `${sinav} · '${titleNeedle}' için bekleyen görev bulunamadı`
+}
+
+async function applyAddNote(payload: Record<string, any>, user: any, defaultTrack: string): Promise<string> {
+  const sinav = normSinav(payload.sinav, defaultTrack)
+  const rawMetin = String(payload.metin || '').trim()
+  if (!rawMetin) throw new Error('Not metni boş')
+  const ders = String(payload.ders || '').trim()
+  const metin = (ders && ders !== 'Genel' ? `[${ders}] ${rawMetin}` : rawMetin).slice(0, 2000)
+  const noteDoc = { metin, tamamlandi: false }
+
+  if (user?.uid) {
+    const studyMod = await import('@/services/firestore-study')
+    await studyMod.addNot(user.uid, noteDoc)
+  } else {
+    const cur = loadJSON<any[]>('unisense_notlar', [])
+    saveJSON('unisense_notlar', [{ ...noteDoc, id: `l${Date.now()}`, createdAt: Date.now() }, ...cur])
+  }
+  const planMod = await import('@/services/firestore-plan')
+  await planMod.recordActivity(user?.uid ?? null).catch(() => {})
+  return `${sinav} · Not kaydedildi`
+}
+
+async function applyLogStudyTime(payload: Record<string, any>, user: any, defaultTrack: string): Promise<string> {
+  const sinav = normSinav(payload.sinav, defaultTrack)
+  const dk = Math.max(5, Math.min(720, Number(payload.dakika) || 0))
+  if (!dk) throw new Error('Geçersiz çalışma süresi')
+  const ders = String(payload.ders || 'Genel').trim().slice(0, 60) || 'Genel'
+  const today = isoGun()
+
+  if (user?.uid) {
+    const planMod = await import('@/services/firestore-plan')
+    await planMod.sureEkle(user.uid, dk, ders)
+    await planMod.recordActivity(user.uid).catch(() => {})
+  } else {
+    const cur = loadJSON<Record<string, any>>('unisense_sure', { sureDk: 0, sureHafta: {}, dersSure: {} })
+    const sureDk = (Number(cur.sureDk) || 0) + dk
+    const sureHafta = { ...(cur.sureHafta || {}), [today]: (Number(cur.sureHafta?.[today]) || 0) + dk }
+    const dersSure = { ...(cur.dersSure || {}), [ders]: (Number(cur.dersSure?.[ders]) || 0) + dk }
+    saveJSON('unisense_sure', { sureDk, sureHafta, dersSure })
+    const planMod = await import('@/services/firestore-plan')
+    await planMod.recordActivity(null).catch(() => {})
+  }
+  return `${sinav} · ${ders}: ${dk} dk çalışma süresi eklendi`
+}
+
+async function applyUpdateProfile(payload: Record<string, any>, user: any, defaultTrack: string): Promise<string> {
+  const sinav = normSinav(payload.sinav, defaultTrack)
+  const profilePatch: Record<string, any> = { examTrack: sinav }
+  const parts = [sinav]
+  if (payload.hedef_siralama != null) {
+    const r = Math.max(1, Math.min(3_000_000, Number(payload.hedef_siralama)))
+    if (Number.isFinite(r)) {
+      profilePatch.targetRank = r
+      parts.push(`Hedef Sıra ${r}`)
+    }
+  }
+  if (payload.hedef_puan != null) {
+    const s = Math.max(10, Math.min(600, Number(payload.hedef_puan)))
+    if (Number.isFinite(s)) {
+      profilePatch.targetScore = s
+      parts.push(`Hedef Puan ${s}`)
+    }
+  }
+  if (payload.obp != null) {
+    const o = Math.max(0, Math.min(500, Number(payload.obp)))
+    if (Number.isFinite(o)) {
+      profilePatch.obp = o
+      parts.push(`OBP ${o}`)
+    }
+  }
+  if (payload.daily_question_goal != null) {
+    const dq = Math.max(5, Math.min(1000, Number(payload.daily_question_goal)))
+    if (Number.isFinite(dq)) {
+      profilePatch.dailyQuestionGoal = dq
+      parts.push(`Günlük ${dq} soru`)
+    }
+  }
+
+  if (user?.uid) {
+    const [coreMod, planMod] = await Promise.all([
+      import('@/services/firestore-core'),
+      import('@/services/firestore-plan'),
+    ])
+    const curDoc = await coreMod.getUserProfile(user.uid).catch(() => null)
+    const nextProf = { ...(curDoc?.profile || {}), ...profilePatch }
+    await coreMod.updateUserProfile(user.uid, nextProf)
+    if (profilePatch.dailyQuestionGoal) {
+      const cfg = (await planMod.getPlanConfig(user.uid)) || { haftaIciBlok: 2, haftaSonuBlok: 4, hedefSaat: 15 }
+      await planMod.setPlanConfig(user.uid, { ...cfg, track: sinav, kuruldu: true, gunlukSoruHedef: profilePatch.dailyQuestionGoal })
+    }
+  } else {
+    const curProf = loadJSON<Record<string, any>>('unisense_guest_profile', {})
+    saveJSON('unisense_guest_profile', { ...curProf, ...profilePatch })
+    if (profilePatch.dailyQuestionGoal) {
+      const curCfg = loadJSON<Record<string, any>>('unisense_plan_cfg', { haftaIciBlok: 2, haftaSonuBlok: 4, hedefSaat: 15 })
+      saveJSON('unisense_plan_cfg', { ...curCfg, track: sinav, kuruldu: true, gunlukSoruHedef: profilePatch.dailyQuestionGoal })
+    }
+  }
+  return `${parts.join(' · ')} güncellendi`
+}
+
 /** Backend'den gelen sistem aksiyonlarını sırayla uygular ve sonuç listesi döner. */
 export async function executeCoachActions(
   actions: CoachAction[] = [],
@@ -337,6 +565,11 @@ export async function executeCoachActions(
       else if (act.type === 'add_task') detail = await applyAddTask(payload, user, defaultTrack)
       else if (act.type === 'mark_topic_done') detail = await applyMarkTopicDone(payload, user, defaultTrack)
       else if (act.type === 'add_preference') detail = await applyAddPreference(payload, user)
+      else if (act.type === 'add_deneme') detail = await applyAddDeneme(payload, user, defaultTrack)
+      else if (act.type === 'complete_task') detail = await applyCompleteTask(payload, user, defaultTrack)
+      else if (act.type === 'add_note') detail = await applyAddNote(payload, user, defaultTrack)
+      else if (act.type === 'log_study_time') detail = await applyLogStudyTime(payload, user, defaultTrack)
+      else if (act.type === 'update_profile') detail = await applyUpdateProfile(payload, user, defaultTrack)
       results.push({ type: act.type, label: detail, ok: true, detail })
     } catch (e: any) {
       results.push({ type: act.type, label: act.label, ok: false, detail: e?.message || 'Uygulanamadı' })

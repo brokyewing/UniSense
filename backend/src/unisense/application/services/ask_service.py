@@ -18,6 +18,7 @@ from unisense.application.services.coach_action_service import (
     extract_coach_actions,
     fallback_coach_reply,
     has_user_action_intent,
+    is_pure_coach_command,
     merge_coach_actions,
     parse_llm_actions_and_strip,
 )
@@ -119,9 +120,25 @@ class AskService:
 
     def execute(self, query: Query, user_context: dict | None = None) -> Answer:
         start = time.perf_counter()
-        uc = user_context or {}
+        uc = dict(user_context) if user_context else {}
         actions = extract_coach_actions(query.text, uc)
+        for act in actions:
+            if act.type == "add_deneme":
+                p = act.payload or {}
+                puan_prev = p.get("puan_preview")
+                if isinstance(puan_prev, (int, float)) and puan_prev > 0:
+                    ex_s = p.get("sinav")
+                    if ex_s == "KPSS" and not uc.get("kpss_puan"):
+                        uc["kpss_puan"] = puan_prev
+                    elif ex_s == "DGS" and not uc.get("dgs_puan"):
+                        uc["dgs_puan"] = puan_prev
+                    elif ex_s == "YKS" and not uc.get("yks_puan"):
+                        uc["yks_puan"] = puan_prev
+                        if p.get("type"):
+                            uc.setdefault("yks_turu", p["type"])
+
         pref_intent = detect_preference_add_intent(query.text)
+        pure_coach = is_pure_coach_command(query.text, actions)
         history_codes: list[str] = []
         if pref_intent and query.history:
             for turn in query.history[-4:]:
@@ -151,42 +168,36 @@ class AskService:
                 total_latency_ms=total_ms,
             )
 
-        # 0b. KPSS / DGS sorguları — kendi yapısal veri kaynaklarına yönlenir
-        # (YKS RAG'i bu soruları cevaplayamaz; kadro/geçiş verisi ayrı)
-        # ROUTING metni bağlamsaldır: kısa takip mesajları ("tüm illerde bak")
-        # önceki soruyla birleşir (bkz. routing_text) → chat bağlamı korunur.
+        # 0b. KPSS / DGS sorguları — saf koç/kayıt komutlarında kadro verisi karıştırma
         rt = routing_text(query)
         sinav_context = ""
-        uc_track = (user_context or {}).get("exam_track")
-        try:
-            if KPSS_RE.search(rt):
-                sinav_context = build_kpss_context(rt, user_context)
-                logger.info("kpss_intent_routed")
-            elif DGS_RE.search(rt):
-                sinav_context = build_dgs_context(rt, user_context)
-                logger.info("dgs_intent_routed")
-            elif uc_track == "KPSS" and (
-                GENERIC_PLACEMENT_RE.search(rt)
-                or KPSS_AGG_RE.search(rt)
-            ):
-                # Sınav adı yazılmamış ama kullanıcının yolu KPSS —
-                # "toplam kaç kontenjan" gibi istatistik soruları da dahil
-                sinav_context = build_kpss_context(rt, user_context)
-                logger.info("kpss_intent_routed", via="exam_track")
-            elif uc_track == "DGS" and GENERIC_PLACEMENT_RE.search(rt):
-                sinav_context = build_dgs_context(rt, user_context)
-                logger.info("dgs_intent_routed", via="exam_track")
-        except Exception as e:
-            logger.warning("sinav_context_failed", error=str(e)[:200])
+        uc_track = uc.get("exam_track")
+        if not pure_coach:
+            try:
+                if KPSS_RE.search(rt):
+                    sinav_context = build_kpss_context(rt, uc)
+                    logger.info("kpss_intent_routed")
+                elif DGS_RE.search(rt):
+                    sinav_context = build_dgs_context(rt, uc)
+                    logger.info("dgs_intent_routed")
+                elif uc_track == "KPSS" and (
+                    GENERIC_PLACEMENT_RE.search(rt)
+                    or KPSS_AGG_RE.search(rt)
+                ):
+                    sinav_context = build_kpss_context(rt, uc)
+                    logger.info("kpss_intent_routed", via="exam_track")
+                elif uc_track == "DGS" and GENERIC_PLACEMENT_RE.search(rt):
+                    sinav_context = build_dgs_context(rt, uc)
+                    logger.info("dgs_intent_routed", via="exam_track")
+            except Exception as e:
+                logger.warning("sinav_context_failed", error=str(e)[:200])
 
-        # 1. Intent kontrolü — sıra/puan tabanlı sorgu mu? (bağlamsal metinle)
-        intent = extract_intent(rt) if not sinav_context else None
+        # 1. Intent kontrolü — sıra/puan tabanlı sorgu mu?
+        intent = extract_intent(rt) if (not sinav_context and not pure_coach) else None
 
         # 1b. PROFİL YKS PUANI — kullanıcı mesajda puan yazmadıysa profildekini kullan
-        # ("puanıma göre X kazanabilir miyim"). Mesajdaki açık puan HER ZAMAN öncelikli.
-        uc = user_context or {}
         yks_puan = uc.get("yks_puan")
-        if yks_puan and not sinav_context:
+        if yks_puan and not sinav_context and not pure_coach:
             if intent is not None and intent.get("score") is None and intent.get("rank") is None:
                 # Bölüm/üni sorusu var, puan yok → profildeki puanı KIYAS için kat
                 intent["user_score"] = yks_puan
@@ -217,34 +228,37 @@ class AskService:
             except Exception as e:
                 logger.warning("intent_build_failed", error=str(e)[:200])
 
-        # 2. Retrieval (RAG chunks)
-        docs = self._retrieval.retrieve(query)
-        rag_context = self._retrieval.build_context(docs)
+        # 2. Retrieval (RAG chunks) — saf koç/kayıt komutlarında gereksiz chunk çekme
+        if pure_coach:
+            docs = []
+            rag_context = ""
+        else:
+            docs = self._retrieval.retrieve(query)
+            rag_context = self._retrieval.build_context(docs)
 
         # 2b. Trend tespiti — kullanıcı "yıllar içinde / trend / geçmiş" sorduysa
-        # ve retrieval'da program chunk'ı varsa, çoklu yıl trend özeti ekle
         trend_context = ""
-        q_lower = _tr_lower(query.text)
-        is_trend_query = any(p.search(q_lower) for p in _TREND_PATTERNS)
-        if is_trend_query:
-            program_codes_in_docs = list({d.department_code for d in docs if d.department_code})[:5]
-            trend_lines = []
-            for code in program_codes_in_docs:
-                summary = trend_summary(code)
-                if summary:
-                    trend_lines.append(f"[{code}] {summary}")
-            if trend_lines:
-                trend_context = "=== ÇOKLU YIL TREND ===\n" + "\n\n".join(trend_lines)
-                logger.info("trend_context_added", programs=len(trend_lines))
-            elif not has_history():
-                # History dosyası yoksa kullanıcıya açık not
-                trend_context = (
-                    "=== TREND NOTU ===\n"
-                    f"Şu anda {rankings_year()} verisi var. Geçmiş yıl arşivi "
-                    f"({rankings_year() - 5}-{rankings_year() - 1}) hazırlanıyor — "
-                    "trend sorularına şu an cevap için Wikipedia/üni sayfalarındaki sözel "
-                    "bilgilerle yetenin."
-                )
+        if not pure_coach:
+            q_lower = _tr_lower(query.text)
+            is_trend_query = any(p.search(q_lower) for p in _TREND_PATTERNS)
+            if is_trend_query:
+                program_codes_in_docs = list({d.department_code for d in docs if d.department_code})[:5]
+                trend_lines = []
+                for code in program_codes_in_docs:
+                    summary = trend_summary(code)
+                    if summary:
+                        trend_lines.append(f"[{code}] {summary}")
+                if trend_lines:
+                    trend_context = "=== ÇOKLU YIL TREND ===\n" + "\n\n".join(trend_lines)
+                    logger.info("trend_context_added", programs=len(trend_lines))
+                elif not has_history():
+                    trend_context = (
+                        "=== TREND NOTU ===\n"
+                        f"Şu anda {rankings_year()} verisi var. Geçmiş yıl arşivi "
+                        f"({rankings_year() - 5}-{rankings_year() - 1}) hazırlanıyor — "
+                        "trend sorularına şu an cevap için Wikipedia/üni sayfalarındaki sözel "
+                        "bilgilerle yetenin."
+                    )
 
         # 3. Context'i birleştir — PROFİL (en üstte), sınav, recommendation, trend, RAG
         parts = []
@@ -282,12 +296,21 @@ class AskService:
         scrubbed_query = _scrub_pii(query.text)
         text = ""
         llm_ok = False
+        llm_mode = "coach" if pure_coach else "rag"
         try:
-            raw_text = self._llm.generate(
-                scrubbed_query,
-                context=context,
-                history=history_dicts if history_dicts else None,
-            )
+            try:
+                raw_text = self._llm.generate(
+                    scrubbed_query,
+                    context=context,
+                    history=history_dicts if history_dicts else None,
+                    mode=llm_mode,
+                )
+            except TypeError:
+                raw_text = self._llm.generate(
+                    scrubbed_query,
+                    context=context,
+                    history=history_dicts if history_dicts else None,
+                )
             default_sinav = str(uc.get("exam_track") or "YKS").upper()
             text, llm_actions = parse_llm_actions_and_strip(raw_text, default_sinav=default_sinav)
             if actions or pref_intent or has_user_action_intent(query.text):
