@@ -25,6 +25,14 @@ class CoachAction(BaseModel):
         "add_note",
         "log_study_time",
         "update_profile",
+        "remove_preference",
+        "reorder_preferences",
+        "delete_task",
+        "reschedule_task",
+        "complete_note",
+        "delete_note",
+        "unmark_topic_done",
+        "open_compare",
     ]
     label: str = Field(..., max_length=160)
     auto_apply: bool = True

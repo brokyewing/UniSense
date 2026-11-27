@@ -64,6 +64,8 @@ from unisense.api.v1.schemas import (
     LgsOneriResponse,
     ModelInfo,
     ModelsResponse,
+    PreferenceResolveRequest,
+    PreferenceResolveResponse,
     ProgramLookupRequest,
     ProgramLookupResponse,
     RecommendResponse,
@@ -345,8 +347,17 @@ def ask(
 
     raw_actions = list(getattr(answer, "actions", None) or [])
     actions = [a for a in raw_actions if getattr(a, "type", "") != "add_preference"]
-    if pref_intent or any(getattr(a, "type", "") == "add_preference" for a in raw_actions):
-        pref_candidates = list(dict.fromkeys(action_pref_codes + history_codes + text_codes + doc_codes))
+    pref_actions = [a for a in raw_actions if getattr(a, "type", "") == "add_preference"]
+    yks_pref_codes: list[str] = []
+    for pa in pref_actions:
+        p = pa.payload or {}
+        p_sinav = str(p.get("sinav") or "YKS").upper()
+        if p_sinav != "YKS" or p.get("query"):
+            actions.append(pa)
+        else:
+            yks_pref_codes.extend(str(c) for c in (p.get("codes") or []) if c)
+    if pref_intent or yks_pref_codes:
+        pref_candidates = list(dict.fromkeys(yks_pref_codes + history_codes + text_codes + doc_codes))
         valid_codes = [c for c in pref_candidates if c in lookup_map][:5]
         if valid_codes:
             actions.append(
@@ -354,7 +365,7 @@ def ask(
                     type="add_preference",
                     label=f"{len(valid_codes)} programı tercih listene ekle",
                     auto_apply=True,
-                    payload={"codes": valid_codes},
+                    payload={"sinav": "YKS", "codes": valid_codes},
                 )
             )
 
@@ -518,6 +529,76 @@ def programs_lookup(
     """Tercih listesindeki kodlar için sıra/taban/kontenjan bilgisini batch döner."""
     programs = svc.lookup_programs(body.codes)
     return ProgramLookupResponse(programs=programs)
+
+
+@router.post("/preferences/resolve", response_model=PreferenceResolveResponse)
+@limiter.limit(DEFAULT_LIMIT)
+def preferences_resolve(
+    request: Request,
+    body: PreferenceResolveRequest,
+    rec_svc: RecommendationService = Depends(recommendation_service_dep),
+) -> PreferenceResolveResponse:
+    """Tüm sınav türleri (YKS, KPSS, DGS, TUS, DUS, LGS) için tercih öğelerini çözümle."""
+    from unisense.core.text import fold_tr
+
+    sinav = body.sinav.upper()
+    code_set = {str(c).strip() for c in (body.codes or []) if str(c).strip()}
+    qf = fold_tr((body.query or "").strip())
+    items: list[dict] = []
+
+    if sinav == "YKS":
+        if code_set:
+            items = [p for p in rec_svc.lookup_programs(list(code_set)) if p.get("found")][:5]
+        elif qf:
+            from unisense.application.services.recommendation_service import _load_data
+            rankings, _, _ = _load_data()
+            for r in rankings:
+                blob = fold_tr(f"{r.get('department_name', '')} {r.get('university_name', '')}")
+                if qf in blob:
+                    items.append(r)
+                    if len(items) >= 5:
+                        break
+    elif sinav == "KPSS":
+        from unisense.application.services.kpss_service import _load as _load_kpss
+        kadrolar, kurumlar, _ = _load_kpss()
+        for k in kadrolar:
+            kk = str(k.get("kadro_kodu", ""))
+            kurum_ad = (kurumlar.get(str(k.get("kurum_kodu", ""))) or {}).get("kurum", "") or k.get("kurum", "")
+            matched = (kk in code_set) if code_set else bool(qf and qf in fold_tr(f"{k.get('unvan', '')} {kurum_ad} {k.get('il', '')}"))
+            if matched:
+                items.append({**k, "kurum": kurum_ad})
+                if len(items) >= 5:
+                    break
+    elif sinav == "DGS":
+        from unisense.application.services.dgs_service import _load as _load_dgs
+        for p in _load_dgs():
+            dc = str(p.get("department_code", ""))
+            matched = (dc in code_set) if code_set else bool(qf and qf in fold_tr(f"{p.get('program_adi', '')} {p.get('university_name', '')} {p.get('city', '')}"))
+            if matched:
+                items.append(p)
+                if len(items) >= 5:
+                    break
+    elif sinav in ("TUS", "DUS"):
+        from unisense.application.services.tus_service import _load as _load_tus
+        progs = (_load_tus(sinav) or {}).get("programlar", [])
+        for p in progs:
+            kod = str(p.get("kod", ""))
+            matched = (kod in code_set) if code_set else bool(qf and qf in fold_tr(f"{p.get('dal', '')} {p.get('kurum', '')}"))
+            if matched:
+                items.append(p)
+                if len(items) >= 5:
+                    break
+    elif sinav == "LGS":
+        from unisense.application.services.lgs_service import _load as _load_lgs
+        liseler = (_load_lgs() or {}).get("liseler", [])
+        for lise in liseler:
+            blob = fold_tr(f"{lise.get('okul', '')} {lise.get('il', '')} {lise.get('ilce', '')}")
+            if qf and qf in blob:
+                items.append(lise)
+                if len(items) >= 5:
+                    break
+
+    return PreferenceResolveResponse(sinav=sinav, items=items[:5])
 
 
 @router.get("/hesap/siralama", response_model=SiralamaResponse)

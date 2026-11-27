@@ -233,3 +233,31 @@ def test_new_coach_actions_extract_and_llm_parse():
     assert len(parsed) == 1
     assert parsed[0].payload["girdi"] == {"tyt_tr": {"d": 35, "y": 5}}
     assert parsed[0].payload["type"] == "TYT"
+
+
+def test_update_profile_sync_fields_and_paket_c_actions():
+    from unisense.application.services.coach_action_service import is_personal_coaching_query
+
+    yks_upd = extract_coach_actions("Sıralamam 25000, YKS puanım 445 sayısal, OBP 92, tercih şehirlerim İstanbul, Ankara", {"exam_track": "YKS"})
+    act = next(a for a in yks_upd if a.type == "update_profile")
+    assert act.payload["sinav"] == "YKS"
+    assert act.payload["siralama"] == 25000
+    assert act.payload["puan"] == 445.0
+    assert act.payload["puan_turu"] == "SAY"
+    assert act.payload["obp"] == 460.0
+    assert "İSTANBUL" in act.payload["sehirler"]
+
+    lgs_upd = extract_coach_actions("LGS yüzdelik dilimim %3.4 kaydet", {"exam_track": "LGS"})
+    assert any(a.type == "update_profile" and a.payload["sinav"] == "LGS" and a.payload["lgs_yuzdelik"] == 3.4 for a in lgs_upd)
+
+    assert any(a.type == "delete_task" for a in extract_coach_actions("Türev görevini sil"))
+    assert any(a.type == "reschedule_task" and a.payload["gun_offset"] == 1 for a in extract_coach_actions("Fizik görevini yarına ertele"))
+    assert any(a.type == "complete_note" for a in extract_coach_actions("Paragraf notunu tamamla"))
+    assert any(a.type == "delete_note" for a in extract_coach_actions("Paragraf notunu sil"))
+    assert any(a.type == "unmark_topic_done" for a in extract_coach_actions("Türev konusunun işaretini kaldır"))
+    assert any(a.type == "remove_preference" for a in extract_coach_actions("Tercihimden 203910363 kodunu çıkar"))
+    assert any(a.type == "reorder_preferences" for a in extract_coach_actions("Tercih listemi sıralamaya göre diz"))
+    assert any(a.type == "open_compare" and a.payload["codes"] == ["203910363", "105510079"] for a in extract_coach_actions("203910363 ve 105510079 kodlarını karşılaştır"))
+
+    assert is_personal_coaching_query("Son denemelerim nasıl gidiyor?", []) is True
+    assert is_personal_coaching_query("İTÜ Bilgisayar taban puanı nedir?", []) is False

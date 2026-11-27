@@ -1523,9 +1523,11 @@ export default function TercihList() {
     setAiOpt('')
     try {
       const query = buildOptimizeQuery(items, userRank)
+      const { buildUnifiedUserContext } = await import('../lib/aiUserContext')
+      const uc = await buildUnifiedUserContext(user, 'YKS').catch(() => null)
       const r = await apiFetch('/api/v1/ask', {
         method: 'POST',
-        body: { query },
+        body: { query, ...(uc ? { user_context: uc } : {}) },
       })
       setAiOpt(r?.text || 'Tavsiye üretilemedi.')
     } catch (e: unknown) {
@@ -1678,6 +1680,35 @@ export default function TercihList() {
         {mode === 'TUS' && user && <UzmanlikTercihPanel user={user} sinav="TUS" />}
         {mode === 'DUS' && user && <UzmanlikTercihPanel user={user} sinav="DUS" />}
         {mode === 'LGS' && user && <LgsTercihPanel user={user} />}
+        {mode !== 'YKS' && user && (
+          <div className="card border-accent-500/20 bg-accent-500/5 flex flex-wrap items-center justify-between gap-3 py-3">
+            <div className="text-xs text-slate-300">
+              <strong className="text-white">{mode} Tercih Koçu:</strong> Listeni taban puan/yüzdeliğe göre tek tıkla dizebilir veya AI ile değerlendirebilirsin.
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={async () => {
+                  const { executeCoachActions } = await import('../lib/aiActions')
+                  const res = await executeCoachActions(
+                    [{ type: 'reorder_preferences', label: `${mode} sıralandı`, auto_apply: true, payload: { sinav: mode, strategy: 'optimal' } }],
+                    { user, defaultTrack: mode },
+                  )
+                  setAiOpt(res[0]?.label || '')
+                }}
+                className="btn-ghost text-xs inline-flex items-center gap-1.5"
+              >
+                <ArrowDownUp size={13} /> Optimal Sırala
+              </button>
+              <Link
+                to={`/arama?q=${encodeURIComponent(`${mode} tercih listemi değerlendir`)}`}
+                className="btn-primary text-xs inline-flex items-center gap-1.5"
+              >
+                <Sparkles size={13} /> AI Koça Sor →
+              </Link>
+            </div>
+          </div>
+        )}
 
         {mode === 'YKS' && yksAnaliz && items.length > 0 && (
           <AnalizPanel mode="YKS" items={items} profile={profile} />
@@ -1821,13 +1852,23 @@ export default function TercihList() {
                     <div className="text-sm font-semibold text-white flex items-center gap-2">
                       <Sparkles size={16} className="text-accent-300" /> Tercih Sırası Optimizasyonu
                     </div>
-                    <button
-                      onClick={optimizeOrder}
-                      disabled={aiOptLoading || items.length === 0}
-                      className="btn-primary text-xs inline-flex items-center gap-2 disabled:opacity-50"
-                    >
-                      {aiOptLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} Analiz Et
-                    </button>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {items.length > 1 && (
+                        <button
+                          onClick={sortByRank}
+                          className="btn-ghost text-xs inline-flex items-center gap-1.5"
+                        >
+                          <ArrowDownUp size={13} /> Taban Sıraya Göre Diz
+                        </button>
+                      )}
+                      <button
+                        onClick={optimizeOrder}
+                        disabled={aiOptLoading || items.length === 0}
+                        className="btn-primary text-xs inline-flex items-center gap-2 disabled:opacity-50"
+                      >
+                        {aiOptLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} Analiz Et
+                      </button>
+                    </div>
                   </div>
                   {aiOpt ? (
                     <p className="text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">{aiOpt}</p>

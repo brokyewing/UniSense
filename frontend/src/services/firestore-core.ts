@@ -92,7 +92,7 @@ export function watchSubcollection(uid: string, subcollection: string, callback:
   const q = query(collection(db, 'users', uid, subcollection), ...constraints)
   return onSnapshot(q, (snap: any) => {
     const items = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }))
-    callback(options.where ? items : items.reduce((acc: any, item: any) => { acc[item.id] = item; return acc }, {}))
+    callback((options.where || options.asArray) ? items : items.reduce((acc: any, item: any) => { acc[item.id] = item; return acc }, {}))
   }, () => callback(null))
 }
 

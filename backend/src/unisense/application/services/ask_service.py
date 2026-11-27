@@ -18,20 +18,30 @@ from unisense.application.services.coach_action_service import (
     extract_coach_actions,
     fallback_coach_reply,
     has_user_action_intent,
-    is_pure_coach_command,
+    is_personal_coaching_query,
     merge_coach_actions,
     parse_llm_actions_and_strip,
 )
 from unisense.application.services.intent_router import (
     DGS_RE,
     GENERIC_PLACEMENT_RE,
+    GUIDE_OZET_RE,
+    KARIYER_RE,
     KPSS_AGG_RE,
     KPSS_RE,
+    LGS_RE,
     SELF_SCORE_RE,
+    TAKVIM_RE,
+    TUS_DUS_RE,
     build_dgs_context,
+    build_guide_ozet_context,
+    build_kariyer_context,
     build_kpss_context,
+    build_lgs_context,
     build_profile_context,
     build_recommendation_context,
+    build_takvim_context,
+    build_tus_dus_context,
     extract_intent,
     rankings_year,
     routing_text,
@@ -138,11 +148,14 @@ class AskService:
                             uc.setdefault("yks_turu", p["type"])
 
         pref_intent = detect_preference_add_intent(query.text)
-        pure_coach = is_pure_coach_command(query.text, actions)
+        compare_intent = bool(re.search(r"karşılaştır|karsilastir", _tr_lower(query.text)))
+        pure_coach = is_personal_coaching_query(query.text, actions)
         history_codes: list[str] = []
-        if pref_intent and query.history:
+        if (pref_intent or compare_intent) and query.history:
             for turn in query.history[-4:]:
-                history_codes.extend(re.findall(r"\b(\d{9})\b", turn.text or ""))
+                t_txt = turn.text or ""
+                history_codes.extend(re.findall(r"\b(\d{9})\b", t_txt))
+                history_codes.extend(re.findall(r"\[([A-Za-z0-9._\-]{4,20})\]", t_txt))
             history_codes = list(dict.fromkeys(history_codes))
         coach_context = build_coach_action_context(
             actions,
@@ -151,13 +164,14 @@ class AskService:
             history_codes=history_codes,
         )
 
-        # 0. Cache check — aksiyon veya tercih ekleme içeren istekler her seferinde taze çalışır
+        # 0. Cache check — aksiyon, tercih ekleme, saf koçluk veya günlük takvim taze çalışır
         model_pref = getattr(query, "model_preference", None) or "gemini"
         cache_key = _make_cache_key(query, model_pref, user_context)
-        cached_text = None if (actions or pref_intent) else _response_cache.get(cache_key)
+        rt = routing_text(query)
+        has_takvim = bool(TAKVIM_RE.search(rt))
+        has_kariyer = bool(KARIYER_RE.search(rt))
+        cached_text = None if (actions or pref_intent or pure_coach or has_takvim or has_kariyer) else _response_cache.get(cache_key)
         if cached_text is not None:
-            # Cache'de cevap var — retrieval yine yap (frontend kaynak chunk'larını bekliyor),
-            # ama LLM çağırma. Toplam latency ~50-300ms.
             docs = self._retrieval.retrieve(query)
             total_ms = int((time.perf_counter() - start) * 1000)
             logger.info("ask_cache_hit", cache_key=cache_key[:8], total_ms=total_ms)
@@ -168,9 +182,11 @@ class AskService:
                 total_latency_ms=total_ms,
             )
 
-        # 0b. KPSS / DGS sorguları — saf koç/kayıt komutlarında kadro verisi karıştırma
-        rt = routing_text(query)
+        # 0b. KPSS / DGS / LGS / TUS-DUS sorguları — saf koç/kayıt komutlarında veri karıştırma
         sinav_context = ""
+        takvim_context = ""
+        kariyer_context = ""
+        guide_ozet_context = ""
         uc_track = uc.get("exam_track")
         if not pure_coach:
             try:
@@ -180,17 +196,42 @@ class AskService:
                 elif DGS_RE.search(rt):
                     sinav_context = build_dgs_context(rt, uc)
                     logger.info("dgs_intent_routed")
-                elif uc_track == "KPSS" and (
-                    GENERIC_PLACEMENT_RE.search(rt)
-                    or KPSS_AGG_RE.search(rt)
-                ):
+                elif LGS_RE.search(rt):
+                    sinav_context = build_lgs_context(rt, uc)
+                    logger.info("lgs_intent_routed")
+                elif TUS_DUS_RE.search(rt):
+                    sinav_context = build_tus_dus_context(rt, uc)
+                    logger.info("tus_dus_intent_routed")
+                elif uc_track == "KPSS" and (GENERIC_PLACEMENT_RE.search(rt) or KPSS_AGG_RE.search(rt)):
                     sinav_context = build_kpss_context(rt, uc)
                     logger.info("kpss_intent_routed", via="exam_track")
                 elif uc_track == "DGS" and GENERIC_PLACEMENT_RE.search(rt):
                     sinav_context = build_dgs_context(rt, uc)
                     logger.info("dgs_intent_routed", via="exam_track")
+                elif uc_track == "LGS" and GENERIC_PLACEMENT_RE.search(rt):
+                    sinav_context = build_lgs_context(rt, uc)
+                    logger.info("lgs_intent_routed", via="exam_track")
+                elif uc_track in ("TUS", "DUS") and GENERIC_PLACEMENT_RE.search(rt):
+                    sinav_context = build_tus_dus_context(rt, uc)
+                    logger.info("tus_dus_intent_routed", via="exam_track")
             except Exception as e:
                 logger.warning("sinav_context_failed", error=str(e)[:200])
+
+            if has_takvim:
+                try:
+                    takvim_context = build_takvim_context(rt, uc)
+                except Exception as e:
+                    logger.warning("takvim_context_failed", error=str(e)[:200])
+            if has_kariyer:
+                try:
+                    kariyer_context = build_kariyer_context(rt, uc)
+                except Exception as e:
+                    logger.warning("kariyer_context_failed", error=str(e)[:200])
+            if GUIDE_OZET_RE.search(rt):
+                try:
+                    guide_ozet_context = build_guide_ozet_context(rt, uc)
+                except Exception as e:
+                    logger.warning("guide_ozet_context_failed", error=str(e)[:200])
 
         # 1. Intent kontrolü — sıra/puan tabanlı sorgu mu?
         intent = extract_intent(rt) if (not sinav_context and not pure_coach) else None
@@ -260,7 +301,7 @@ class AskService:
                         "bilgilerle yetenin."
                     )
 
-        # 3. Context'i birleştir — PROFİL (en üstte), sınav, recommendation, trend, RAG
+        # 3. Context'i birleştir — PROFİL (en üstte), koç, sınav, recommendation, takvim, kariyer, özet, trend, RAG
         parts = []
         profile_context = build_profile_context(uc)
         if profile_context:
@@ -271,6 +312,12 @@ class AskService:
             parts.append(sinav_context)
         if rec_context:
             parts.append(rec_context)
+        if takvim_context:
+            parts.append(takvim_context)
+        if kariyer_context:
+            parts.append(kariyer_context)
+        if guide_ozet_context:
+            parts.append(guide_ozet_context)
         if trend_context:
             parts.append(trend_context)
         if rag_context:
@@ -278,7 +325,17 @@ class AskService:
         context = "\n\n".join(parts) if parts else rag_context
 
         # 4. Boş retrieval koruması + PII maskelemesi sonrası LLM cevabı
-        if not sinav_context and not rec_context and not rag_context and not coach_context:
+        has_any_context = bool(
+            sinav_context
+            or rec_context
+            or rag_context
+            or coach_context
+            or takvim_context
+            or kariyer_context
+            or guide_ozet_context
+            or (pure_coach and profile_context)
+        )
+        if not has_any_context:
             total_ms = int((time.perf_counter() - start) * 1000)
             logger.info("ask_empty_context", query_len=len(query.text), total_ms=total_ms)
             return Answer(
@@ -323,8 +380,8 @@ class AskService:
             logger.warning("llm_failed", error=str(e)[:200])
             text = fallback_coach_reply(actions) if actions else "⚠️ Şu an cevap üretemedim, lütfen birazdan tekrar dene."
 
-        # Cevabı önbelleğe yaz (aksiyon veya tercih ekleme niyeti yoksa ve başarılı LLM cevabıysa)
-        if llm_ok and text and not actions and not pref_intent:
+        # Cevabı önbelleğe yaz
+        if llm_ok and text and not actions and not pref_intent and not pure_coach and not has_takvim and not has_kariyer:
             _response_cache[cache_key] = text
 
         total_ms = int((time.perf_counter() - start) * 1000)

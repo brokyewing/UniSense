@@ -14,8 +14,8 @@ class ChatTurn(BaseModel):
 
 
 class UserExamContext(BaseModel):
-    """Profilden gelen sınav puanları — YKS/KPSS/DGS sorularında otomatik kullanılır."""
-    exam_track: str | None = Field(None, pattern="^(YKS|DGS|KPSS|LGS)$")
+    """Profilden gelen sınav puanları ve çalışma hafızası — /ask bağlamında kullanılır."""
+    exam_track: str | None = Field(None, pattern="^(YKS|DGS|KPSS|LGS|TUS|DUS|AGS)$")
     # YKS: "puanıma göre X kazanabilir miyim" için profildeki puan/sıra/tür
     yks_puan: float | None = Field(None, ge=0, le=600)
     yks_turu: str | None = Field(None, pattern="^(SAY|EA|SÖZ|DİL|TYT)$")
@@ -31,12 +31,20 @@ class UserExamContext(BaseModel):
     ags_net: float | None = Field(None, ge=0, le=120)
     tercih_sehirler: list[str] | None = Field(None, max_length=10)
     tercih_uni_turu: str | None = Field(None, max_length=20)
-    # Çalışma ilerlemesi (Konu Takibi + Çalışmalarım) — "bana plan yap" tarzı sorular için
+    # Çalışma ilerlemesi (Konu Takibi + Çalışmalarım + Pano + Planım + Notlar + Pusula)
     calisma_kalan_konu: int | None = Field(None, ge=0, le=5000)
     calisma_toplam_konu: int | None = Field(None, ge=0, le=5000)
+    calisma_eksik_konular: list[str] | None = Field(None, max_length=8)
     calisma_zayif: list[str] | None = Field(None, max_length=6)
     gunluk_soru_hedef: int | None = Field(None, ge=0, le=2000)
     bugun_cozulen_soru: int | None = Field(None, ge=0, le=5000)
+    ilgi_alanlari: list[str] | None = Field(None, max_length=15)
+    son_denemeler: list[str] | None = Field(None, max_length=5)
+    bekleyen_gorevler: list[str] | None = Field(None, max_length=8)
+    son_notlar: list[str] | None = Field(None, max_length=5)
+    tercih_ozeti: list[str] | None = Field(None, max_length=10)
+    toplam_calisma_dk: int | None = Field(None, ge=0, le=500_000)
+    seri_gun: int | None = Field(None, ge=0, le=5_000)
 
     @field_validator("tercih_sehirler", mode="before")
     @classmethod
@@ -53,6 +61,29 @@ class UserExamContext(BaseModel):
             if len(s) > 50:
                 raise ValueError("Şehir adı 50 karakteri aşamaz")
             out.append(s)
+        return out
+
+    @field_validator(
+        "ilgi_alanlari",
+        "son_denemeler",
+        "bekleyen_gorevler",
+        "son_notlar",
+        "tercih_ozeti",
+        "calisma_eksik_konular",
+        "calisma_zayif",
+        mode="before",
+    )
+    @classmethod
+    def _validate_memory_lists(cls, v):
+        if v is None:
+            return None
+        if not isinstance(v, list):
+            raise TypeError("Liste alanı dizi olmalıdır")
+        out = []
+        for item in v:
+            s = str(item or "").strip()
+            if s:
+                out.append(s[:180])
         return out
 
 
@@ -110,10 +141,29 @@ class CoachActionSchema(BaseModel):
         "add_note",
         "log_study_time",
         "update_profile",
+        "remove_preference",
+        "reorder_preferences",
+        "delete_task",
+        "reschedule_task",
+        "complete_note",
+        "delete_note",
+        "unmark_topic_done",
+        "open_compare",
     ]
     label: str = Field(..., max_length=160)
     auto_apply: bool = True
     payload: dict = Field(default_factory=dict)
+
+
+class PreferenceResolveRequest(BaseModel):
+    sinav: Literal["YKS", "KPSS", "DGS", "TUS", "DUS", "LGS"] = "YKS"
+    codes: list[str] = Field(default_factory=list, max_length=10)
+    query: str | None = Field(None, max_length=120)
+
+
+class PreferenceResolveResponse(BaseModel):
+    sinav: str
+    items: list[dict] = Field(default_factory=list)
 
 
 class AskResponse(BaseModel):

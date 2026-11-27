@@ -253,8 +253,11 @@ export default function Deneme({ embedded = false }) {
     if (eksik) parcalar.push(`Hiç çalışmadığım konular: ${eksik}.`)
     let q = `${parcalar.join(' ')} Bu ${sinav} verilerine göre KISA maddeler halinde çalışma tavsiyesi ver: hangi konudan daha çok soru çözmeliyim, öncelik ve net artışı.`
     if (q.length > 490) q = q.slice(0, 490)
-    const uc = trackUc()
+    const fallbackUc = trackUc()
     try {
+      const { buildUnifiedUserContext } = await import('../lib/aiUserContext')
+      const unifiedUc = await buildUnifiedUserContext(user, sinav).catch(() => null)
+      const uc = unifiedUc || fallbackUc
       const r = await apiFetch('/api/v1/ask', {
         method: 'POST',
         body: { query: q, ...(Object.keys(uc).length ? { user_context: uc } : {}) },

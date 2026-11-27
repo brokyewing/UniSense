@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Send, Loader2, BookOpen, ExternalLink, Sparkles, Bot, User,
@@ -16,13 +16,13 @@ import {
 import {
   createSession, addSessionMessage, updateSessionTitle,
 } from '@/services/firestore-push'
-import { getUserProfile } from '@/services/firestore-core'
 import { api } from '@/services/api'
-import { eksikKonular } from '../lib/konu'
-import { executeCoachActions, getTodayQuestionCount } from '../lib/aiActions'
-import { isoGun } from '../lib/planlayici'
+import { executeCoachActions } from '../lib/aiActions'
+import { buildUnifiedUserContext } from '../lib/aiUserContext'
 import { safeHref } from '../lib/safeUrl'
 import { TERCIH_LIMITS, MAX_SESSIONS_PER_USER } from '@/services/constants'
+
+const GUEST_CHAT_KEY = 'unisense_guest_chat_v1'
 
 // --- UI Components ---
 
@@ -109,6 +109,14 @@ function Message({ msg, userPhoto, tercihIds, onAddToTercih, onAddToPusula, onBu
               >
                 <Check size={11} />
                 <span>{act.label}</span>
+                {act.navigateTo && (
+                  <Link
+                    to={act.navigateTo}
+                    className="ml-1 underline text-accent-200 hover:text-white font-semibold"
+                  >
+                    Aç →
+                  </Link>
+                )}
               </span>
             ))}
           </div>
@@ -333,74 +341,42 @@ export default function Search() {
     if (hookBusyCode !== busyCode) setBusyCode(hookBusyCode)
   }, [hookBusyCode])
 
-  // Profildeki sınav puanları + günlük soru/hedef — user_context için
+  // Birleşik öğrenci profili + çalışma hafızası — user_context için
   useEffect(() => {
     let cancelled = false
     const loadCtx = async () => {
-      const bugun = isoGun()
-      if (!user) {
-        try {
-          const cfg = JSON.parse(localStorage.getItem('unisense_plan_cfg') || 'null')
-          const tr = (cfg?.track && ['YKS', 'DGS', 'KPSS', 'LGS'].includes(cfg.track)) ? cfg.track : 'YKS'
-          const sorular = JSON.parse(localStorage.getItem('unisense_soru_' + tr) || '[]')
-          const ctx: any = { exam_track: tr, bugun_cozulen_soru: getTodayQuestionCount(sorular, bugun) }
-          if (Number(cfg?.gunlukSoruHedef) > 0) ctx.gunluk_soru_hedef = Number(cfg.gunlukSoruHedef)
-          if (!cancelled) setExamCtx(ctx)
-        } catch {
-          if (!cancelled) setExamCtx(null)
-        }
-        return
-      }
-      try {
-        const p = await getUserProfile(user.uid)
-        if (cancelled) return
-        const prof: any = p?.profile || {}
-        const ctx: any = {}
-        if (prof.examTrack) ctx.exam_track = prof.examTrack
-        if (prof.score) { ctx.yks_puan = prof.score; if (prof.scoreType) ctx.yks_turu = prof.scoreType }
-        if (prof.rank) ctx.yks_sira = prof.rank
-        if (prof.kpss?.score) { ctx.kpss_puan = prof.kpss.score; if (prof.kpss.duzey) ctx.kpss_duzey = prof.kpss.duzey }
-        if (prof.dgs?.score) { ctx.dgs_puan = prof.dgs.score; if (prof.dgs.type) ctx.dgs_turu = prof.dgs.type }
-        if (prof.tus?.score) ctx.tus_puan = prof.tus.score
-        if (prof.dus?.score) ctx.dus_puan = prof.dus.score
-        if (prof.lgs?.yuzdelik != null) ctx.lgs_yuzdelik = prof.lgs.yuzdelik
-        if (prof.ags?.net != null) ctx.ags_net = prof.ags.net
-        if (prof.preferredCities?.length) ctx.tercih_sehirler = prof.preferredCities.slice(0, 10)
-        if (prof.preferredUniType && prof.preferredUniType !== 'all') ctx.tercih_uni_turu = prof.preferredUniType
-        const planMod = await import('@/services/firestore-plan')
-        const planCfg = await planMod.getPlanConfig(user.uid).catch(() => null)
-        const track = prof.examTrack || planCfg?.track || 'YKS'
-        if (Number(planCfg?.gunlukSoruHedef) > 0) ctx.gunluk_soru_hedef = Number(planCfg.gunlukSoruHedef)
-        if (track && ['YKS', 'DGS', 'KPSS', 'LGS'].includes(track)) {
-          try {
-            const sorular = await planMod.getSoruList(user.uid, track)
-            ctx.bugun_cozulen_soru = getTodayQuestionCount(sorular, bugun)
-            const m = new Map()
-            for (const r of sorular) {
-              const k = r.konu || r.ders; if (!k) continue
-              const o = m.get(k) || { konu: k, c: 0, d: 0 }
-              o.c += r.cozulen || 0; o.d += r.dogru || 0; m.set(k, o)
-            }
-            const zayif = [...m.values()].filter((o) => o.c >= 5 && o.d / o.c < 0.6).slice(0, 6).map((o) => o.konu)
-            if (zayif.length) ctx.calisma_zayif = zayif
-          } catch { /* noop */ }
-          try {
-            const checked = await planMod.getKonuChecked(user.uid, track)
-            const konuData = await api.konular(track)
-            const { toplam, eksik } = eksikKonular(konuData, checked)
-            if (toplam) { ctx.calisma_toplam_konu = toplam; ctx.calisma_kalan_konu = eksik.length }
-          } catch { /* konu verisi alınamadı */ }
-        }
-        if (!cancelled) setExamCtx(Object.keys(ctx).length ? ctx : null)
-      } catch { /* noop */ }
+      const ctx = await buildUnifiedUserContext(user)
+      if (!cancelled) setExamCtx(ctx)
     }
     loadCtx()
     window.addEventListener('unisense:ai-state-updated', loadCtx)
+    window.addEventListener('unisense:guest-tercih', loadCtx)
     return () => {
       cancelled = true
       window.removeEventListener('unisense:ai-state-updated', loadCtx)
+      window.removeEventListener('unisense:guest-tercih', loadCtx)
     }
   }, [user])
+
+  // Misafir sohbetini sessionStorage'da sakla/yükle (sayfa yenilenince/gidiş-dönüşte kaybolmasın)
+  useEffect(() => {
+    if (user || activeSessionId || messages.length > 0 || params.get('q')) return
+    try {
+      const raw = sessionStorage.getItem(GUEST_CHAT_KEY)
+      if (raw) {
+        const saved = JSON.parse(raw)
+        if (Array.isArray(saved) && saved.length > 0) setMessages(saved)
+      }
+    } catch { /* noop */ }
+  }, [user, activeSessionId])
+
+  useEffect(() => {
+    if (user) return
+    const clean = messages.filter((m) => m && !m._temp && !m.loading && m.text).slice(-20)
+    try {
+      if (clean.length > 0) sessionStorage.setItem(GUEST_CHAT_KEY, JSON.stringify(clean))
+    } catch { /* noop */ }
+  }, [messages, user])
 
   // Sync session messages to local state
   useEffect(() => {
@@ -449,6 +425,7 @@ export default function Search() {
     setInput('')
     setParams({})
     setSidebarOpen(false)
+    try { sessionStorage.removeItem(GUEST_CHAT_KEY) } catch { /* noop */ }
   }
 
   async function ask(text: any) {

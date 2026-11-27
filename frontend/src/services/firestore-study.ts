@@ -52,7 +52,7 @@ export const removeSoruKayit = (uid: string, id: string) => deleteSubcollectionD
 
 export function watchYanlislar(uid: string, callback: (data: any) => void): () => void {
   return watchSubcollection(uid, FIRESTORE_COLLECTIONS.YANLISLAR, callback, {
-    orderBy: 'createdAt', orderDir: 'desc',
+    orderBy: 'createdAt', orderDir: 'desc', asArray: true,
   })
 }
 
@@ -64,7 +64,7 @@ export const removeYanlis = (uid: string, id: string) => deleteSubcollectionDoc(
 
 export function watchNotlar(uid: string, callback: (data: any) => void): () => void {
   return watchSubcollection(uid, FIRESTORE_COLLECTIONS.NOTLAR, callback, {
-    orderBy: 'createdAt', orderDir: 'desc',
+    orderBy: 'createdAt', orderDir: 'desc', asArray: true,
   })
 }
 
@@ -76,7 +76,7 @@ export const removeNot = (uid: string, id: string) => deleteSubcollectionDoc(uid
 
 export function watchKartlar(uid: string, callback: (data: any) => void): () => void {
   return watchSubcollection(uid, FIRESTORE_COLLECTIONS.KARTLAR, callback, {
-    orderBy: 'createdAt', orderDir: 'desc',
+    orderBy: 'createdAt', orderDir: 'desc', asArray: true,
   })
 }
 

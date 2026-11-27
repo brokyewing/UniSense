@@ -27,7 +27,9 @@ export default function Notlar({ embedded = false }) {
   useEffect(() => {
     if (!user) { setNotlar(loadLocal()); return }
     if (!notlarLoading) {
-      const items = allNotlar || []
+      const items = Array.isArray(allNotlar)
+        ? allNotlar
+        : (allNotlar && typeof allNotlar === 'object' ? Object.values(allNotlar) : [])
       const local = loadLocal()
       if (tasimaGerekli(LS, items.length === 0, local.length > 0)) {
         for (const n of local) {

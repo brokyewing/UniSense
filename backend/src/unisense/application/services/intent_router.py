@@ -714,6 +714,266 @@ def _build_recommendation_context(intent: dict, rec_service: RecommendationServi
     return "\n".join(lines)
 
 
+_LGS_RE = re.compile(
+    r"\blgs\b|(?:anadolu|fen|imam\s+hatip|sosyal\s+bilimler|meslek(?:i)?(?:\s+ve\s+teknik)?)\s+lise\w*|"
+    r"\blise\s+(?:taban|yüzdelik|yuzdelik|tercih|puan)|\byüzdelik\s+dilim",
+    re.IGNORECASE,
+)
+_TUS_DUS_RE = re.compile(
+    r"\btus\b|\bdus\b|(?:uzmanlık|uzmanlik|asistanlık|asistanlik)\s+(?:taban|puan|tercih|kadro|dal)",
+    re.IGNORECASE,
+)
+_TAKVIM_RE = re.compile(
+    r"(?:sınav|sinav|başvuru|basvuru|sonuç|sonuc|tercih|geç\s+başvuru|gec\s+basvuru).{0,28}"
+    r"(?:ne\s+zaman|tarih\w*|kaç\s+gün|kac\s+gun|takvim\w*|hangi\s+gün)|"
+    r"(?:yks|tyt|ayt|kpss|dgs|lgs|ales|tus|dus|ags).{0,25}"
+    r"(?:ne\s+zaman|kaç\s+gün|kac\s+gun|başvuru\w*\s+ne\s+zaman|takvim\w*)",
+    re.IGNORECASE,
+)
+_KARIYER_RE = re.compile(
+    r"\b(?:iş\s+ilan\w*|is\s+ilan\w*|staj\s+ilan\w*|personel\s+alım\w*|personel\s+alim\w*|"
+    r"kamu\s+ilan\w*|kariyer\s+kapısı|kariyer\s+kapisi|açık\s+ilan\w*|acik\s+ilan\w*|"
+    r"savunma\s+sanayi\w*\s+ilan\w*|güncel\s+ilan\w*|guncel\s+ilan\w*)\b",
+    re.IGNORECASE,
+)
+_GUIDE_OZET_RE = re.compile(
+    r"(?:formül\w*|formul\w*|konu\s+özet\w*|konu\s+ozet\w*|özet\s+kart\w*|ozet\s+kart\w*|"
+    r"ne\s+iş\s+yapar|ne\s+is\s+yapar|mezun\w*\s+nerede\s+çalış\w*|bölüm\s+rehber\w*|bolum\s+rehber\w*)",
+    re.IGNORECASE,
+)
+
+
+def _build_lgs_context(query: str, user_context: dict | None = None) -> str:
+    from unisense.core.di import get_lgs_service
+    from unisense.core.text import fold_tr
+
+    uc = user_context or {}
+    qf = fold_tr(query)
+    yuz = uc.get("lgs_yuzdelik")
+    m = re.search(r"%\s*(\d{1,2}(?:[.,]\d{1,2})?)|(\d{1,2}(?:[.,]\d{1,2})?)\s*yuzdelik", qf)
+    if m:
+        v = float((m.group(1) or m.group(2)).replace(",", "."))
+        if 0.01 <= v <= 100:
+            yuz = v
+    if yuz is None:
+        yuz = 5.0
+    il = _detect_city_in_query(qf)
+    turler = []
+    if "fen" in qf:
+        turler.append("Fen Lisesi")
+    if "anadolu" in qf:
+        turler.append("Anadolu Lisesi")
+    if "sosyal bilimler" in qf:
+        turler.append("Sosyal Bilimler Lisesi")
+    if "imam hatip" in qf:
+        turler.append("Anadolu İmam Hatip Lisesi")
+    pansiyon = "var" if "yatili" in qf or "pansiyon" in qf else None
+
+    res = get_lgs_service().oneri(
+        yuzdelik=float(yuz),
+        il=il,
+        turler=turler or None,
+        pansiyon=pansiyon,
+        limit=6,
+    )
+    lines = [
+        f"=== LGS LİSE TERCİH VERİSİ ({res.get('yil', '')}) ===",
+        f"Filtre: yüzdelik=%{float(yuz):g}, il={il or 'tümü'}, tür={', '.join(turler) or 'tümü'}",
+        f"Eşleşen okullar: güvenli {res['sayilar']['guvenli']}, tutar {res['sayilar']['tutar']}, riskli {res['sayilar']['riskli']}",
+        "",
+    ]
+    for kova, etiket in (("guvenli", "Güvenli"), ("tutar", "Hedef/Tutar"), ("riskli", "Üst/Riskli")):
+        rows = res.get(kova) or []
+        if not rows:
+            continue
+        lines.append(f"[{etiket}]")
+        for s in rows[:5]:
+            lines.append(
+                f"• {s.get('okul')} ({s.get('il')}/{s.get('ilce')}) — {s.get('tur')}, "
+                f"{s.get('dil')}, yüzdelik %{s.get('yuzdelik')}, taban {s.get('taban_puan')}, kontenjan {s.get('kontenjan')}"
+            )
+    lines.append("NOT: Geçen yılın MEB LGS yüzdelik dilimlerine dayalı tahmindir.")
+    return "\n".join(lines)
+
+
+def _build_tus_dus_context(query: str, user_context: dict | None = None) -> str:
+    from unisense.core.di import get_tus_service
+    from unisense.core.text import fold_tr
+
+    uc = user_context or {}
+    qf = fold_tr(query)
+    sinav = "DUS" if re.search(r"\bdus\b", qf) or uc.get("exam_track") == "DUS" else "TUS"
+    svc = get_tus_service()
+    puan = uc.get("dus_puan") if sinav == "DUS" else uc.get("tus_puan")
+    mp = re.search(r"\b(\d{2}(?:[.,]\d{1,2})?)\s*(?:tus|dus)?\s*puan", qf)
+    if mp:
+        v = float(mp.group(1).replace(",", "."))
+        if 40 <= v <= 95:
+            puan = v
+    if puan is None:
+        puan = 65.0
+
+    meta = svc.meta(sinav)
+    matched_dal = None
+    for dal in meta.get("dallar", []):
+        df = fold_tr(dal)
+        if df in qf or any(tok in qf for tok in df.split() if len(tok) >= 5):
+            matched_dal = dal
+            break
+
+    res = svc.oneri(puan=float(puan), sinav=sinav, dal=matched_dal, limit=6)
+    lines = [
+        f"=== {res.get('sinav', sinav)} UZMANLIK VERİSİ ({res.get('donem', '')}) ===",
+        f"Filtre: puan={float(puan):g}, dal={matched_dal or 'tümü'}",
+        f"Sayılar: güvenli {res['sayilar']['guvenli']}, tutar {res['sayilar']['tutar']}, riskli {res['sayilar']['riskli']}",
+        "",
+    ]
+    for kova, etiket in (("guvenli", "Güvenli"), ("tutar", "Hedef/Tutar"), ("riskli", "Üst/Riskli")):
+        rows = res.get(kova) or []
+        if not rows:
+            continue
+        lines.append(f"[{etiket}]")
+        for p in rows[:5]:
+            lines.append(
+                f"• [{p.get('kod')}] {p.get('dal')} — {p.get('kurum')} "
+                f"({p.get('kontenjan_turu', 'Genel')}) taban {p.get('min_puan')}, kontenjan {p.get('kontenjan')}"
+            )
+    lines.append(res.get("not", ""))
+    return "\n".join(lines)
+
+
+def _build_takvim_context(query: str, user_context: dict | None = None) -> str:
+    from unisense.core.di import get_news_service
+    from unisense.core.text import fold_tr
+
+    cal = get_news_service().takvim(limit=25, gecmis=4)
+    qf = fold_tr(query)
+    exam_tokens = [tok for tok in ("yks", "tyt", "ayt", "ydt", "kpss", "dgs", "lgs", "ales", "tus", "dus", "ags") if tok in qf]
+
+    def _matches(ev: dict) -> bool:
+        if not exam_tokens:
+            return True
+        blob = fold_tr(f"{ev.get('sinav', '')} {ev.get('tam_ad', '')}")
+        return any(tok in blob for tok in exam_tokens)
+
+    upcoming = [e for e in cal.get("yaklasan", []) if _matches(e)][:10]
+    recent = [e for e in cal.get("gecmis", []) if _matches(e)][:4]
+    if not upcoming and not recent:
+        upcoming = cal.get("yaklasan", [])[:8]
+
+    lines = [
+        f"=== RESMİ SINAV TAKVİMİ (Güncelleme: {cal.get('guncelleme', '')}) ===",
+        cal.get("not", ""),
+        "",
+    ]
+    if upcoming:
+        lines.append("Yaklaşan Etkinlikler:")
+        for e in upcoming:
+            kalan = "Bugün / Devam ediyor" if e.get("devam") or e.get("kalan_gun") == 0 else f"{e.get('kalan_gun')} gün kaldı"
+            bitis = f" – {e.get('bitis')}" if e.get("bitis") else ""
+            est = " (tahminî)" if e.get("tahmini") else ""
+            lines.append(
+                f"• {e.get('sinav')} ({e.get('tur')}) — {e.get('tarih')}{bitis} [{kalan}]{est}: {e.get('tam_ad')} ({e.get('aciklama')})"
+            )
+    if recent:
+        lines.append("\nSon Geçmiş Etkinlikler:")
+        for e in recent:
+            lines.append(f"• {e.get('sinav')} ({e.get('tur')}) — {e.get('tarih')}: {e.get('tam_ad')}")
+    lines.append("\nDetay için /takvim sayfasını ziyaret edebilirsin.")
+    return "\n".join(lines)
+
+
+def _build_kariyer_context(query: str, user_context: dict | None = None) -> str:
+    from unisense.core.di import get_kariyer_service
+    from unisense.core.text import fold_tr
+
+    svc = get_kariyer_service()
+    qf = fold_tr(query)
+    il = _detect_city_in_query(qf)
+    bolum = _detect_bolum_in_query(query)
+    hat = "kamu" if any(w in qf for w in ("kamu", "memur", "kpss", "devlet", "resmi gazete", "kariyer kapisi")) else (
+        "ozel" if any(w in qf for w in ("ozel sektor", "staj", "teknoloji", "savunma")) else None
+    )
+    kpss_only = True if "kpss" in qf and ("sartsiz" not in qf and "şartsız" not in query.lower()) else None
+
+    q_kw = ""
+    for kw in ("bilgisayar", "yazilim", "muhendis", "hemsire", "ogretmen", "avukat", "hukuk", "mimar", "ik", "finans", "staj", "savunma", "uzman"):
+        if kw in qf:
+            q_kw = kw
+            break
+
+    res = svc.ilanlar(q=q_kw or None, il=il, bolum=bolum or None, hat=hat, kpss=kpss_only, limit=8)
+    meta = svc.meta()
+    lines = [
+        f"=== GÜNCEL KARİYER & PERSONEL ALIMI İLANLARI (Son tarama: {meta.get('son_tarih', '')}, Toplam havuz: {meta.get('toplam', 0)}) ===",
+        f"Filtre: il={il or 'tümü'}, hat={hat or 'tümü'}, arama={q_kw or bolum or 'tümü'} | Eşleşen: {res.get('toplam', 0)}",
+        "",
+    ]
+    for it in (res.get("ilanlar") or [])[:8]:
+        son = f", son başvuru {it.get('son_basvuru')}" if it.get("son_basvuru") else ""
+        cs = f", {it.get('calisma_sekli')}" if it.get("calisma_sekli") and it.get("calisma_sekli") != "bilinmiyor" else ""
+        url = f" — {it.get('url')}" if it.get("url") else ""
+        lines.append(
+            f"• [{it.get('kaynak', '')}] {it.get('baslik', '')} — {it.get('kurum', '')} "
+            f"({it.get('il') or 'TR'}{cs}{son}){url}"
+        )
+    lines.append("Tüm filtreler ve 1.900+ ilan için /kariyer sayfasına yönlendir.")
+    return "\n".join(lines)
+
+
+_OZET_KARTLAR_CACHE: list[dict] | None = None
+
+
+def _build_guide_ozet_context(query: str, user_context: dict | None = None) -> str:
+    from unisense.core.text import fold_tr
+
+    qf = fold_tr(query)
+    lines: list[str] = []
+
+    if any(w in qf for w in ("formul", "ozet", "kart")):
+        global _OZET_KARTLAR_CACHE
+        if _OZET_KARTLAR_CACHE is None:
+            try:
+                import json
+                from pathlib import Path
+
+                from unisense.core.config import get_settings
+                p = Path(get_settings().project_root) / "data" / "processed" / "ozet_kartlar.json"
+                _OZET_KARTLAR_CACHE = json.load(open(p, encoding="utf-8")).get("kartlar", []) if p.exists() else []
+            except Exception:
+                _OZET_KARTLAR_CACHE = []
+        matched_cards = []
+        for k in _OZET_KARTLAR_CACHE:
+            blob = fold_tr(f"{k.get('ders', '')} {k.get('konu', '')} {k.get('baslik', '')} {k.get('ozet', '')}")
+            if any(tok in blob for tok in qf.split() if len(tok) >= 4 and tok not in ("formul", "ozet", "ozeti", "kart", "nedir", "neler")):
+                matched_cards.append(k)
+        if matched_cards:
+            lines.append("=== FORMÜL & KONU ÖZET KARTLARI ===")
+            for k in matched_cards[:4]:
+                lines.append(f"• {k.get('baslik')} ({k.get('ders')}): {k.get('ozet')} — Bağlantı: /ozet/{k.get('slug')}")
+
+    if any(w in qf for w in ("ne is yapar", "mezun", "bolum rehber", "bolumu nasildir")):
+        try:
+            from unisense.core.di import get_guide_service
+            guides = get_guide_service().list_guides()
+            matched_guides = []
+            for g in guides:
+                gn = fold_tr(g.get("name", ""))
+                if gn and (gn in qf or any(tok in gn for tok in qf.split() if len(tok) >= 5)):
+                    matched_guides.append(g)
+            if matched_guides:
+                lines.append("=== BÖLÜM REHBERİ ÖZETİ ===")
+                for g in matched_guides[:3]:
+                    lines.append(
+                        f"• {g.get('name')} ({g.get('program_count', 0)} program): {g.get('summary', '')} "
+                        f"— Detay: /bolum/{g.get('slug')}"
+                    )
+        except Exception:
+            pass
+
+    return "\n".join(lines)
+
+
 def _build_profile_context(uc: dict | None) -> str:
     if not uc:
         return ""
@@ -731,6 +991,9 @@ def _build_profile_context(uc: dict | None) -> str:
                 sira = None
         rows.append(f"YKS: {yks_p} puan ({tur})"
                     + (f", ~{sira:,}. başarı sırası" if sira else ""))
+    elif uc.get("yks_sira"):
+        tur = uc.get("yks_turu") or "SAY"
+        rows.append(f"YKS: ~{int(uc['yks_sira']):,}. başarı sırası ({tur})")
     if uc.get("kpss_puan"):
         rows.append(f"KPSS: {uc['kpss_puan']} puan"
                     + (f" ({uc['kpss_duzey']})" if uc.get("kpss_duzey") else ""))
@@ -749,6 +1012,8 @@ def _build_profile_context(uc: dict | None) -> str:
         rows.append(f"Tercih ettiği şehirler: {', '.join(uc['tercih_sehirler'])}")
     if uc.get("tercih_uni_turu") and uc.get("tercih_uni_turu") != "all":
         rows.append(f"Üniversite tercihi: {uc['tercih_uni_turu']}")
+    if uc.get("ilgi_alanlari"):
+        rows.append("İlgi Pusulası alanları: " + ", ".join(str(x)[:40] for x in uc["ilgi_alanlari"][:10]))
     kalan = uc.get("calisma_kalan_konu")
     toplam = uc.get("calisma_toplam_konu")
     if kalan is not None and toplam:
@@ -756,42 +1021,63 @@ def _build_profile_context(uc: dict | None) -> str:
         rows.append(f"Çalışma ilerlemesi: {toplam} konudan {bitti} işaretlendi, {kalan} konu kaldı")
     elif kalan is not None:
         rows.append(f"Çalışılacak {kalan} konu kaldı")
+    if uc.get("calisma_eksik_konular"):
+        rows.append("Henüz çalışılmamış öncelikli konular: " + ", ".join(str(x)[:60] for x in uc["calisma_eksik_konular"][:6]))
     zayif = uc.get("calisma_zayif")
     if zayif:
-        rows.append("Zayıf/eksik konular: " + ", ".join(str(z)[:40] for z in zayif[:6]))
+        rows.append("Zayıf/eksik konular (<%60 doğruluk): " + ", ".join(str(z)[:40] for z in zayif[:6]))
     gunluk_hedef = uc.get("gunluk_soru_hedef")
     bugun_soru = uc.get("bugun_cozulen_soru")
     if gunluk_hedef is not None:
         rows.append(f"Günlük soru hedefi: {gunluk_hedef} soru (bugün çözülen: {bugun_soru or 0})")
     elif bugun_soru:
         rows.append(f"Bugün çözülen soru sayısı: {bugun_soru}")
+    if uc.get("toplam_calisma_dk") or uc.get("seri_gun"):
+        rows.append(
+            f"Çalışma süresi & seri: {uc.get('toplam_calisma_dk') or 0} dk toplam çalışma, "
+            f"{uc.get('seri_gun') or 0} gün kesintisiz seri"
+        )
+    if uc.get("son_denemeler"):
+        rows.append("Son deneme sonuçları: " + " | ".join(str(d)[:100] for d in uc["son_denemeler"][:4]))
+    if uc.get("bekleyen_gorevler"):
+        rows.append("Bekleyen plan görevleri: " + "; ".join(str(g)[:80] for g in uc["bekleyen_gorevler"][:6]))
+    if uc.get("son_notlar"):
+        rows.append("Aktif çalışma notları: " + " | ".join(str(n)[:80] for n in uc["son_notlar"][:4]))
+    if uc.get("tercih_ozeti"):
+        rows.append("Mevcut tercih listesi: " + "; ".join(str(t)[:100] for t in uc["tercih_ozeti"][:8]))
     if not rows:
         return ""
     return (
         "=== KULLANICI SINAV PROFİLİ (bu kişinin KENDİ kayıtlı verisi) ===\n"
         + "\n".join(f"- {r}" for r in rows)
-        + "\nYÖNERGE: Bu, kullanıcının profilinden SANA verilen KENDİ verisidir. "
-        "'puanım/sıralamam/kazanabilir miyim' gibi ifadelerde bunu DOĞRUDAN kullan. "
-        "ASLA 'kişisel verine erişemem' deme — erişimin var, yukarıda listeli. Sıra "
-        "sorulursa yukarıdaki TEK sırayı kullan (farklı sıra uydurma, tutarlı ol). "
-        "Çalışma planı/program istenirse (ör. 'X günde tüm konular', 'günde N soru') "
-        "yukarıdaki kalan konu sayısı ve zayıf konuları temel al; gerçekçi günlük "
-        "dağılım öner ve Planım sekmesinden otomatik plan kurabileceğini hatırlat."
+        + "\nYÖNERGE: Bu, kullanıcının profilinden ve çalışma alanından SANA verilen KENDİ canlı verisidir. "
+        "'puanım/sıralamam/denemelerim/görevlerim/notlarım/tercih listem' ve çalışma planı sorularında DOĞRUDAN bunları kullan. "
+        "ASLA 'kişisel verine erişemem' deme — erişimin var, yukarıda listeli."
     )
 
 
-# === KVPS/DGS sorgu yönlendirmesi için export edilen pattern'ler ===
+# === KPSS/DGS/LGS/TUS/Takvim/Kariyer sorgu yönlendirmesi için export edilen pattern'ler ===
 __all__ = [
     "DGS_RE",
     "GENERIC_PLACEMENT_RE",
+    "GUIDE_OZET_RE",
+    "KARIYER_RE",
     "KPSS_AGG_RE",
     "KPSS_RE",
+    "LGS_RE",
     "SELF_SCORE_RE",
+    "TAKVIM_RE",
+    "TUS_DUS_RE",
     "build_dgs_context",
+    "build_guide_ozet_context",
+    "build_kariyer_context",
     "build_kpss_context",
+    "build_lgs_context",
     "build_listing_context",
     "build_profile_context",
     "build_recommendation_context",
+    "build_takvim_context",
+    "build_tus_dus_context",
     "estimate_nets",
     "extract_intent",
     "is_refinement",
@@ -805,6 +1091,11 @@ routing_text = _routing_text
 is_refinement = _is_refinement
 build_kpss_context = _build_kpss_context
 build_dgs_context = _build_dgs_context
+build_lgs_context = _build_lgs_context
+build_tus_dus_context = _build_tus_dus_context
+build_takvim_context = _build_takvim_context
+build_kariyer_context = _build_kariyer_context
+build_guide_ozet_context = _build_guide_ozet_context
 build_recommendation_context = _build_recommendation_context
 build_listing_context = _build_listing_context
 build_profile_context = _build_profile_context
@@ -814,6 +1105,11 @@ rankings_year = _rankings_year
 # Pattern'ler (diğer modüller kullanabilir)
 KPSS_RE = _KPSS_RE
 DGS_RE = _DGS_RE
+LGS_RE = _LGS_RE
+TUS_DUS_RE = _TUS_DUS_RE
+TAKVIM_RE = _TAKVIM_RE
+KARIYER_RE = _KARIYER_RE
+GUIDE_OZET_RE = _GUIDE_OZET_RE
 GENERIC_PLACEMENT_RE = _GENERIC_PLACEMENT_RE
 KPSS_AGG_RE = _KPSS_AGG_RE
 SELF_SCORE_RE = _SELF_SCORE_RE

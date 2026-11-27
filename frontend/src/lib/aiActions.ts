@@ -23,6 +23,14 @@ export interface CoachAction {
     | 'add_note'
     | 'log_study_time'
     | 'update_profile'
+    | 'remove_preference'
+    | 'reorder_preferences'
+    | 'delete_task'
+    | 'reschedule_task'
+    | 'complete_note'
+    | 'delete_note'
+    | 'unmark_topic_done'
+    | 'open_compare'
   label: string
   auto_apply?: boolean
   payload?: Record<string, any>
@@ -33,14 +41,19 @@ export interface AppliedActionResult {
   label: string
   ok: boolean
   detail?: string
+  navigateTo?: string
 }
 
 const VALID_SINAV = new Set(['YKS', 'KPSS', 'DGS', 'LGS'])
+const VALID_PROF_SINAV = new Set(['YKS', 'KPSS', 'DGS', 'LGS', 'TUS', 'DUS', 'AGS'])
+const VALID_PREF_SINAV = new Set(['YKS', 'KPSS', 'DGS', 'LGS', 'TUS', 'DUS'])
 const TR_LOCALE = 'tr'
 
-function normSinav(raw: unknown, fallback = 'YKS'): string {
+function normSinav(raw: unknown, fallback = 'YKS', allowed: Set<string> = VALID_SINAV): string {
   const s = String(raw || fallback).toUpperCase()
-  return VALID_SINAV.has(s) ? s : fallback
+  if (allowed.has(s)) return s
+  const fb = String(fallback || 'YKS').toUpperCase()
+  return allowed.has(fb) ? fb : 'YKS'
 }
 
 function addDaysIso(baseIso: string, offsetDays: number): string {
@@ -292,40 +305,81 @@ async function applyMarkTopicDone(payload: Record<string, any>, user: any, defau
   return `${sinav} · '${matchedLabel}' konusu tamamlandı`
 }
 
-async function applyAddPreference(payload: Record<string, any>, user: any): Promise<string> {
+async function applyAddPreference(payload: Record<string, any>, user: any, defaultTrack: string): Promise<string> {
+  const sinav = normSinav(payload.sinav, defaultTrack, VALID_PREF_SINAV)
   const codes = Array.isArray(payload.codes) ? payload.codes.map(String).filter(Boolean).slice(0, 5) : []
-  if (!codes.length) return 'Eklenecek geçerli ÖSYM kodu bulunamadı'
-  const res = await api.programsLookup(codes)
-  const found = (res?.programs || []).filter((p: any) => p?.found)
-  if (!found.length) return 'Program bilgisi bulunamadı'
+  const query = typeof payload.query === 'string' ? payload.query.trim() : ''
+  if (!codes.length && !query) return 'Eklenecek geçerli kod veya ad bulunamadı'
 
-  let count = 0
-  if (user?.uid) {
-    const prefsMod = await import('@/services/firestore-prefs')
-    for (let i = 0; i < found.length; i++) {
-      const p = found[i]
-      try {
-        await prefsMod.addToTercih(user.uid, {
-          department_code: p.department_code,
-          department_name: p.department_name,
-          university_code: p.university_code,
-          university_name: p.university_name,
-          city: p.city,
-          score_type: p.score_type || null,
-          last_year_base_rank: p.last_year_base_rank ?? null,
-          last_year_base_score: p.last_year_base_score ?? null,
-          quota: p.quota ?? null,
-        }, 20 + i)
-        count++
-      } catch { /* zaten ekli veya dolu */ }
+  if (sinav === 'YKS' && codes.length > 0 && !query) {
+    const res = await api.programsLookup(codes)
+    const found = (res?.programs || []).filter((p: any) => p?.found)
+    if (!found.length) return 'Program bilgisi bulunamadı'
+
+    let count = 0
+    if (user?.uid) {
+      const prefsMod = await import('@/services/firestore-prefs')
+      for (let i = 0; i < found.length; i++) {
+        const p = found[i]
+        try {
+          await prefsMod.addToTercih(user.uid, {
+            department_code: p.department_code,
+            department_name: p.department_name,
+            university_code: p.university_code,
+            university_name: p.university_name,
+            city: p.city,
+            score_type: p.score_type || null,
+            last_year_base_rank: p.last_year_base_rank ?? null,
+            last_year_base_score: p.last_year_base_score ?? null,
+            quota: p.quota ?? null,
+          }, 20 + i)
+          count++
+        } catch { /* zaten ekli veya dolu */ }
+      }
+    } else {
+      for (const p of found) {
+        const out = addGuestTercih(p)
+        if (out.ok) count++
+      }
     }
-  } else {
-    for (const p of found) {
-      const out = addGuestTercih(p)
-      if (out.ok) count++
-    }
+    return `${count} YKS programı tercih listene eklendi`
   }
-  return `${count} program tercih listene eklendi`
+
+  const res = await api.preferencesResolve({ sinav, codes, ...(query ? { query } : {}) })
+  const items = Array.isArray(res?.items) ? res.items : []
+  if (!items.length) return `${sinav} için eşleşen kayıt bulunamadı`
+
+  if (!user?.uid) {
+    if (sinav === 'YKS') {
+      let c = 0
+      for (const p of items) {
+        if (addGuestTercih(p).ok) c++
+      }
+      return `${c} YKS programı tercih listene eklendi`
+    }
+    return `${sinav} tercih listesine kaydetmek için ücretsiz giriş yapmalısın`
+  }
+
+  const prefsMod = await import('@/services/firestore-prefs')
+  let count = 0
+  for (let i = 0; i < items.length; i++) {
+    const it = items[i]
+    try {
+      if (sinav === 'KPSS') {
+        await prefsMod.addToKpssTercih(user.uid, it, Date.now() + i)
+      } else if (sinav === 'DGS') {
+        await prefsMod.addToDgsTercih(user.uid, it, Date.now() + i)
+      } else if (sinav === 'TUS' || sinav === 'DUS') {
+        await prefsMod.addToUzmanlikTercih(user.uid, sinav, it, Date.now() + i)
+      } else if (sinav === 'LGS') {
+        await prefsMod.addToLgsTercih(user.uid, it, Date.now() + i)
+      } else {
+        await prefsMod.addToTercih(user.uid, it, 20 + i)
+      }
+      count++
+    } catch { /* zaten ekli veya sınır */ }
+  }
+  return `${sinav} · ${count} tercih listene eklendi`
 }
 
 async function applyAddDeneme(payload: Record<string, any>, user: any, defaultTrack: string): Promise<string> {
@@ -489,34 +543,81 @@ async function applyLogStudyTime(payload: Record<string, any>, user: any, defaul
 }
 
 async function applyUpdateProfile(payload: Record<string, any>, user: any, defaultTrack: string): Promise<string> {
-  const sinav = normSinav(payload.sinav, defaultTrack)
-  const profilePatch: Record<string, any> = { examTrack: sinav }
+  const sinav = normSinav(payload.sinav, defaultTrack, VALID_PROF_SINAV)
   const parts = [sinav]
-  if (payload.hedef_siralama != null) {
-    const r = Math.max(1, Math.min(3_000_000, Number(payload.hedef_siralama)))
+
+  let curProf: Record<string, any> = {}
+  if (user?.uid) {
+    const coreMod = await import('@/services/firestore-core')
+    const curDoc = await coreMod.getUserProfile(user.uid).catch(() => null)
+    curProf = curDoc?.profile || {}
+  } else {
+    curProf = loadJSON<Record<string, any>>('unisense_guest_profile', {})
+  }
+
+  const nextProf: Record<string, any> = { ...curProf, examTrack: sinav }
+  const rankVal = payload.siralama ?? payload.hedef_siralama
+  if (rankVal != null) {
+    const r = Math.max(1, Math.min(3_000_000, Number(rankVal)))
     if (Number.isFinite(r)) {
-      profilePatch.targetRank = r
-      parts.push(`Hedef Sıra ${r}`)
+      nextProf.targetRank = r
+      if (sinav === 'YKS') nextProf.rank = r
+      parts.push(`Sıra ${r}`)
     }
   }
-  if (payload.hedef_puan != null) {
-    const s = Math.max(10, Math.min(600, Number(payload.hedef_puan)))
+
+  const puanVal = payload.puan ?? payload.hedef_puan
+  if (puanVal != null) {
+    const s = Math.max(10, Math.min(600, Number(puanVal)))
     if (Number.isFinite(s)) {
-      profilePatch.targetScore = s
-      parts.push(`Hedef Puan ${s}`)
+      nextProf.targetScore = s
+      if (sinav === 'YKS') nextProf.score = s
+      else if (sinav === 'KPSS') {
+        nextProf.kpss = { ...(curProf.kpss || {}), score: s, duzey: payload.kpss_duzey || curProf.kpss?.duzey || 'lisans', updatedAt: Date.now() }
+      } else if (sinav === 'DGS') {
+        nextProf.dgs = { ...(curProf.dgs || {}), score: s, type: payload.puan_turu || curProf.dgs?.type || 'SAY', updatedAt: Date.now() }
+      } else if (sinav === 'TUS') {
+        nextProf.tus = { score: s, updatedAt: Date.now() }
+      } else if (sinav === 'DUS') {
+        nextProf.dus = { score: s, updatedAt: Date.now() }
+      } else if (sinav === 'AGS') {
+        nextProf.ags = { net: s, updatedAt: Date.now() }
+      }
+      parts.push(`Puan ${s}`)
+    }
+  }
+
+  if (typeof payload.puan_turu === 'string' && payload.puan_turu.trim()) {
+    if (sinav === 'YKS') nextProf.scoreType = payload.puan_turu.trim().toUpperCase()
+    else if (sinav === 'DGS') {
+      nextProf.dgs = { ...(nextProf.dgs || curProf.dgs || {}), type: payload.puan_turu.trim().toUpperCase(), updatedAt: Date.now() }
+    }
+  }
+  if (payload.kpss_duzey && sinav === 'KPSS') {
+    nextProf.kpss = { ...(nextProf.kpss || curProf.kpss || {}), duzey: String(payload.kpss_duzey), updatedAt: Date.now() }
+  }
+  if (payload.lgs_yuzdelik != null) {
+    const yz = Math.max(0.01, Math.min(100, Number(payload.lgs_yuzdelik)))
+    if (Number.isFinite(yz)) {
+      nextProf.lgs = { yuzdelik: yz, updatedAt: Date.now() }
+      parts.push(`%${yz} yüzdelik`)
     }
   }
   if (payload.obp != null) {
     const o = Math.max(0, Math.min(500, Number(payload.obp)))
     if (Number.isFinite(o)) {
-      profilePatch.obp = o
+      nextProf.obp = o
       parts.push(`OBP ${o}`)
     }
+  }
+  if (Array.isArray(payload.sehirler) && payload.sehirler.length > 0) {
+    nextProf.preferredCities = payload.sehirler.map((c: unknown) => String(c).trim().toUpperCase()).filter(Boolean).slice(0, 10)
+    parts.push(nextProf.preferredCities.slice(0, 3).join(', '))
   }
   if (payload.daily_question_goal != null) {
     const dq = Math.max(5, Math.min(1000, Number(payload.daily_question_goal)))
     if (Number.isFinite(dq)) {
-      profilePatch.dailyQuestionGoal = dq
+      nextProf.dailyQuestionGoal = dq
       parts.push(`Günlük ${dq} soru`)
     }
   }
@@ -526,22 +627,297 @@ async function applyUpdateProfile(payload: Record<string, any>, user: any, defau
       import('@/services/firestore-core'),
       import('@/services/firestore-plan'),
     ])
-    const curDoc = await coreMod.getUserProfile(user.uid).catch(() => null)
-    const nextProf = { ...(curDoc?.profile || {}), ...profilePatch }
     await coreMod.updateUserProfile(user.uid, nextProf)
-    if (profilePatch.dailyQuestionGoal) {
+    if (nextProf.dailyQuestionGoal && VALID_SINAV.has(sinav)) {
       const cfg = (await planMod.getPlanConfig(user.uid)) || { haftaIciBlok: 2, haftaSonuBlok: 4, hedefSaat: 15 }
-      await planMod.setPlanConfig(user.uid, { ...cfg, track: sinav, kuruldu: true, gunlukSoruHedef: profilePatch.dailyQuestionGoal })
+      await planMod.setPlanConfig(user.uid, { ...cfg, track: sinav, kuruldu: true, gunlukSoruHedef: nextProf.dailyQuestionGoal })
     }
   } else {
-    const curProf = loadJSON<Record<string, any>>('unisense_guest_profile', {})
-    saveJSON('unisense_guest_profile', { ...curProf, ...profilePatch })
-    if (profilePatch.dailyQuestionGoal) {
+    saveJSON('unisense_guest_profile', nextProf)
+    if (nextProf.dailyQuestionGoal && VALID_SINAV.has(sinav)) {
       const curCfg = loadJSON<Record<string, any>>('unisense_plan_cfg', { haftaIciBlok: 2, haftaSonuBlok: 4, hedefSaat: 15 })
-      saveJSON('unisense_plan_cfg', { ...curCfg, track: sinav, kuruldu: true, gunlukSoruHedef: profilePatch.dailyQuestionGoal })
+      saveJSON('unisense_plan_cfg', { ...curCfg, track: sinav, kuruldu: true, gunlukSoruHedef: nextProf.dailyQuestionGoal })
     }
   }
   return `${parts.join(' · ')} güncellendi`
+}
+
+async function applyUnmarkTopicDone(payload: Record<string, any>, user: any, defaultTrack: string): Promise<string> {
+  const sinav = normSinav(payload.sinav, defaultTrack)
+  const rawTopic = String(payload.konu || '').trim()
+  if (!rawTopic) throw new Error('Konu adı belirtilmedi')
+  const needle = rawTopic.toLocaleLowerCase(TR_LOCALE)
+
+  let cur: Record<string, boolean> = {}
+  if (user?.uid) {
+    const studyMod = await import('@/services/firestore-study')
+    cur = (await studyMod.getKonuIlerleme(user.uid, sinav)) || {}
+  } else {
+    cur = loadJSON<Record<string, boolean>>(`unisense_konu_v1_${sinav}`, {})
+  }
+  const next = { ...cur }
+  let removedLabel = ''
+  for (const k of Object.keys(next)) {
+    const tail = (k.split('|').pop() || k).toLocaleLowerCase(TR_LOCALE)
+    if (k.toLocaleLowerCase(TR_LOCALE).includes(needle) || needle.includes(tail)) {
+      delete next[k]
+      removedLabel = k.split('|').pop() || rawTopic
+      break
+    }
+  }
+  if (!removedLabel) return `${sinav} · '${rawTopic}' işaretli konular arasında bulunamadı`
+
+  if (user?.uid) {
+    const studyMod = await import('@/services/firestore-study')
+    await studyMod.setKonuIlerleme(user.uid, sinav, next)
+  } else {
+    saveJSON(`unisense_konu_v1_${sinav}`, next)
+  }
+  return `${sinav} · '${removedLabel}' konu işareti kaldırıldı`
+}
+
+async function applyDeleteTask(payload: Record<string, any>, user: any, defaultTrack: string): Promise<string> {
+  const sinav = normSinav(payload.sinav, defaultTrack)
+  const titleNeedle = String(payload.title || '').trim()
+  if (!titleNeedle) throw new Error('Silinecek görev adı belirtilmedi')
+  const needleLow = titleNeedle.toLocaleLowerCase(TR_LOCALE)
+  const hafta = isoHafta(new Date())
+
+  if (user?.uid) {
+    const planMod = await import('@/services/firestore-plan')
+    const list = await new Promise<any[]>((resolve) => {
+      let unsub: (() => void) | null = null
+      const timer = setTimeout(() => { if (unsub) unsub(); resolve([]) }, 1500)
+      unsub = planMod.watchPlanGorevler(user.uid, hafta, (rows: any[]) => {
+        clearTimeout(timer); if (unsub) unsub(); resolve(rows || [])
+      })
+    })
+    const match = list.find((t) => {
+      const tStr = String(t?.title || t?.konu || '').toLocaleLowerCase(TR_LOCALE)
+      return tStr.includes(needleLow) || needleLow.includes(tStr)
+    })
+    if (match?.id) {
+      await planMod.removePlanGorev(user.uid, match.id)
+      return `${sinav} · '${match.title || titleNeedle}' görevi silindi`
+    }
+    return `${sinav} · '${titleNeedle}' için görev bulunamadı`
+  }
+
+  const key = `unisense_plan_${hafta}`
+  const cur = loadJSON<any[]>(key, [])
+  let hitTitle = ''
+  const next = cur.filter((t) => {
+    if (!hitTitle && t) {
+      const tStr = String(t.title || t.konu || '').toLocaleLowerCase(TR_LOCALE)
+      if (tStr.includes(needleLow) || needleLow.includes(tStr)) {
+        hitTitle = String(t.title || titleNeedle)
+        return false
+      }
+    }
+    return true
+  })
+  if (hitTitle) {
+    saveJSON(key, next)
+    return `${sinav} · '${hitTitle}' görevi silindi`
+  }
+  return `${sinav} · '${titleNeedle}' için görev bulunamadı`
+}
+
+async function applyRescheduleTask(payload: Record<string, any>, user: any, defaultTrack: string): Promise<string> {
+  const sinav = normSinav(payload.sinav, defaultTrack)
+  const titleNeedle = String(payload.title || '').trim()
+  if (!titleNeedle) throw new Error('Taşınacak görev adı belirtilmedi')
+  const needleLow = titleNeedle.toLocaleLowerCase(TR_LOCALE)
+  const offset = Number(payload.gun_offset) === 1 ? 1 : 0
+  const curHafta = isoHafta(new Date())
+  const nextTarih = addDaysIso(isoGun(), offset)
+  const nextHafta = isoHafta(new Date(`${nextTarih}T00:00:00`))
+
+  if (user?.uid) {
+    const planMod = await import('@/services/firestore-plan')
+    const list = await new Promise<any[]>((resolve) => {
+      let unsub: (() => void) | null = null
+      const timer = setTimeout(() => { if (unsub) unsub(); resolve([]) }, 1500)
+      unsub = planMod.watchPlanGorevler(user.uid, curHafta, (rows: any[]) => {
+        clearTimeout(timer); if (unsub) unsub(); resolve(rows || [])
+      })
+    })
+    const match = list.find((t) => {
+      const tStr = String(t?.title || t?.konu || '').toLocaleLowerCase(TR_LOCALE)
+      return tStr.includes(needleLow) || needleLow.includes(tStr)
+    })
+    if (match?.id) {
+      await planMod.updatePlanGorev(user.uid, match.id, { tarih: nextTarih, hafta: nextHafta })
+      return `${sinav} · '${match.title || titleNeedle}' ${offset ? 'yarına' : 'bugüne'} taşındı`
+    }
+    return `${sinav} · '${titleNeedle}' için görev bulunamadı`
+  }
+
+  const curKey = `unisense_plan_${curHafta}`
+  const cur = loadJSON<any[]>(curKey, [])
+  let movedTask: any = null
+  const remCur = cur.filter((t) => {
+    if (!movedTask && t) {
+      const tStr = String(t.title || t.konu || '').toLocaleLowerCase(TR_LOCALE)
+      if (tStr.includes(needleLow) || needleLow.includes(tStr)) {
+        movedTask = { ...t, tarih: nextTarih, hafta: nextHafta }
+        return false
+      }
+    }
+    return true
+  })
+  if (!movedTask) return `${sinav} · '${titleNeedle}' için görev bulunamadı`
+  if (nextHafta === curHafta) {
+    saveJSON(curKey, [...remCur, movedTask])
+  } else {
+    saveJSON(curKey, remCur)
+    const dstKey = `unisense_plan_${nextHafta}`
+    const dst = loadJSON<any[]>(dstKey, [])
+    saveJSON(dstKey, [...dst, movedTask])
+  }
+  return `${sinav} · '${movedTask.title || titleNeedle}' ${offset ? 'yarına' : 'bugüne'} taşındı`
+}
+
+async function applyNoteMutation(payload: Record<string, any>, user: any, mode: 'complete' | 'delete'): Promise<string> {
+  const needle = String(payload.metin || '').trim()
+  if (!needle) throw new Error('Not metni belirtilmedi')
+  const needleLow = needle.toLocaleLowerCase(TR_LOCALE)
+
+  if (user?.uid) {
+    const studyMod = await import('@/services/firestore-study')
+    const list = await new Promise<any[]>((resolve) => {
+      let unsub: (() => void) | null = null
+      const timer = setTimeout(() => { if (unsub) unsub(); resolve([]) }, 1500)
+      unsub = studyMod.watchNotlar(user.uid, (rows: any[]) => {
+        clearTimeout(timer); if (unsub) unsub(); resolve(rows || [])
+      })
+    })
+    const match = list.find((n) => String(n?.metin || '').toLocaleLowerCase(TR_LOCALE).includes(needleLow))
+    if (!match?.id) return `'${needle}' ile eşleşen not bulunamadı`
+    if (mode === 'delete') {
+      await studyMod.removeNot(user.uid, match.id)
+      return `Not silindi: '${String(match.metin).slice(0, 50)}'`
+    }
+    await studyMod.updateNot(user.uid, match.id, { tamamlandi: true })
+    return `Not tamamlandı: '${String(match.metin).slice(0, 50)}'`
+  }
+
+  const cur = loadJSON<any[]>('unisense_notlar', [])
+  let matched = ''
+  const next = mode === 'delete'
+    ? cur.filter((n) => {
+        if (!matched && String(n?.metin || '').toLocaleLowerCase(TR_LOCALE).includes(needleLow)) {
+          matched = String(n.metin)
+          return false
+        }
+        return true
+      })
+    : cur.map((n) => {
+        if (!matched && String(n?.metin || '').toLocaleLowerCase(TR_LOCALE).includes(needleLow)) {
+          matched = String(n.metin)
+          return { ...n, tamamlandi: true }
+        }
+        return n
+      })
+  if (!matched) return `'${needle}' ile eşleşen not bulunamadı`
+  saveJSON('unisense_notlar', next)
+  return `${mode === 'delete' ? 'Not silindi' : 'Not tamamlandı'}: '${matched.slice(0, 50)}'`
+}
+
+async function applyRemovePreference(payload: Record<string, any>, user: any, defaultTrack: string): Promise<string> {
+  const sinav = normSinav(payload.sinav, defaultTrack, VALID_PREF_SINAV)
+  const code = String(payload.code || '').trim()
+  const qLow = String(payload.query || '').trim().toLocaleLowerCase(TR_LOCALE)
+
+  if (!user?.uid) {
+    if (sinav !== 'YKS') return `${sinav} tercih listesi için giriş yapmalısın`
+    const { getGuestTercih, removeGuestTercih } = await import('./guestTercih')
+    const cur = getGuestTercih()
+    const target = cur.find((it) => {
+      const dc = String(it?.department_code || it?.id || '')
+      if (code && dc === code) return true
+      const blob = `${it?.department_name || ''} ${it?.university_name || ''}`.toLocaleLowerCase(TR_LOCALE)
+      return Boolean(qLow && blob.includes(qLow))
+    })
+    if (!target) return `'${payload.query || code}' tercih listende bulunamadı`
+    removeGuestTercih(String(target.department_code || target.id))
+    return `${target.department_name || target.department_code} tercih listenden çıkarıldı`
+  }
+
+  const prefsMod = await import('@/services/firestore-prefs')
+  const rows = await new Promise<any[]>((resolve) => {
+    let unsub: (() => void) | null = null
+    const timer = setTimeout(() => { if (unsub) unsub(); resolve([]) }, 1500)
+    const cb = (r: any[]) => { clearTimeout(timer); if (unsub) unsub(); resolve(r || []) }
+    if (sinav === 'KPSS') unsub = prefsMod.watchKpssTercih(user.uid, cb)
+    else if (sinav === 'DGS') unsub = prefsMod.watchDgsTercih(user.uid, cb)
+    else if (sinav === 'LGS') unsub = prefsMod.watchLgsTercih(user.uid, cb)
+    else if (sinav === 'TUS' || sinav === 'DUS') unsub = prefsMod.watchUzmanlikTercih(user.uid, sinav, cb)
+    else unsub = prefsMod.watchTercihList(user.uid, cb)
+  })
+  const hit = rows.find((it) => {
+    const idVal = String(it.department_code || it.kadro_kodu || it.kod || it.id || '')
+    if (code && idVal === code) return true
+    const blob = `${it.department_name || ''} ${it.university_name || ''} ${it.unvan || ''} ${it.kurum || ''} ${it.program_adi || ''} ${it.okul || ''} ${it.dal || ''}`.toLocaleLowerCase(TR_LOCALE)
+    return Boolean(qLow && blob.includes(qLow))
+  })
+  if (!hit) return `${sinav} listende '${payload.query || code}' bulunamadı`
+
+  const docId = String(hit.id || hit.department_code || hit.kadro_kodu || hit.kod)
+  if (sinav === 'KPSS') await prefsMod.removeFromKpssTercih(user.uid, docId)
+  else if (sinav === 'DGS') await prefsMod.removeFromDgsTercih(user.uid, docId)
+  else if (sinav === 'LGS') await prefsMod.removeFromLgsTercih(user.uid, docId)
+  else if (sinav === 'TUS' || sinav === 'DUS') await prefsMod.removeFromUzmanlikTercih(user.uid, sinav, docId)
+  else await prefsMod.removeFromTercih(user.uid, docId)
+  return `${sinav} tercih listenden çıkarıldı`
+}
+
+async function applyReorderPreferences(payload: Record<string, any>, user: any, defaultTrack: string): Promise<string> {
+  const sinav = normSinav(payload.sinav, defaultTrack, VALID_PREF_SINAV)
+
+  const sortRows = (rows: any[]) => {
+    const copy = [...rows]
+    if (sinav === 'YKS') {
+      copy.sort((a, b) => (a.last_year_base_rank ?? 9_999_999) - (b.last_year_base_rank ?? 9_999_999))
+    } else if (sinav === 'LGS') {
+      copy.sort((a, b) => (a.yuzdelik ?? 999) - (b.yuzdelik ?? 999))
+    } else if (sinav === 'KPSS') {
+      copy.sort((a, b) => (b.gecmis_taban ?? -1) - (a.gecmis_taban ?? -1))
+    } else {
+      copy.sort((a, b) => (b.min_puan ?? -1) - (a.min_puan ?? -1))
+    }
+    return copy
+  }
+
+  if (!user?.uid) {
+    if (sinav !== 'YKS') return `${sinav} sıralama için giriş yapmalısın`
+    const { getGuestTercih, setGuestTercih } = await import('./guestTercih')
+    const cur = getGuestTercih()
+    if (cur.length < 2) return 'Sıralamak için en az 2 tercih gerekli'
+    const sorted = sortRows(cur).map((it, idx) => ({ ...it, order: idx + 1 }))
+    setGuestTercih(sorted)
+    return `YKS tercih listen (${sorted.length} öğe) taban sırasına göre dizildi`
+  }
+
+  const prefsMod = await import('@/services/firestore-prefs')
+  const rows = await new Promise<any[]>((resolve) => {
+    let unsub: (() => void) | null = null
+    const timer = setTimeout(() => { if (unsub) unsub(); resolve([]) }, 1500)
+    const cb = (r: any[]) => { clearTimeout(timer); if (unsub) unsub(); resolve(r || []) }
+    if (sinav === 'KPSS') unsub = prefsMod.watchKpssTercih(user.uid, cb)
+    else if (sinav === 'DGS') unsub = prefsMod.watchDgsTercih(user.uid, cb)
+    else if (sinav === 'LGS') unsub = prefsMod.watchLgsTercih(user.uid, cb)
+    else if (sinav === 'TUS' || sinav === 'DUS') unsub = prefsMod.watchUzmanlikTercih(user.uid, sinav, cb)
+    else unsub = prefsMod.watchTercihList(user.uid, cb)
+  })
+  if (rows.length < 2) return `${sinav} listende sıralamak için en az 2 tercih olmalı`
+  const sorted = sortRows(rows)
+  if (sinav === 'KPSS') await prefsMod.reorderKpssTercih(user.uid, sorted)
+  else if (sinav === 'DGS') await prefsMod.reorderDgsTercih(user.uid, sorted)
+  else if (sinav === 'LGS') await prefsMod.reorderLgsTercih(user.uid, sorted)
+  else if (sinav === 'TUS' || sinav === 'DUS') await prefsMod.reorderUzmanlikTercih(user.uid, sinav, sorted)
+  else await prefsMod.reorderTercihList(user.uid, sorted)
+  return `${sinav} tercih listen (${sorted.length} öğe) taban sıra/puana göre optimal dizildi`
 }
 
 /** Backend'den gelen sistem aksiyonlarını sırayla uygular ve sonuç listesi döner. */
@@ -551,7 +927,7 @@ export async function executeCoachActions(
 ): Promise<AppliedActionResult[]> {
   if (!Array.isArray(actions) || actions.length === 0) return []
   const user = opts.user || null
-  const defaultTrack = normSinav(opts.defaultTrack, 'YKS')
+  const defaultTrack = normSinav(opts.defaultTrack, 'YKS', VALID_PROF_SINAV)
   const results: AppliedActionResult[] = []
 
   for (const act of actions) {
@@ -559,18 +935,32 @@ export async function executeCoachActions(
     const payload = act.payload || {}
     try {
       let detail = act.label
+      let navigateTo: string | undefined
       if (act.type === 'set_daily_goal') detail = await applySetDailyGoal(payload, user, defaultTrack)
       else if (act.type === 'create_study_plan') detail = await applyCreateStudyPlan(payload, user, defaultTrack)
       else if (act.type === 'log_questions') detail = await applyLogQuestions(payload, user, defaultTrack)
       else if (act.type === 'add_task') detail = await applyAddTask(payload, user, defaultTrack)
       else if (act.type === 'mark_topic_done') detail = await applyMarkTopicDone(payload, user, defaultTrack)
-      else if (act.type === 'add_preference') detail = await applyAddPreference(payload, user)
+      else if (act.type === 'unmark_topic_done') detail = await applyUnmarkTopicDone(payload, user, defaultTrack)
+      else if (act.type === 'add_preference') detail = await applyAddPreference(payload, user, defaultTrack)
+      else if (act.type === 'remove_preference') detail = await applyRemovePreference(payload, user, defaultTrack)
+      else if (act.type === 'reorder_preferences') detail = await applyReorderPreferences(payload, user, defaultTrack)
       else if (act.type === 'add_deneme') detail = await applyAddDeneme(payload, user, defaultTrack)
       else if (act.type === 'complete_task') detail = await applyCompleteTask(payload, user, defaultTrack)
+      else if (act.type === 'delete_task') detail = await applyDeleteTask(payload, user, defaultTrack)
+      else if (act.type === 'reschedule_task') detail = await applyRescheduleTask(payload, user, defaultTrack)
       else if (act.type === 'add_note') detail = await applyAddNote(payload, user, defaultTrack)
+      else if (act.type === 'complete_note') detail = await applyNoteMutation(payload, user, 'complete')
+      else if (act.type === 'delete_note') detail = await applyNoteMutation(payload, user, 'delete')
       else if (act.type === 'log_study_time') detail = await applyLogStudyTime(payload, user, defaultTrack)
       else if (act.type === 'update_profile') detail = await applyUpdateProfile(payload, user, defaultTrack)
-      results.push({ type: act.type, label: detail, ok: true, detail })
+      else if (act.type === 'open_compare') {
+        const codes = Array.isArray(payload.codes) ? payload.codes.map(String).filter(Boolean).slice(0, 5) : []
+        if (codes.length < 2) throw new Error('Karşılaştırma için en az 2 program kodu gerekli')
+        navigateTo = `/karsilastir?d=${codes.join(',')}`
+        detail = `${codes.length} program karşılaştırmaya hazır`
+      }
+      results.push({ type: act.type, label: detail, ok: true, detail, ...(navigateTo ? { navigateTo } : {}) })
     } catch (e: any) {
       results.push({ type: act.type, label: act.label, ok: false, detail: e?.message || 'Uygulanamadı' })
     }

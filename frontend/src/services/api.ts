@@ -75,6 +75,8 @@ export const api = {
   }),
   recommend: (payload: unknown) => apiFetch('/api/v1/recommend', { method: 'POST', body: payload }),
   programsLookup: (codes: string[]) => apiFetch('/api/v1/programs/lookup', { method: 'POST', body: { codes } }),
+  preferencesResolve: (payload: { sinav: string; codes?: string[]; query?: string }) =>
+    apiFetch('/api/v1/preferences/resolve', { method: 'POST', body: payload }),
   dgsPrograms: (params: unknown) => apiFetch('/api/v1/dgs/programlar', { method: 'POST', body: params }),
   dgsGecis: (onlisans: unknown) => apiFetch('/api/v1/dgs/gecis', { method: 'POST', body: { onlisans } }),
   kpssKadrolar: (params: unknown) => apiFetch('/api/v1/kpss/kadrolar', { method: 'POST', body: params }),

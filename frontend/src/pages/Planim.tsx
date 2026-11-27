@@ -200,7 +200,15 @@ export default function Planim({ embedded = false }) {
     const lag = gecikmeYuzde(tasks, bugun)
     const ozet = kompaktOzet({ track, kalanGun, zayif, done, lag, hedefSaat: config?.hedefSaat })
     const q = `${ozet}. Bu ${track} çalışma planı durumu. SADECE şu JSON: {"oncelik":["konu1","konu2"],"tavsiye":"1-2 cümle Türkçe koçluk"}`.slice(0, 490)
-    const cagir = () => apiFetch('/api/v1/ask', { method: 'POST', body: { query: q } }).then((r) => r?.text || '')
+    const cagir = async () => {
+      const { buildUnifiedUserContext } = await import('../lib/aiUserContext')
+      const uc = await buildUnifiedUserContext(user, track).catch(() => null)
+      const r = await apiFetch('/api/v1/ask', {
+        method: 'POST',
+        body: { query: q, ...(uc ? { user_context: uc } : {}) },
+      })
+      return r?.text || ''
+    }
     try {
       let text = await cagir()
       let d = parseDirektif(text)
@@ -245,7 +253,15 @@ export default function Planim({ embedded = false }) {
     if (!konuData) { flash('Konu listesi yükleniyor…'); return }
     setHedefAI({ loading: true, text: '' })
     const q = `Öğrenci çalışma hedefi: "${g.slice(0, 140)}". Sınav: ${track}. SADECE şu JSON: {"gunSayisi":<toplam kaç gün>,"gunlukSoru":<günde kaç soru, belirtilmediyse 0>,"tavsiye":"1 kısa cümle Türkçe"}`.slice(0, 490)
-    const cagir = () => apiFetch('/api/v1/ask', { method: 'POST', body: { query: q } }).then((r) => r?.text || '')
+    const cagir = async () => {
+      const { buildUnifiedUserContext } = await import('../lib/aiUserContext')
+      const uc = await buildUnifiedUserContext(user, track).catch(() => null)
+      const r = await apiFetch('/api/v1/ask', {
+        method: 'POST',
+        body: { query: q, ...(uc ? { user_context: uc } : {}) },
+      })
+      return r?.text || ''
+    }
     let hedef = null
     try {
       let text = await cagir()

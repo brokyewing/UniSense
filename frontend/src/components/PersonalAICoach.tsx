@@ -12,6 +12,7 @@ import {
   getTodayQuestionCount,
   type AppliedActionResult,
 } from '../lib/aiActions'
+import { buildUnifiedUserContext } from '../lib/aiUserContext'
 import { getGuestTercih } from '../lib/guestTercih'
 import { konuLocal } from '../lib/konu'
 import { isoGun, isoHafta, oneriler } from '../lib/planlayici'
@@ -69,6 +70,7 @@ export default function PersonalAICoach({
   const [cmdLoading, setCmdLoading] = useState(false)
   const [cmdReply, setCmdReply] = useState('')
   const [cmdActions, setCmdActions] = useState<AppliedActionResult[]>([])
+  const [cmdHistory, setCmdHistory] = useState<Array<{ role: 'user' | 'bot'; text: string }>>([])
   const [quickBusy, setQuickBusy] = useState(false)
 
   const refreshState = useCallback(async (preferredTrack?: string) => {
@@ -240,9 +242,11 @@ export default function PersonalAICoach({
     setCmdReply('')
     setCmdActions([])
     try {
+      const unifiedUc = await buildUnifiedUserContext(user, track).catch(() => null)
       const data = await api.ask(text, {
         top_k: 6,
-        user_context: {
+        history: cmdHistory.slice(-6),
+        user_context: unifiedUc || {
           exam_track: track,
           ...(gunlukHedef > 0 ? { gunluk_soru_hedef: gunlukHedef } : {}),
           bugun_cozulen_soru: bugunCozulen,
@@ -254,7 +258,13 @@ export default function PersonalAICoach({
         applied = await executeCoachActions(data.actions, { user, defaultTrack: track })
       }
       setCmdActions(applied)
-      setCmdReply(data?.text || '')
+      const replyTxt = data?.text || ''
+      setCmdReply(replyTxt)
+      setCmdHistory((prev) => [
+        ...prev.slice(-4),
+        { role: 'user', text },
+        ...(replyTxt ? [{ role: 'bot' as const, text: replyTxt }] : []),
+      ])
       setCmd('')
       await refreshState()
     } catch (e: any) {
@@ -631,6 +641,11 @@ export default function PersonalAICoach({
               >
                 <Zap size={12} />
                 {a.label}
+                {a.navigateTo && (
+                  <Link to={a.navigateTo} className="ml-1 underline font-semibold text-accent-200 hover:text-white">
+                    Aç →
+                  </Link>
+                )}
               </span>
             ))}
           </div>

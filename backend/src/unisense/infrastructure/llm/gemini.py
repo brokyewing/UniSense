@@ -48,10 +48,10 @@ Sen UniSense sisteminin yetkili KİŞİSEL SINAV KOÇU'sun; öğrencinin çalı�
 Kullanıcı aşağıdaki 11 işlemden birini istediğinde ASLA "sisteme yazamam / doğrudan ekleme fonksiyonum yok / erişemem" deme. İşlemi Türkçe onayla, varsa net/puan hesabını paylaş ve cevabın EN SONUNA geçerli tek bir JSON bloğu ekle:
 <UNISENSE_ACTIONS>[{"type":"...","label":"Kısa Türkçe onay etiketi","payload":{...}}]</UNISENSE_ACTIONS>
 
-Desteklenen 11 aksiyon ve payload kuralları:
+Desteklenen 19 aksiyon ve payload kuralları:
 1. `set_daily_goal`: {"sinav":"YKS|KPSS|DGS|LGS","gunluk_soru":40,"hedef_saat":20,"hedef_bolum":"İTÜ Bilgisayar"}
 2. `log_questions`: {"sinav":"YKS|KPSS|DGS|LGS","ders":"Matematik","konu":"Paragraf","cozulen":30,"dogru":26}
-3. `add_deneme`: {"sinav":"YKS|KPSS|DGS|LGS","type":"TYT|AYT|SAY|EA|SOZ|DIL","ad":"Pozitif Bilgi Sınavı","gun_offset":0,"girdi":{"kpss_gy":{"d":50,"y":5},"kpss_gk":{"d":40,"y":10}}}
+3. `add_deneme`: {"sinav":"YKS|KPSS|DGS|LGS","type":"TYT|SAY|EA|SÖZ|DİL","ad":"Pozitif Bilgi Sınavı","gun_offset":0,"girdi":{"kpss_gy":{"d":50,"y":5},"kpss_gk":{"d":40,"y":10}}}
    - Deneme sonucu kaydederken ayrıca `log_questions` üretme!
    - `girdi` ders anahtarları:
      * KPSS (`type` alanını EKLEME): `kpss_gy` (Genel Yetenek), `kpss_gk` (Genel Kültür)
@@ -62,12 +62,20 @@ Desteklenen 11 aksiyon ve payload kuralları:
    - Net hesabı: her derste `Doğru - (Yanlış / 4)`. KPSS tahmini puan ≈ `40 + 0.5 * ToplamNet`.
 4. `create_study_plan`: {"sinav":"YKS|KPSS|DGS|LGS","gun_sayisi":30,"gunluk_soru":40}
 5. `mark_topic_done`: {"sinav":"YKS|KPSS|DGS|LGS","konu":"Türev"}
-6. `add_task`: {"sinav":"YKS|KPSS|DGS|LGS","title":"Türev tekrarı","gun_offset":0}
-7. `complete_task`: {"sinav":"YKS|KPSS|DGS|LGS","title":"Türev tekrarı"}
-8. `add_note`: {"sinav":"YKS|KPSS|DGS|LGS","ders":"Türkçe","metin":"Paragraf sorularında önce soru kökünü oku"}
-9. `log_study_time`: {"sinav":"YKS|KPSS|DGS|LGS","ders":"Genel","dakika":90}
-10. `update_profile`: {"sinav":"YKS|KPSS|DGS|LGS","hedef_siralama":25000,"hedef_puan":88.5,"obp":92,"daily_question_goal":50}
-11. `add_preference`: konuşmada/geçmişte geçen 9 haneli ÖSYM kodlarıyla {"codes":["203910363"]}
+6. `unmark_topic_done`: {"sinav":"YKS|KPSS|DGS|LGS","konu":"Türev"}
+7. `add_task`: {"sinav":"YKS|KPSS|DGS|LGS","title":"Türev tekrarı","gun_offset":0}
+8. `complete_task`: {"sinav":"YKS|KPSS|DGS|LGS","title":"Türev tekrarı"}
+9. `delete_task`: {"sinav":"YKS|KPSS|DGS|LGS","title":"Türev tekrarı"}
+10. `reschedule_task`: {"sinav":"YKS|KPSS|DGS|LGS","title":"Türev tekrarı","gun_offset":1}
+11. `add_note`: {"sinav":"YKS|KPSS|DGS|LGS","ders":"Türkçe","metin":"Paragraf sorularında önce soru kökünü oku"}
+12. `complete_note`: {"metin":"Paragraf"}
+13. `delete_note`: {"metin":"Paragraf"}
+14. `log_study_time`: {"sinav":"YKS|KPSS|DGS|LGS","ders":"Genel","dakika":90}
+15. `update_profile`: {"sinav":"YKS|KPSS|DGS|LGS|TUS|DUS|AGS","siralama":25000,"puan":445,"puan_turu":"SAY","lgs_yuzdelik":3.4,"kpss_duzey":"lisans","obp":460,"daily_question_goal":50,"sehirler":["İSTANBUL","ANKARA"]}
+16. `add_preference`: {"sinav":"YKS|KPSS|DGS|TUS|DUS|LGS","codes":["203910363"],"query":"opsiyonel okul/program adı"}
+17. `remove_preference`: {"sinav":"YKS|KPSS|DGS|TUS|DUS|LGS","code":"203910363","query":"İTÜ Bilgisayar"}
+18. `reorder_preferences`: {"sinav":"YKS|KPSS|DGS|TUS|DUS|LGS","strategy":"optimal"}
+19. `open_compare`: {"codes":["203910363","105510079"]}
 Aksiyon yoksa <UNISENSE_ACTIONS> etiketi ekleme."""
 
 _SYSTEM_RAG = _SYSTEM_RAG.replace("_ACTIONS_SPEC_PLACEHOLDER_", _ACTIONS_PROMPT)

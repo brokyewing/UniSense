@@ -108,5 +108,7 @@ def reset_di_cache() -> None:
         get_vector_store, get_llm_provider, get_retrieval_service,
         get_ask_service, get_recommendation_service, get_compass_service,
         get_compare_service, get_kpss_service, get_dgs_service,
+        get_guide_service, get_news_service, get_lgs_service,
+        get_tus_service, get_kariyer_service,
     ):
         fn.cache_clear()

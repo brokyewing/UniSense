@@ -8,7 +8,9 @@ import {
 } from 'lucide-react'
 import BackgroundScene from '../components/three/LazyBackgroundScene'
 import MiniTrend from '../components/MiniTrend'
+import { useAuth } from '../contexts/AuthContext'
 import { apiFetch } from '../lib/api'
+import { buildUnifiedUserContext } from '../lib/aiUserContext'
 import { safeHref } from '../lib/safeUrl'
 import { api } from '@/services/api'
 
@@ -134,6 +136,7 @@ function ProgramHeader({ item, onRemove }: any) {
 
 
 export default function Compare() {
+  const { user } = useAuth()
   const [searchParams, setSearchParams] = useSearchParams()
   const codesFromUrl = useMemo(
     () => (searchParams.get('d') || '').split(',').map((c) => c.trim()).filter(Boolean),
@@ -210,12 +213,19 @@ export default function Compare() {
 
     let cancelled = false
     setAiLoading(true)
-    apiFetch('/api/v1/ask', { method: 'POST', body: { query: q } })
+    buildUnifiedUserContext(user, 'YKS')
+      .catch(() => null)
+      .then((uc) =>
+        apiFetch('/api/v1/ask', {
+          method: 'POST',
+          body: { query: q, ...(uc ? { user_context: uc } : {}) },
+        })
+      )
       .then((r) => { if (!cancelled) setAiSummary(r?.text || '') })
       .catch(() => { if (!cancelled) setAiSummary('') })
       .finally(() => { if (!cancelled) setAiLoading(false) })
     return () => { cancelled = true }
-  }, [data])
+  }, [data, user])
 
   function removeCode(code: any) {
     const remaining = codesFromUrl.filter((c) => c !== code)

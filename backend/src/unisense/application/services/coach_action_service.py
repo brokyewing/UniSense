@@ -8,6 +8,8 @@ import re
 from unisense.domain.models.query import CoachAction
 
 _VALID_SINAV = ("YKS", "KPSS", "DGS", "LGS")
+_VALID_PROFILE_SINAV = ("YKS", "KPSS", "DGS", "LGS", "TUS", "DUS", "AGS")
+_VALID_PREF_SINAV = ("YKS", "KPSS", "DGS", "TUS", "DUS", "LGS")
 _VALID_ACTION_TYPES = frozenset({
     "set_daily_goal",
     "create_study_plan",
@@ -20,6 +22,14 @@ _VALID_ACTION_TYPES = frozenset({
     "add_note",
     "log_study_time",
     "update_profile",
+    "remove_preference",
+    "reorder_preferences",
+    "delete_task",
+    "reschedule_task",
+    "complete_note",
+    "delete_note",
+    "unmark_topic_done",
+    "open_compare",
 })
 _ACTIONS_TAG_RE = re.compile(r"<UNISENSE_ACTIONS>\s*(.*?)\s*</UNISENSE_ACTIONS>", re.DOTALL | re.IGNORECASE)
 _TR_LOWER_MAP = str.maketrans({"İ": "i", "I": "ı"})
@@ -113,17 +123,27 @@ def _round_half_up(value: float) -> float:
     return math.floor(value * 100.0 + 0.5) / 100.0
 
 
-def _detect_sinav(q_lower: str, user_context: dict | None = None) -> str:
-    if re.search(r"\bkpss\b|genel\s+yetenek|genel\s+k(?:ü|u)lt(?:ü|u)r", q_lower):
+def _detect_any_sinav(q_lower: str, user_context: dict | None = None, allowed: tuple[str, ...] = _VALID_SINAV) -> str:
+    if re.search(r"\bkpss\b|genel\s+yetenek|genel\s+k(?:ü|u)lt(?:ü|u)r", q_lower) and "KPSS" in allowed:
         return "KPSS"
-    if re.search(r"\bdgs\b", q_lower):
+    if re.search(r"\bdgs\b", q_lower) and "DGS" in allowed:
         return "DGS"
-    if re.search(r"\blgs\b|ink(?:ı|i)lap", q_lower):
+    if re.search(r"\blgs\b|ink(?:ı|i)lap|lise\b", q_lower) and "LGS" in allowed:
         return "LGS"
-    if re.search(r"\b(?:yks|tyt|ayt|ydt)\b", q_lower):
+    if re.search(r"\btus\b", q_lower) and "TUS" in allowed:
+        return "TUS"
+    if re.search(r"\bdus\b", q_lower) and "DUS" in allowed:
+        return "DUS"
+    if re.search(r"\bags\b", q_lower) and "AGS" in allowed:
+        return "AGS"
+    if re.search(r"\b(?:yks|tyt|ayt|ydt)\b", q_lower) and "YKS" in allowed:
         return "YKS"
     track = str((user_context or {}).get("exam_track") or "").upper()
-    return track if track in _VALID_SINAV else "YKS"
+    return track if track in allowed else "YKS"
+
+
+def _detect_sinav(q_lower: str, user_context: dict | None = None) -> str:
+    return _detect_any_sinav(q_lower, user_context, _VALID_SINAV)
 
 
 def _strip_ablative(word: str) -> str:
@@ -180,7 +200,10 @@ def has_user_action_intent(query_text: str) -> bool:
         return True
     return bool(
         re.search(
-            r"(?:hedef|kota|soru|plan|program|bitir|tamamla|işaretle|isaretle|ekle|kaydet|koy|ayarla|olsun|çözdüm|cozdum|yaptım|yaptim|güncelle|guncelle|deneme|doğru|dogru|yanlış|yanlis|not\b|dakika|\bdk\b|saat|çalıştım|calistim|sıralama|siralama|obp|puanım|puanim)",
+            r"(?:hedef|kota|soru|plan|program|bitir|tamamla|işaretle|isaretle|ekle|kaydet|koy|ayarla|olsun|"
+            r"çözdüm|cozdum|yaptım|yaptim|güncelle|guncelle|deneme|doğru|dogru|yanlış|yanlis|not\b|dakika|\bdk\b|"
+            r"saat|çalıştım|calistim|sıralama|siralama|sıram|siram|obp|puanım|puanim|yüzdelik|yuzdelik|"
+            r"sil|çıkar|cikar|kaldır|kaldir|ertele|taşı|tasi|sırala|sirala|düzenle|duzenle|karşılaştır|karsilastir|geri\s+al)",
             q_low,
         )
     )
@@ -192,12 +215,38 @@ def is_pure_coach_command(query_text: str, actions: list[CoachAction]) -> bool:
         return False
     if detect_preference_add_intent(query_text):
         return False
+    if any(a.type in ("open_compare", "remove_preference", "reorder_preferences") for a in actions):
+        return False
     q_low = _tr_lower(query_text)
     return not re.search(
         r"\b(?:kadro\w*|atama\w*|taban\w*|tavan\w*|kontenjan\w*|kazan\w*|gelir\s+mi|yeter\s+mi|"
         r"tercih\s+(?:list|öner|oner|yap)|(?:üniversite|universite|bölüm|bolum)\s+(?:öner|oner|bul|hangisi)|"
         r"akademisyen\w*|profesör\w*|profesor\w*|hangi\s+(?:şehir|il|üniversite|bölüm))\b",
         q_low,
+    )
+
+
+def is_personal_coaching_query(query_text: str, actions: list[CoachAction]) -> bool:
+    """Saf kayıt komutu VEYA kullanıcının kendi deneme/görev/not/çalışma koçluğu sorusu mu?"""
+    if is_pure_coach_command(query_text, actions):
+        return True
+    if actions or detect_preference_add_intent(query_text):
+        return False
+    q_low = _tr_lower(query_text)
+    if re.search(
+        r"\b(?:taban\w*|tavan\w*|kontenjan\w*|kazan\w*|gelir\s+mi|yeter\s+mi|"
+        r"üni\w*|üniversite\w*|kadro\w*|atama\w*|takvim\w*|ne\s+zaman|kaç\s+gün\s+kaldı|"
+        r"iş\s+ilan\w*|staj\s+ilan\w*|akademisyen\w*|lise\w*|uzmanlık\w*|tus\b|dus\b)\b",
+        q_low,
+    ):
+        return False
+    return bool(
+        re.search(
+            r"(?:deneme\w*\s+nasıl|son\s+deneme\w*|netlerim\b|netim\s+nasıl|bekleyen\s+görev\w*|görevlerim\b|"
+            r"planım\s+nasıl|takvimim\s+nasıl|notlarım\w*|bugün\s+ne\s+çalış\w*|hangi\s+konudan\s+daha\s+çok\s+soru|"
+            r"çalışma\s+tavsiyesi|çalışma\s+durumum|ilerlemem\s+nasıl|eksik\s+konularım)",
+            q_low,
+        )
     )
 
 
@@ -606,13 +655,36 @@ def extract_coach_actions(query_text: str, user_context: dict | None = None) -> 
                 )
             )
 
-    # 4) Konu tamamlandı işareti ("Türev konusunu bitirdim" / "Paragraf bitti")
-    topic_m = re.search(
-        r"([a-zçğıöşü0-9][a-zçğıöşü0-9\s\-]{1,55}?)\s+konu(?:sunu|nu|yu|su)?\s*(?:bitirdim|tamamladım|tamamladim|işaretle|isaretle|bitti)",
+    # 4) Konu işareti kaldırma ("Türev konusunun işaretini kaldır / tamamlanmadı yap")
+    unmark_m = re.search(
+        r"([a-zçğıöşü0-9][a-zçğıöşü0-9\s\-]{1,55}?)\s+konu(?:sunun|sunu|nu|yu|su)?\s*(?:işaretini\s*kaldır|isaretini\s*kaldir|geri\s*al|tamamlanmadı\s*yap|tamamlanmadi\s*yap|yapılmadı|yapilmadi)",
         q_low,
-    ) or re.search(
-        r"^([a-zçğıöşü0-9][a-zçğıöşü0-9\s\-]{1,45}?)\s+(?:bitirdim|tamamladım|tamamladim|bitti\s*işaretle)$",
-        q_low,
+    )
+    if unmark_m and not plan_days_m and deneme_action is None:
+        konu_raw = raw[unmark_m.start(1):unmark_m.end(1)].strip(" ,.:;!?")
+        konu_clean = " ".join(
+            tok for tok in konu_raw.split()
+            if _tr_lower(tok) not in ("bugün", "bugun", "yks", "tyt", "ayt", "kpss", "dgs", "lgs")
+        )
+        if konu_clean:
+            actions.append(
+                CoachAction(
+                    type="unmark_topic_done",
+                    label=f"{sinav} · '{konu_clean}' konusu tamamlanmadı işaretlendi",
+                    auto_apply=True,
+                    payload={"sinav": sinav, "konu": konu_clean[:120]},
+                )
+            )
+
+    # 5) Konu tamamlandı işareti ("Türev konusunu bitirdim" / "Paragraf bitti")
+    topic_m = None if unmark_m else (
+        re.search(
+            r"([a-zçğıöşü0-9][a-zçğıöşü0-9\s\-]{1,55}?)\s+konu(?:sunu|nu|yu|su)?\s*(?:bitirdim|tamamladım|tamamladim|işaretle|isaretle|bitti)",
+            q_low,
+        ) or re.search(
+            r"^([a-zçğıöşü0-9][a-zçğıöşü0-9\s\-]{1,45}?)\s+(?:bitirdim|tamamladım|tamamladim|bitti\s*işaretle)$",
+            q_low,
+        )
     )
     if topic_m and not plan_days_m and deneme_action is None:
         konu_raw = raw[topic_m.start(1):topic_m.end(1)].strip(" ,.:;!?")
@@ -630,12 +702,49 @@ def extract_coach_actions(query_text: str, user_context: dict | None = None) -> 
                 )
             )
 
-    # 5) Görev tamamlama ("bugünkü Türev tekrarı görevini tamamladım")
-    comp_m = re.search(
+    # 6) Görev silme / erteleme / tamamlama
+    del_task_m = re.search(
+        r"(?:bugünkü|bugunku|yarına|yarinki)?\s*([a-zçğıöşü0-9][a-zçğıöşü0-9\s\-]{1,65}?)\s+görev(?:ini|i|imi)?\s*(?:sil|kaldır|kaldir|iptal(?:\s*et)?)",
+        q_low,
+    )
+    resched_task_m = None if del_task_m else re.search(
+        r"(?:bugünkü|bugunku|yarına|yarinki)?\s*([a-zçğıöşü0-9][a-zçğıöşü0-9\s\-]{1,65}?)\s+görev(?:ini|i|imi)?\s*(yarına|yarina|bugüne|bugune)\s*(?:ertele|taşı|tasi|al|kaydır|kaydir)",
+        q_low,
+    )
+    comp_m = None if (del_task_m or resched_task_m) else re.search(
         r"(?:bugünkü|bugunku|yarına|yarinki)?\s*([a-zçğıöşü0-9][a-zçğıöşü0-9\s\-]{1,65}?)\s+görev(?:ini|i|imi)?\s*(?:tamamladım|tamamladim|bitirdim|yaptım|yaptim|işaretle|isaretle)",
         q_low,
     )
-    if comp_m and deneme_action is None:
+    if del_task_m and deneme_action is None:
+        title_clean = " ".join(
+            tok for tok in raw[del_task_m.start(1):del_task_m.end(1)].strip(" ,.:;!?").split()
+            if _tr_lower(tok) not in ("bugünkü", "bugunku", "bugün", "bugun", "yks", "tyt", "ayt", "kpss", "dgs", "lgs")
+        )
+        if title_clean:
+            actions.append(
+                CoachAction(
+                    type="delete_task",
+                    label=f"{sinav} · '{title_clean[:80]}' görevi silindi",
+                    auto_apply=True,
+                    payload={"sinav": sinav, "title": title_clean[:120]},
+                )
+            )
+    elif resched_task_m and deneme_action is None:
+        title_clean = " ".join(
+            tok for tok in raw[resched_task_m.start(1):resched_task_m.end(1)].strip(" ,.:;!?").split()
+            if _tr_lower(tok) not in ("bugünkü", "bugunku", "bugün", "bugun", "yks", "tyt", "ayt", "kpss", "dgs", "lgs")
+        )
+        gun_offset = 1 if "yar" in resched_task_m.group(2) else 0
+        if title_clean:
+            actions.append(
+                CoachAction(
+                    type="reschedule_task",
+                    label=f"{sinav} · '{title_clean[:80]}' görevi {'yarına' if gun_offset else 'bugüne'} taşındı",
+                    auto_apply=True,
+                    payload={"sinav": sinav, "title": title_clean[:120], "gun_offset": gun_offset},
+                )
+            )
+    elif comp_m and deneme_action is None:
         title = raw[comp_m.start(1):comp_m.end(1)].strip(" ,.:;!?")
         title_clean = " ".join(
             tok for tok in title.split()
@@ -651,8 +760,8 @@ def extract_coach_actions(query_text: str, user_context: dict | None = None) -> 
                 )
             )
 
-    # 6) Tekil görev ekleme ("bugüne Türev tekrarı görevi ekle")
-    if not plan_days_m and not weekly_plan and deneme_action is None and not comp_m:
+    # 7) Tekil görev ekleme ("bugüne Türev tekrarı görevi ekle")
+    if not plan_days_m and not weekly_plan and deneme_action is None and not comp_m and not del_task_m and not resched_task_m:
         task_m = re.search(
             r"(?:bugüne|bugune|yarına|yarina|planıma|planima)\s+(.{2,80}?)\s*(?:görev(?:i|ini)?\s*)?(?:ekle|koy|yaz)\b",
             q_low,
@@ -676,31 +785,62 @@ def extract_coach_actions(query_text: str, user_context: dict | None = None) -> 
                     )
                 )
 
-    # 7) Çalışma notu ekleme ("Türkçe notu ekle: Paragrafta önce soru kökünü oku")
-    note_m = re.search(
-        r"(?:([a-zçğıöşüA-ZÇĞİÖŞÜ\s]{2,25}?)\s+)?not(?:u|umu|lar(?:a|ıma)?)?\s*(?:ekle|kaydet|al|yaz)\s*[:\-]?\s*(.+)$",
-        raw,
-        re.IGNORECASE,
+    # 8) Not tamamlama / silme / ekleme
+    del_note_m = re.search(
+        r"([a-zçğıöşü0-9][a-zçğıöşü0-9\s\-]{1,65}?)\s+not(?:unu|umu|u)?\s*(?:sil|kaldır|kaldir)",
+        q_low,
     )
-    if note_m and deneme_action is None:
-        ders_raw = (note_m.group(1) or "").strip(" ,.:;!?")
-        ders_clean = " ".join(
-            t for t in ders_raw.split()
-            if _tr_lower(t) not in ("bana", "bugün", "bugun", "yks", "tyt", "ayt", "kpss", "dgs", "lgs", "ders", "bir")
-        )
-        metin = note_m.group(2).strip(" ,.:;!?\"'")
-        if len(metin) >= 3:
-            ders_val = _tr_title(ders_clean)[:60] if ders_clean else "Genel"
+    comp_note_m = None if del_note_m else re.search(
+        r"([a-zçğıöşü0-9][a-zçğıöşü0-9\s\-]{1,65}?)\s+not(?:unu|umu|u)?\s*(?:tamamla|tamamlandı|tamamlandi|bitir|bitirdim|işaretle|isaretle)",
+        q_low,
+    )
+    if del_note_m and deneme_action is None:
+        m_txt = raw[del_note_m.start(1):del_note_m.end(1)].strip(" ,.:;!?")
+        if m_txt:
             actions.append(
                 CoachAction(
-                    type="add_note",
-                    label=f"{sinav} · {ders_val} notu kaydedildi",
+                    type="delete_note",
+                    label=f"'{m_txt[:60]}' notu silindi",
                     auto_apply=True,
-                    payload={"sinav": sinav, "ders": ders_val, "metin": metin[:2000]},
+                    payload={"metin": m_txt[:200]},
                 )
             )
+    elif comp_note_m and deneme_action is None:
+        m_txt = raw[comp_note_m.start(1):comp_note_m.end(1)].strip(" ,.:;!?")
+        if m_txt:
+            actions.append(
+                CoachAction(
+                    type="complete_note",
+                    label=f"'{m_txt[:60]}' notu tamamlandı",
+                    auto_apply=True,
+                    payload={"metin": m_txt[:200]},
+                )
+            )
+    else:
+        note_m = re.search(
+            r"(?:([a-zçğıöşüA-ZÇĞİÖŞÜ\s]{2,25}?)\s+)?not(?:u|umu|lar(?:a|ıma)?)?\s*(?:ekle|kaydet|al|yaz)\s*[:\-]?\s*(.+)$",
+            raw,
+            re.IGNORECASE,
+        )
+        if note_m and deneme_action is None:
+            ders_raw = (note_m.group(1) or "").strip(" ,.:;!?")
+            ders_clean = " ".join(
+                t for t in ders_raw.split()
+                if _tr_lower(t) not in ("bana", "bugün", "bugun", "yks", "tyt", "ayt", "kpss", "dgs", "lgs", "ders", "bir")
+            )
+            metin = note_m.group(2).strip(" ,.:;!?\"'")
+            if len(metin) >= 3:
+                ders_val = _tr_title(ders_clean)[:60] if ders_clean else "Genel"
+                actions.append(
+                    CoachAction(
+                        type="add_note",
+                        label=f"{sinav} · {ders_val} notu kaydedildi",
+                        auto_apply=True,
+                        payload={"sinav": sinav, "ders": ders_val, "metin": metin[:2000]},
+                    )
+                )
 
-    # 8) Çalışma süresi kaydı ("bugün 90 dakika matematik çalıştım", "2 saat çalıştım")
+    # 9) Çalışma süresi kaydı ("bugün 90 dakika matematik çalıştım", "2 saat çalıştım")
     has_goal_action = any(a.type in ("set_daily_goal", "create_study_plan") for a in actions)
     if deneme_action is None and not has_goal_action and not re.search(r"hedef|kota|haftada|günde|günlük", q_low):
         min_m = re.search(r"(\d{1,3})\s*(?:dakika|\bdk\b)", q_low)
@@ -720,42 +860,149 @@ def extract_coach_actions(query_text: str, user_context: dict | None = None) -> 
                 )
             )
 
-    # 9) Profil güncelleme ("hedef sıralamam 25000", "OBP 92", "hedef puanım 88")
+    # 10) Profil güncelleme (Profile.tsx ile tam senkron: YKS/KPSS/DGS/LGS/TUS/DUS puan, sıra, OBP, şehir)
     if deneme_action is None:
-        rank_m = re.search(r"hedef\s*s(?:ı|i)ralama(?:m)?\s*[:=]?\s*(\d{2,7})", q_low)
-        score_m = re.search(r"hedef\s*puan(?:ım|im)?\s*[:=]?\s*(\d{2,3}(?:[.,]\d{1,2})?)", q_low)
+        prof_sinav = _detect_any_sinav(q_low, user_context, _VALID_PROFILE_SINAV)
+        rank_m = (
+            re.search(r"(?:hedef\s*)?s(?:ı|i)ra(?:lama)?(?:m)?\s*[:=]?\s*(\d{1,3}(?:\.\d{3}){1,2}|\d{2,7})", q_low)
+            or re.search(r"(?:hedef\s*)?s(?:ı|i)ra(?:lama)?(?:m)?\s*[:=]?\s*(\d{1,4})\s*(?:bin|k)\b", q_low)
+        )
+        score_m = re.search(
+            r"(?:(?:yks|kpss|dgs|tus|dus)\s*)?(?:hedef\s*)?puan(?:ım|im)?\s*[:=]?\s*(\d{2,3}(?:[.,]\d{1,2})?)",
+            q_low,
+        )
         obp_m = re.search(r"(?:\bobp\b|diploma\s+notu(?:m)?)\s*[:=]?\s*(\d{2,3}(?:[.,]\d{1,2})?)", q_low)
-        if rank_m or score_m or obp_m:
-            prof_payload: dict = {"sinav": sinav}
-            lbl_parts = [sinav]
+        yuz_m = re.search(
+            r"(?:lgs\s*)?y(?:ü|u)zdelik(?:\s+dilim(?:im)?)?\s*[:=]?\s*%?\s*(\d{1,2}(?:[.,]\d{1,2})?)"
+            r"|%\s*(\d{1,2}(?:[.,]\d{1,2})?)\s*(?:lgs|y(?:ü|u)zdelik)",
+            q_low,
+        )
+        city_m = re.search(
+            r"(?:tercih\s*)?(?:ş|s)ehir(?:ler(?:im)?)?\s*[:=]?\s*([a-zçğıöşüA-ZÇĞİÖŞÜ,\s\-]{3,80}?)(?=$|[.;]|(?:\s+(?:olarak|yap|kaydet|güncelle|guncelle)))",
+            raw,
+            re.IGNORECASE,
+        )
+        has_prof_update_cue = bool(
+            re.search(r"profil|kaydet|güncelle|guncelle|ayarla|olsun|ekle|sıram|sıralamam|puanım|obp|diploma|yüzdelik|şehirler", q_low)
+        )
+        if has_prof_update_cue and (rank_m or score_m or obp_m or yuz_m or city_m):
+            prof_payload: dict = {"sinav": prof_sinav}
+            lbl_parts = [prof_sinav]
             if rank_m:
-                val = max(1, min(3_000_000, int(rank_m.group(1))))
+                raw_rank_str = rank_m.group(1)
+                if "bin" in rank_m.group(0) or rank_m.group(0).endswith("k"):
+                    val = int(raw_rank_str.replace(".", "")) * 1000
+                else:
+                    val = int(raw_rank_str.replace(".", ""))
+                val = max(1, min(3_000_000, val))
+                prof_payload["siralama"] = val
                 prof_payload["hedef_siralama"] = val
-                lbl_parts.append(f"hedef sıra {val:,}".replace(",", "."))
+                lbl_parts.append(f"sıra {val:,}".replace(",", "."))
             if score_m:
                 val_f = max(10.0, min(600.0, float(score_m.group(1).replace(",", "."))))
+                prof_payload["puan"] = val_f
                 prof_payload["hedef_puan"] = val_f
-                lbl_parts.append(f"hedef puan {val_f:g}")
+                lbl_parts.append(f"puan {val_f:g}")
+            if prof_sinav in ("YKS", "DGS"):
+                if re.search(r"\bea\b|eşit\s+ağırlık", q_low):
+                    prof_payload["puan_turu"] = "EA"
+                elif re.search(r"\bsöz\b|sözel", q_low):
+                    prof_payload["puan_turu"] = "SÖZ"
+                elif prof_sinav == "YKS" and re.search(r"\bdil\b", q_low):
+                    prof_payload["puan_turu"] = "DİL"
+                elif prof_sinav == "YKS" and re.search(r"\btyt\b", q_low):
+                    prof_payload["puan_turu"] = "TYT"
+                elif re.search(r"\bsay\b|sayısal", q_low):
+                    prof_payload["puan_turu"] = "SAY"
+            if prof_sinav == "KPSS":
+                if "önlisans" in q_low or "onlisans" in q_low:
+                    prof_payload["kpss_duzey"] = "önlisans"
+                elif "ortaöğretim" in q_low or "ortaogretim" in q_low:
+                    prof_payload["kpss_duzey"] = "ortaöğretim"
             if obp_m:
                 raw_obp = float(obp_m.group(1).replace(",", "."))
                 obp_norm = raw_obp * 5.0 if 50.0 <= raw_obp <= 100.0 else max(0.0, min(500.0, raw_obp))
                 prof_payload["obp"] = round(obp_norm, 2)
                 lbl_parts.append(f"OBP {prof_payload['obp']:g}")
-            actions.append(
-                CoachAction(
-                    type="update_profile",
-                    label=" · ".join(lbl_parts) + " güncellendi",
-                    auto_apply=True,
-                    payload=prof_payload,
+            if yuz_m:
+                yz = max(0.01, min(100.0, float((yuz_m.group(1) or yuz_m.group(2)).replace(",", "."))))
+                prof_payload["lgs_yuzdelik"] = yz
+                lbl_parts.append(f"%{yz:g} yüzdelik")
+            if city_m:
+                sehirler = [
+                    c.strip().upper()
+                    for c in re.split(r"[,/]+|\bve\b", city_m.group(1), flags=re.IGNORECASE)
+                    if len(c.strip()) >= 2
+                ][:10]
+                if sehirler:
+                    prof_payload["sehirler"] = sehirler
+                    lbl_parts.append(", ".join(sehirler[:3]))
+            if len(prof_payload) > 1:
+                actions.append(
+                    CoachAction(
+                        type="update_profile",
+                        label=" · ".join(lbl_parts) + " güncellendi",
+                        auto_apply=True,
+                        payload=prof_payload,
+                    )
                 )
+
+    # 11) Tercih listesinden çıkarma / optimal sıralama / karşılaştırma açma
+    pref_sinav = _detect_any_sinav(q_low, user_context, _VALID_PREF_SINAV)
+    rem_pref_m = re.search(
+        r"tercih(?:ler)?(?:im)?(?:den)?\s+(.{2,60}?)\s*(?:sil|çıkar|cikar|kaldır|kaldir)",
+        q_low,
+    )
+    if rem_pref_m:
+        q_item = raw[rem_pref_m.start(1):rem_pref_m.end(1)].strip(" ,.:;!?\"'")
+        code_m = re.search(r"\b(\d{6,9})\b", q_item)
+        actions.append(
+            CoachAction(
+                type="remove_preference",
+                label=f"{pref_sinav} tercihinden '{q_item[:60]}' çıkarıldı",
+                auto_apply=True,
+                payload={
+                    "sinav": pref_sinav,
+                    **({"code": code_m.group(1)} if code_m else {}),
+                    "query": q_item[:80],
+                },
             )
+        )
+    elif re.search(r"(?:tercih(?:ler)?(?:im)?(?:i)?|tercih\s+listem(?:i)?)\s+.*?(?:sırala|sirala|düzenle|duzenle|diz|optimize)", q_low):
+        actions.append(
+            CoachAction(
+                type="reorder_preferences",
+                label=f"{pref_sinav} tercih listesi taban sıra/puana göre dizildi",
+                auto_apply=True,
+                payload={"sinav": pref_sinav, "strategy": "optimal"},
+            )
+        )
+
+    comp_codes = re.findall(r"\b(\d{9})\b", raw)
+    if len(comp_codes) >= 2 and re.search(r"karşılaştır|karsilastir", q_low):
+        uniq_cmp = list(dict.fromkeys(comp_codes))[:5]
+        actions.append(
+            CoachAction(
+                type="open_compare",
+                label=f"{len(uniq_cmp)} programı karşılaştırma tablosunda aç",
+                auto_apply=True,
+                payload={"codes": uniq_cmp},
+            )
+        )
 
     return actions
 
 
-def _norm_sinav_code(val: object, fallback: str = "YKS") -> str:
+def _norm_sinav_code(
+    val: object,
+    fallback: str = "YKS",
+    allowed: tuple[str, ...] = _VALID_SINAV,
+) -> str:
     s = str(val or fallback).strip().upper()
-    return s if s in _VALID_SINAV else fallback
+    if s in allowed:
+        return s
+    fb = str(fallback or "YKS").strip().upper()
+    return fb if fb in allowed else allowed[0]
 
 
 def parse_llm_actions_and_strip(raw_text: str, default_sinav: str = "YKS") -> tuple[str, list[CoachAction]]:
@@ -779,7 +1026,11 @@ def parse_llm_actions_and_strip(raw_text: str, default_sinav: str = "YKS") -> tu
             if atype not in _VALID_ACTION_TYPES:
                 continue
             raw_payload = item.get("payload") if isinstance(item.get("payload"), dict) else {}
-            sinav = _norm_sinav_code(raw_payload.get("sinav"), default_sinav)
+            sinav = _norm_sinav_code(
+                raw_payload.get("sinav"),
+                default_sinav if atype in ("update_profile", "add_preference", "remove_preference", "reorder_preferences") else (default_sinav if default_sinav in _VALID_SINAV else "YKS"),
+                allowed=_VALID_PROFILE_SINAV if atype == "update_profile" else (_VALID_PREF_SINAV if atype in ("add_preference", "remove_preference", "reorder_preferences") else _VALID_SINAV),
+            )
             payload: dict = {"sinav": sinav}
 
             if atype == "set_daily_goal":
@@ -819,7 +1070,7 @@ def parse_llm_actions_and_strip(raw_text: str, default_sinav: str = "YKS") -> tu
                         payload["gunluk_soru"] = max(5, min(1000, int(raw_payload["gunluk_soru"])))
                     except (TypeError, ValueError):
                         pass
-            elif atype == "mark_topic_done":
+            elif atype in ("mark_topic_done", "unmark_topic_done"):
                 konu = str(raw_payload.get("konu") or "").strip()[:120]
                 if not konu:
                     continue
@@ -832,16 +1083,27 @@ def parse_llm_actions_and_strip(raw_text: str, default_sinav: str = "YKS") -> tu
                 payload["ders"] = str(raw_payload.get("ders") or "").strip()[:60]
                 payload["konu"] = str(raw_payload.get("konu") or title).strip()[:120]
                 payload["gun_offset"] = 1 if raw_payload.get("gun_offset") == 1 else 0
-            elif atype == "complete_task":
+            elif atype in ("complete_task", "delete_task"):
                 title = str(raw_payload.get("title") or "").strip()[:120]
                 if not title:
                     continue
                 payload["title"] = title
+            elif atype == "reschedule_task":
+                title = str(raw_payload.get("title") or "").strip()[:120]
+                if not title:
+                    continue
+                payload["title"] = title
+                payload["gun_offset"] = 1 if raw_payload.get("gun_offset") == 1 else 0
             elif atype == "add_note":
                 metin = str(raw_payload.get("metin") or "").strip()[:2000]
                 if not metin:
                     continue
                 payload["ders"] = str(raw_payload.get("ders") or "Genel").strip()[:60] or "Genel"
+                payload["metin"] = metin
+            elif atype in ("complete_note", "delete_note"):
+                metin = str(raw_payload.get("metin") or "").strip()[:200]
+                if not metin:
+                    continue
                 payload["metin"] = metin
             elif atype == "log_study_time":
                 try:
@@ -851,19 +1113,40 @@ def parse_llm_actions_and_strip(raw_text: str, default_sinav: str = "YKS") -> tu
                 payload["ders"] = str(raw_payload.get("ders") or "Genel").strip()[:60] or "Genel"
                 payload["dakika"] = dk
             elif atype == "update_profile":
-                if raw_payload.get("hedef_siralama") is not None:
+                s_raw = raw_payload.get("siralama") if raw_payload.get("siralama") is not None else raw_payload.get("hedef_siralama")
+                if s_raw is not None:
                     try:
-                        payload["hedef_siralama"] = max(1, min(3_000_000, int(raw_payload["hedef_siralama"])))
+                        s_val = max(1, min(3_000_000, int(s_raw)))
+                        payload["siralama"] = s_val
+                        payload["hedef_siralama"] = s_val
                     except (TypeError, ValueError):
                         pass
-                if raw_payload.get("hedef_puan") is not None:
+                p_raw = raw_payload.get("puan") if raw_payload.get("puan") is not None else raw_payload.get("hedef_puan")
+                if p_raw is not None:
                     try:
-                        payload["hedef_puan"] = max(10.0, min(600.0, float(raw_payload["hedef_puan"])))
+                        p_val = max(10.0, min(600.0, float(p_raw)))
+                        payload["puan"] = p_val
+                        payload["hedef_puan"] = p_val
+                    except (TypeError, ValueError):
+                        pass
+                if isinstance(raw_payload.get("puan_turu"), str):
+                    pt = raw_payload["puan_turu"].strip().upper()
+                    pt = {"SOZ": "SÖZ", "DIL": "DİL"}.get(pt, pt)
+                    if pt in ("SAY", "EA", "SÖZ", "DİL", "TYT"):
+                        payload["puan_turu"] = pt
+                if isinstance(raw_payload.get("kpss_duzey"), str):
+                    kd = raw_payload["kpss_duzey"].strip().lower()
+                    if kd in ("lisans", "önlisans", "ortaöğretim"):
+                        payload["kpss_duzey"] = kd
+                if raw_payload.get("lgs_yuzdelik") is not None:
+                    try:
+                        payload["lgs_yuzdelik"] = max(0.01, min(100.0, float(raw_payload["lgs_yuzdelik"])))
                     except (TypeError, ValueError):
                         pass
                 if raw_payload.get("obp") is not None:
                     try:
-                        payload["obp"] = max(0.0, min(500.0, float(raw_payload["obp"])))
+                        raw_obp = float(raw_payload["obp"])
+                        payload["obp"] = round(raw_obp * 5.0 if 50.0 <= raw_obp <= 100.0 else max(0.0, min(500.0, raw_obp)), 2)
                     except (TypeError, ValueError):
                         pass
                 if raw_payload.get("daily_question_goal") is not None:
@@ -871,6 +1154,10 @@ def parse_llm_actions_and_strip(raw_text: str, default_sinav: str = "YKS") -> tu
                         payload["daily_question_goal"] = max(5, min(1000, int(raw_payload["daily_question_goal"])))
                     except (TypeError, ValueError):
                         pass
+                if isinstance(raw_payload.get("sehirler"), list):
+                    cities = [str(c).strip().upper()[:50] for c in raw_payload["sehirler"] if str(c).strip()][:10]
+                    if cities:
+                        payload["sehirler"] = cities
                 if len(payload) <= 1:
                     continue
             elif atype == "add_deneme":
@@ -908,8 +1195,36 @@ def parse_llm_actions_and_strip(raw_text: str, default_sinav: str = "YKS") -> tu
                 payload["toplam_net_preview"] = toplam_net
                 payload["puan_preview"] = puan
             elif atype == "add_preference":
-                codes = [str(c).strip() for c in (raw_payload.get("codes") or []) if re.fullmatch(r"\d{9}", str(c).strip())]
-                if not codes:
+                codes = [
+                    str(c).strip()
+                    for c in (raw_payload.get("codes") or [])
+                    if re.fullmatch(r"[A-Za-z0-9._\-]{4,20}", str(c).strip())
+                ]
+                q_str = str(raw_payload.get("query") or "").strip()[:120]
+                if not codes and not q_str:
+                    continue
+                payload = {"sinav": sinav, "codes": list(dict.fromkeys(codes))[:5]}
+                if q_str:
+                    payload["query"] = q_str
+            elif atype == "remove_preference":
+                code = str(raw_payload.get("code") or "").strip()[:20]
+                q_str = str(raw_payload.get("query") or "").strip()[:80]
+                if not code and not q_str:
+                    continue
+                payload = {"sinav": sinav}
+                if code:
+                    payload["code"] = code
+                if q_str:
+                    payload["query"] = q_str
+            elif atype == "reorder_preferences":
+                payload = {"sinav": sinav, "strategy": "optimal"}
+            elif atype == "open_compare":
+                codes = [
+                    str(c).strip()
+                    for c in (raw_payload.get("codes") or [])
+                    if re.fullmatch(r"\d{9}", str(c).strip())
+                ]
+                if len(codes) < 2:
                     continue
                 payload = {"codes": list(dict.fromkeys(codes))[:5]}
 
@@ -932,29 +1247,44 @@ def merge_coach_actions(
 
     merged: list[CoachAction] = []
     seen_types: set[str] = set()
-    pref_codes: list[str] = []
+    pref_groups: dict[str, dict] = {}
     has_deneme = any(a.type == "add_deneme" for a in (*det_actions, *llm_actions))
 
     for a in [*det_actions, *llm_actions]:
         if a.type == "log_questions" and has_deneme:
             continue
         if a.type == "add_preference":
-            pref_codes.extend(str(c) for c in (a.payload or {}).get("codes", []) if c)
+            p = a.payload or {}
+            s_key = str(p.get("sinav") or "YKS").upper()
+            grp = pref_groups.setdefault(s_key, {"codes": [], "query": ""})
+            grp["codes"].extend(str(c) for c in (p.get("codes") or []) if c)
+            if p.get("query") and not grp["query"]:
+                grp["query"] = str(p["query"])
             continue
         if a.type not in seen_types:
             seen_types.add(a.type)
             merged.append(a)
 
-    if pref_codes:
-        uniq_codes = list(dict.fromkeys(pref_codes))[:5]
-        merged.append(
-            CoachAction(
-                type="add_preference",
-                label=f"{len(uniq_codes)} programı tercih listene ekle",
-                auto_apply=True,
-                payload={"codes": uniq_codes},
+    for s_key, grp in pref_groups.items():
+        uniq_codes = list(dict.fromkeys(grp["codes"]))[:5]
+        q_val = grp["query"]
+        if uniq_codes or q_val:
+            payload: dict = {"sinav": s_key, "codes": uniq_codes}
+            if q_val:
+                payload["query"] = q_val
+            lbl = (
+                f"{s_key} · {len(uniq_codes)} program tercih listene eklendi"
+                if uniq_codes
+                else f"{s_key} · '{q_val[:40]}' tercih listene eklendi"
             )
-        )
+            merged.append(
+                CoachAction(
+                    type="add_preference",
+                    label=lbl,
+                    auto_apply=True,
+                    payload=payload,
+                )
+            )
     return merged
 
 

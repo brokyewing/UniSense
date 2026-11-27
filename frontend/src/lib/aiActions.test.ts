@@ -18,6 +18,7 @@ vi.mock('@/services/api', () => ({
       },
     })),
     programsLookup: vi.fn(async () => ({ programs: [] })),
+    preferencesResolve: vi.fn(async () => ({ sinav: 'YKS', items: [] })),
   },
 }))
 
@@ -177,5 +178,115 @@ describe('aiActions (misafir modu)', () => {
     const sure = JSON.parse(localStorage.getItem('unisense_sure') || '{}')
     expect(sure.sureDk).toBe(90)
     expect(sure.dersSure.Matematik).toBe(90)
+  })
+
+  it('update_profile syncs Profile.tsx schema fields and executes all Paket C mutations', async () => {
+    const hafta = isoHafta(new Date())
+    localStorage.setItem('unisense_guest_tercih_yks', JSON.stringify([
+      { department_code: '203910363', department_name: 'Bilgisayar Müh', university_name: 'Boğaziçi', last_year_base_rank: 5000, order: 1 },
+      { department_code: '105510079', department_name: 'Yazılım Müh', university_name: 'İTÜ', last_year_base_rank: 1500, order: 2 },
+    ]))
+
+    const res = await executeCoachActions(
+      [
+        {
+          type: 'update_profile',
+          label: 'Profil güncellendi',
+          auto_apply: true,
+          payload: { sinav: 'YKS', siralama: 25000, puan: 445, puan_turu: 'SAY', obp: 460, sehirler: ['İSTANBUL', 'ANKARA'] },
+        },
+        {
+          type: 'mark_topic_done',
+          label: 'İşaretlendi',
+          auto_apply: true,
+          payload: { sinav: 'YKS', konu: 'Türev' },
+        },
+        {
+          type: 'unmark_topic_done',
+          label: 'İşaret kaldırıldı',
+          auto_apply: true,
+          payload: { sinav: 'YKS', konu: 'Türev' },
+        },
+        {
+          type: 'add_task',
+          label: 'Görev eklendi',
+          auto_apply: true,
+          payload: { sinav: 'YKS', title: 'Optik tekrarı', gun_offset: 0 },
+        },
+        {
+          type: 'reschedule_task',
+          label: 'Taşındı',
+          auto_apply: true,
+          payload: { sinav: 'YKS', title: 'Optik tekrarı', gun_offset: 1 },
+        },
+        {
+          type: 'delete_task',
+          label: 'Silindi',
+          auto_apply: true,
+          payload: { sinav: 'YKS', title: 'Optik tekrarı' },
+        },
+        {
+          type: 'add_note',
+          label: 'Not eklendi',
+          auto_apply: true,
+          payload: { sinav: 'YKS', ders: 'Türkçe', metin: 'Paragraf taktiği' },
+        },
+        {
+          type: 'complete_note',
+          label: 'Not tamamlandı',
+          auto_apply: true,
+          payload: { metin: 'Paragraf taktiği' },
+        },
+        {
+          type: 'delete_note',
+          label: 'Not silindi',
+          auto_apply: true,
+          payload: { metin: 'Paragraf taktiği' },
+        },
+        {
+          type: 'reorder_preferences',
+          label: 'Sıralandı',
+          auto_apply: true,
+          payload: { sinav: 'YKS', strategy: 'optimal' },
+        },
+        {
+          type: 'remove_preference',
+          label: 'Çıkarıldı',
+          auto_apply: true,
+          payload: { sinav: 'YKS', code: '203910363', query: 'Boğaziçi' },
+        },
+        {
+          type: 'open_compare',
+          label: 'Karşılaştır',
+          auto_apply: true,
+          payload: { codes: ['203910363', '105510079'] },
+        },
+      ],
+      { user: null, defaultTrack: 'YKS' }
+    )
+
+    expect(res.every((r) => r.ok)).toBe(true)
+    const gp = JSON.parse(localStorage.getItem('unisense_guest_profile') || '{}')
+    expect(gp.rank).toBe(25000)
+    expect(gp.score).toBe(445)
+    expect(gp.scoreType).toBe('SAY')
+    expect(gp.obp).toBe(460)
+    expect(gp.preferredCities).toEqual(['İSTANBUL', 'ANKARA'])
+
+    const checked = JSON.parse(localStorage.getItem('unisense_konu_v1_YKS') || '{}')
+    expect(Object.keys(checked)).toHaveLength(0)
+
+    const notlar = JSON.parse(localStorage.getItem('unisense_notlar') || '[]')
+    expect(notlar).toHaveLength(0)
+
+    const tasks = JSON.parse(localStorage.getItem(`unisense_plan_${hafta}`) || '[]')
+    expect(tasks.some((t: any) => t.title === 'Optik tekrarı')).toBe(false)
+
+    const tercih = JSON.parse(localStorage.getItem('unisense_guest_tercih_yks') || '[]')
+    expect(tercih).toHaveLength(1)
+    expect(tercih[0].department_code).toBe('105510079')
+
+    const cmp = res.find((r) => r.type === 'open_compare')
+    expect(cmp?.navigateTo).toBe('/karsilastir?d=203910363,105510079')
   })
 })
