@@ -5,6 +5,8 @@ Kullanım:
 """
 from __future__ import annotations
 
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -59,6 +61,16 @@ async def lifespan(app: FastAPI):
     import asyncio
 
     logger = get_logger(__name__)
+    settings = get_settings()
+    if (
+        settings.is_production
+        and not settings.security_require_auth
+        and os.getenv("UNISENSE_ALLOW_INSECURE_PROD") != "1"
+    ):
+        raise RuntimeError(
+            "Production ortamda SECURITY_REQUIRE_AUTH=true zorunludur "
+            "(bilinçli bypass için UNISENSE_ALLOW_INSECURE_PROD=1)"
+        )
     logger.info("lifespan_warmup_start")
     retry_task = None
     try:

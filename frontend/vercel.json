@@ -22,7 +22,8 @@
       "destination": "https://www.unisense.com.tr/:path*",
       "permanent": true
     },
-    { "source": "/home", "destination": "/anasayfa", "permanent": true },
+    { "source": "/anasayfa", "destination": "/", "permanent": true },
+    { "source": "/home", "destination": "/", "permanent": true },
     { "source": "/search", "destination": "/arama", "permanent": true },
     { "source": "/recommend", "destination": "/oneriler", "permanent": true },
     { "source": "/login", "destination": "/giris", "permanent": true },
@@ -48,6 +49,8 @@
       "source": "/(.*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Content-Security-Policy", "value": "frame-ancestors 'self'; base-uri 'self'; object-src 'none'" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
       ]

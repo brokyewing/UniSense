@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react'
-import { kullanimEkle } from '@/services/firestore-study'
 
 // Uygulamada geçirilen AKTİF süreyi dakika olarak biriktirir → XP/seviyeye katkı
 // ("ne kadar kalırsan seviye atlarsın"). Sadece sekme GÖRÜNÜR ve son 2 dk içinde
@@ -27,7 +26,9 @@ export function useAppTime(user: any) {
       const n = pending.current
       if (n <= 0 || !user?.uid) { pending.current = 0; return }
       pending.current = 0
-      kullanimEkle(user.uid, n).catch(() => { pending.current += n }) // başarısızsa geri koy
+      import('@/services/firestore-study')
+        .then(({ kullanimEkle }) => kullanimEkle(user.uid, n))
+        .catch(() => { pending.current += n }) // başarısızsa geri koy
     }
 
     const tick = setInterval(() => {

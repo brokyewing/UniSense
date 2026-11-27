@@ -106,7 +106,9 @@ export default function ChatSidebar({
             Sohbet Geçmişin
           </h3>
           <button
+            type="button"
             onClick={onClose}
+            aria-label="Sohbet menüsünü kapat"
             className="lg:hidden text-slate-500 hover:text-white"
           >
             <X size={16} />
@@ -139,46 +141,48 @@ export default function ChatSidebar({
               sessions.map((s) => {
                 const active = s.id === activeSessionId
                 return (
-                  <motion.div
-                    key={s.id}
-                    role="button"
-                    tabIndex={0}
-                    layout
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    onClick={() => onSelectSession(s.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault()
-                        onSelectSession(s.id)
-                      }
-                    }}
-                    className={`
-                      w-full text-left p-3 rounded-xl transition-all group relative cursor-pointer
-                      ${active
-                        ? 'bg-gradient-to-r from-brand-500/20 to-accent-500/20 border border-accent-500/30'
-                        : 'hover:bg-white/5 border border-transparent'
-                      }
-                    `}
-                  >
-                    <div className="text-sm text-slate-200 line-clamp-2 leading-snug pr-5">
-                      {s.title || 'Yeni Sohbet'}
-                    </div>
-                    <div className="flex items-center gap-2 mt-1 text-[10px] text-slate-500">
-                      <Clock size={9} />
-                      {formatDate(s.updatedAt)}
-                      {s.messageCount > 0 && <span>· {s.messageCount} mesaj</span>}
-                    </div>
+                  <div key={s.id} className="relative group">
+                    <motion.div
+                      role="button"
+                      tabIndex={0}
+                      layout
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      onClick={() => onSelectSession(s.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          onSelectSession(s.id)
+                        }
+                      }}
+                      className={`
+                        w-full text-left p-3 rounded-xl transition-all cursor-pointer
+                        ${active
+                          ? 'bg-gradient-to-r from-brand-500/20 to-accent-500/20 border border-accent-500/30'
+                          : 'hover:bg-white/5 border border-transparent'
+                        }
+                      `}
+                    >
+                      <div className="text-sm text-slate-200 line-clamp-2 leading-snug pr-6">
+                        {s.title || 'Yeni Sohbet'}
+                      </div>
+                      <div className="flex items-center gap-2 mt-1 text-[10px] text-slate-500">
+                        <Clock size={9} />
+                        {formatDate(s.updatedAt)}
+                        {s.messageCount > 0 && <span>· {s.messageCount} mesaj</span>}
+                      </div>
+                    </motion.div>
                     <button
                       type="button"
                       onClick={(e) => handleDelete(e, s.id)}
-                      className="absolute top-2 right-2 p-1 text-slate-500 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition"
+                      aria-label={`Sohbeti sil: ${s.title || 'Yeni Sohbet'}`}
+                      className="absolute top-2 right-2 p-1 text-slate-500 hover:text-rose-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus:opacity-100 transition"
                       title="Sohbeti sil"
                     >
                       <Trash2 size={12} />
                     </button>
-                  </motion.div>
+                  </div>
                 )
               })
             )}

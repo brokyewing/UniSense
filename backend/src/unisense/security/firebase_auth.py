@@ -13,6 +13,7 @@ SECURITY_REQUIRE_AUTH=false iken (local dev) doğrulama atlanır.
 """
 from __future__ import annotations
 
+import threading
 import time
 
 from fastapi import Header, Request
@@ -32,6 +33,7 @@ _CERTS_TTL_S = 3600
 
 _certs_cache: dict | None = None
 _certs_fetched_at: float = 0.0
+_CERTS_LOCK = threading.Lock()
 
 
 def _get_certs() -> dict:
@@ -39,13 +41,16 @@ def _get_certs() -> dict:
     global _certs_cache, _certs_fetched_at
     now = time.time()
     if _certs_cache is None or now - _certs_fetched_at > _CERTS_TTL_S:
-        import requests
+        with _CERTS_LOCK:
+            now = time.time()
+            if _certs_cache is None or now - _certs_fetched_at > _CERTS_TTL_S:
+                import requests
 
-        resp = requests.get(_CERTS_URL, timeout=10)
-        resp.raise_for_status()
-        _certs_cache = resp.json()
-        _certs_fetched_at = now
-        logger.info("firebase_certs_refreshed", keys=len(_certs_cache))
+                resp = requests.get(_CERTS_URL, timeout=10)
+                resp.raise_for_status()
+                _certs_cache = resp.json()
+                _certs_fetched_at = now
+                logger.info("firebase_certs_refreshed", keys=len(_certs_cache))
     return _certs_cache
 
 

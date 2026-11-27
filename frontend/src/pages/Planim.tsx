@@ -263,8 +263,16 @@ export default function Planim({ embedded = false }) {
     if (!yeni.length) { setHedefAI({ loading: false, text: 'Planlanacak konu bulunamadı — önce Konu Takibi\'nden konularını işaretle.' }); return }
     if (user) {
       // Bu haftanın otomatik görevlerini temizle (görünür çift-plan olmasın) + hepsini batch yaz
-      for (const t of tasks.filter((t: any) => t.status !== 'done' && t.source !== 'manual')) import('@/services/firestore-plan').then(m => m.removePlanGorev(user!.uid, t.id)).catch(() => {})
-      import('@/services/firestore-plan').then(m => m.addPlanGorevler(user!.uid, yeni)).catch(() => {}) // her görev zaten hafta alanlı → çok-haftalık
+      const temizlenecek = tasks.filter((t: any) => t.status !== 'done' && t.source !== 'manual')
+      try {
+        const m = await import('@/services/firestore-plan')
+        await Promise.all(temizlenecek.map((t: any) => m.removePlanGorev(user.uid, t.id)))
+        await m.addPlanGorevler(user.uid, yeni) // her görev zaten hafta alanlı → çok-haftalık
+      } catch {
+        flash('Plan buluta kaydedilemedi')
+        setHedefAI({ loading: false, text: 'Bulut kaydı başarısız oldu, tekrar deneyin.' })
+        return
+      }
     } else {
       // Haftaya göre grupla; her haftanın auto'sunu değiştir (manual/done korunur)
       const gruplar: any = {}

@@ -7,7 +7,7 @@ import {
   FileDown, Compass, ChevronUp, ChevronDown, Loader2,
   TrendingUp, Hash, ArrowDownUp, ShieldCheck, Target, Mountain,
   Copy, Check as CheckIcon, Plus, X as XIcon, Search as SearchIcon,
-  BarChart3, StickyNote, Sparkles, GitCompare,
+  BarChart3, StickyNote, Sparkles, GitCompare, Share2,
 } from 'lucide-react'
 import {
   DndContext,
@@ -27,6 +27,9 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useAuth } from '../contexts/AuthContext'
+import {
+  addGuestTercih, getGuestTercih, setGuestTercih, removeGuestTercih, clearGuestTercih,
+} from '../lib/guestTercih'
 import {
   watchTercihList,
   addToTercih,
@@ -384,6 +387,12 @@ function SortableRow({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.id])
 
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+  }, [])
+
   function handleNoteChange(e: ChangeEvent<HTMLTextAreaElement>) {
     const next = e.target.value.slice(0, 500)
     setNoteValue(next)
@@ -416,7 +425,7 @@ function SortableRow({
           type="button"
           onClick={() => onToggleSelect(code)}
           disabled={!isSelected && !canSelectMore}
-          aria-label="Karşılaştırma için seç"
+          aria-label={`Karşılaştırma için seç: ${item.department_name || code}`}
           title={
             isSelected
               ? 'Karşılaştırma seçiminden çıkar'
@@ -1194,12 +1203,27 @@ export default function TercihList() {
   )
 
   useEffect(() => {
-    if (!loading && !isAuthed) nav('/giris')
-  }, [loading, isAuthed, nav])
+    if (user) return
+    if (!loading) setItems(getGuestTercih() as TercihItem[])
+  }, [loading, user])
 
   useEffect(() => {
     if (!user) return
-    return watchTercihList(user.uid, (docs) => setItems(docs as TercihItem[]))
+    let migrated = false
+    return watchTercihList(user.uid, async (docs) => {
+      if (!migrated && docs.length === 0) {
+        const draft = getGuestTercih()
+        if (draft.length > 0) {
+          migrated = true
+          for (let i = 0; i < draft.length; i++) {
+            await addToTercih(user.uid, draft[i], i + 1).catch(() => {})
+          }
+          clearGuestTercih()
+          return
+        }
+      }
+      setItems(docs as TercihItem[])
+    })
   }, [user])
 
   // Silinen öğeleri karşılaştırma seçiminden düşür
@@ -1211,7 +1235,9 @@ export default function TercihList() {
   // İlk açılış sekmesi: profildeki sınav yolu + analiz panelleri için profil
   useEffect(() => {
     if (!user) return
+    let cancelled = false
     getUserProfile(user.uid).then((p) => {
+      if (cancelled) return
       const prof = (p?.profile || null) as UserProfileData | null
       setProfile(prof)
       const t = prof?.examTrack
@@ -1219,6 +1245,7 @@ export default function TercihList() {
         setMode(t as ExamMode)
       }
     }).catch(() => {})
+    return () => { cancelled = true }
   }, [user])
 
   // Eksik bilgileri (rank/score/quota) backend'den çek + Firestore'a backfill et
@@ -1293,7 +1320,10 @@ export default function TercihList() {
   }, [items, userRank])
 
   async function handleRemove(code: string) {
-    if (!user) return
+    if (!user) {
+      setItems(removeGuestTercih(code) as TercihItem[])
+      return
+    }
     try {
       await removeFromTercih(user.uid, code)
     } catch (e: unknown) {
@@ -1302,7 +1332,12 @@ export default function TercihList() {
   }
 
   async function handleSaveNote(code: string, note: string) {
-    if (!user) return
+    if (!user) {
+      const next = items.map((it) => (String(it.department_code || it.id) === code ? { ...it, note } : it))
+      setItems(next)
+      setGuestTercih(next)
+      return
+    }
     try {
       await updateTercihNote(user.uid, code, note)
     } catch (e: unknown) {
@@ -1311,7 +1346,10 @@ export default function TercihList() {
   }
 
   async function persistOrder(newItems: TercihItem[]) {
-    if (!user) return
+    if (!user) {
+      setGuestTercih(newItems.map((it, idx) => ({ ...it, order: idx + 1 })))
+      return
+    }
     setSaving(true)
     setError('')
     try {
@@ -1373,12 +1411,19 @@ export default function TercihList() {
     )
   }
 
+  function shareWhatsapp() {
+    const summary = `Güvenli: ${riskCounts.safe} / Hedef: ${riskCounts.target} / Üst Seviye: ${riskCounts.reach}`
+    const topLines = items.slice(0, 12).map((i, idx) => {
+      const code = i.department_code || i.id
+      return `${idx + 1}. [${code}] ${i.department_name} — ${i.university_name}`
+    }).join('\n')
+    const more = items.length > 12 ? `\n...ve ${items.length - 12} tercih daha` : ''
+    const msg = `UniSense YKS Tercih Listem (${items.length}/24)\n${summary}\n\n${topLines}${more}\n\nÜcretsiz hazırla & incele: https://www.unisense.com.tr/oneriler`
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer')
+  }
+
   // === Kod ile Ekleme ===
   async function addByCodes(rawInput: string): Promise<CodeAdderResult> {
-    if (!user) {
-      setError('Giriş yapman gerek')
-      return { ok: 0, fail: 0 }
-    }
     const codes = rawInput
       .split(/[\s,;\n]+/)
       .map((c) => c.trim().replace(/[^0-9]/g, ''))
@@ -1408,7 +1453,7 @@ export default function TercihList() {
           continue
         }
         try {
-          await addToTercih(user.uid, {
+          const itemPayload = {
             department_code: p.department_code,
             department_name: p.department_name,
             university_code: p.university_code,
@@ -1418,7 +1463,15 @@ export default function TercihList() {
             last_year_base_rank: p.last_year_base_rank ?? null,
             last_year_base_score: p.last_year_base_score ?? null,
             quota: p.quota ?? null,
-          }, nextOrder++)
+          }
+          if (user) {
+            await addToTercih(user.uid, itemPayload, nextOrder++)
+          } else {
+            const added = addGuestTercih(itemPayload)
+            if (!added.ok) throw new Error(added.error || 'Liste dolu')
+            setItems(added.items as TercihItem[])
+            nextOrder++
+          }
           existing.add(String(p.department_code))
           ok++
         } catch {
@@ -1482,8 +1535,6 @@ export default function TercihList() {
     }
   }
 
-  if (!isAuthed) return null
-
   const remaining = 24 - items.length
   const totalRisk = riskCounts.safe + riskCounts.target + riskCounts.reach + riskCounts.bilinmez
 
@@ -1492,6 +1543,16 @@ export default function TercihList() {
       <BackgroundScene />
 
       <div className="space-y-5">
+        {!user && (
+          <div className="card border-accent-500/30 bg-accent-500/10 flex items-center justify-between gap-3 flex-wrap text-sm">
+            <div className="text-slate-200">
+              <strong>Misafir Taslak Modu:</strong> YKS tercih listeni üye olmadan bu tarayıcıda oluşturup paylaşabilirsin.
+            </div>
+            <Link to="/giris" className="btn-primary text-xs px-3 py-1.5 shrink-0">
+              Kaybolmaması için Giriş Yap →
+            </Link>
+          </div>
+        )}
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-3xl font-display font-bold text-white flex items-center gap-2">
@@ -1583,17 +1644,35 @@ export default function TercihList() {
                 <Compass size={14} /> Pusula
               </Link>
               {items.length > 0 && (
-                <button
-                  onClick={exportText}
-                  className="btn-primary inline-flex items-center gap-2 text-sm"
-                >
-                  <FileDown size={14} /> Listeyi İndir
-                </button>
+                <>
+                  <button
+                    onClick={shareWhatsapp}
+                    className="btn-ghost inline-flex items-center gap-2 text-sm text-emerald-300 border-emerald-500/30"
+                  >
+                    <Share2 size={14} /> WhatsApp ile Paylaş
+                  </button>
+                  <button
+                    onClick={exportText}
+                    className="btn-primary inline-flex items-center gap-2 text-sm"
+                  >
+                    <FileDown size={14} /> Listeyi İndir
+                  </button>
+                </>
               )}
             </div>
           )}
         </div>
 
+        {mode !== 'YKS' && !user && (
+          <div className="card text-center py-10 space-y-3">
+            <p className="text-sm text-slate-300">
+              <strong>{mode}</strong> tercih listeni bulutta saklamak için ücretsiz giriş yapabilirsin (YKS taslağı için giriş gerekmez).
+            </p>
+            <Link to="/giris" className="btn-primary inline-flex items-center gap-2 text-sm">
+              Giriş Yap →
+            </Link>
+          </div>
+        )}
         {mode === 'KPSS' && user && <KpssTercihPanel user={user} profile={profile} />}
         {mode === 'DGS' && user && <DgsTercihPanel user={user} profile={profile} />}
         {mode === 'TUS' && user && <UzmanlikTercihPanel user={user} sinav="TUS" />}

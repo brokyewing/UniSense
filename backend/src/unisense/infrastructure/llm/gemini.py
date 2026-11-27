@@ -1,6 +1,8 @@
 """Gemini provider — UniSense için."""
 from __future__ import annotations
 
+import threading
+
 import google.generativeai as genai
 
 from unisense.core.config import get_settings
@@ -8,6 +10,7 @@ from unisense.core.logging import get_logger
 from unisense.domain.exceptions import QuotaExceededError, UpstreamError
 
 logger = get_logger(__name__)
+_GENAI_CONFIGURE_LOCK = threading.Lock()
 
 
 _SYSTEM_RAG = """Sen UniSense — Türkiye üniversite tercih asistanısın.
@@ -58,8 +61,9 @@ class GeminiProvider:
     def _next_key(self) -> str:
         if not self._keys:
             raise UpstreamError("Gemini key tanımlı değil")
-        key = self._keys[self._key_idx % len(self._keys)]
-        self._key_idx += 1
+        with _GENAI_CONFIGURE_LOCK:
+            key = self._keys[self._key_idx % len(self._keys)]
+            self._key_idx += 1
         return key
 
     def generate(
@@ -105,8 +109,9 @@ class GeminiProvider:
             for _attempt in range(len(self._keys)):
                 key = self._next_key()
                 try:
-                    genai.configure(api_key=key)
-                    model = genai.GenerativeModel(model_name=model_name, system_instruction=system)
+                    with _GENAI_CONFIGURE_LOCK:
+                        genai.configure(api_key=key)
+                        model = genai.GenerativeModel(model_name=model_name, system_instruction=system)
                     resp = model.generate_content(contents)
                     text = (resp.text or "").strip()
                     if text:

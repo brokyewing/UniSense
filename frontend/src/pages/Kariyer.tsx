@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import BackgroundScene from '../components/three/LazyBackgroundScene'
 import { apiFetch } from '../lib/api'
+import { safeHref } from '../lib/safeUrl'
 
 const HATLAR = [
   { id: '', label: 'Tümü' },
@@ -78,12 +79,14 @@ function SinyalKart({ ilan, bolumAd }: any) {
             )}
           </div>
         </div>
-        <a
-          href={ilan.url} target="_blank" rel="noreferrer"
-          className="btn-ghost inline-flex items-center gap-1.5 text-xs shrink-0"
-        >
-          <ExternalLink size={13} /> Kaynağa git
-        </a>
+        {safeHref(ilan.url) && (
+          <a
+            href={safeHref(ilan.url)} target="_blank" rel="noreferrer"
+            className="btn-ghost inline-flex items-center gap-1.5 text-xs shrink-0"
+          >
+            <ExternalLink size={13} /> Kaynağa git
+          </a>
+        )}
       </div>
       {eslesme.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mt-2.5">
@@ -109,13 +112,17 @@ function SinyalKart({ ilan, bolumAd }: any) {
             {ilan.detay.pdfler.length} PDF listesi
           </summary>
           <ul className="mt-1.5 space-y-1 max-h-40 overflow-y-auto pr-2">
-            {ilan.detay.pdfler.map((pdf: any) => (
-              <li key={pdf}>
-                <a href={pdf} target="_blank" rel="noreferrer" className="hover:text-accent-300 break-all">
-                  {pdf.split('/').pop()}
-                </a>
-              </li>
-            ))}
+            {ilan.detay.pdfler.map((pdf: any) => {
+              const safePdf = safeHref(pdf)
+              if (!safePdf) return null
+              return (
+                <li key={pdf}>
+                  <a href={safePdf} target="_blank" rel="noreferrer" className="hover:text-accent-300 break-all">
+                    {pdf.split('/').pop()}
+                  </a>
+                </li>
+              )
+            })}
           </ul>
         </details>
       )}
@@ -126,17 +133,16 @@ function SinyalKart({ ilan, bolumAd }: any) {
 function KaynakKart({ kaynak }: any) {
   const s = (TIP_STIL as any)[kaynak.tip] || (TIP_STIL as any).portal
   const Ikon = (HAT_IKON as any)[kaynak.hat] || Globe
-  return (
-    <a
-      href={kaynak.url} target="_blank" rel="noreferrer"
-      className="rounded-xl bg-white/[0.03] border border-white/5 p-4 hover:bg-accent-500/10 hover:border-accent-500/30 transition-all group block"
-    >
+  const safeUrl = safeHref(kaynak.url)
+  const cardCls = "rounded-xl bg-white/[0.03] border border-white/5 p-4 hover:bg-accent-500/10 hover:border-accent-500/30 transition-all group block"
+  const inner = (
+    <>
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
           <Ikon size={16} className="text-accent-300 shrink-0" />
           <span className="font-medium text-sm text-white leading-tight">{kaynak.ad}</span>
         </div>
-        <ExternalLink size={13} className="text-slate-500 group-hover:text-accent-300 shrink-0" />
+        {safeUrl && <ExternalLink size={13} className="text-slate-500 group-hover:text-accent-300 shrink-0" />}
       </div>
       <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">{kaynak.not}</p>
       <div className="flex gap-1.5 mt-2">
@@ -145,7 +151,14 @@ function KaynakKart({ kaynak }: any) {
           {kaynak.hat === 'kamu' ? 'Kamu' : 'Özel'}
         </span>
       </div>
+    </>
+  )
+  return safeUrl ? (
+    <a href={safeUrl} target="_blank" rel="noreferrer" className={cardCls}>
+      {inner}
     </a>
+  ) : (
+    <div className={cardCls}>{inner}</div>
   )
 }
 
@@ -281,13 +294,16 @@ export default function Kariyer() {
         </div>
 
         {/* Sekmeler */}
-        <div className="inline-flex gap-1 p-1 rounded-xl bg-white/5 border border-white/10 max-w-full overflow-x-auto no-scrollbar">
+        <div role="tablist" aria-label="Kariyer bölümleri" className="inline-flex gap-1 p-1 rounded-xl bg-white/5 border border-white/10 max-w-full overflow-x-auto no-scrollbar">
           {[
             { id: 'sinyaller', label: 'İlanlar' },
             { id: 'rehber', label: 'Kaynak Rehberi' },
           ].map((s) => (
             <button
               key={s.id}
+              type="button"
+              role="tab"
+              aria-selected={sekme === s.id}
               onClick={() => setSekme(s.id)}
               className={`px-4 py-1.5 rounded-lg text-sm font-medium transition whitespace-nowrap ${
                 sekme === s.id
@@ -355,6 +371,7 @@ export default function Kariyer() {
                   value={q}
                   onChange={(e) => guncelle({ q: e.target.value })}
                   placeholder="Ara: başlık, kurum…"
+                  aria-label="İlanlarda ara"
                   className="input-glass !py-2 !pl-9 text-sm"
                 />
               </div>

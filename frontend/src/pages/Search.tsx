@@ -19,6 +19,7 @@ import {
 import { getUserProfile } from '@/services/firestore-core'
 import { api } from '@/services/api'
 import { eksikKonular } from '../lib/konu'
+import { safeHref } from '../lib/safeUrl'
 import { TERCIH_LIMITS, MAX_SESSIONS_PER_USER } from '@/services/constants'
 
 // --- UI Components ---
@@ -181,8 +182,8 @@ function DocCard({ doc, isInTercih, onAddToTercih, onAddToPusula, busyCode }: an
         <span className="badge bg-brand-500/15 text-brand-300 border border-brand-500/30">
           {doc.source}
         </span>
-        {doc.source_url && (
-          <a href={doc.source_url} target="_blank" rel="noreferrer">
+        {safeHref(doc.source_url) && (
+          <a href={safeHref(doc.source_url)} target="_blank" rel="noreferrer" aria-label={`${doc.source || 'Kaynak'} sayfasını aç`}>
             <ExternalLink size={12} className="text-slate-500 hover:text-accent-400" />
           </a>
         )}
@@ -296,6 +297,7 @@ export default function Search() {
   const [busyCode, setBusyCode] = useState<any>(null)
   const endRef = useRef<any>(null)
   const lastUrlQueryRef = useRef<string | null>(null)
+  const pendingQueryRef = useRef<string | null>(null)
   const { user, isAuthed } = useAuth()
   const [examCtx, setExamCtx] = useState<any>(null)
 
@@ -313,7 +315,9 @@ export default function Search() {
   // Profildeki sınav puanları — user_context için
   useEffect(() => {
     if (!user) { setExamCtx(null); return }
+    let cancelled = false
     getUserProfile(user.uid).then(async (p) => {
+      if (cancelled) return
       const prof: any = p?.profile || {}
       const ctx: any = {}
       if (prof.examTrack) ctx.exam_track = prof.examTrack
@@ -347,8 +351,9 @@ export default function Search() {
           if (zayif.length) ctx.calisma_zayif = zayif
         } catch { /* noop */ }
       }
-      setExamCtx(Object.keys(ctx).length ? ctx : null)
+      if (!cancelled) setExamCtx(Object.keys(ctx).length ? ctx : null)
     }).catch(() => {})
+    return () => { cancelled = true }
   }, [user])
 
   // Sync session messages to local state
@@ -372,19 +377,27 @@ export default function Search() {
     const q = params.get('q')
     if (!q) {
       lastUrlQueryRef.current = null
+      pendingQueryRef.current = null
       return
     }
     const queryChanged = q !== lastUrlQueryRef.current
-    if (!loading && ((messages.length === 0 && !activeSessionId) || queryChanged)) {
-      lastUrlQueryRef.current = q
-      setInput(q)
-      ask(q)
+    if (loading) {
+      if (queryChanged) pendingQueryRef.current = q
+      return
+    }
+    const toRun = pendingQueryRef.current || (((messages.length === 0 && !activeSessionId) || queryChanged) ? q : null)
+    if (toRun) {
+      pendingQueryRef.current = null
+      lastUrlQueryRef.current = toRun
+      setInput(toRun)
+      ask(toRun)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params])
+  }, [params, loading])
 
   async function newChat() {
     lastUrlQueryRef.current = null
+    pendingQueryRef.current = null
     setActiveSessionId(null)
     setMessages([])
     setInput('')
@@ -625,7 +638,7 @@ export default function Search() {
           )}
 
           {/* Sohbet alanı */}
-          <div className="flex-1 overflow-y-auto pr-2 space-y-4 pb-6">
+          <div aria-live="polite" className="flex-1 overflow-y-auto pr-2 space-y-4 pb-6">
             {messages.length === 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -691,12 +704,16 @@ export default function Search() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Sorunu yaz... (örn: Boğaziçi Bilgisayar taban puanı)"
+                aria-label="Üniversite veya tercih sorusu yaz"
+                data-testid="chat-input"
                 className="input-glass pr-14 text-base w-full"
                 disabled={loading}
               />
               <button
                 type="submit"
                 disabled={loading || !input.trim()}
+                aria-label="Soruyu gönder"
+                data-testid="chat-submit"
                 className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-accent-600 hover:shadow-lg hover:shadow-accent-500/40 transition-all disabled:opacity-40 flex items-center justify-center text-white"
               >
                 {loading ? <Loader2 size={18} className="animate-spin" /> : <Send size={16} />}

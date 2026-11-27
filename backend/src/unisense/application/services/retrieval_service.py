@@ -170,7 +170,8 @@ class RetrievalService:
                         ))
                         if len(chunks) >= limit:
                             break
-                except Exception:
+                except Exception as exc:
+                    logger.debug("keyword_search_variant_failed", variant=variant, error=str(exc)[:120])
                     continue
             return chunks[:limit]
         except Exception as e:
@@ -213,6 +214,11 @@ class RetrievalService:
                 header_bits.append(f"Bölüm: {d.department_code}")
             if d.year:
                 header_bits.append(f"Yıl: {d.year}")
+            if d.source:
+                header_bits.append(f"Kaynak: {d.source}")
+            url = (d.source_url or "").strip()
+            if url.startswith(("http://", "https://")):
+                header_bits.append(f"URL: {url}")
             header = f"[{' | '.join(header_bits) or d.source}]"
             parts.append(f"{header}\n{d.content}")
         return "\n\n---\n\n".join(parts)

@@ -322,7 +322,7 @@ _HATB_CJ_SORGULAR = ["mühendis", "yazılım", "tekniker", "sağlık",
 _HATB_SAYFA_JOOBLE = 5
 _HATB_SAYFA_CJ = 3
 SAKLA_GUN = 30  # kayan pencere: daha eskiler _merge'de budanır
-_CJ_UC = "http://public.api.careerjet.net/search"  # HTTPS yok (sağlayıcı tarafı)
+_CJ_UC = "https://public.api.careerjet.net/search"
 _CJ_REFERER = os.environ.get("CAREERJET_REFERER", "http://localhost/")
 
 
@@ -473,7 +473,7 @@ def _istihdam_turu_metinden(ham: str | None) -> str:
 def _jooble_normalize(job: dict, bugun: str) -> dict | None:
     baslik = (job.get("title") or "").strip()
     link = (job.get("link") or "").strip()
-    if not baslik or not link.startswith("http"):
+    if not baslik or not link.startswith(("http://", "https://")):
         return None
     jid = str(job.get("id") or hashlib.sha1(link.encode()).hexdigest()[:12])
     ozet = _temizle_ham(job.get("snippet") or "")[:500]
@@ -499,7 +499,7 @@ def _jooble_normalize(job: dict, bugun: str) -> dict | None:
 def _careerjet_normalize(job: dict, bugun: str) -> dict | None:
     baslik = (job.get("title") or "").strip()
     link = (job.get("url") or "").strip()
-    if not baslik or not link.startswith("http"):
+    if not baslik or not link.startswith(("http://", "https://")):
         return None
     ozet = _temizle_ham(job.get("description") or "")[:500]
     metin = fold_tr(f"{baslik} {ozet}")
@@ -948,7 +948,7 @@ def _scrape_kariyerkapisi(session: requests.Session) -> list[dict]:
             return (el.text or "").strip() if el is not None else ""
         baslik = metin("title")
         link = metin("link") or metin("guid")
-        if not baslik or not link:
+        if not baslik or not link.startswith(("http://", "https://")):
             continue
         kurum, _, _kisa = baslik.partition(" - ")
         try:

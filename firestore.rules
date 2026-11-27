@@ -52,6 +52,9 @@ service cloud.firestore {
             || request.resource.data.email == request.auth.token.email
             || (resource != null && 'email' in resource.data
                 && request.resource.data.email == resource.data.email))
+        && (!('emailReminders' in request.resource.data)
+            || request.resource.data.emailReminders != true
+            || request.auth.token.email_verified == true)
         && strMax('photoURL', 1000);
 
       // Tercih listesi (max 24 sıra — sayı sınırı client'ta, boyut sınırı burada)
@@ -195,6 +198,8 @@ service cloud.firestore {
         allow read, delete: if isOwner(uid);
         allow create, update: if isOwner(uid)
           && fieldCountMax(14)
+          && 'sinav' in request.resource.data && request.resource.data.sinav is string && request.resource.data.sinav.size() >= 1
+          && 'tarih' in request.resource.data && request.resource.data.tarih is string && request.resource.data.tarih.size() >= 1
           && strMax('sinav', 8)
           && strMax('type', 8)
           && strMax('ad', 120)
@@ -206,6 +211,8 @@ service cloud.firestore {
         allow read, delete: if isOwner(uid);
         allow create, update: if isOwner(uid)
           && fieldCountMax(8)
+          && 'sinav' in request.resource.data && request.resource.data.sinav is string && request.resource.data.sinav.size() >= 1
+          && 'tarih' in request.resource.data && request.resource.data.tarih is string && request.resource.data.tarih.size() >= 1
           && strMax('sinav', 8)
           && strMax('ders', 60)
           && strMax('konu', 120)
@@ -274,8 +281,9 @@ service cloud.firestore {
         && request.resource.data.ad.size() >= 2
         && request.resource.data.ad.size() <= 24
         // Taklit koruması (ASCII; Türkçe katlama + küfür istemci filtresinde) —
-        // yetkili/marka adıyla kayıt engellenir.
-        && !request.resource.data.ad.lower().matches('.*(admin|unisense|moderator|official).*')
+        // yetkili/marka adıyla kayıt engellenir; kontrol karakteri/satır sonu engellenir.
+        && !request.resource.data.ad.matches('(?s).*[\\r\\n].*')
+        && !request.resource.data.ad.lower().matches('(?s).*(admin|unisense|moderator|official).*')
         && request.resource.data.seviye is number
         && request.resource.data.seviye >= 1
         && request.resource.data.seviye <= 500

@@ -45,7 +45,20 @@ export async function apiFetch(path: string, options: { method?: string; body?: 
 
     if (res.status === 401) throw new ApiError('Bu özellik için giriş yapmalısın.', 401)
     if (res.status === 429) throw new ApiError('Çok fazla istek gönderildi — biraz bekleyip tekrar dene.', 429)
-    if (!res.ok) throw new ApiError(`API ${res.status} — backend çalışıyor mu? (${API_BASE || 'localhost:8002'})`, res.status)
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => null)
+      let msg = `API ${res.status} — backend çalışıyor mu? (${API_BASE || 'localhost:8002'})`
+      if (errBody && typeof errBody.detail === 'string' && errBody.detail.trim()) {
+        msg = errBody.detail
+      } else if (errBody && Array.isArray(errBody.detail) && errBody.detail.length > 0) {
+        const joined = errBody.detail
+          .map((d: any) => (d && typeof d.msg === 'string' ? d.msg : ''))
+          .filter(Boolean)
+          .join('; ')
+        if (joined) msg = joined
+      }
+      throw new ApiError(msg, res.status)
+    }
     return res.json()
   } catch (e: any) {
     clearTimeout(id)

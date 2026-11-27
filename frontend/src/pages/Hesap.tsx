@@ -48,13 +48,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Calculator, Save, Loader2, Info, ListChecks, ArrowRight,
   GraduationCap, BookOpen, Sparkles, Building2, MapPin,
-  Hash, TrendingUp, School,
+  Hash, TrendingUp, School, Share2,
 } from 'lucide-react'
 import BackgroundScene from '../components/three/LazyBackgroundScene'
 import { useAuth } from '../contexts/AuthContext'
 import { useUserProfile } from '@/services/hooks'
 import { apiFetch } from '../lib/api'
 import { TERCIH_YILI } from '../lib/donem'
+import { markEngaged } from '../lib/guestTercih'
 
 // === Yaklaşık ÖSYM katsayıları (ders-bazlı)
 const TYT_BIAS = 100
@@ -396,6 +397,7 @@ function NetInput({ field, value, onChange }: any) {
         value={d}
         onChange={(e) => handleD(e.target.value)}
         placeholder="D"
+        aria-label={`${field.label} Doğru`}
         title={`Maksimum ${field.max} soru — ${dMax} doğru girebilirsin`}
         className="w-14 input-glass !py-1 !px-2 text-center text-sm font-mono"
       />
@@ -404,6 +406,7 @@ function NetInput({ field, value, onChange }: any) {
         value={y}
         onChange={(e) => handleY(e.target.value)}
         placeholder="Y"
+        aria-label={`${field.label} Yanlış`}
         title={`Maksimum ${yMax} yanlış girebilirsin`}
         className="w-14 input-glass !py-1 !px-2 text-center text-sm font-mono"
       />
@@ -728,12 +731,16 @@ export default function Hesap() {
 
         {/* Sınav türü tabları */}
         <div className="card !p-2">
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-1">
+          <div role="tablist" aria-label="Sınav türü seçimi" className="grid grid-cols-3 sm:grid-cols-5 gap-1">
             {TABS.map((t) => {
               const active = tab === t.id
               return (
                 <button
                   key={t.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  data-testid={`hesap-tab-${t.id}`}
                   onClick={() => {
                     setTab(t.id)
                     // Eski sekmenin simülasyon sonuçları yeni sekmenin puanıyla
@@ -906,6 +913,11 @@ export default function Hesap() {
                   {hasResult ? result.finalScore.toFixed(2) : '—'}
                 </div>
               )}
+              {tab === 'LGS' && hasResult && (
+                <div className="mt-1.5 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/15 text-amber-200 border border-amber-500/30">
+                  Tahminî Puan (MEB standart sapması sınav sonrası açıklanır)
+                </div>
+              )}
               {/* Tahmini başarı sırası — sadece YKS türlerinde (puan → sıra) */}
               {isYksPlacement && hasResult && siralama && (
                 <div className="mt-2 text-sm text-slate-300">
@@ -934,6 +946,24 @@ export default function Hesap() {
                   <span>OBP: +{(obp * OBP_MULT).toFixed(1)}</span>
                 )}
               </div>
+              {hasResult && (
+                <div className="mt-3 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      markEngaged()
+                      const scoreText = result.dgsScores
+                        ? `SAY ${(result.dgsScores as any).SAY?.toFixed(1)} / EA ${(result.dgsScores as any).EA?.toFixed(1)} / SÖZ ${(result.dgsScores as any).SÖZ?.toFixed(1)}`
+                        : `${result.finalScore.toFixed(2)}${isYksPlacement && siralama ? ` (≈ ${siralama.tahmini_sira.toLocaleString('tr-TR')}. sıra)` : ''}`
+                      const msg = `UniSense ${TERCIH_YILI} ${tab} hesaplamam: ${scoreText}. Sen de ücretsiz hesapla: https://www.unisense.com.tr/hesap`
+                      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer')
+                    }}
+                    className="btn-ghost text-xs px-3 py-1.5 inline-flex items-center gap-1.5 text-emerald-300 border-emerald-500/30"
+                  >
+                    <Share2 size={12} /> Sonucu Paylaş (WhatsApp)
+                  </button>
+                </div>
+              )}
             </motion.div>
 
             {/* KPSS: aktif dönem kadro arama */}
@@ -1094,7 +1124,7 @@ export default function Hesap() {
               </div>
 
               {[
-                { key: 'safe', label: 'Güvenli', color: 'from-emerald-500 to-emerald-700', desc: 'Garanti yerleşeceğin' },
+                { key: 'safe', label: 'Güvenli', color: 'from-emerald-500 to-emerald-700', desc: 'Geçmiş yıla göre yüksek olasılıklı' },
                 { key: 'target', label: 'Hedef', color: 'from-amber-500 to-orange-600', desc: 'Sana en uygun' },
                 { key: 'reach', label: 'Üst Seviye', color: 'from-rose-500 to-fuchsia-600', desc: 'Denemeye değer' },
               ].map((cat) => {

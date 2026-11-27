@@ -14,11 +14,16 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [track, setTrack] = useState('YKS') // YKS | DGS | KPSS — kayıtta seçilir
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   async function onEmail(e: any) {
     e.preventDefault()
+    if (mode === 'register' && !termsAccepted) {
+      setError('Devam etmek için Kullanım Koşulları ve KVKK Aydınlatma Metni onay kutusunu işaretlemelisin.')
+      return
+    }
     setLoading(true)
     setError('')
     try {
@@ -27,7 +32,7 @@ export default function Login() {
       } else {
         await register(email, password, name, track)
       }
-      nav('/anasayfa')
+      nav('/')
     } catch (e) {
       setError(parseError(e))
     } finally {
@@ -36,12 +41,16 @@ export default function Login() {
   }
 
   async function onGoogle() {
+    if (mode === 'register' && !termsAccepted) {
+      setError('Kayıt için Kullanım Koşulları ve KVKK Aydınlatma Metni onay kutusunu işaretlemelisin.')
+      return
+    }
     setLoading(true)
     setError('')
     try {
       // Kayıt modundayken seçilen sınav yolu Google ile ilk girişte de uygulanır
       await loginWithGoogle(mode === 'register' ? track : undefined)
-      nav('/anasayfa')
+      nav('/')
     } catch (e) {
       setError(parseError(e))
     } finally {
@@ -164,6 +173,23 @@ export default function Login() {
               />
             </div>
 
+            {mode === 'register' && (
+              <label className="flex items-start gap-2 text-xs text-slate-300 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={(e) => setTermsAccepted(e.target.checked)}
+                  className="mt-0.5 accent-accent-500"
+                />
+                <span>
+                  18 yaşından büyüğüm (veya veli/yasal temsilci onayım vardır) ve{' '}
+                  <Link to="/kullanim-kosullari" className="text-accent-300 hover:underline">Kullanım Koşulları</Link>
+                  {' '}ile{' '}
+                  <Link to="/gizlilik" className="text-accent-300 hover:underline">KVKK Aydınlatma Metni</Link>&apos;ni okudum, kabul ediyorum.
+                </span>
+              </label>
+            )}
+
             {error && (
               <div className="text-sm text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-2">
                 ⚠️ {error}
@@ -185,6 +211,14 @@ export default function Login() {
               )}
             </button>
           </form>
+
+          <p className="text-[11px] text-slate-500 text-center leading-relaxed">
+            Devam ederek{' '}
+            <Link to="/kullanim-kosullari" className="text-slate-400 hover:text-accent-300 underline">Kullanım Koşulları</Link>
+            {' '}ve{' '}
+            <Link to="/gizlilik" className="text-slate-400 hover:text-accent-300 underline">KVKK / Gizlilik Politikası</Link>
+            &apos;nı incelemiş sayılırsın.
+          </p>
 
           <div className="text-center text-sm text-slate-400">
             {mode === 'login' ? (
@@ -209,7 +243,7 @@ export default function Login() {
           </div>
 
           <Link
-            to="/anasayfa"
+            to="/"
             className="block text-center text-xs text-slate-500 hover:text-slate-300 transition"
           >
             Üye olmadan keşfet →

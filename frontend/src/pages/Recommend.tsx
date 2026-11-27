@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Loader2, ListChecks, Target, ShieldCheck, Mountain,
@@ -15,6 +15,7 @@ import {
 import { api } from '@/services/api'
 import { dgsLevel, kpssLevel } from '../lib/riskLevels'
 import { TR_ILLER } from '../lib/iller'
+import { getGuestTercih, addGuestTercih, removeGuestTercih, markEngaged } from '../lib/guestTercih'
 import MiniTrend from '../components/MiniTrend'
 import { LgsRobot } from './LGS'
 import { TusRobot } from './TusDus'
@@ -31,7 +32,7 @@ const SCORE_TYPES = [
 ]
 
 const CATEGORIES = [
-  { key: 'safe', label: 'Güvenli', icon: ShieldCheck, color: 'from-emerald-500 to-emerald-700', desc: 'Garanti yerleşeceğin tercihler' },
+  { key: 'safe', label: 'Güvenli', icon: ShieldCheck, color: 'from-emerald-500 to-emerald-700', desc: 'Geçmiş yıl verilerine göre yüksek olasılıklı tercihler' },
   { key: 'target', label: 'Hedef', icon: Target, color: 'from-amber-500 to-orange-600', desc: 'Puanına en uygun tercihler' },
   { key: 'reach', label: 'Üst Seviye', icon: Mountain, color: 'from-rose-500 to-fuchsia-600', desc: 'Hedef üstü, denemeye değer' },
 ]
@@ -371,6 +372,7 @@ const KpssOneriPanel = ({ user, profile }: any) => {
 // ===== Main Recommend Component =====
 export default function Recommend() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { user } = useAuth()
 
   const [scoreType, setScoreType] = useState('SAY')
@@ -383,6 +385,7 @@ export default function Recommend() {
   const [autofilled, setAutofilled] = useState(false)
   const [pusulaState, setPusulaState] = useState<any>(null)
   const [tercihIds, setTercihIds] = useState(new Set())
+  const [guestIds, setGuestIds] = useState<Set<string>>(() => new Set(getGuestTercih().map((i: any) => String(i.department_code || i.id))))
   const [busyCode, setBusyCode] = useState<any>(null)
   const [tercihError, setTercihError] = useState('')
   const [uniType, setUniType] = useState('all')
@@ -390,26 +393,47 @@ export default function Recommend() {
   const [profile, setProfile] = useState<any>(null)
   const [bolumInput, setBolumInput] = useState('')
   const userPickedMode = useRef(false)
+  const yksReqIdRef = useRef(0)
+  const urlInitDone = useRef(false)
   const { show: showToast } = useToast()
 
   const { tercihIds: yksTercihIds, busyCode: yksBusyCode, setBusyCode: setYksBusyCode } = useTercihList()
+  const effectiveTercihIds = user ? yksTercihIds : guestIds
+
+  useEffect(() => {
+    const syncGuest = () => setGuestIds(new Set(getGuestTercih().map((i: any) => String(i.department_code || i.id))))
+    window.addEventListener('unisense:guest-tercih', syncGuest)
+    return () => window.removeEventListener('unisense:guest-tercih', syncGuest)
+  }, [])
 
   useEffect(() => { try { const raw = sessionStorage.getItem('pusula_depts'); if (raw) { const parsed = JSON.parse(raw); if (parsed?.names?.length) setPusulaState(parsed) } } catch (e: any) { console.warn('Pusula state okunamadı:', e) } }, [])
 
   useEffect(() => { if (!user) { setTercihIds(new Set()); return } const unsub = import('@/services/firestore-prefs').then(m => m.watchTercihList(user.uid, items => setTercihIds(new Set(items.map(i => String(i.department_code || i.id)))))); return () => { unsub.then((u: any) => u?.()) } }, [user])
 
   async function handleAddToTercih(item: any) {
-    if (!user) { setTercihError('Giriş yapman gerek'); return }
-    if (yksTercihIds.size >= TERCIH_LIMITS.YKS) { setTercihError('Tercih listesi 24 dolu'); return }
     const code = String(item.department_code)
-    setYksBusyCode(code); setTercihError('')
+    setTercihError('')
+    if (!user) {
+      const r = addGuestTercih(item)
+      if (!r.ok) { setTercihError(r.error || 'Tercih listesi 24 dolu'); return }
+      setGuestIds(new Set(r.items.map((i: any) => String(i.department_code || i.id))))
+      showToast('Taslak listene eklendi (kaybolmaması için giriş yapabilirsin)', { type: 'success' })
+      return
+    }
+    if (yksTercihIds.size >= TERCIH_LIMITS.YKS) { setTercihError('Tercih listesi 24 dolu'); return }
+    setYksBusyCode(code)
     try { await import('@/services/firestore-prefs').then(m => m.addToTercih(user.uid, item, yksTercihIds.size + 1)) } catch (e: any) { setTercihError(e.message || 'Eklenemedi') } finally { setYksBusyCode(null) }
   }
 
   async function handleRemoveFromTercih(item: any) {
-    if (!user) return
     const code = String(item.department_code)
-    setYksBusyCode(code); setTercihError('')
+    setTercihError('')
+    if (!user) {
+      const next = removeGuestTercih(code)
+      setGuestIds(new Set(next.map((i: any) => String(i.department_code || i.id))))
+      return
+    }
+    setYksBusyCode(code)
     try { await import('@/services/firestore-prefs').then(m => m.removeFromTercih(user.uid, code)) } catch (e: any) { setTercihError(e.message || 'Çıkarılamadı') } finally { setYksBusyCode(null) }
   }
 
@@ -440,15 +464,40 @@ export default function Recommend() {
 
   function removeDept(name: any) { if (!pusulaState) return; const next = { ...pusulaState, names: pusulaState.names.filter((n: any) => n !== name) }; if (next.names.length === 0) { clearPusula(); return } setPusulaState(next); sessionStorage.setItem('pusula_depts', JSON.stringify(next)) }
 
-  async function runRecommend() {
-    if (!score && !rank) { setError('Lütfen puan veya sıralama gir'); return }
+  async function runRecommend(override?: { st?: string; sc?: string; rk?: string }) {
+    const useType = override?.st ?? scoreType
+    const useScore = override?.sc ?? score
+    const useRank = override?.rk ?? rank
+    if (!useScore && !useRank) { setError('Lütfen puan veya sıralama gir'); return }
+    const reqId = ++yksReqIdRef.current
     setLoading(true); setError('')
     try {
       const manuel = bolumInput.split(',').map(s => s.trim()).filter(Boolean)
-      const data = await api.recommend({ score_type: scoreType, score: score ? parseFloat(score) : null, rank: rank ? parseInt(rank, 10) : null, preferred_departments: [...(pusulaState?.names || []), ...manuel], preferred_uni_types: uniType === 'all' ? [] : [uniType] })
+      const data = await api.recommend({ score_type: useType, score: useScore ? parseFloat(useScore) : null, rank: useRank ? parseInt(useRank, 10) : null, preferred_departments: [...(pusulaState?.names || []), ...manuel], preferred_uni_types: uniType === 'all' ? [] : [uniType] })
+      if (reqId !== yksReqIdRef.current) return
       setResult(data)
-    } catch (e: any) { setError(e.message) } finally { setLoading(false) }
+      markEngaged()
+    } catch (e: any) {
+      if (reqId === yksReqIdRef.current) setError(e.message)
+    } finally {
+      if (reqId === yksReqIdRef.current) setLoading(false)
+    }
   }
+
+  useEffect(() => {
+    if (urlInitDone.current) return
+    const qTur = searchParams.get('tur')
+    const qSira = searchParams.get('sira')
+    const qPuan = searchParams.get('puan')
+    if (qSira || qPuan) {
+      urlInitDone.current = true
+      const validTur = qTur && ['SAY', 'EA', 'SÖZ', 'DİL', 'TYT'].includes(qTur.toUpperCase()) ? qTur.toUpperCase() : 'SAY'
+      setScoreType(validTur)
+      if (qSira) setRank(qSira)
+      if (qPuan) setScore(qPuan)
+      runRecommend({ st: validTur, sc: qPuan || '', rk: qSira || '' })
+    }
+  }, [searchParams])
 
   function onSubmit(e: any) { e.preventDefault(); runRecommend() }
 
@@ -494,7 +543,20 @@ export default function Recommend() {
             </form>
             {result && (
               <div className="space-y-4">
-                {user && <div className="flex items-center justify-between gap-3 px-1 text-xs"><span className="text-slate-400">YKS Tercih Listende:{' '}<strong className={yksTercihIds.size >= TERCIH_LIMITS.YKS ? 'text-rose-400' : 'text-emerald-400'}>{yksTercihIds.size}/{TERCIH_LIMITS.YKS}</strong></span><Link to="/tercih" className="text-accent-300 hover:text-accent-200 transition flex items-center gap-1">Tercih Listemi Gör <ArrowRight size={11} /></Link></div>}
+                <div className="flex items-center justify-between gap-3 px-1 text-xs flex-wrap">
+                  <span className="text-slate-400">
+                    {user ? 'YKS Tercih Listende:' : 'Taslak Tercih Listende (üye olmadan):'}{' '}
+                    <strong className={effectiveTercihIds.size >= TERCIH_LIMITS.YKS ? 'text-rose-400' : 'text-emerald-400'}>
+                      {effectiveTercihIds.size}/{TERCIH_LIMITS.YKS}
+                    </strong>
+                    {!user && effectiveTercihIds.size > 0 && (
+                      <span className="text-slate-500"> · <Link to="/giris" className="text-accent-300 hover:underline">kaybolmaması için giriş yap</Link></span>
+                    )}
+                  </span>
+                  <Link to="/tercih" className="text-accent-300 hover:text-accent-200 transition flex items-center gap-1">
+                    Tercih Listemi Gör <ArrowRight size={11} />
+                  </Link>
+                </div>
                 {tercihError && <div className="text-sm text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-3">⚠️ {tercihError}</div>}
                 {result.safe.length === 0 && result.target.length === 0 && result.reach.length === 0 && <div className="card border-rose-500/30 bg-rose-500/10 text-center py-8"><div className="text-rose-200 font-medium mb-2">Bu puan ve filtrelerle uygun bölüm bulunamadı</div><div className="text-sm text-rose-200/70">Puan türünü, üniversite tipini veya bölüm filtresini değiştirmeyi dene.</div></div>}
                 {CATEGORIES.map(cat => {
@@ -506,7 +568,7 @@ export default function Recommend() {
                       {(item.last_year_base_rank || item.last_year_base_score || item.placement_probability != null) && <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-4 text-xs flex-wrap">{item.last_year_base_rank && <div><div className="text-slate-500">Sıra</div><div className="font-mono text-cyber-cyan">{item.last_year_base_rank.toLocaleString('tr')}</div></div>}{item.last_year_base_score && <div><div className="text-slate-500">Taban</div><div className="font-mono text-accent-300">{item.last_year_base_score.toFixed(2)}</div></div>}{item.trend?.filter((t: any) => t.base_rank != null).length >= 2 && <div><div className="text-slate-500">Trend</div><MiniTrend trend={item.trend} compact /></div>}{item.placement_probability != null && (() => { const pct = Math.round(item.placement_probability * 100); const color = pct >= 75 ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/30' : pct >= 40 ? 'text-amber-300 bg-amber-500/10 border-amber-500/30' : 'text-rose-300 bg-rose-500/10 border-rose-500/30'; return <div className="ml-auto"><div className="text-slate-500 text-[10px] text-right">Yerleşme olasılığı</div><div className={`inline-flex items-center px-2 py-0.5 rounded-lg border font-mono font-semibold ${color}`} title="Geçen yılki sıraya göre tahmini sigmoid olasılık">%{pct}</div></div> })()}</div>}
                       {item.reason && <p className="mt-2 text-xs text-slate-400 italic">{item.reason}</p>}
                       <div className="mt-3 pt-3 border-t border-white/5">
-                        <TercihToggleButton inList={yksTercihIds.has(String(item.department_code))} busy={yksBusyCode === String(item.department_code)} onToggle={() => yksTercihIds.has(String(item.department_code)) ? handleRemoveFromTercih(item) : handleAddToTercih(item)} />
+                        <TercihToggleButton inList={effectiveTercihIds.has(String(item.department_code))} busy={yksBusyCode === String(item.department_code)} onToggle={() => effectiveTercihIds.has(String(item.department_code)) ? handleRemoveFromTercih(item) : handleAddToTercih(item)} />
                       </div>
                     </div>
                   )} />

@@ -1,7 +1,9 @@
 """API v1 — request/response DTOs."""
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from typing import Literal
+
+from pydantic import BaseModel, Field, field_validator
 
 from unisense.domain.enums import ScoreType
 
@@ -33,6 +35,23 @@ class UserExamContext(BaseModel):
     calisma_kalan_konu: int | None = Field(None, ge=0, le=5000)
     calisma_toplam_konu: int | None = Field(None, ge=0, le=5000)
     calisma_zayif: list[str] | None = Field(None, max_length=6)
+
+    @field_validator("tercih_sehirler", mode="before")
+    @classmethod
+    def _validate_sehirler(cls, v):
+        if v is None:
+            return None
+        if not isinstance(v, list):
+            raise TypeError("tercih_sehirler liste olmalıdır")
+        out = []
+        for item in v:
+            s = str(item or "").strip()
+            if not s:
+                raise ValueError("Şehir adı boş olamaz")
+            if len(s) > 50:
+                raise ValueError("Şehir adı 50 karakteri aşamaz")
+            out.append(s)
+        return out
 
 
 class AskRequest(BaseModel):
@@ -536,10 +555,21 @@ class LgsIlcelerResponse(BaseModel):
 
 class TusOneriRequest(BaseModel):
     puan: float = Field(..., ge=0, le=100)      # K veya T puanı
-    sinav: str = Field("TUS", max_length=10)    # TUS | DUS
+    sinav: Literal["TUS", "DUS"] = "TUS"
     dal: str | None = Field(None, max_length=120)          # uzmanlık dalı (tam eşleşme)
     kontenjan_turu: str | None = Field(None, max_length=40)  # Genel | Yabancı Uyruklu
     kurum: str | None = Field(None, max_length=120)        # kurum adı içinde arama
+
+    @field_validator("sinav", mode="before")
+    @classmethod
+    def _validate_sinav(cls, v):
+        val = (v if v is not None else "TUS")
+        norm = str(val).strip().upper()
+        if not norm:
+            return "TUS"
+        if norm not in ("TUS", "DUS"):
+            raise ValueError("sinav 'TUS' veya 'DUS' olmalıdır")
+        return norm
 
 
 class TusProgram(BaseModel):

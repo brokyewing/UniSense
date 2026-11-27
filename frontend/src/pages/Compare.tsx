@@ -9,6 +9,7 @@ import {
 import BackgroundScene from '../components/three/LazyBackgroundScene'
 import MiniTrend from '../components/MiniTrend'
 import { apiFetch } from '../lib/api'
+import { safeHref } from '../lib/safeUrl'
 import { api } from '@/services/api'
 
 
@@ -236,23 +237,25 @@ export default function Compare() {
       return
     }
     let cancelled = false
-    const codes = found.map((it: any) => it.code)
-    // Burs bilgisi
-    Promise.all(codes.map((code: any) =>
-      api.scholarshipByProgram(code).catch(() => null)
-    )).then((results) => {
+    const codeSet = new Set(found.map((it: any) => String(it.code)))
+    // Burs bilgisi (kod başına 404 üreten çağrılar yerine tek liste isteği)
+    api.scholarshipList().catch(() => null).then((res) => {
       if (cancelled) return
       const map: any = {}
-      results.forEach((r: any, i: number) => { if (r) map[codes[i]] = r })
+      for (const item of (res?.items || [])) {
+        const pc = String(item?.program_code || '')
+        if (pc && codeSet.has(pc)) map[pc] = item
+      }
       setScholarshipData(map)
     })
     // İstihdam bilgisi
-    Promise.all(codes.map((code: any) =>
-      api.employmentByProgram(code).catch(() => null)
-    )).then((results) => {
+    api.employmentList().catch(() => null).then((res) => {
       if (cancelled) return
       const map: any = {}
-      results.forEach((r: any, i: number) => { if (r) map[codes[i]] = r })
+      for (const item of (res?.items || [])) {
+        const pc = String(item?.program_code || '')
+        if (pc && codeSet.has(pc)) map[pc] = item
+      }
       setEmploymentData(map)
     })
     return () => { cancelled = true }
@@ -407,8 +410,8 @@ export default function Compare() {
                 <Row
                   label="Web sitesi"
                   items={items}
-                  fmt={(it) => it.website ? (
-                    <a href={it.website} target="_blank" rel="noopener noreferrer" className="text-accent-300 hover:text-accent-200 inline-flex items-center gap-1">
+                  fmt={(it) => safeHref(it.website) ? (
+                    <a href={safeHref(it.website)} target="_blank" rel="noopener noreferrer" className="text-accent-300 hover:text-accent-200 inline-flex items-center gap-1">
                       Aç <ExternalLink size={10} />
                     </a>
                   ) : '—'}

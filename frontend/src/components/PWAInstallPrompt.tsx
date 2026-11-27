@@ -11,14 +11,40 @@ export default function PWAInstallPrompt() {
   const [showPrompt, setShowPrompt] = useState(false)
 
   useEffect(() => {
+    const isDismissed = () => {
+      try {
+        const raw = localStorage.getItem('pwa-install-dismissed')
+        if (!raw) return false
+        const ts = Number(raw)
+        if (!Number.isFinite(ts) || ts === 1) return true
+        return Date.now() - ts < 14 * 86400_000
+      } catch {
+        return false
+      }
+    }
+    const maybeOpen = () => {
+      if (isDismissed()) return
+      try {
+        if (localStorage.getItem('unisense_engaged') === '1') setShowPrompt(true)
+      } catch { /* noop */ }
+    }
+    let timer: ReturnType<typeof setTimeout> | null = null
     const handler = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
-      const dismissed = localStorage.getItem('pwa-install-dismissed')
-      if (!dismissed) setShowPrompt(true)
+      maybeOpen()
+      if (!isDismissed()) {
+        timer = setTimeout(() => setShowPrompt(true), 45_000)
+      }
     }
+    const onEngaged = () => setShowPrompt((prev) => prev || (!isDismissed()))
     window.addEventListener('beforeinstallprompt', handler)
-    return () => window.removeEventListener('beforeinstallprompt', handler)
+    window.addEventListener('unisense:engaged', onEngaged)
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler)
+      window.removeEventListener('unisense:engaged', onEngaged)
+      if (timer) clearTimeout(timer)
+    }
   }, [])
 
   const handleInstall = useCallback(async () => {
@@ -33,10 +59,10 @@ export default function PWAInstallPrompt() {
 
   const handleDismiss = useCallback(() => {
     setShowPrompt(false)
-    localStorage.setItem('pwa-install-dismissed', '1')
+    localStorage.setItem('pwa-install-dismissed', String(Date.now()))
   }, [])
 
-  if (!showPrompt) return null
+  if (!showPrompt || !deferredPrompt) return null
 
   return (
     <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-80 z-50 card border-accent-500/30 bg-accent-500/10 backdrop-blur-xl animate-slide-up">

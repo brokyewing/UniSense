@@ -20,16 +20,21 @@ def _load_data() -> dict:
     return json.load(open(p, encoding="utf-8"))
 
 
+def _tr_lower(text: str) -> str:
+    return text.replace("İ", "i").replace("I", "ı").lower()
+
+
 class EmploymentService:
     def list(self, year: int | None = None, department: str | None = None) -> dict:
         """İstihdam bilgisi listesini filtrele ve döndür."""
         data = _load_data()
-        items = data.get("items", [])
+        items = list(data.get("items", []))
 
         if year:
             items = [i for i in items if i.get("year") == year]
         if department:
-            items = [i for i in items if department.lower() in (i.get("department_name") or "").lower()]
+            dept_q = _tr_lower(department.strip())
+            items = [i for i in items if dept_q in _tr_lower(i.get("department_name") or "")]
 
         return {
             "year": data.get("year", 2026),

@@ -341,6 +341,11 @@ class RecommendationService:
                 profile=profile,
                 notes="Sıralama hesaplanamadı.",
             )
+        if user_rank <= 0:
+            return RecommendationList(
+                profile=profile,
+                notes="Geçerli bir sıralama değeri girin (≥ 1).",
+            )
 
         # 3 kategori
         # safe:   user_rank * 1.5 < program_rank (rahat yerleşir)

@@ -10,6 +10,7 @@
  */
 import { readFileSync } from 'node:fs'
 import { initializeApp, cert } from 'firebase-admin/app'
+import { getAuth } from 'firebase-admin/auth'
 import { getFirestore } from 'firebase-admin/firestore'
 
 const RESEND = process.env.RESEND_API_KEY
@@ -20,6 +21,7 @@ const saPath = process.env.GOOGLE_APPLICATION_CREDENTIALS
 if (!saPath) { console.error('GOOGLE_APPLICATION_CREDENTIALS yok'); process.exit(1) }
 initializeApp({ credential: cert(JSON.parse(readFileSync(saPath, 'utf-8'))) })
 const db = getFirestore()
+const auth = getAuth()
 
 const today = new Date().toISOString().slice(0, 10)
 const esc = (s = '') => String(s).replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]))
@@ -30,6 +32,12 @@ let gonderilen = 0
 for (const d of snap.docs) {
   const u = d.data()
   if (!u.email) continue
+  try {
+    const authUser = await auth.getUser(d.id)
+    if (!authUser.emailVerified) continue
+  } catch {
+    continue
+  }
   const akt = await db.collection('users').doc(d.id).collection('aktivite').doc('gunluk').get()
   // Admin SDK'da .exists PROPERTY'dir (client SDK'daki gibi fonksiyon DEĞİL)
   if (!akt.exists) continue
@@ -50,7 +58,15 @@ for (const d of snap.docs) {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${RESEND}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: FROM, to: u.email, subject: `${ad}, çalışmaya dönme vakti 📚`, html }),
+    body: JSON.stringify({
+      from: FROM,
+      to: u.email,
+      subject: `${ad}, çalışmaya dönme vakti 📚`,
+      headers: {
+        'List-Unsubscribe': '<mailto:iletisim@unisense.com.tr?subject=unsubscribe>, <https://www.unisense.com.tr/pano>',
+      },
+      html,
+    }),
   })
   if (res.ok) gonderilen++
   else console.log(`[email-digest] gönderilemedi (${u.email}): ${res.status}`)

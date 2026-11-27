@@ -712,7 +712,12 @@ def lgs_oneri(
 
 
 def _norm_sinav(s: str | None) -> str:
-    return "DUS" if (s or "").strip().upper() == "DUS" else "TUS"
+    val = (s if s is not None else "TUS").strip().upper()
+    if not val:
+        return "TUS"
+    if val not in ("TUS", "DUS"):
+        raise HTTPException(status_code=400, detail="sinav 'TUS' veya 'DUS' olmalıdır")
+    return val
 
 
 @router.get("/tus/meta", response_model=TusMetaResponse)

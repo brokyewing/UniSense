@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   Search, ListChecks, Database, Sparkles,
-  BookOpen, Compass, Calculator, CalendarDays, ArrowRight,
+  BookOpen, Compass, Calculator, CalendarDays, ArrowRight, ShieldCheck,
 } from 'lucide-react'
 import BackgroundScene from '../components/three/LazyBackgroundScene'
 import StreakBadge from '../components/StreakBadge'
+import { useAuth } from '../contexts/AuthContext'
 import { apiFetch } from '../lib/api'
 import { TERCIH_YILI } from '../lib/donem'
 
@@ -14,7 +15,11 @@ import { TERCIH_YILI } from '../lib/donem'
 function UpcomingExams() {
   const [items, setItems] = useState<any[] | null>(null)
   useEffect(() => {
-    apiFetch('/api/v1/takvim').then((d) => setItems(d.yaklasan?.slice(0, 3) || [])).catch(() => setItems([]))
+    let cancelled = false
+    apiFetch('/api/v1/takvim')
+      .then((d) => { if (!cancelled) setItems(d.yaklasan?.slice(0, 3) || []) })
+      .catch(() => { if (!cancelled) setItems([]) })
+    return () => { cancelled = true }
   }, [])
   if (!items || items.length === 0) return null
   const TUR = { sinav: 'Sınav', sonuc: 'Sonuç', tercih: 'Tercih', yerlestirme: 'Yerleştirme' }
@@ -150,17 +155,35 @@ function FeatureCard({ feat, index }: { feat: any; index: number }) {
 }
 
 export default function Home() {
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const [quickType, setQuickType] = useState('SAY')
+  const [quickRank, setQuickRank] = useState('')
+  const hasLocalStreak = (() => {
+    try { return Boolean(localStorage.getItem('unisense_streak')) } catch { return false }
+  })()
+
+  function onQuickSearch(e: React.FormEvent) {
+    e.preventDefault()
+    const cleanRank = quickRank.replace(/[^0-9]/g, '')
+    if (!cleanRank) {
+      navigate('/oneriler')
+      return
+    }
+    navigate(`/oneriler?tur=${encodeURIComponent(quickType)}&sira=${encodeURIComponent(cleanRank)}`)
+  }
+
   return (
     <>
       <BackgroundScene />
 
       <div className="space-y-12">
         {/* Hero */}
-        <section className="text-center pt-8">
+        <section className="text-center pt-6">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-500/10 border border-accent-500/30 text-accent-300 text-xs font-medium mb-6 backdrop-blur-xl"
           >
             <span className="w-2 h-2 rounded-full bg-accent-500 animate-pulse" />
@@ -170,7 +193,7 @@ export default function Home() {
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
+            transition={{ duration: 0.6, delay: 0.05 }}
             className="text-5xl md:text-7xl font-display font-bold mb-4 tracking-tight text-white text-balance"
           >
             Doğru tercihi{' '}
@@ -181,18 +204,50 @@ export default function Home() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-8 leading-relaxed pretty"
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-6 leading-relaxed pretty"
           >
-            Puanını gir, yerleşebileceğin yerleri gör. Lise, üniversite, memurluk ve
+            Puanını veya sıralamanı gir, yerleşebileceğin yerleri gör. Lise, üniversite, memurluk ve
             uzmanlık tercihlerinin tamamı — <strong className="text-accent-300">tamamen ücretsiz</strong>.
           </motion.p>
+
+          {/* Hero hızlı sıralama aracı — 10 sn içinde değer */}
+          <motion.form
+            onSubmit={onQuickSearch}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+            className="max-w-xl mx-auto mb-5 p-2 rounded-2xl card border-accent-500/25 flex flex-col sm:flex-row gap-2"
+          >
+            <select
+              aria-label="YKS puan türü"
+              value={quickType}
+              onChange={(e) => setQuickType(e.target.value)}
+              className="input-glass sm:w-28 text-sm font-semibold"
+            >
+              {['SAY', 'EA', 'SÖZ', 'DİL', 'TYT'].map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+            <input
+              type="number"
+              min={1}
+              aria-label="Başarı sıralaman"
+              value={quickRank}
+              onChange={(e) => setQuickRank(e.target.value)}
+              placeholder="Başarı sıralaman (ör: 50000)"
+              className="input-glass flex-1 text-sm"
+            />
+            <button type="submit" className="btn-primary text-sm px-5 py-2.5 shrink-0 inline-flex items-center justify-center gap-1.5">
+              Bölümleri Gör <ArrowRight size={15} />
+            </button>
+          </motion.form>
 
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="flex justify-center gap-3 flex-wrap"
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex justify-center gap-3 flex-wrap mb-4"
           >
             <Link to="/oneriler" className="btn-primary inline-flex items-center gap-2">
               <ListChecks size={18} />
@@ -203,12 +258,22 @@ export default function Home() {
               Puan Hesapla
             </Link>
           </motion.div>
+
+          {/* Above-the-fold güven şeridi */}
+          <div className="inline-flex items-center justify-center gap-2 flex-wrap text-xs text-slate-400">
+            <ShieldCheck size={14} className="text-emerald-400 shrink-0" />
+            <span className="text-emerald-300 font-medium">%100 Ücretsiz · Üyelik Zorunlu Değil</span>
+            <span className="text-slate-700">·</span>
+            <span>600+ Bölüm · Resmi YÖK Atlas, ÖSYM &amp; MEB Verisi ({TERCIH_YILI})</span>
+          </div>
         </section>
 
-        {/* Günlük çalışma serisi */}
-        <section>
-          <StreakBadge />
-        </section>
+        {/* Günlük çalışma serisi — yalnızca girişli veya geçmişi olan kullanıcıda göster */}
+        {(user || hasLocalStreak) && (
+          <section>
+            <StreakBadge />
+          </section>
+        )}
 
         {/* Yaklaşan sınavlar */}
         <section>
@@ -272,15 +337,21 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Güven şeridi — kaynaklar tek satır */}
+        {/* Güven şeridi — doğrulanabilir resmî kaynak bağlantıları */}
         <section className="text-center text-xs text-slate-500 flex items-center justify-center gap-2 flex-wrap">
           <Database size={12} className="text-cyber-cyan" />
-          <span>Veriler resmî kaynaklardan:</span>
-          <strong className="text-slate-300">YÖK Atlas</strong>
+          <span>Resmî kaynaklar ({TERCIH_YILI} dönemi):</span>
+          <a href="https://yokatlas.yok.gov.tr" target="_blank" rel="noopener noreferrer" className="text-slate-300 font-semibold hover:text-accent-300 hover:underline">
+            YÖK Atlas
+          </a>
           <span className="text-slate-700">·</span>
-          <strong className="text-slate-300">ÖSYM</strong>
+          <a href="https://www.osym.gov.tr" target="_blank" rel="noopener noreferrer" className="text-slate-300 font-semibold hover:text-accent-300 hover:underline">
+            ÖSYM
+          </a>
           <span className="text-slate-700">·</span>
-          <strong className="text-slate-300">MEB</strong>
+          <a href="https://www.meb.gov.tr" target="_blank" rel="noopener noreferrer" className="text-slate-300 font-semibold hover:text-accent-300 hover:underline">
+            MEB
+          </a>
           <span className="text-slate-700">·</span>
           <span className="text-emerald-400 font-medium">%100 ücretsiz — üyelik zorunlu değil</span>
         </section>

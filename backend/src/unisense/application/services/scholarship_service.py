@@ -20,21 +20,28 @@ def _load_data() -> dict:
     return json.load(open(p, encoding="utf-8"))
 
 
+def _tr_lower(text: str) -> str:
+    return text.replace("İ", "i").replace("I", "ı").lower()
+
+
 class ScholarshipService:
     def list(self, year: int | None = None, university: str | None = None,
              department: str | None = None, type_filter: str | None = None) -> dict:
         """Burs/ücret listesini filtrele ve döndür."""
         data = _load_data()
-        items = data.get("items", [])
+        items = list(data.get("items", []))
 
         if year:
             items = [i for i in items if i.get("year") == year]
         if university:
-            items = [i for i in items if university.lower() in (i.get("university_name") or "").lower()]
+            uni_q = _tr_lower(university.strip())
+            items = [i for i in items if uni_q in _tr_lower(i.get("university_name") or "")]
         if department:
-            items = [i for i in items if department.lower() in (i.get("department_name") or "").lower()]
+            dept_q = _tr_lower(department.strip())
+            items = [i for i in items if dept_q in _tr_lower(i.get("department_name") or "")]
         if type_filter:
-            items = [i for i in items if (i.get("university_type") or "").lower() == type_filter.lower()]
+            type_q = _tr_lower(type_filter.strip())
+            items = [i for i in items if _tr_lower(i.get("university_type") or "") == type_q]
 
         return {
             "year": data.get("year", 2026),

@@ -124,10 +124,15 @@ export async function deleteSession(uid: string, sessionId: string): Promise<voi
   if (!db || !sessionId) return
   const messagesRef = collection(db, 'users', uid, FIRESTORE_COLLECTIONS.SESSIONS, sessionId, 'messages')
   const messagesSnap = await getDocs(messagesRef)
-  const batch = writeBatch(db)
-  messagesSnap.docs.forEach((m: any) => batch.delete(m.ref))
-  batch.delete(doc(db, 'users', uid, FIRESTORE_COLLECTIONS.SESSIONS, sessionId))
-  await batch.commit()
+  const CHUNK_SIZE = 450
+  for (let i = 0; i < messagesSnap.docs.length; i += CHUNK_SIZE) {
+    const batch = writeBatch(db)
+    messagesSnap.docs.slice(i, i + CHUNK_SIZE).forEach((m: any) => batch.delete(m.ref))
+    await batch.commit()
+  }
+  const finalBatch = writeBatch(db)
+  finalBatch.delete(doc(db, 'users', uid, FIRESTORE_COLLECTIONS.SESSIONS, sessionId))
+  await finalBatch.commit()
 }
 
 export async function getSessionCount(uid: string): Promise<number> {

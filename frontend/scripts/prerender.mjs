@@ -240,17 +240,6 @@ const STATIC_ROUTES = {
     ],
     isHome: true,
   },
-  '/anasayfa': {
-    title: `Üniversite Taban Puanları ${TERCIH_YILI} & Tercih Robotu | UniSense`,
-    description: `${TERCIH_YILI} YKS, LGS, DGS, KPSS ve TUS tercih robotu: 4 ve 2 yıllık üniversite taban puanları, başarı sıralamaları, net hesaplama ve AI tercih önerileri.`,
-    h1: `Doğru Tercihi Resmi YÖK Atlas ve ÖSYM Verisiyle Yap`,
-    bullets: [
-      'Sıralamana göre güvenli, hedef ve riskli üniversite bölümleri',
-      'Ücretsiz TYT-AYT net, OBP, DGS, KPSS ve LGS puan hesaplama araçları',
-      '600+ üniversite bölümü rehberi, konu takip çizelgesi ve günlük kamu iş ilanları',
-    ],
-    isHome: true,
-  },
   '/arama': {
     title: 'YÖK Atlas Taban Puan & Sıralama Sorgula (AI) | UniSense',
     description: 'Üniversite taban puanları, başarı sıralamaları, kontenjanlar ve KPSS nitelik kodlarını doğal dilde sor; ÖSYM kodlu ve kaynaklı yanıtı anında al.',
@@ -335,6 +324,12 @@ const STATIC_ROUTES = {
     h1: 'Gizlilik Politikası ve KVKK Aydınlatma Metni',
     bullets: [],
   },
+  '/kullanim-kosullari': {
+    title: 'Kullanım Koşulları ve Yasal Uyarı | UniSense',
+    description: 'UniSense kullanım koşulları, ÖSYM, YÖK Atlas ve MEB resmi veri uyarısı, yapay zekâ ve puan hesaplama sorumluluk sınırı.',
+    h1: 'Kullanım Koşulları ve Yasal Uyarı',
+    bullets: [],
+  },
 }
 
 const sitemapUrls = []
@@ -343,7 +338,7 @@ const now = new Date().toISOString().slice(0, 10)
 for (const [path, meta] of Object.entries(STATIC_ROUTES)) {
   const jsonLd = meta.isHome
     ? homepageJsonLd()
-    : path === '/gizlilik'
+    : (path === '/gizlilik' || path === '/kullanim-kosullari')
       ? null
       : toolJsonLd({ name: meta.h1, description: meta.description, path })
   writePage(path, pageHtml({
@@ -353,7 +348,11 @@ for (const [path, meta] of Object.entries(STATIC_ROUTES)) {
     contentHtml: staticContentHtml(meta),
     jsonLd,
   }))
-  sitemapUrls.push({ loc: SITE + path, priority: path === '/' ? '1.0' : '0.8', changefreq: 'weekly' })
+  sitemapUrls.push({
+    loc: SITE + path,
+    priority: path === '/' ? '1.0' : (path === '/gizlilik' || path === '/kullanim-kosullari') ? '0.4' : '0.8',
+    changefreq: 'weekly',
+  })
 }
 
 // --- Kişisel noindex rotaları (sitemap'e eklenmez; doğrudan HTML'de noindex döner) ---

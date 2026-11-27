@@ -167,10 +167,14 @@ def parse_infobox(html: str) -> dict[str, Any]:
         # Değer
         if key == "website":
             link = td.find("a", href=True)
-            if link:
-                out["website"] = link["href"].strip()
-            else:
-                out["website"] = _clean(td.get_text(" ", strip=True))
+            raw_url = link["href"].strip() if link else _clean(td.get_text(" ", strip=True))
+            if raw_url and not raw_url.startswith(("http://", "https://")):
+                if "://" in raw_url or raw_url.lower().startswith(("javascript:", "data:", "vbscript:")):
+                    raw_url = ""
+                else:
+                    raw_url = "https://" + raw_url.lstrip("/")
+            if raw_url:
+                out["website"] = raw_url
         elif key == "email":
             email_text = _clean(td.get_text(" ", strip=True))
             email_match = re.search(r"[\w.+-]+@[\w-]+\.[\w.-]+", email_text)

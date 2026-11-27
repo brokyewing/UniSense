@@ -4,7 +4,6 @@ import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react
 import { inject } from '@vercel/analytics'
 import Seo from './components/Seo.tsx'
 import App from './App.jsx'
-import Splash from './pages/Splash.jsx'
 import Home from './pages/Home.jsx'
 import Search from './pages/Search.jsx'
 import Recommend from './pages/Recommend.jsx'
@@ -14,6 +13,7 @@ import Profile from './pages/Profile.jsx'
 import Pusula from './pages/Pusula.jsx'
 import Hesap from './pages/Hesap.jsx'
 import Privacy from './pages/Privacy.jsx'
+import Terms from './pages/Terms.jsx'
 import Compare from './pages/Compare.jsx'
 import BolumKatalog from './pages/BolumKatalog.jsx'
 import BolumDetay from './pages/BolumDetay.jsx'
@@ -31,9 +31,10 @@ import ErrorBoundary from './components/ErrorBoundary.jsx'
 import './index.css'
 
 inject()
-// Eski (İngilizce) adresler → yeni Türkçe adresler; query/hash korunur
+// Eski adresler → kanonik Türkçe adresler; query/hash korunur
 const LEGACY_ROUTES = [
-  ['/home', '/anasayfa'],
+  ['/anasayfa', '/'],
+  ['/home', '/'],
   ['/search', '/arama'],
   ['/recommend', '/oneriler'],
   ['/login', '/giris'],
@@ -60,7 +61,7 @@ function NotFound() {
         <p className="text-sm text-slate-400">
           Aradığın adres taşınmış veya mevcut değil.
         </p>
-        <Link to="/anasayfa" className="btn-primary inline-flex items-center justify-center text-sm">
+        <Link to="/" className="btn-primary inline-flex items-center justify-center text-sm">
           Ana sayfaya dön
         </Link>
       </div>
@@ -76,8 +77,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <BrowserRouter>
             <Routes>
             <Route element={<App />}>
-              <Route index element={<Splash />} />
-              <Route path="/anasayfa" element={<Home />} />
+              <Route index element={<Home />} />
               <Route path="/arama" element={<Search />} />
               <Route path="/oneriler" element={<Recommend />} />
               <Route path="/giris" element={<Login />} />
@@ -87,6 +87,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               <Route path="/pusula" element={<Pusula />} />
               <Route path="/hesap" element={<Hesap />} />
               <Route path="/gizlilik" element={<Privacy />} />
+              <Route path="/kullanim-kosullari" element={<Terms />} />
               <Route path="/karsilastir" element={<Compare />} />
               <Route path="/bolum" element={<BolumKatalog />} />
               <Route path="/bolum/:slug" element={<BolumDetay />} />

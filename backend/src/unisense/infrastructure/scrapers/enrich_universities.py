@@ -75,6 +75,14 @@ def main() -> None:
             value = ib.get(ib_key)
             if value is None or value == "":
                 continue
+            if field == "website" and isinstance(value, str):
+                v = value.strip()
+                if not v.startswith(("http://", "https://")):
+                    if "://" in v or v.lower().startswith(("javascript:", "data:", "vbscript:")):
+                        continue
+                    value = "https://" + v.lstrip("/")
+                else:
+                    value = v
             # Sadece boş/eksikse yaz (mevcut veriyi ezme)
             if u.get(field) in (None, "", 0):
                 u[field] = value

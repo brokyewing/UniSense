@@ -62,6 +62,28 @@ def _tr_lower(s: str) -> str:
     return s.replace("İ", "i").replace("I", "ı").lower()
 
 
+# === Gemini öncesi PII maskeleme (TCKN / e-posta / TR telefon) ===
+_EMAIL_RE = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
+_TCKN_RE = re.compile(r"\b[1-9]\d{10}\b")
+_TR_PHONE_RE = re.compile(r"(?:\+?90\s*|0)?5\d{2}[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}\b")
+
+
+def _scrub_pii(text: str) -> str:
+    if not text:
+        return text
+    cleaned = _EMAIL_RE.sub("[E-POSTA MASKELENDİ]", text)
+    cleaned = _TCKN_RE.sub("[TCKN MASKELENDİ]", cleaned)
+    cleaned = _TR_PHONE_RE.sub("[TELEFON MASKELENDİ]", cleaned)
+    return cleaned
+
+
+_EMPTY_CONTEXT_ANSWER = (
+    "• UniSense YÖK Atlas ve ÖSYM indeksinde bu soruyla doğrudan eşleşen doğrulanmış kayıt bulunamadı.\n"
+    "• Lütfen soruyu üniversite adı, bölüm adı, sınav türü (YKS/DGS/KPSS) veya puan türüyle biraz daha netleştir.\n"
+    "• Resmî teyit için: https://yokatlas.yok.gov.tr ve https://www.osym.gov.tr"
+)
+
+
 # Trend / yıllar arası sorgu pattern'i (ask_service'e özgü)
 _TREND_PATTERNS = [
     re.compile(r"\btrend"),
@@ -216,17 +238,28 @@ class AskService:
             parts.append("=== EK RAG KAYNAKLARI ===\n" + rag_context)
         context = "\n\n".join(parts) if parts else rag_context
 
-        # 4. LLM cevabı (multi-turn destekli — history varsa)
+        # 4. Boş retrieval koruması + PII maskelemesi sonrası LLM cevabı
+        if not sinav_context and not rec_context and not rag_context:
+            total_ms = int((time.perf_counter() - start) * 1000)
+            logger.info("ask_empty_context", query_len=len(query.text), total_ms=total_ms)
+            return Answer(
+                query=query.text,
+                text=_EMPTY_CONTEXT_ANSWER,
+                docs=[],
+                total_latency_ms=total_ms,
+            )
+
         history_dicts = []
         if query.history:
             for t in query.history:
-                history_dicts.append({"role": t.role, "text": t.text})
+                history_dicts.append({"role": t.role, "text": _scrub_pii(t.text)})
 
+        scrubbed_query = _scrub_pii(query.text)
         text = ""
         llm_ok = False
         try:
             text = self._llm.generate(
-                query.text,
+                scrubbed_query,
                 context=context,
                 history=history_dicts if history_dicts else None,
             )

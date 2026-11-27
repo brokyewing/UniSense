@@ -19,7 +19,6 @@ import { TERCIH_YILI } from './lib/donem'
 // Kişisel sayfalar noindex (prerender.mjs ile birebir eşleşir).
 const ROUTE_SEO = {
   '/': { title: `YKS, LGS, DGS, KPSS Tercih Robotu ${TERCIH_YILI} & Puanlar | UniSense`, description: 'Üniversite ve lise taban puanları, başarı sıralamaları, TYT-AYT net ve OBP hesaplama, KPSS, DGS, TUS tercih robotu — YÖK Atlas/ÖSYM verisiyle ücretsiz.' },
-  '/anasayfa': { title: `Üniversite Taban Puanları ${TERCIH_YILI} & Tercih Robotu | UniSense`, description: `${TERCIH_YILI} YKS, LGS, DGS, KPSS ve TUS tercih robotu: 4 ve 2 yıllık üniversite taban puanları, başarı sıralamaları, net hesaplama ve AI tercih önerileri.` },
   '/arama': { title: 'YÖK Atlas Taban Puan & Sıralama Sorgula (AI) | UniSense', description: 'Üniversite taban puanları, başarı sıralamaları, kontenjanlar ve KPSS nitelik kodlarını doğal dilde sor; ÖSYM kodlu ve kaynaklı yanıtı anında al.' },
   '/oneriler': { title: `YKS, DGS ve KPSS Tercih Robotu ${TERCIH_YILI} — Sıralama | UniSense`, description: 'Sıralamana ve puanına göre güvenli, hedef ve riskli üniversite bölümlerini, DGS geçiş programlarını ve KPSS atama kadrolarını ücretsiz listele.' },
   '/hesap': { title: 'TYT AYT Puan, Net, OBP ve Sıralama Hesaplama | UniSense', description: 'TYT, AYT, YDT net ve OBP (diploma notu) hesaplama ile YKS başarı sıralamanı gör; DGS, KPSS, LGS, ALES ve AGS puanlarını tek ekranda ücretsiz hesapla.' },
@@ -37,6 +36,7 @@ const ROUTE_SEO = {
   '/tus': { title: `TUS ve DUS Tercih Robotu ${TERCIH_YILI} — Uzmanlık Taban Puanları`, description: 'TUS ve DUS puanına göre tıp ve diş hekimliği uzmanlık dallarının ÖSYM en küçük taban puanlarını, kontenjanlarını ve kurumlarını güvenli/hedef olarak gör.' },
   '/kariyer': { title: 'Kamu Personel Alımı, Kariyer Kapısı & İş İlanları | UniSense', description: 'Günlük güncellenen Resmî Gazete kamu personel alımı, Kariyer Kapısı, BİK, savunma sanayii, KPSS şartlı/şartsız memur ve özel sektör iş/staj ilanları.' },
   '/gizlilik': { title: 'Gizlilik Politikası ve KVKK Aydınlatma Metni | UniSense', description: 'UniSense kullanıcı verilerinin korunması, çerez/yerel depolama kullanımı, hesap silme hakları ve 6698 sayılı KVKK kapsamındaki aydınlatma metni.' },
+  '/kullanim-kosullari': { title: 'Kullanım Koşulları ve Yasal Uyarı | UniSense', description: 'UniSense kullanım koşulları, ÖSYM, YÖK Atlas ve MEB resmi veri uyarısı, yapay zekâ ve puan hesaplama sorumluluk sınırı.' },
   '/tercih': { title: 'Tercih Listem | UniSense', description: 'Kişisel tercih listen.', noindex: true },
   '/profil': { title: 'Sınav Profilim | UniSense', description: 'Kişisel sınav profili ve hedeflerin.', noindex: true },
   '/siralama': { title: 'Sıralama | UniSense', description: 'Çalışma sıralaması.', noindex: true },
@@ -68,11 +68,11 @@ export default function App() {
   // /bolum* sayfaları kendi <Seo>'sunu basar (dinamik başlık) — App burada basmaz,
   // yoksa parent effect child'ı ezip yanlış başlık kalır.
   const ownsSeo = loc.pathname.startsWith('/bolum') || loc.pathname.startsWith('/ozet/')
-  const seo = (ROUTE_SEO as any)[loc.pathname] || ROUTE_SEO['/anasayfa']
+  const seo = (ROUTE_SEO as any)[loc.pathname] || ROUTE_SEO['/']
   const routePath = loc.pathname === '/' ? '/' : loc.pathname
-  const routeJsonLd = seo.noindex || routePath === '/gizlilik'
+  const routeJsonLd = seo.noindex || routePath === '/gizlilik' || routePath === '/kullanim-kosullari'
     ? null
-    : (routePath === '/' || routePath === '/anasayfa')
+    : routePath === '/'
       ? {
           '@context': 'https://schema.org',
           '@graph': [
@@ -134,11 +134,6 @@ export default function App() {
     />
   )
 
-  // Splash sayfası kendi tam ekran layout'u (SEO head yine de basılır)
-  if (loc.pathname === '/') {
-    return <>{seoEl}<Outlet /></>
-  }
-
   const navItem = (to: string, label: string, Icon: any, activePaths?: string[]) => {
     const active = activePaths
       ? activePaths.some((p) => loc.pathname === p)
@@ -171,7 +166,7 @@ export default function App() {
   async function handleLogout() {
     await logout()
     setMenuOpen(false)
-    nav('/anasayfa')
+    nav('/')
   }
 
   return (
@@ -180,7 +175,7 @@ export default function App() {
       <header className="sticky top-0 z-30 backdrop-blur-2xl bg-slate-950/40 border-b border-white/5">
         <div className="w-full px-4 md:px-6 xl:px-8 3xl:px-12 py-3 flex items-center justify-between gap-4">
           {/* Logo = Ana Sayfa (nav'da ayrı öğe yok) */}
-          <Link to="/anasayfa" className="flex items-center gap-3 group shrink-0">
+          <Link to="/" className="flex items-center gap-3 group shrink-0">
             <Logo size={40} rounded="rounded-none" />
             <div className="hidden sm:block">
               <span className="block font-display font-bold text-lg text-white leading-none">UniSense</span>
@@ -194,6 +189,7 @@ export default function App() {
             {navItem('/konular', 'Çalışma', GraduationCap, ['/konular', '/deneme', '/planim', '/ozetler', '/notlar', '/pano'])}
             {navItem('/arama', 'Sorgu', Search)}
             {navItem('/oneriler', 'Tercih', ListChecks)}
+            {navItem('/tercih', 'Listem', ListChecks)}
             {navItem('/hesap', 'Hesap', Calculator)}
             {navItem('/takvim', 'Takvim', CalendarDays)}
             {navItem('/bolum', 'Bölümler', BookOpen)}
@@ -318,6 +314,10 @@ export default function App() {
           <span className="text-slate-700">•</span>
           <Link to="/gizlilik" className="text-slate-400 hover:text-accent-300 transition">
             KVKK / Gizlilik
+          </Link>
+          <span className="text-slate-700">•</span>
+          <Link to="/kullanim-kosullari" className="text-slate-400 hover:text-accent-300 transition">
+            Kullanım Koşulları
           </Link>
         </div>
       </footer>
